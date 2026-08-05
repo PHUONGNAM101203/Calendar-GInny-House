@@ -32,6 +32,7 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import { CALENDAR_MAX_HOUR, CALENDAR_MIN_HOUR } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import CalendarToolbar from "@/components/calendar/CalendarToolbar";
+import MobileDayStrip from "@/components/calendar/MobileDayStrip";
 import { CalendarSidebar, CalendarMobileMenu } from "@/components/calendar/CalendarSidebar";
 import ShiftEventCell from "@/components/calendar/ShiftEventCell";
 import CalendarDayHeader from "@/components/calendar/CalendarDayHeader";
@@ -71,6 +72,7 @@ export default function ShiftCalendar({
   canFollowAll,
   followedIds,
   followColors,
+  branchColors,
 }: {
   shifts: ShiftWithAssignee[];
   pendingSwaps: SwapRequest[];
@@ -86,6 +88,7 @@ export default function ShiftCalendar({
   canFollowAll: boolean;
   followedIds: string[];
   followColors: Record<string, string>;
+  branchColors: Record<string, string>;
 }) {
   const { date, view, navigate, isPending } = useCalendarNav();
   const searchParams = useSearchParams();
@@ -310,6 +313,7 @@ export default function ShiftCalendar({
         else next.add(key);
         return next;
       }),
+    branchColors,
   };
 
   return (
@@ -381,7 +385,7 @@ export default function ShiftCalendar({
           }}
           components={{
             event: ShiftEventCell,
-            toolbar: CalendarToolbar,
+            toolbar: isMobile ? MobileDayStrip : CalendarToolbar,
             week: { header: CalendarDayHeader },
             day: { header: CalendarDayHeader },
           }}

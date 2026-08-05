@@ -45,6 +45,7 @@ export default async function CalendarPage({
     branches,
     { data: customCalendars },
     { data: customEvents },
+    { data: branchColorRows },
   ] = await Promise.all([
     supabase
       .from("shifts")
@@ -79,6 +80,7 @@ export default async function CalendarPage({
       .select("*")
       .lte("start_at", end.toISOString())
       .gte("end_at", start.toISOString()),
+    supabase.from("branch_color_overrides").select("branch_key, color").eq("profile_id", profile.id),
   ]);
 
   const followRows =
@@ -87,6 +89,12 @@ export default async function CalendarPage({
   // "followed" rows count toward what's actually shown/ticked.
   const followColors = Object.fromEntries(
     followRows.filter((f) => f.color).map((f) => [f.followee_id, f.color as string])
+  );
+  const branchColors = Object.fromEntries(
+    ((branchColorRows as { branch_key: string; color: string }[] | null) ?? []).map((r) => [
+      r.branch_key,
+      r.color,
+    ])
   );
 
   return (
@@ -105,6 +113,7 @@ export default async function CalendarPage({
       canFollowAll={canFollowAll}
       followedIds={followRows.filter((f) => f.followed).map((f) => f.followee_id)}
       followColors={followColors}
+      branchColors={branchColors}
     />
   );
 }

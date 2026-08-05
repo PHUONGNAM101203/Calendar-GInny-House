@@ -50,6 +50,7 @@ export default function ShiftCalendarLoader(props: {
   canFollowAll: boolean;
   followedIds: string[];
   followColors: Record<string, string>;
+  branchColors: Record<string, string>;
 }) {
   return <ShiftCalendar {...props} />;
 }

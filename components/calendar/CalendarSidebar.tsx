@@ -12,12 +12,13 @@ import {
   unfollowPersonAction,
   updateFollowColorAction,
 } from "@/actions/calendar-follows";
+import { updateBranchColorAction } from "@/actions/branch-colors";
 import { createCustomCalendarAction, deleteCustomCalendarAction } from "@/actions/custom-calendars";
 import ShiftRequestDialog from "@/components/shifts/ShiftRequestDialog";
 import MiniMonth from "@/components/calendar/MiniMonth";
 import CustomEventFormDialog from "@/components/calendar/CustomEventFormDialog";
 import ColorPickerDialog from "@/components/calendar/ColorPickerDialog";
-import type { Branch, CustomCalendar } from "@/types";
+import type { ActionResult, Branch, CustomCalendar } from "@/types";
 
 type Person = { id: string; name: string; followed: boolean; color: string | null };
 
@@ -47,6 +48,7 @@ type SidebarProps = {
   branches: Branch[];
   hiddenBranchKeys: Set<string>;
   onToggleBranch: (key: string, visible: boolean) => void;
+  branchColors: Record<string, string>;
 };
 
 // The Google Calendar move this whole sidebar is styled after: a small
@@ -86,6 +88,46 @@ function CalendarCheckItem({
         </span>
         <span className="truncate">{label}</span>
       </button>
+    </li>
+  );
+}
+
+// Same checkbox-square shape as CalendarCheckItem, but with a hover-reveal
+// color picker attached (branches support a personal color override, a
+// plain CalendarCheckItem doesn't need one).
+function BranchRow({
+  label,
+  checked,
+  onChange,
+  colorVar,
+  onPickColor,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  colorVar: string;
+  onPickColor: (color: string) => Promise<ActionResult>;
+}) {
+  return (
+    <li className="group/color-row flex items-center gap-2 truncate">
+      <button
+        type="button"
+        onClick={() => onChange(!checked)}
+        aria-pressed={checked}
+        className="flex min-w-0 flex-1 items-center gap-2 truncate text-left"
+      >
+        <span
+          className="flex size-3.5 shrink-0 items-center justify-center rounded-[4px]"
+          style={{
+            backgroundColor: checked ? resolveColor(colorVar) : "transparent",
+            boxShadow: `inset 0 0 0 1.5px ${resolveColor(colorVar)}`,
+          }}
+        >
+          {checked && <CheckIcon className="size-2.5 text-white" strokeWidth={3} />}
+        </span>
+        <span className="truncate">{label}</span>
+      </button>
+      <ColorMenu onPick={onPickColor} previewLabel={label.trim().charAt(0).toUpperCase()} currentColorVar={colorVar} />
     </li>
   );
 }
@@ -153,20 +195,24 @@ function SwatchGrid({
   );
 }
 
+// Generic "pick a display color" popover trigger — shared by any row that
+// needs a personal color override (people you follow, and now branches in
+// the "Cơ sở" filter). The reveal-on-hover chevron relies on its ancestor
+// row carrying the `group/color-row` class (see PersonRow, BranchRow).
 function ColorMenu({
-  personId,
-  personName,
+  onPick,
+  previewLabel,
   currentColorVar,
 }: {
-  personId: string;
-  personName: string;
+  onPick: (color: string) => Promise<ActionResult>;
+  previewLabel: string;
   currentColorVar: string;
 }) {
   const [isPending, startTransition] = useTransition();
 
   function pick(color: string) {
     startTransition(async () => {
-      const result = await updateFollowColorAction(personId, color);
+      const result = await onPick(color);
       if (!result.ok) toast.error(result.error);
     });
   }
@@ -178,17 +224,13 @@ function ColorMenu({
           type="button"
           disabled={isPending}
           aria-label="Đổi màu hiển thị"
-          className="ml-auto shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover/person:opacity-100 disabled:opacity-50"
+          className="ml-auto shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover/color-row:opacity-100 disabled:opacity-50"
         >
           <ChevronDownIcon className="size-3.5" />
         </button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-auto p-3">
-        <SwatchGrid
-          value={currentColorVar}
-          onChange={pick}
-          previewLabel={personName.trim().charAt(0).toUpperCase()}
-        />
+        <SwatchGrid value={currentColorVar} onChange={pick} previewLabel={previewLabel} />
       </PopoverContent>
     </Popover>
   );
@@ -217,7 +259,7 @@ function PersonRow({ person, canFollowAll }: { person: Person; canFollowAll: boo
   }
 
   return (
-    <li className="group/person flex items-center gap-2 truncate">
+    <li className="group/color-row flex items-center gap-2 truncate">
       <button
         type="button"
         onClick={toggleFollow}
@@ -237,7 +279,11 @@ function PersonRow({ person, canFollowAll }: { person: Person; canFollowAll: boo
         </span>
         <span className="truncate">{person.name}</span>
       </button>
-      <ColorMenu personId={person.id} personName={person.name} currentColorVar={colorVar} />
+      <ColorMenu
+        onPick={(color) => updateFollowColorAction(person.id, color)}
+        previewLabel={person.name.trim().charAt(0).toUpperCase()}
+        currentColorVar={colorVar}
+      />
     </li>
   );
 }
@@ -400,6 +446,7 @@ function SidebarContent({
   branches,
   hiddenBranchKeys,
   onToggleBranch,
+  branchColors,
 }: SidebarProps) {
   return (
     <div className="flex flex-col gap-6">
@@ -469,19 +516,21 @@ function SidebarContent({
         </p>
         <ul className="space-y-1.5 text-sm">
           {branches.map((branch) => (
-            <CalendarCheckItem
+            <BranchRow
               key={branch.id}
               label={branch.name}
               checked={!hiddenBranchKeys.has(branch.id)}
               onChange={(v) => onToggleBranch(branch.id, v)}
-              colorVar={`--${branch.color_token}`}
+              colorVar={branchColors[branch.id] ?? `--${branch.color_token}`}
+              onPickColor={(color) => updateBranchColorAction(branch.id, color)}
             />
           ))}
-          <CalendarCheckItem
+          <BranchRow
             label="Remote"
             checked={!hiddenBranchKeys.has("remote")}
             onChange={(v) => onToggleBranch("remote", v)}
-            colorVar="--chart-4"
+            colorVar={branchColors["remote"] ?? "--chart-4"}
+            onPickColor={(color) => updateBranchColorAction("remote", color)}
           />
         </ul>
       </div>
