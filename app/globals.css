@@ -1,26 +1,348 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "react-big-calendar/lib/css/react-big-calendar.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-display);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-6: var(--chart-6);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/*
+  Ginny House brand palette — see DESIGN.md for the full rationale.
+  Hue 251 = "Ginny Ink" navy — sampled directly from public/LOGO-01.png
+  (#0F4373). Hue 78 = "Study Gold" accent.
+  Hue 165 = "Sage Teal" success. Neutrals are all tinted at the ink hue
+  instead of pure gray so the whole UI reads as one family.
+*/
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.2 0.03 251);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.03 251);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.03 251);
+  --primary: oklch(0.38 0.1 251);
+  --primary-foreground: oklch(0.99 0.005 85);
+  --secondary: oklch(0.95 0.012 251);
+  --secondary-foreground: oklch(0.3 0.05 251);
+  --muted: oklch(0.955 0.008 251);
+  --muted-foreground: oklch(0.48 0.03 251);
+  --accent: oklch(0.94 0.016 251);
+  --accent-foreground: oklch(0.26 0.05 251);
+  --destructive: oklch(0.55 0.17 27);
+  --border: oklch(0.9 0.012 251);
+  --input: oklch(0.9 0.012 251);
+  --ring: oklch(0.55 0.08 251);
+  --gold: oklch(0.74 0.13 78);
+  --gold-foreground: oklch(0.24 0.05 251);
+  --success: oklch(0.55 0.08 165);
+  --success-foreground: oklch(0.98 0.005 85);
+  --chart-1: oklch(0.4 0.09 251);
+  --chart-2: oklch(0.74 0.13 78);
+  --chart-3: oklch(0.55 0.08 165);
+  --chart-4: oklch(0.55 0.09 320);
+  --chart-5: oklch(0.62 0.12 40);
+  --chart-6: oklch(0.58 0.1 200);
+  /* Extra hues purely for the follow-color palette (CalendarSidebar's
+     ColorMenu) — more variety than the 6 chart colors, same OKLCH family so
+     nothing clashes with the rest of the UI. */
+  --palette-rose: oklch(0.58 0.16 25);
+  --palette-violet: oklch(0.55 0.13 300);
+  --palette-basil: oklch(0.45 0.09 140);
+  --palette-indigo: oklch(0.5 0.12 230);
+  --palette-flamingo: oklch(0.68 0.12 350);
+  --palette-graphite: oklch(0.5 0.015 251);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.97 0.008 251);
+  --sidebar-foreground: oklch(0.2 0.03 251);
+  --sidebar-primary: oklch(0.38 0.1 251);
+  --sidebar-primary-foreground: oklch(0.99 0.005 85);
+  --sidebar-accent: oklch(0.94 0.016 251);
+  --sidebar-accent-foreground: oklch(0.26 0.05 251);
+  --sidebar-border: oklch(0.9 0.012 251);
+  --sidebar-ring: oklch(0.55 0.08 251);
+  /* A softer line than --border, used only for the calendar grid — the
+     grid has 10-20x more line intersections on screen than a card or an
+     input, so the same border weight that's fine elsewhere reads as
+     "too bold" here (see hallmark audit, 2026-08). */
+  --calendar-grid: oklch(0.9 0.012 251 / 55%);
+}
+
+.dark {
+  --background: oklch(0.17 0.02 251);
+  --foreground: oklch(0.96 0.01 85);
+  --card: oklch(0.22 0.022 251);
+  --card-foreground: oklch(0.96 0.01 85);
+  --popover: oklch(0.22 0.022 251);
+  --popover-foreground: oklch(0.96 0.01 85);
+  --primary: oklch(0.68 0.1 251);
+  --primary-foreground: oklch(0.16 0.02 251);
+  --secondary: oklch(0.28 0.02 251);
+  --secondary-foreground: oklch(0.92 0.01 85);
+  --muted: oklch(0.26 0.02 251);
+  --muted-foreground: oklch(0.68 0.02 251);
+  --accent: oklch(0.3 0.03 251);
+  --accent-foreground: oklch(0.95 0.01 85);
+  --destructive: oklch(0.62 0.18 27);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.6 0.08 251);
+  --gold: oklch(0.78 0.13 78);
+  --gold-foreground: oklch(0.18 0.03 251);
+  --success: oklch(0.62 0.09 165);
+  --success-foreground: oklch(0.98 0 0);
+  --chart-1: oklch(0.68 0.1 251);
+  --chart-2: oklch(0.78 0.13 78);
+  --chart-3: oklch(0.62 0.09 165);
+  --chart-4: oklch(0.62 0.1 320);
+  --chart-5: oklch(0.66 0.13 40);
+  --chart-6: oklch(0.64 0.1 200);
+  --palette-rose: oklch(0.64 0.16 25);
+  --palette-violet: oklch(0.62 0.13 300);
+  --palette-basil: oklch(0.56 0.1 140);
+  --palette-indigo: oklch(0.6 0.12 230);
+  --palette-flamingo: oklch(0.74 0.12 350);
+  --palette-graphite: oklch(0.62 0.015 251);
+  --sidebar: oklch(0.2 0.022 251);
+  --sidebar-foreground: oklch(0.96 0.01 85);
+  --sidebar-primary: oklch(0.68 0.1 251);
+  --sidebar-primary-foreground: oklch(0.16 0.02 251);
+  --sidebar-accent: oklch(0.3 0.03 251);
+  --sidebar-accent-foreground: oklch(0.95 0.01 85);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.6 0.08 251);
+  --calendar-grid: oklch(1 0 0 / 7%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
   }
 }
 
-body {
-  background: var(--background);
+/* ---- Scroll reveal (landing) ----
+   Trạng thái ẩn nằm ở CSS nên SSR đã render sẵn đúng khung; JS chỉ thêm
+   .is-revealed khi phần tử vào viewport (components/landing/Reveal.tsx).
+   Giảm chuyển động: hiện thẳng, không dịch chuyển, không blur. */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  filter: blur(6px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.is-revealed {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+}
+
+/* ---- react-big-calendar overrides ---- */
+.rbc-calendar {
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+.rbc-off-range-bg {
+  background: var(--muted);
+}
+/* Cancels RBC's own built-in .rbc-today background (#eaf6ff) — Google
+   Calendar doesn't tint the whole day column either. The date number in
+   CalendarDayHeader is the only "today" marker now. */
+.rbc-today {
+  background-color: transparent;
+}
+/* Current-time line — thin line + a leading dot on the time gutter edge,
+   matching Google Calendar's red marker instead of RBC's default green. */
+.rbc-current-time-indicator {
+  height: 2px;
+  background-color: var(--destructive);
+}
+.rbc-time-content .rbc-current-time-indicator::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 50%;
+  translate: 0 -50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background-color: var(--destructive);
+}
+/* Every grid line in the calendar — hour rows, day columns, header rule —
+   uses the softer --calendar-grid token. A blanket descendant selector
+   (rather than naming each rbc-* class) is deliberate: react-big-calendar
+   draws its grid across a dozen+ internal classes, and enumerating them
+   previously missed several, which is why the dark-mode grid still read
+   as bold/high-contrast instead of a quiet backdrop. border-color only
+   matters where a border-width is already set, so this is safe to apply
+   everywhere inside the calendar. */
+.rbc-calendar,
+.rbc-calendar * {
+  border-color: var(--calendar-grid) !important;
+}
+.rbc-header {
+  padding: 6px 4px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+/* Week/day view header cells host CalendarDayHeader's own two-line layout —
+   let it own its spacing instead of stacking the generic padding on top.
+   RBC's base .rbc-header is built for one line of text (overflow: hidden,
+   min-height: 0), which was clipping our weekday-label + big-number stack;
+   give it room and let it size to content instead. */
+.rbc-time-header .rbc-header {
+  padding: 0;
+  overflow: visible;
+  white-space: normal;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rbc-off-range {
+  color: var(--muted-foreground);
+}
+/* Hour labels ("6 AM", "7 AM"…) — smaller and lighter so the time gutter
+   reads as a quiet ruler, not a second column of headings; this is most of
+   what makes the whole week grid feel slimmer at a glance. */
+.rbc-time-gutter .rbc-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  padding: 0 8px;
+}
+.rbc-time-gutter .rbc-timeslot-group {
+  min-height: 44px;
+}
+.rbc-event.shift-event {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.rbc-event.shift-event--mine {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+.rbc-event.shift-event--other {
+  background-color: var(--event-color, var(--chart-3));
+  color: var(--event-text, var(--primary-foreground));
+}
+.rbc-event.shift-event--pending {
+  outline: 2px dashed var(--gold);
+  outline-offset: 1px;
+}
+/* Matches the sidebar's "Ngày lễ ở Việt Nam" checkbox, which uses
+   --success — badge and toggle should read as the same calendar. */
+.rbc-event.shift-event--holiday {
+  background-color: color-mix(in oklch, var(--success) 20%, var(--card));
+  color: var(--success);
+  font-weight: 600;
+}
+/* All-day banners (holiday, and any future all-day event type) sit in
+   RBC's own row directly under the day header — give it a rule + top
+   padding so it reads as its own row instead of crowding the date number
+   above it (see hallmark audit, 2026-08). */
+.rbc-time-header-content .rbc-allday-cell {
+  border-top: 1px solid var(--calendar-grid);
+  padding-top: 4px;
+}
+/* "Lịch chấm công" — a dashed outline in the person's color over a light
+   tint, distinct from the solid shift chip it usually sits alongside. */
+.rbc-event.shift-event--attendance {
+  background-color: color-mix(in oklch, var(--event-color, var(--chart-3)) 14%, var(--card));
+  color: var(--foreground);
+  border: 1.5px dashed var(--event-color, var(--chart-3));
+}
+/* "Lịch nghỉ phép" / "Lịch đến muộn" — a muted diagonal-hatch fill reads as
+   "away", distinct from both a working shift and a chấm công session. */
+.rbc-event.shift-event--leave {
+  background-color: var(--muted);
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 5px,
+    color-mix(in oklch, var(--event-color, var(--muted-foreground)) 25%, transparent) 5px,
+    color-mix(in oklch, var(--event-color, var(--muted-foreground)) 25%, transparent) 9px
+  );
+  color: var(--foreground);
+  border-left: 3px solid var(--event-color, var(--muted-foreground));
+}
+/* A viewer's own custom calendars ("Lịch khác" → "+") — solid fill like a
+   normal shift chip, just in whatever color that calendar was given. */
+.rbc-event.shift-event--custom {
+  background-color: var(--event-color, var(--chart-1));
+  color: white;
+}
+.rbc-selected.shift-event {
+  outline: 2px solid var(--ring);
+}
+.rbc-show-more {
+  color: var(--primary);
+  background: transparent;
+  font-weight: 500;
 }

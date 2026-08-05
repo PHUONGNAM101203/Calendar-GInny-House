@@ -28,17 +28,19 @@ default shadcn scaffolding.
 
 - ✓ Role-based shift creation vs. registration, shift swaps, leave requests, attendance — full business logic, `actions/*.ts` + Supabase RLS
 - ✓ Calendar UI (`/calendar`, `components/calendar/*`) — Google-Calendar-style shell, per-person follow colors, custom calendars, holiday overlay — **locked, out of scope for this project**
-- ✓ Manager dashboard (`components/manager/ManagerDashboard.tsx`, `TechnicalDashboard.tsx`) — redesigned this session: tone-accented stat cards, real recharts (area chart w/ peak callout, role pie, horizontal bar), single-scroll grid layout (tabs removed)
-- ✓ Login/Register (`components/auth/*`) — redesigned this session: icon-in-field inputs, frosted glass card over a two-blob glow on the navy brand panel
+- ✓ Manager dashboard (`components/manager/ManagerDashboard.tsx`, `TechnicalDashboard.tsx`) — redesigned in a prior session: tone-accented stat cards, real recharts (area chart w/ peak callout, role pie, horizontal bar), single-scroll grid layout (tabs removed). **Will be revisited under the new direction from this project (see Active) — not re-locked.**
+- ✓ Login/Register (`components/auth/*`) — redesigned in a prior session: icon-in-field inputs, frosted glass card over a two-blob glow on the navy brand panel. **Will be revisited under the new direction from this project (see Active) — not re-locked.**
 - ✓ Design system documented in `DESIGN.md` — OKLCH navy/gold/sage palette, Fraunces (display) + Be Vietnam Pro (body) + JetBrains Mono (data/captions), soft-tint badge convention
 
 ### Active
 
 <!-- Current scope for this UI modernization project. -->
 
-- [ ] Propose a refreshed visual direction (palette/style) for the remaining screens — presented to the user for approval before implementation, not assumed
+- [ ] Propose a brand-new visual direction (palette/style), not constrained to matching the existing Dashboard/Login redesigns — presented to the user for approval before implementation
+- [ ] Back-apply the approved new direction to the already-redesigned Dashboard (`ManagerDashboard.tsx`, `TechnicalDashboard.tsx`) and Login/Register (`components/auth/*`) so the whole app is visually consistent under one direction
 - [ ] Nghỉ phép (leave) — `LeaveRequestCard`, `LeaveRequestDialog` — modernize card/form visuals
 - [ ] Đổi ca (swap) — `SwapRequestCard`, `SwapRequestDialog` — modernize card/form visuals
+- [ ] Đăng ký ca (shift request) — `ShiftRequestCard.tsx` — structurally identical to the leave/swap cards; folded into the same request-card pattern work for consistency
 - [ ] Bảng nhân viên — `StaffTable.tsx` — modernize the roster/role/branch-editing table
 - [ ] Tài khoản — `AccountForm.tsx` — modernize
 - [ ] Thông báo — `NotificationsBell.tsx` dropdown — modernize
@@ -72,6 +74,8 @@ default shadcn scaffolding.
 | Scope excludes `/calendar` | User explicitly locked it after a prior redesign session | ✓ Good |
 | New visual direction to be proposed by Claude, not pre-specified | User was open-ended ("hướng mới") and asked Claude to propose | — Pending |
 | Restyle-first, small UX features allowed if justified | User's own framing — not a strict "no logic changes" project | — Pending |
+| New direction back-applied to already-redone Dashboard/Login too | Research flagged cross-screen visual drift as a real risk; user chose full consistency over leaving 2 screens on the old direction | — Pending |
+| `ShiftRequestCard` folded into the request-card phase | Structurally identical to Leave/Swap cards; research recommended pulling it forward given near-zero marginal cost | ✓ Good |
 
 ## Evolution
 

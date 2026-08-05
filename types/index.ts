@@ -1,0 +1,142 @@
+export type Role =
+  | "ceo"
+  | "coo"
+  | "training_director"
+  | "hr"
+  | "technical"
+  | "teacher"
+  | "collaborator"
+  | "customer_care"
+  | "operations_staff";
+export type SwapStatus = "pending" | "accepted" | "rejected" | "cancelled";
+export type LeaveStatus = "pending" | "approved" | "rejected" | "cancelled";
+
+export type Branch = {
+  id: string;
+  code: string;
+  name: string;
+  address: string | null;
+  color_token: string;
+  sort_order: number;
+};
+
+export type Profile = {
+  id: string;
+  full_name: string;
+  phone: string | null;
+  role: Role;
+  branch_id: string | null;
+  color: string | null;
+};
+
+export type Shift = {
+  id: string;
+  branch_id: string;
+  assignee_id: string;
+  start_at: string;
+  end_at: string;
+  note: string | null;
+  created_by: string | null;
+};
+
+export type ShiftWithAssignee = Shift & {
+  assignee: Pick<Profile, "id" | "full_name" | "color">;
+};
+
+export type ShiftRequestStatus = "pending" | "approved" | "rejected" | "cancelled";
+
+export type ShiftRequest = {
+  id: string;
+  profile_id: string;
+  branch_id: string | null;
+  start_at: string;
+  end_at: string;
+  note: string | null;
+  status: ShiftRequestStatus;
+  responder_id: string | null;
+  resolved_at: string | null;
+  created_at: string;
+};
+
+export type ShiftRequestDetailed = ShiftRequest & {
+  profile: Pick<Profile, "id" | "full_name">;
+};
+
+export type SwapRequest = {
+  id: string;
+  branch_id: string;
+  requester_id: string;
+  requester_shift_id: string;
+  target_id: string | null;
+  target_shift_id: string | null;
+  status: SwapStatus;
+  message: string | null;
+  responder_id: string | null;
+  resolved_at: string | null;
+  created_at: string;
+};
+
+export type SwapRequestDetailed = SwapRequest & {
+  requester: Pick<Profile, "id" | "full_name">;
+  target: Pick<Profile, "id" | "full_name"> | null;
+  requester_shift: Pick<Shift, "id" | "start_at" | "end_at">;
+  target_shift: Pick<Shift, "id" | "start_at" | "end_at"> | null;
+};
+
+export type Attendance = {
+  id: string;
+  profile_id: string;
+  branch_id: string;
+  shift_id: string | null;
+  check_in_at: string;
+  check_out_at: string | null;
+  created_at: string;
+};
+
+export type AttendanceWithProfile = Attendance & {
+  profile: Pick<Profile, "id" | "full_name">;
+};
+
+export type LeaveRequestType = "full_day" | "late_arrival" | "early_leave" | "hourly";
+
+export type LeaveRequest = {
+  id: string;
+  profile_id: string;
+  branch_id: string;
+  start_date: string;
+  end_date: string;
+  reason: string | null;
+  status: LeaveStatus;
+  request_type: LeaveRequestType;
+  start_time: string | null;
+  end_time: string | null;
+  responder_id: string | null;
+  resolved_at: string | null;
+  created_at: string;
+};
+
+export type LeaveRequestDetailed = LeaveRequest & {
+  profile: Pick<Profile, "id" | "full_name">;
+};
+
+export type CustomCalendar = {
+  id: string;
+  owner_id: string;
+  name: string;
+  color: string;
+  created_at: string;
+};
+
+export type CustomEvent = {
+  id: string;
+  calendar_id: string;
+  title: string;
+  start_at: string;
+  end_at: string;
+  all_day: boolean;
+  created_at: string;
+};
+
+export type ActionResult<T = undefined> =
+  | { ok: true; data: T }
+  | { ok: false; error: string };

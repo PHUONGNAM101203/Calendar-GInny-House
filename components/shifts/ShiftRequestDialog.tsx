@@ -1,0 +1,137 @@
+"use client";
+
+import { useState } from "react";
+import { toast } from "sonner";
+import { format, parse, startOfDay } from "date-fns";
+import { SendIcon } from "lucide-react";
+import { requestShiftAction } from "@/actions/shift-requests";
+import { Button } from "@/components/ui/button";
+import { DatePickerField } from "@/components/ui/date-picker-field";
+import { TimePickerField } from "@/components/ui/time-picker-field";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+const DATE_FORMAT = "yyyy-MM-dd";
+const TIME_FORMAT = "HH:mm";
+
+export default function ShiftRequestDialog({
+  trigger,
+  initialRange,
+}: {
+  trigger?: React.ReactNode;
+  initialRange?: { start: Date; end: Date } | null;
+}) {
+  const [open, setOpen] = useState(false);
+  const [serverError, setServerError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [date, setDate] = useState(() => startOfDay(initialRange?.start ?? new Date()));
+  const [startTime, setStartTime] = useState(
+    initialRange ? format(initialRange.start, TIME_FORMAT) : "09:00"
+  );
+  const [endTime, setEndTime] = useState(
+    initialRange ? format(initialRange.end, TIME_FORMAT) : "11:00"
+  );
+  const [note, setNote] = useState("");
+
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+    if (next) {
+      setServerError("");
+      const base = initialRange?.start ?? new Date();
+      setDate(startOfDay(base));
+      setStartTime(initialRange ? format(initialRange.start, TIME_FORMAT) : "09:00");
+      setEndTime(initialRange ? format(initialRange.end, TIME_FORMAT) : "11:00");
+      setNote("");
+    }
+  }
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setServerError("");
+
+    const startDateTime = parse(startTime, TIME_FORMAT, date);
+    const endDateTime = parse(endTime, TIME_FORMAT, date);
+    if (endDateTime <= startDateTime) {
+      endDateTime.setDate(endDateTime.getDate() + 1);
+    }
+
+    setIsSubmitting(true);
+    const result = await requestShiftAction({
+      start_at: startDateTime.toISOString(),
+      end_at: endDateTime.toISOString(),
+      note: note || undefined,
+    });
+    setIsSubmitting(false);
+
+    if (!result.ok) {
+      setServerError(result.error);
+      return;
+    }
+    toast.success("Đã gửi đăng ký ca làm cho Tổng giám đốc duyệt");
+    setOpen(false);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        {trigger ?? (
+          <Button className="justify-start gap-2">
+            <SendIcon className="size-4" />
+            Đăng ký ca làm
+          </Button>
+        )}
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Đăng ký ca làm</DialogTitle>
+          <DialogDescription>
+            Gửi ca bạn muốn làm để Tổng giám đốc duyệt trước khi lên lịch chính thức.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div className="space-y-3">
+            <DatePickerField
+              id="request_date"
+              label="Ngày"
+              value={format(date, DATE_FORMAT)}
+              onChange={(value) => setDate(parse(value, DATE_FORMAT, new Date()))}
+            />
+            <div className="grid grid-cols-2 gap-3">
+              <TimePickerField id="request_start_time" label="Bắt đầu" value={startTime} onChange={setStartTime} />
+              <TimePickerField id="request_end_time" label="Kết thúc" value={endTime} onChange={setEndTime} />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="request_note">Ghi chú (không bắt buộc)</Label>
+            <Textarea
+              id="request_note"
+              rows={2}
+              maxLength={280}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+            />
+          </div>
+
+          {serverError && <p className="text-sm text-destructive">{serverError}</p>}
+
+          <DialogFooter>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Đang gửi..." : "Gửi đăng ký"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

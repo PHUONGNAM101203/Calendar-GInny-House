@@ -1,0 +1,119 @@
+"use client";
+
+import { useEffect, useState, useTransition } from "react";
+import { toast } from "sonner";
+import { format, intervalToDuration } from "date-fns";
+import { vi } from "date-fns/locale";
+import { LogInIcon, LogOutIcon } from "lucide-react";
+import { clockInAction, clockOutAction } from "@/actions/attendance";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import type { Attendance } from "@/types";
+
+function formatDuration(from: Date, to: Date) {
+  const d = intervalToDuration({ start: from, end: to });
+  const h = d.hours ?? 0;
+  const m = d.minutes ?? 0;
+  const s = d.seconds ?? 0;
+  return `${h}g ${String(m).padStart(2, "0")}p ${String(s).padStart(2, "0")}s`;
+}
+
+export default function ClockWidget({ open }: { open: Attendance | null }) {
+  const [isPending, startTransition] = useTransition();
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1_000);
+    return () => clearInterval(id);
+  }, []);
+
+  function handleClockIn() {
+    startTransition(async () => {
+      const result = await clockInAction();
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Đã chấm công vào");
+    });
+  }
+
+  function handleClockOut() {
+    startTransition(async () => {
+      const result = await clockOutAction();
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Đã chấm công ra");
+    });
+  }
+
+  return (
+    <Card className="relative overflow-hidden">
+      {/* viền trên đổi màu theo trạng thái — cùng quy ước "màu = trạng thái"
+          với badge và băng điều hành */}
+      <span className={`absolute inset-x-0 top-0 h-1 ${open ? "bg-success" : "bg-border"}`} />
+      <CardContent className="flex flex-col items-center gap-5 py-8 text-center">
+        <p className="flex items-center gap-2 font-mono text-[11px] font-medium tracking-[0.16em] text-muted-foreground uppercase">
+          {open && (
+            <span className="relative flex size-2">
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-60 motion-reduce:animate-none" />
+              <span className="relative inline-flex size-2 rounded-full bg-success" />
+            </span>
+          )}
+          {open ? "Đang trong ca" : "Chưa chấm công"}
+        </p>
+
+        {open ? (
+          <div>
+            <p className="font-heading text-5xl leading-none font-semibold tracking-tight tabular-nums sm:text-6xl">
+              {formatDuration(new Date(open.check_in_at), now)}
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Vào ca lúc{" "}
+              <span className="font-medium text-foreground">
+                {format(new Date(open.check_in_at), "HH:mm", { locale: vi })}
+              </span>
+            </p>
+          </div>
+        ) : (
+          <div>
+            <p
+              className="font-heading text-5xl leading-none font-semibold tracking-tight tabular-nums sm:text-6xl"
+              suppressHydrationWarning
+            >
+              {format(now, "HH:mm", { locale: vi })}
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Tới cơ sở rồi thì bấm một nút là vào ca.
+            </p>
+          </div>
+        )}
+
+        {open ? (
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={handleClockOut}
+            disabled={isPending}
+            className="h-12 gap-2 rounded-full px-8"
+          >
+            <LogOutIcon className="size-4" />
+            Chấm công ra
+          </Button>
+        ) : (
+          <Button
+            size="lg"
+            onClick={handleClockIn}
+            disabled={isPending}
+            className="h-12 gap-2 rounded-full px-8"
+          >
+            <LogInIcon className="size-4" />
+            Chấm công vào
+          </Button>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
