@@ -8,7 +8,7 @@ import { cancelShiftRequestAction, respondToShiftRequestAction } from "@/actions
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { SHIFT_REQUEST_STATUS_LABELS } from "@/lib/constants";
+import { SHIFT_REQUEST_STATUS_LABELS, SHIFT_TYPE_LABELS } from "@/lib/constants";
 import type { ShiftRequestDetailed } from "@/types";
 
 function formatRange(startAt: string, endAt: string) {
@@ -70,6 +70,7 @@ export default function ShiftRequestCard({
         </div>
 
         <div className="flex items-center gap-2">
+          <Badge variant="outline">{SHIFT_TYPE_LABELS[request.shift_type]}</Badge>
           <Badge variant={statusVariant}>{SHIFT_REQUEST_STATUS_LABELS[request.status]}</Badge>
           {canRespond && request.status === "pending" && (
             <>

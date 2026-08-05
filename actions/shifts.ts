@@ -35,6 +35,7 @@ export async function createShiftAction(input: unknown): Promise<ActionResult> {
     assignee_id: parsed.data.assignee_id,
     start_at: parsed.data.start_at,
     end_at: parsed.data.end_at,
+    shift_type: parsed.data.shift_type,
     note: parsed.data.note || null,
     created_by: user!.id,
   });
@@ -63,6 +64,7 @@ export async function updateShiftAction(
       assignee_id: parsed.data.assignee_id,
       start_at: parsed.data.start_at,
       end_at: parsed.data.end_at,
+      shift_type: parsed.data.shift_type,
       note: parsed.data.note || null,
     })
     .eq("id", id);

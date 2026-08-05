@@ -262,6 +262,15 @@
   align-items: center;
   justify-content: center;
 }
+/* RBC draws a vertical border-left between every pair of adjacent header
+   cells by default — with CalendarDayHeader's two-line stack (weekday +
+   big date number) that extra divider reads as a stray diagonal-looking
+   tick mark at each cell boundary instead of a clean grid line. The
+   bottom border under the whole header row is enough separation from the
+   time grid; drop the per-cell vertical dividers entirely. */
+.rbc-time-header .rbc-header + .rbc-header {
+  border-left: none;
+}
 .rbc-off-range {
   color: var(--muted-foreground);
 }

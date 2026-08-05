@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Calendar, type SlotInfo, type View } from "react-big-calendar";
 import {
   localizer,
@@ -27,6 +28,7 @@ import {
 } from "@/lib/calendar";
 import { VIETNAM_HOLIDAYS } from "@/lib/holidays";
 import { useCalendarNav } from "@/hooks/use-calendar-nav";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { CALENDAR_MAX_HOUR, CALENDAR_MIN_HOUR } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import CalendarToolbar from "@/components/calendar/CalendarToolbar";
@@ -86,8 +88,28 @@ export default function ShiftCalendar({
   followColors: Record<string, string>;
 }) {
   const { date, view, navigate, isPending } = useCalendarNav();
+  const searchParams = useSearchParams();
+  const isMobile = useIsMobile();
+
+  // Squeezing the default 7-column week grid onto a phone screen is what
+  // the user flagged as illegible — default to the single-day view there
+  // instead, same pattern Google Calendar's mobile app uses. Only kicks in
+  // when the URL doesn't already carry an explicit ?view= (so it never
+  // fights a navigation the user just made, e.g. switching back to week).
+  useEffect(() => {
+    if (isMobile && !searchParams.has("view")) {
+      navigate(date, "day");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile]);
+
   const [showHolidays, setShowHolidays] = useState(true);
   const [hiddenCustomCalendarIds, setHiddenCustomCalendarIds] = useState<Set<string>>(new Set());
+  // "Remote" is a separate key alongside real branch ids — a remote shift
+  // is filtered purely by the Remote toggle, not also by its own branch_id
+  // (every shift still carries a real branch_id per the shift-type design,
+  // but the sidebar treats CS1/CS2/CS3/Remote as 4 sibling categories).
+  const [hiddenBranchKeys, setHiddenBranchKeys] = useState<Set<string>>(new Set());
   const [eventToggles, setEventToggles] = useState({
     showAttendance: true,
     showLeave: true,
@@ -123,8 +145,11 @@ export default function ShiftCalendar({
     [canFollowAll, currentUserId, followedIds]
   );
   const visibleShifts = useMemo(
-    () => (visiblePersonIds ? shifts.filter((s) => visiblePersonIds.has(s.assignee_id)) : shifts),
-    [shifts, visiblePersonIds]
+    () =>
+      shifts
+        .filter((s) => !visiblePersonIds || visiblePersonIds.has(s.assignee_id))
+        .filter((s) => !hiddenBranchKeys.has(s.shift_type === "remote" ? "remote" : s.branch_id)),
+    [shifts, visiblePersonIds, hiddenBranchKeys]
   );
   const visibleAttendance = useMemo(
     () => (visiblePersonIds ? attendance.filter((a) => visiblePersonIds.has(a.profile_id)) : attendance),
@@ -274,6 +299,15 @@ export default function ShiftCalendar({
         const next = new Set(prev);
         if (visible) next.delete(calendarId);
         else next.add(calendarId);
+        return next;
+      }),
+    branches,
+    hiddenBranchKeys,
+    onToggleBranch: (key: string, visible: boolean) =>
+      setHiddenBranchKeys((prev) => {
+        const next = new Set(prev);
+        if (visible) next.delete(key);
+        else next.add(key);
         return next;
       }),
   };

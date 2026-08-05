@@ -11,6 +11,13 @@ import { TimePickerField } from "@/components/ui/time-picker-field";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -19,6 +26,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { SHIFT_TYPE_LABELS, detectShiftType } from "@/lib/constants";
+import { SHIFT_TYPES } from "@/lib/validations/shift";
+import type { ShiftType } from "@/types";
 
 const DATE_FORMAT = "yyyy-MM-dd";
 const TIME_FORMAT = "HH:mm";
@@ -40,16 +50,26 @@ export default function ShiftRequestDialog({
   const [endTime, setEndTime] = useState(
     initialRange ? format(initialRange.end, TIME_FORMAT) : "11:00"
   );
+  const [shiftType, setShiftType] = useState<ShiftType>(() =>
+    detectShiftType(initialRange ? format(initialRange.start, TIME_FORMAT) : "09:00")
+  );
   const [note, setNote] = useState("");
+
+  function handleStartTimeChange(value: string) {
+    setStartTime(value);
+    setShiftType(detectShiftType(value));
+  }
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
     if (next) {
       setServerError("");
       const base = initialRange?.start ?? new Date();
+      const initialStart = initialRange ? format(initialRange.start, TIME_FORMAT) : "09:00";
       setDate(startOfDay(base));
-      setStartTime(initialRange ? format(initialRange.start, TIME_FORMAT) : "09:00");
+      setStartTime(initialStart);
       setEndTime(initialRange ? format(initialRange.end, TIME_FORMAT) : "11:00");
+      setShiftType(detectShiftType(initialStart));
       setNote("");
     }
   }
@@ -68,6 +88,7 @@ export default function ShiftRequestDialog({
     const result = await requestShiftAction({
       start_at: startDateTime.toISOString(),
       end_at: endDateTime.toISOString(),
+      shift_type: shiftType,
       note: note || undefined,
     });
     setIsSubmitting(false);
@@ -107,9 +128,30 @@ export default function ShiftRequestDialog({
               onChange={(value) => setDate(parse(value, DATE_FORMAT, new Date()))}
             />
             <div className="grid grid-cols-2 gap-3">
-              <TimePickerField id="request_start_time" label="Bắt đầu" value={startTime} onChange={setStartTime} />
+              <TimePickerField
+                id="request_start_time"
+                label="Bắt đầu"
+                value={startTime}
+                onChange={handleStartTimeChange}
+              />
               <TimePickerField id="request_end_time" label="Kết thúc" value={endTime} onChange={setEndTime} />
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="request_shift_type">Loại ca</Label>
+            <Select value={shiftType} onValueChange={(v) => setShiftType(v as ShiftType)}>
+              <SelectTrigger id="request_shift_type" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SHIFT_TYPES.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {SHIFT_TYPE_LABELS[type]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1.5">

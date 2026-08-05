@@ -31,6 +31,8 @@ export type Profile = {
   color: string | null;
 };
 
+export type ShiftType = "morning" | "afternoon" | "evening" | "remote";
+
 export type Shift = {
   id: string;
   branch_id: string;
@@ -39,6 +41,7 @@ export type Shift = {
   end_at: string;
   note: string | null;
   created_by: string | null;
+  shift_type: ShiftType;
 };
 
 export type ShiftWithAssignee = Shift & {
@@ -58,6 +61,7 @@ export type ShiftRequest = {
   responder_id: string | null;
   resolved_at: string | null;
   created_at: string;
+  shift_type: ShiftType;
 };
 
 export type ShiftRequestDetailed = ShiftRequest & {

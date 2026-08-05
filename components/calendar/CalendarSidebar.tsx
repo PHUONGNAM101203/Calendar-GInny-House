@@ -17,7 +17,7 @@ import ShiftRequestDialog from "@/components/shifts/ShiftRequestDialog";
 import MiniMonth from "@/components/calendar/MiniMonth";
 import CustomEventFormDialog from "@/components/calendar/CustomEventFormDialog";
 import ColorPickerDialog from "@/components/calendar/ColorPickerDialog";
-import type { CustomCalendar } from "@/types";
+import type { Branch, CustomCalendar } from "@/types";
 
 type Person = { id: string; name: string; followed: boolean; color: string | null };
 
@@ -44,6 +44,9 @@ type SidebarProps = {
   customCalendars: CustomCalendar[];
   hiddenCustomCalendarIds: Set<string>;
   onToggleCustomCalendar: (calendarId: string, visible: boolean) => void;
+  branches: Branch[];
+  hiddenBranchKeys: Set<string>;
+  onToggleBranch: (key: string, visible: boolean) => void;
 };
 
 // The Google Calendar move this whole sidebar is styled after: a small
@@ -394,6 +397,9 @@ function SidebarContent({
   customCalendars,
   hiddenCustomCalendarIds,
   onToggleCustomCalendar,
+  branches,
+  hiddenBranchKeys,
+  onToggleBranch,
 }: SidebarProps) {
   return (
     <div className="flex flex-col gap-6">
@@ -453,6 +459,29 @@ function SidebarContent({
             checked={eventToggles.showSwapIndicator}
             onChange={(v) => onEventTogglesChange({ ...eventToggles, showSwapIndicator: v })}
             colorVar="--chart-6"
+          />
+        </ul>
+      </div>
+
+      <div>
+        <p className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          Cơ sở
+        </p>
+        <ul className="space-y-1.5 text-sm">
+          {branches.map((branch) => (
+            <CalendarCheckItem
+              key={branch.id}
+              label={branch.name}
+              checked={!hiddenBranchKeys.has(branch.id)}
+              onChange={(v) => onToggleBranch(branch.id, v)}
+              colorVar={`--${branch.color_token}`}
+            />
+          ))}
+          <CalendarCheckItem
+            label="Remote"
+            checked={!hiddenBranchKeys.has("remote")}
+            onChange={(v) => onToggleBranch("remote", v)}
+            colorVar="--chart-4"
           />
         </ul>
       </div>

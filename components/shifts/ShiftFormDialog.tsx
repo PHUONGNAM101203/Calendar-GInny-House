@@ -8,6 +8,9 @@ import { toast } from "sonner";
 import { format, parse, startOfDay } from "date-fns";
 import { ClockIcon } from "lucide-react";
 import { createShiftAction, deleteShiftAction, updateShiftAction } from "@/actions/shifts";
+import { SHIFT_TYPE_LABELS, detectShiftType } from "@/lib/constants";
+import { SHIFT_TYPES } from "@/lib/validations/shift";
+import type { ShiftType } from "@/types";
 import { Button } from "@/components/ui/button";
 import { DatePickerField } from "@/components/ui/date-picker-field";
 import { TimePickerField } from "@/components/ui/time-picker-field";
@@ -73,6 +76,12 @@ export default function ShiftFormDialog({
   const [date, setDate] = useState(() => startOfDay(new Date()));
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("11:00");
+  const [shiftType, setShiftType] = useState<ShiftType>("morning");
+
+  function handleStartTimeChange(value: string) {
+    setStartTime(value);
+    setShiftType(detectShiftType(value));
+  }
 
   const {
     control,
@@ -91,12 +100,15 @@ export default function ShiftFormDialog({
         setDate(startOfDay(new Date(shift.start_at)));
         setStartTime(format(new Date(shift.start_at), TIME_FORMAT));
         setEndTime(format(new Date(shift.end_at), TIME_FORMAT));
+        setShiftType(shift.shift_type);
       } else {
         reset({ assignee_id: undefined, note: "" });
         const base = initialRange?.start ?? new Date();
+        const initialStart = initialRange ? format(initialRange.start, TIME_FORMAT) : "09:00";
         setDate(startOfDay(base));
-        setStartTime(initialRange ? format(initialRange.start, TIME_FORMAT) : "09:00");
+        setStartTime(initialStart);
         setEndTime(initialRange ? format(initialRange.end, TIME_FORMAT) : "11:00");
+        setShiftType(detectShiftType(initialStart));
       }
     }
   }
@@ -114,6 +126,7 @@ export default function ShiftFormDialog({
       assignee_id: values.assignee_id,
       start_at: startDateTime.toISOString(),
       end_at: endDateTime.toISOString(),
+      shift_type: shiftType,
       note: values.note || undefined,
     };
     const result = isEdit
@@ -190,9 +203,25 @@ export default function ShiftFormDialog({
               onChange={(value) => setDate(parse(value, DATE_FORMAT, new Date()))}
             />
             <div className="grid grid-cols-2 gap-3">
-              <TimePickerField id="start_time" label="Bắt đầu" value={startTime} onChange={setStartTime} />
+              <TimePickerField id="start_time" label="Bắt đầu" value={startTime} onChange={handleStartTimeChange} />
               <TimePickerField id="end_time" label="Kết thúc" value={endTime} onChange={setEndTime} />
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="shift_type">Loại ca</Label>
+            <Select value={shiftType} onValueChange={(v) => setShiftType(v as ShiftType)}>
+              <SelectTrigger id="shift_type" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SHIFT_TYPES.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {SHIFT_TYPE_LABELS[type]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1.5">

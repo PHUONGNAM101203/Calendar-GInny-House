@@ -29,6 +29,7 @@ export async function requestShiftAction(input: unknown): Promise<ActionResult> 
     p_start_at: new Date(parsed.data.start_at).toISOString(),
     p_end_at: new Date(parsed.data.end_at).toISOString(),
     p_note: parsed.data.note || null,
+    p_shift_type: parsed.data.shift_type,
   });
 
   if (error) return { ok: false, error: mapShiftRequestError(error.message) };
