@@ -83,7 +83,7 @@ export default function ClockWidget({ open }: { open: Attendance | null }) {
               className="font-heading text-5xl leading-none font-semibold tracking-tight tabular-nums sm:text-6xl"
               suppressHydrationWarning
             >
-              {format(now, "HH:mm", { locale: vi })}
+              {format(now, "HH:mm:ss", { locale: vi })}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
               Tới cơ sở rồi thì bấm một nút là vào ca.

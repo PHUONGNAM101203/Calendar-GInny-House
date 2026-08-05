@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ClockIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const formatter = new Intl.DateTimeFormat("vi-VN", {
   timeZone: "Asia/Ho_Chi_Minh",
@@ -11,7 +12,11 @@ const formatter = new Intl.DateTimeFormat("vi-VN", {
   hour12: false,
 });
 
-export default function RealtimeClock() {
+// visibility is caller-driven (className) rather than baked in — the
+// header hides this below `sm` (too tight alongside the launcher/bell/user
+// menu), but the calendar page shows it on mobile instead, at its own
+// breakpoint (see ShiftCalendar.tsx).
+export default function RealtimeClock({ className }: { className?: string }) {
   // Lazy initializer (not an effect + setState) so the very first paint —
   // server or client — already shows a real time instead of a placeholder;
   // the 1s interval below corrects any tiny server/client skew within a
@@ -25,7 +30,7 @@ export default function RealtimeClock() {
 
   return (
     <div
-      className="hidden flex-col items-center rounded-lg border px-3 py-1 leading-tight sm:flex"
+      className={cn("flex-col items-center rounded-lg border px-3 py-1 leading-tight", className)}
       title="Giờ Việt Nam (GMT+7)"
     >
       <span className="flex items-center gap-1.5 text-sm font-medium tabular-nums">

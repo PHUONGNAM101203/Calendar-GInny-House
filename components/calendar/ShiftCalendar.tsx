@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 import CalendarToolbar from "@/components/calendar/CalendarToolbar";
 import MobileDayStrip from "@/components/calendar/MobileDayStrip";
 import { CalendarSidebar, CalendarMobileMenu } from "@/components/calendar/CalendarSidebar";
+import RealtimeClock from "@/components/layout/RealtimeClock";
 import ShiftEventCell from "@/components/calendar/ShiftEventCell";
 import CalendarDayHeader from "@/components/calendar/CalendarDayHeader";
 import ShiftFormDialog from "@/components/shifts/ShiftFormDialog";
@@ -321,7 +322,10 @@ export default function ShiftCalendar({
       <CalendarSidebar {...sidebarProps} />
 
       <div className="flex flex-1 flex-col overflow-hidden p-4 sm:p-6">
-        <CalendarMobileMenu {...sidebarProps} />
+        <div className="mb-2 flex items-center justify-between gap-2 lg:hidden">
+          <CalendarMobileMenu {...sidebarProps} />
+          <RealtimeClock className="flex" />
+        </div>
 
         <Calendar
           localizer={localizer}

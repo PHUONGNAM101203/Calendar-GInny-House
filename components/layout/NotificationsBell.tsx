@@ -54,7 +54,12 @@ export default function NotificationsBell({
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80">
+      {/* A fixed 320px width forced Radix's collision detection to shift
+          the panel left on narrow phones to stay on-screen, which read as
+          "opening sideways" instead of dropping straight down under the
+          bell. Clamping the width to the viewport removes the need for
+          that shift. */}
+      <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] max-w-80">
         <DropdownMenuLabel>Thông báo</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {notifications.length === 0 ? (
