@@ -2,7 +2,7 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { isManagerRole } from "@/lib/roles";
+import { canAccessManagerPage } from "@/lib/roles";
 import type { Profile } from "@/types";
 
 const PROFILE_COLUMNS = "id, full_name, phone, role, branch_id, color";
@@ -68,6 +68,6 @@ export async function requireProfile() {
 
 export async function requireManager() {
   const profile = await requireProfile();
-  if (!isManagerRole(profile.role)) redirect("/calendar");
+  if (!canAccessManagerPage(profile.role)) redirect("/calendar");
   return profile;
 }

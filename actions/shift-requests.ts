@@ -59,8 +59,8 @@ export async function respondToShiftRequestAction(
   approve: boolean
 ): Promise<ActionResult> {
   const profile = await requireProfile();
-  if (!isCeo(profile.role)) {
-    return { ok: false, error: "Chỉ Tổng giám đốc mới được duyệt đăng ký ca" };
+  if (!isCeo(profile.role) && profile.role !== "hr") {
+    return { ok: false, error: "Bạn không có quyền duyệt đăng ký ca này" };
   }
 
   const supabase = await createClient();

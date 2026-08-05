@@ -19,11 +19,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ROLE_LABELS, isManagerRole } from "@/lib/roles";
+import { ROLE_LABELS, isManagerRole, canAccessManagerPage } from "@/lib/roles";
 import type { Role } from "@/types";
 
 export default function UserMenu({ fullName, role }: { fullName: string; role: Role }) {
   const isManager = isManagerRole(role);
+  const canAccessManager = canAccessManagerPage(role);
   const trimmed = fullName.trim();
   const initial = trimmed.charAt(0).toUpperCase() || "?";
   // Vietnamese names are addressed by the given name, which is the last
@@ -57,7 +58,7 @@ export default function UserMenu({ fullName, role }: { fullName: string; role: R
             Cập nhật thông tin
           </Link>
         </DropdownMenuItem>
-        {isManager && (
+        {canAccessManager && (
           <DropdownMenuItem asChild>
             <Link href="/manager">
               <LayoutDashboardIcon />

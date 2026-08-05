@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { signUpAction } from "@/actions/auth";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
+import { SELF_SIGNUP_ROLES, ROLE_LABELS } from "@/lib/roles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -92,6 +93,29 @@ export default function RegisterForm({ branches }: { branches: Branch[] }) {
             {errors.email && (
               <p className="text-sm text-destructive">{errors.email.message}</p>
             )}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="role">Bạn là</Label>
+            <Controller
+              control={control}
+              name="role"
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger id="role" className="h-11! w-full rounded-lg">
+                    <SelectValue placeholder="Chọn vai trò của bạn" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SELF_SIGNUP_ROLES.map((role) => (
+                      <SelectItem key={role} value={role}>
+                        {ROLE_LABELS[role]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.role && <p className="text-sm text-destructive">{errors.role.message}</p>}
           </div>
 
           <div className="space-y-1.5">

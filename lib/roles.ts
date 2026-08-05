@@ -10,6 +10,8 @@ export const ROLE_HIERARCHY: Role[] = [
   "hr",
   "technical",
   "teacher",
+  "student_affairs",
+  "teaching_assistant",
   "collaborator",
   "customer_care",
   "operations_staff",
@@ -22,6 +24,8 @@ export const ROLE_LABELS: Record<Role, string> = {
   hr: "HR",
   technical: "Kỹ thuật",
   teacher: "Giáo viên",
+  student_affairs: "Quản sinh",
+  teaching_assistant: "Trợ giảng",
   collaborator: "CTV",
   customer_care: "CSKH",
   operations_staff: "Nhân viên vận hành",
@@ -62,6 +66,17 @@ export function isTrainingGroupRole(role: Role): boolean {
   return TRAINING_GROUP_ROLES.has(role);
 }
 
+// The "quản sinh / trợ giảng" group — HR's own group to approve/view,
+// split out from TRAINING_GROUP_ROLES (2026-08). Note HR is itself a
+// member of OPERATIONS_GROUP_ROLES (their own leave is COO-approved) while
+// also being the approver for this separate group — a role can be both a
+// group's subject and another group's approver.
+export const HR_GROUP_ROLES: ReadonlySet<Role> = new Set(["student_affairs", "teaching_assistant"]);
+
+export function isHrGroupRole(role: Role): boolean {
+  return HR_GROUP_ROLES.has(role);
+}
+
 // Who can see/follow whose calendar (2026-08 pass): three tiers, not one
 // flat "sees everyone" set —
 //   "all"   — ceo, technical: every role, org-wide.
@@ -74,7 +89,7 @@ export type CalendarScope = "all" | "group" | "none";
 
 export function getCalendarScope(role: Role): CalendarScope {
   if (role === "ceo" || role === "technical") return "all";
-  if (role === "coo" || role === "training_director") return "group";
+  if (role === "coo" || role === "training_director" || role === "hr") return "group";
   return "none";
 }
 
@@ -88,6 +103,7 @@ export function canSeeAllCalendars(role: Role): boolean {
 export function getViewableGroupRoles(role: Role): ReadonlySet<Role> | null {
   if (role === "coo") return OPERATIONS_GROUP_ROLES;
   if (role === "training_director") return TRAINING_GROUP_ROLES;
+  if (role === "hr") return HR_GROUP_ROLES;
   return null;
 }
 
@@ -96,7 +112,7 @@ export function getViewableGroupRoles(role: Role): ReadonlySet<Role> | null {
 // gets the read-only analytics dashboard) approves no one. Mirrors
 // is_leave_approver()/respond_to_leave_request() in
 // 0013_group_scoped_visibility.sql — keep in sync.
-const LEAVE_APPROVER_ROLES: ReadonlySet<Role> = new Set(["ceo", "coo", "training_director"]);
+const LEAVE_APPROVER_ROLES: ReadonlySet<Role> = new Set(["ceo", "coo", "training_director", "hr"]);
 
 export function isLeaveApprover(role: Role): boolean {
   return LEAVE_APPROVER_ROLES.has(role);
@@ -106,6 +122,7 @@ export function canApproveLeaveFor(approverRole: Role, targetRole: Role): boolea
   if (approverRole === "ceo") return true;
   if (approverRole === "coo") return OPERATIONS_GROUP_ROLES.has(targetRole);
   if (approverRole === "training_director") return TRAINING_GROUP_ROLES.has(targetRole);
+  if (approverRole === "hr") return HR_GROUP_ROLES.has(targetRole);
   return false;
 }
 
@@ -123,4 +140,40 @@ export function canCreateShiftDirectly(role: Role): boolean {
 // Only the CEO approves shift registrations.
 export function isCeo(role: Role): boolean {
   return role === "ceo";
+}
+
+// Shift-request approval: CEO approves anyone; HR only their own group
+// (student_affairs/teaching_assistant). Mirrors can_approve_shift_request()
+// in 0019_hr_group_student_affairs_teaching_assistant.sql — keep in sync.
+export function canApproveShiftRequestFor(approverRole: Role, targetRole: Role): boolean {
+  if (approverRole === "ceo") return true;
+  if (approverRole === "hr") return HR_GROUP_ROLES.has(targetRole);
+  return false;
+}
+
+// Front-line roles a new user can self-select at signup (RegisterForm) —
+// everything else (management/approver roles: ceo, coo, training_director,
+// hr, technical) must be granted by an existing manager via Staff Table,
+// never self-chosen. Order matches how they're listed in the dropdown.
+// Mirrors the whitelist in handle_new_user() —
+// 0020_self_signup_role.sql — keep both in sync: that SQL function is the
+// actual security boundary (never trust this TS list alone, since signup
+// metadata is client-controlled).
+export const SELF_SIGNUP_ROLES = [
+  "teacher",
+  "operations_staff",
+  "student_affairs",
+  "teaching_assistant",
+  "collaborator",
+  "customer_care",
+] as const;
+
+export type SelfSignupRole = (typeof SELF_SIGNUP_ROLES)[number];
+
+// Who can open the /manager page at all: manager-tier roles, plus HR for
+// its own scoped "Nhóm HR" section (HR itself isn't manager-tier — no
+// MANAGER_ROLES/is_manager() access — it just gets a narrow view+approve
+// slice of this page, same shape as COO's "Nhóm vận hành" section).
+export function canAccessManagerPage(role: Role): boolean {
+  return isManagerRole(role) || role === "hr";
 }

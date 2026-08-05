@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SELF_SIGNUP_ROLES } from "@/lib/roles";
 
 // Trim + lowercase before the actual email-format check, so " Foo@Bar.com "
 // and "foo@bar.com" are treated as the same address everywhere (matching,
@@ -28,6 +29,7 @@ export const registerSchema = z
     password: passwordField,
     confirm_password: z.string(),
     branch_id: z.uuid("Vui lòng chọn cơ sở"),
+    role: z.enum(SELF_SIGNUP_ROLES, "Vui lòng chọn vai trò"),
   })
   .refine((v) => v.password === v.confirm_password, {
     message: "Mật khẩu xác nhận không khớp",

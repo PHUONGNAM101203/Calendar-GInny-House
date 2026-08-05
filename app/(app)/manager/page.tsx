@@ -2,7 +2,14 @@ import { startOfDay, endOfDay, startOfYear } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { requireManager } from "@/lib/auth";
 import { getBranches } from "@/lib/branches";
-import { isOperationsGroupRole, isCeo, isLeaveApprover, canApproveLeaveFor, isManagerRole } from "@/lib/roles";
+import {
+  isOperationsGroupRole,
+  isCeo,
+  isLeaveApprover,
+  canApproveLeaveFor,
+  canApproveShiftRequestFor,
+  isManagerRole,
+} from "@/lib/roles";
 import { Card, CardContent } from "@/components/ui/card";
 import ManagerDashboard from "@/components/manager/ManagerDashboard";
 import TechnicalDashboard from "@/components/manager/TechnicalDashboard";
@@ -103,7 +110,7 @@ export default async function ManagerPage() {
       .order("check_in_at", { ascending: false }),
     supabase
       .from("shift_requests")
-      .select("*, profile:profiles!profile_id(id, full_name)")
+      .select("*, profile:profiles!profile_id(id, full_name, role)")
       .order("created_at", { ascending: false }),
   ]);
 
@@ -185,7 +192,7 @@ export default async function ManagerPage() {
         </Card>
       </Section>
 
-      {managerIsCeo && (
+      {(managerIsCeo || manager.role === "hr") && (
         <Section title="Đăng ký ca" count={shiftRequestsList.length}>
           {shiftRequestsList.length === 0 ? (
             <p className="text-sm text-muted-foreground">Chưa có đăng ký ca làm nào.</p>
@@ -195,7 +202,7 @@ export default async function ManagerPage() {
                 <ShiftRequestCard
                   key={r.id}
                   request={r}
-                  canRespond={r.status === "pending"}
+                  canRespond={r.status === "pending" && canApproveShiftRequestFor(manager.role, r.profile.role)}
                   canCancel={r.status === "pending"}
                   showName
                 />

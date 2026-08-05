@@ -5,6 +5,8 @@ export type Role =
   | "hr"
   | "technical"
   | "teacher"
+  | "student_affairs"
+  | "teaching_assistant"
   | "collaborator"
   | "customer_care"
   | "operations_staff";
@@ -59,7 +61,7 @@ export type ShiftRequest = {
 };
 
 export type ShiftRequestDetailed = ShiftRequest & {
-  profile: Pick<Profile, "id" | "full_name">;
+  profile: Pick<Profile, "id" | "full_name" | "role">;
 };
 
 export type SwapRequest = {
