@@ -33,6 +33,7 @@ export async function createShiftAction(input: unknown): Promise<ActionResult> {
 
   const { error } = await supabase.from("shifts").insert({
     assignee_id: parsed.data.assignee_id,
+    branch_id: parsed.data.branch_id,
     start_at: parsed.data.start_at,
     end_at: parsed.data.end_at,
     shift_type: parsed.data.shift_type,
@@ -62,6 +63,7 @@ export async function updateShiftAction(
     .from("shifts")
     .update({
       assignee_id: parsed.data.assignee_id,
+      branch_id: parsed.data.branch_id,
       start_at: parsed.data.start_at,
       end_at: parsed.data.end_at,
       shift_type: parsed.data.shift_type,

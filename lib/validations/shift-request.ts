@@ -3,6 +3,7 @@ import { SHIFT_TYPES } from "@/lib/validations/shift";
 
 export const shiftRequestSchema = z
   .object({
+    branch_id: z.uuid("Vui lòng chọn cơ sở"),
     start_at: z.string().min(1, "Vui lòng chọn giờ bắt đầu"),
     end_at: z.string().min(1, "Vui lòng chọn giờ kết thúc"),
     shift_type: z.enum(SHIFT_TYPES, "Vui lòng chọn loại ca"),

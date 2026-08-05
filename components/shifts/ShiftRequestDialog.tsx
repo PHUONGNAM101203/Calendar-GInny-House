@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { SHIFT_TYPE_LABELS, detectShiftType } from "@/lib/constants";
 import { SHIFT_TYPES } from "@/lib/validations/shift";
-import type { ShiftType } from "@/types";
+import type { Branch, ShiftType } from "@/types";
 
 const DATE_FORMAT = "yyyy-MM-dd";
 const TIME_FORMAT = "HH:mm";
@@ -36,13 +36,16 @@ const TIME_FORMAT = "HH:mm";
 export default function ShiftRequestDialog({
   trigger,
   initialRange,
+  branches,
 }: {
   trigger?: React.ReactNode;
   initialRange?: { start: Date; end: Date } | null;
+  branches: Branch[];
 }) {
   const [open, setOpen] = useState(false);
   const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [branchId, setBranchId] = useState("");
   const [date, setDate] = useState(() => startOfDay(initialRange?.start ?? new Date()));
   const [startTime, setStartTime] = useState(
     initialRange ? format(initialRange.start, TIME_FORMAT) : "09:00"
@@ -70,6 +73,7 @@ export default function ShiftRequestDialog({
       setStartTime(initialStart);
       setEndTime(initialRange ? format(initialRange.end, TIME_FORMAT) : "11:00");
       setShiftType(detectShiftType(initialStart));
+      setBranchId("");
       setNote("");
     }
   }
@@ -77,6 +81,11 @@ export default function ShiftRequestDialog({
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setServerError("");
+
+    if (!branchId) {
+      setServerError("Vui lòng chọn cơ sở");
+      return;
+    }
 
     const startDateTime = parse(startTime, TIME_FORMAT, date);
     const endDateTime = parse(endTime, TIME_FORMAT, date);
@@ -88,6 +97,7 @@ export default function ShiftRequestDialog({
     const result = await requestShiftAction({
       start_at: startDateTime.toISOString(),
       end_at: endDateTime.toISOString(),
+      branch_id: branchId,
       shift_type: shiftType,
       note: note || undefined,
     });
@@ -136,6 +146,22 @@ export default function ShiftRequestDialog({
               />
               <TimePickerField id="request_end_time" label="Kết thúc" value={endTime} onChange={setEndTime} />
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="request_branch_id">Cơ sở</Label>
+            <Select value={branchId} onValueChange={setBranchId}>
+              <SelectTrigger id="request_branch_id" className="w-full">
+                <SelectValue placeholder="Chọn cơ sở" />
+              </SelectTrigger>
+              <SelectContent>
+                {branches.map((branch) => (
+                  <SelectItem key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1.5">

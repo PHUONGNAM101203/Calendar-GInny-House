@@ -28,6 +28,7 @@ export async function requestShiftAction(input: unknown): Promise<ActionResult> 
   const { error } = await supabase.rpc("request_shift", {
     p_start_at: new Date(parsed.data.start_at).toISOString(),
     p_end_at: new Date(parsed.data.end_at).toISOString(),
+    p_branch_id: parsed.data.branch_id,
     p_note: parsed.data.note || null,
     p_shift_type: parsed.data.shift_type,
   });

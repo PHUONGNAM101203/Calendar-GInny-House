@@ -406,6 +406,7 @@ export default function ShiftCalendar({
             open={formState.open}
             onOpenChange={(open) => setFormState((s) => ({ ...s, open }))}
             branchMembers={branchMembers}
+            branches={branches}
             shift={formState.shift}
             initialRange={formState.range}
           />

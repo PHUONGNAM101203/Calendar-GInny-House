@@ -456,7 +456,7 @@ function SidebarContent({
           Tạo ca làm việc
         </Button>
       ) : (
-        <ShiftRequestDialog />
+        <ShiftRequestDialog branches={branches} />
       )}
 
       <MiniMonth date={date} onPick={onPickDate} onOpenDay={onOpenDay} />

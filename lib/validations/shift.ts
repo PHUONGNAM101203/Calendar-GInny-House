@@ -5,6 +5,7 @@ export const SHIFT_TYPES = ["morning", "afternoon", "evening", "remote"] as cons
 export const shiftSchema = z
   .object({
     assignee_id: z.uuid("Vui lòng chọn nhân viên"),
+    branch_id: z.uuid("Vui lòng chọn cơ sở"),
     start_at: z.string().min(1, "Vui lòng chọn giờ bắt đầu"),
     end_at: z.string().min(1, "Vui lòng chọn giờ kết thúc"),
     shift_type: z.enum(SHIFT_TYPES, "Vui lòng chọn loại ca"),

@@ -42,7 +42,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import type { Profile, ShiftWithAssignee } from "@/types";
+import type { Branch, Profile, ShiftWithAssignee } from "@/types";
 
 const DATE_FORMAT = "yyyy-MM-dd";
 const TIME_FORMAT = "HH:mm";
@@ -53,6 +53,7 @@ const TIME_FORMAT = "HH:mm";
 // enough, same as Google Calendar's compact event editor.
 const formSchema = z.object({
   assignee_id: z.uuid("Vui lòng chọn nhân viên"),
+  branch_id: z.uuid("Vui lòng chọn cơ sở"),
   note: z.string().max(280, "Ghi chú tối đa 280 ký tự").optional(),
 });
 type FormValues = z.infer<typeof formSchema>;
@@ -61,12 +62,14 @@ export default function ShiftFormDialog({
   open,
   onOpenChange,
   branchMembers,
+  branches,
   shift,
   initialRange,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   branchMembers: Pick<Profile, "id" | "full_name">[];
+  branches: Branch[];
   shift?: ShiftWithAssignee | null;
   initialRange?: { start: Date; end: Date } | null;
 }) {
@@ -96,13 +99,13 @@ export default function ShiftFormDialog({
     if (open) {
       setServerError("");
       if (shift) {
-        reset({ assignee_id: shift.assignee_id, note: shift.note ?? "" });
+        reset({ assignee_id: shift.assignee_id, branch_id: shift.branch_id, note: shift.note ?? "" });
         setDate(startOfDay(new Date(shift.start_at)));
         setStartTime(format(new Date(shift.start_at), TIME_FORMAT));
         setEndTime(format(new Date(shift.end_at), TIME_FORMAT));
         setShiftType(shift.shift_type);
       } else {
-        reset({ assignee_id: undefined, note: "" });
+        reset({ assignee_id: undefined, branch_id: undefined, note: "" });
         const base = initialRange?.start ?? new Date();
         const initialStart = initialRange ? format(initialRange.start, TIME_FORMAT) : "09:00";
         setDate(startOfDay(base));
@@ -124,6 +127,7 @@ export default function ShiftFormDialog({
 
     const payload = {
       assignee_id: values.assignee_id,
+      branch_id: values.branch_id,
       start_at: startDateTime.toISOString(),
       end_at: endDateTime.toISOString(),
       shift_type: shiftType,
@@ -193,6 +197,29 @@ export default function ShiftFormDialog({
             {errors.assignee_id && (
               <p className="text-sm text-destructive">{errors.assignee_id.message}</p>
             )}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="branch_id">Cơ sở</Label>
+            <Controller
+              control={control}
+              name="branch_id"
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger id="branch_id" className="w-full">
+                    <SelectValue placeholder="Chọn cơ sở" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {branches.map((branch) => (
+                      <SelectItem key={branch.id} value={branch.id}>
+                        {branch.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.branch_id && <p className="text-sm text-destructive">{errors.branch_id.message}</p>}
           </div>
 
           <div className="space-y-3">
