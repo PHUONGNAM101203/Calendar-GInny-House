@@ -40,3 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .planning/
+
+# agent tooling (local-only, not part of the app)
+.agents/
+.claude/
+.serena/
