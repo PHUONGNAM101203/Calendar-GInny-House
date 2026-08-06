@@ -51,14 +51,17 @@ export async function signUpAction(input: unknown): Promise<ActionResult> {
     return { ok: false, error: mapSignUpError(error.message) };
   }
 
-  // This Supabase project has "Confirm email" OFF, so signUp() above just
-  // authenticated the browser — proxy.ts's own rule ("already signed in +
-  // on a public path like /login -> bounce to /calendar") would otherwise
-  // undo the redirect below and send a brand-new profile straight into
-  // /calendar before its data has settled. Sign back out so /login is
-  // actually where they land, and they log in explicitly afterward.
-  await supabase.auth.signOut();
-  redirect("/login?registered=1");
+  // This project has "Confirm email" OFF (mailer_autoconfirm), so signUp()
+  // above already authenticated the browser and set the session cookies —
+  // send them straight into the app rather than bouncing through /login.
+  //
+  // An earlier version signed back out here because landing on /calendar
+  // crashed on a null profile; that turned out to be an RLS scope mismatch
+  // on the calendar's embedded profile relations (fixed in
+  // 0028_profile_visible_via_roster.sql), not a not-yet-created profile —
+  // handle_new_user() creates the profiles row inside the same transaction
+  // as the auth.users insert, so it always exists by the time we get here.
+  redirect("/calendar");
 }
 
 export async function signOutAction() {
