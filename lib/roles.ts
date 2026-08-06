@@ -209,11 +209,11 @@ const CALENDAR_MANAGEMENT_ROLES: ReadonlySet<Role> = new Set([
 export function getCalendarFollowGroups(role: Role): CalendarFollowGroup[] | null {
   if (role === "ceo" || role === "technical") {
     return [
+      { key: "management", label: "Quản lý", roles: CALENDAR_MANAGEMENT_ROLES },
       { key: "operations", label: "Vận hành", roles: OPERATIONS_GROUP_ROLES },
       { key: "training", label: "Đào tạo", roles: CALENDAR_TEACHER_ONLY },
       { key: "hr_group", label: "Quản sinh + Trợ giảng", roles: HR_GROUP_ROLES },
       { key: "collaborators", label: "CTV", roles: CALENDAR_COLLABORATOR_ONLY },
-      { key: "management", label: "Quản lý", roles: CALENDAR_MANAGEMENT_ROLES },
     ];
   }
   if (role === "coo") {
