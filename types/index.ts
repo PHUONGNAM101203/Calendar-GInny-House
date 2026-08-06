@@ -103,6 +103,29 @@ export type AttendanceWithProfile = Attendance & {
   profile: Pick<Profile, "id" | "full_name">;
 };
 
+export type AttendanceCorrectionStatus = "pending" | "approved" | "rejected" | "cancelled";
+export type AttendanceCorrectionIssue = "missed_check_in" | "late_check_in";
+
+export type AttendanceCorrection = {
+  id: string;
+  profile_id: string;
+  shift_id: string;
+  attendance_id: string | null;
+  issue_type: AttendanceCorrectionIssue;
+  actual_check_in_at: string | null;
+  requested_check_in_at: string;
+  reason: string;
+  status: AttendanceCorrectionStatus;
+  responder_id: string | null;
+  resolved_at: string | null;
+  created_at: string;
+};
+
+export type AttendanceCorrectionDetailed = AttendanceCorrection & {
+  profile: Pick<Profile, "id" | "full_name" | "role">;
+  shift: Pick<Shift, "id" | "start_at" | "end_at">;
+};
+
 export type LeaveRequestType = "full_day" | "late_arrival" | "early_leave" | "hourly";
 
 export type LeaveRequest = {

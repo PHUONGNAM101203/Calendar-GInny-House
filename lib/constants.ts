@@ -28,6 +28,21 @@ export const SHIFT_REQUEST_STATUS_LABELS: Record<
   cancelled: "Đã huỷ",
 };
 
+export const ATTENDANCE_CORRECTION_STATUS_LABELS: Record<
+  "pending" | "approved" | "rejected" | "cancelled",
+  string
+> = {
+  pending: "Đang chờ",
+  approved: "Đã duyệt",
+  rejected: "Đã từ chối",
+  cancelled: "Đã huỷ",
+};
+
+export const ATTENDANCE_CORRECTION_ISSUE_LABELS: Record<"missed_check_in" | "late_check_in", string> = {
+  missed_check_in: "Quên chấm công",
+  late_check_in: "Chấm công trễ",
+};
+
 export const LEAVE_REQUEST_TYPE_LABELS: Record<
   "full_day" | "late_arrival" | "early_leave" | "hourly",
   string
