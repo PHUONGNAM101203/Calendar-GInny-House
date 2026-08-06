@@ -31,6 +31,17 @@ export const ROLE_LABELS: Record<Role, string> = {
   operations_staff: "Nhân viên vận hành",
 };
 
+// Display copy for the manager dashboard's group-scoped view — keyed by
+// the viewer's own role, not the group members' roles. Mirrors
+// getViewableGroupRoles() below 1:1; if that mapping changes, update this
+// too. ceo/technical intentionally have no entry (they see the org-wide
+// dashboard, no group label needed).
+export const MANAGER_GROUP_META: Partial<Record<Role, { label: string; description: string }>> = {
+  coo: { label: "Nhóm vận hành", description: "HR, CSKH và Nhân viên vận hành" },
+  training_director: { label: "Nhóm đào tạo", description: "Giáo viên và CTV" },
+  hr: { label: "Nhóm quản sinh", description: "Quản sinh và Trợ giảng" },
+};
+
 // Mirrors is_manager() in supabase/migrations/0005_role_hierarchy.sql —
 // keep both in sync if the manager-tier set ever changes. These 4 roles run
 // every cơ sở at once, so they never pick a branch for themselves (see
