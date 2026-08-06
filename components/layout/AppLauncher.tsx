@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Grid3x3Icon, TimerIcon, CalendarOffIcon, RefreshCwIcon } from "lucide-react";
+import { Grid3x3Icon, TimerIcon, CalendarOffIcon, RefreshCwIcon, ClipboardEditIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 
@@ -9,6 +9,7 @@ const APPS = [
   { href: "/attendance", label: "Chấm công", icon: TimerIcon },
   { href: "/leave", label: "Xin nghỉ phép", icon: CalendarOffIcon },
   { href: "/swaps", label: "Xin đổi ca", icon: RefreshCwIcon },
+  { href: "/attendance/explain", label: "Giải trình công", icon: ClipboardEditIcon },
 ] as const;
 
 export default function AppLauncher() {
@@ -22,9 +23,10 @@ export default function AppLauncher() {
       <PopoverContent align="end" className="w-56 p-2 sm:w-64">
         {/* Stacks in one column on narrow screens — a multi-column grid
             reads as spreading sideways instead of dropping straight down,
-            which is what looked off on mobile. Wider screens keep the
-            3-across icon grid. */}
-        <div className="grid grid-cols-1 gap-1 sm:grid-cols-3">
+            which is what looked off on mobile. Wider screens use a 2x2
+            grid (4 items) instead of 3-across, which would otherwise
+            leave an orphan cell on the second row. */}
+        <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
           {APPS.map((app) => (
             <Link
               key={app.href}
