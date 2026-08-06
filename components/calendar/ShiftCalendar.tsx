@@ -259,21 +259,26 @@ export default function ShiftCalendar({
     [shifts, currentUserId]
   );
 
+  // branchMembers is already the full list of people this viewer is
+  // allowed to see per RLS (can_view_profile — ceo/technical get
+  // everyone, coo/training_director/hr get their own group, everyone else
+  // gets their own branch). Building this from `shifts` instead (people
+  // with a shift in the currently visible week) used to hide anyone
+  // without a shift this week from the follow list, even when RLS
+  // permitted following them — fixed to source from branchMembers.
   const coworkers = useMemo(() => {
-    const byId = new Map<string, string>();
-    for (const s of shifts) {
-      if (s.assignee_id !== currentUserId) byId.set(s.assignee_id, s.assignee.full_name);
-    }
     const followedSet = new Set(followedIds);
-    return Array.from(byId, ([id, name]) => ({
-      id,
-      name,
-      color: followColors[id] ?? null,
-      followed: followedSet.has(id),
-    }))
+    return branchMembers
+      .filter((m) => m.id !== currentUserId)
+      .map((m) => ({
+        id: m.id,
+        name: m.full_name,
+        color: followColors[m.id] ?? null,
+        followed: followedSet.has(m.id),
+      }))
       .sort((a, b) => a.name.localeCompare(b.name, "vi"))
       .sort((a, b) => Number(b.followed) - Number(a.followed));
-  }, [shifts, currentUserId, followedIds, followColors]);
+  }, [branchMembers, currentUserId, followedIds, followColors]);
 
   function handleQuickCreate() {
     const start = new Date();
