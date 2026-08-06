@@ -17,6 +17,35 @@ function mapShiftRequestError(message: string): string {
   return "Không thể gửi đăng ký ca làm";
 }
 
+// The shift-request RPCs raise their own clean, human-facing Vietnamese
+// messages (see 0010/0019/0027) and those should reach the user verbatim —
+// but anything else arriving here is a raw Postgres engine error (type
+// mismatches, constraint names, "permission denied for table ..."), which
+// is meaningless to staff and leaks schema internals. So: allowlist the
+// known RPC exceptions, translate the constraint names we expect, and mask
+// everything else behind `fallback`.
+const SHIFT_RPC_MESSAGES = [
+  "Chưa đăng nhập",
+  "Đơn đăng ký không còn hiệu lực",
+  "Bạn không có quyền duyệt đăng ký ca này",
+  "Không thể huỷ đơn này",
+  "Nhân viên chưa được gán cơ sở",
+  "Giờ kết thúc phải sau giờ bắt đầu",
+  "Vui lòng chọn cơ sở",
+];
+
+function mapShiftRpcError(message: string, fallback: string): string {
+  const known = SHIFT_RPC_MESSAGES.find((m) => message.includes(m));
+  if (known) return known;
+  if (message.includes("shifts_no_overlap")) {
+    return "Ca này trùng giờ với một ca đã được duyệt của nhân viên";
+  }
+  if (message.includes("shifts_time_valid")) {
+    return "Giờ kết thúc phải sau giờ bắt đầu";
+  }
+  return fallback;
+}
+
 export async function requestShiftAction(input: unknown): Promise<ActionResult> {
   await requireProfile();
   const parsed = shiftRequestSchema.safeParse(input);
@@ -45,11 +74,9 @@ export async function cancelShiftRequestAction(id: string): Promise<ActionResult
   const supabase = await createClient();
   const { error } = await supabase.rpc("cancel_shift_request", { p_id: id });
 
-  // The RPC's own raise exception messages are already clean, human-facing
-  // Vietnamese text (see 0010_shift_requests.sql) — pass them through
-  // instead of masking with a generic string, so a real cause (overlap,
-  // stale status, wrong assignee) is visible instead of hidden.
-  if (error) return { ok: false, error: error.message || "Không thể huỷ đăng ký ca này" };
+  if (error) {
+    return { ok: false, error: mapShiftRpcError(error.message, "Không thể huỷ đăng ký ca này") };
+  }
 
   revalidatePath("/calendar");
   revalidatePath("/manager");
@@ -71,7 +98,9 @@ export async function respondToShiftRequestAction(
     p_approve: approve,
   });
 
-  if (error) return { ok: false, error: error.message || "Không thể xử lý đăng ký ca này" };
+  if (error) {
+    return { ok: false, error: mapShiftRpcError(error.message, "Không thể xử lý đăng ký ca này") };
+  }
 
   revalidatePath("/calendar");
   revalidatePath("/manager");
