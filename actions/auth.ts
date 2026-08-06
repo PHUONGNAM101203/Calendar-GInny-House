@@ -51,7 +51,13 @@ export async function signUpAction(input: unknown): Promise<ActionResult> {
     return { ok: false, error: mapSignUpError(error.message) };
   }
 
-  redirect("/calendar");
+  // Never assume signUp() left us with an active session — if the
+  // Supabase project has "Confirm email" enabled, data.session is null
+  // here and there's no auth cookie yet, so redirecting to a protected
+  // route like /calendar would just bounce through the proxy (or, worse,
+  // depend on an email-confirmation callback route this app doesn't
+  // have). Always land on /login and let the user sign in explicitly.
+  redirect("/login?registered=1");
 }
 
 export async function signOutAction() {

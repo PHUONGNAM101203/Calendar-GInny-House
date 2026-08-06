@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { toast } from "sonner";
 import { MailIcon, LockIcon, EyeIcon, EyeOffIcon, Loader2Icon, ArrowRightIcon } from "lucide-react";
 import { signInAction } from "@/actions/auth";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
@@ -18,9 +19,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function LoginForm() {
+export default function LoginForm({ justRegistered = false }: { justRegistered?: boolean }) {
   const [serverError, setServerError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (justRegistered) {
+      toast.success("Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.");
+    }
+  }, [justRegistered]);
   const {
     register,
     handleSubmit,
