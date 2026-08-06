@@ -3,7 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 import { isManagerRole } from "@/lib/roles";
 import { buildNotifications } from "@/lib/notifications";
 import AppHeader from "@/components/layout/AppHeader";
-import type { LeaveRequestDetailed, ShiftRequestDetailed, SwapRequestDetailed } from "@/types";
+import type {
+  AttendanceCorrectionDetailed,
+  LeaveRequestDetailed,
+  ShiftRequestDetailed,
+  SwapRequestDetailed,
+} from "@/types";
 
 export default async function AppShellLayout({
   children,
@@ -14,31 +19,38 @@ export default async function AppShellLayout({
   const isManager = isManagerRole(profile.role);
   const supabase = await createClient();
 
-  const [{ data: swaps }, { data: leaves }, { data: shiftRequests }] = await Promise.all([
-    supabase
-      .from("shift_swap_requests")
-      .select(
-        "*, requester:profiles!requester_id(id, full_name), target:profiles!target_id(id, full_name), requester_shift:shifts!requester_shift_id(id, start_at, end_at), target_shift:shifts!target_shift_id(id, start_at, end_at)"
-      )
-      .order("created_at", { ascending: false })
-      .limit(15),
-    supabase
-      .from("leave_requests")
-      .select("*, profile:profiles!profile_id(id, full_name)")
-      .order("created_at", { ascending: false })
-      .limit(15),
-    supabase
-      .from("shift_requests")
-      .select("*, profile:profiles!profile_id(id, full_name)")
-      .order("created_at", { ascending: false })
-      .limit(15),
-  ]);
+  const [{ data: swaps }, { data: leaves }, { data: shiftRequests }, { data: attendanceCorrections }] =
+    await Promise.all([
+      supabase
+        .from("shift_swap_requests")
+        .select(
+          "*, requester:profiles!requester_id(id, full_name), target:profiles!target_id(id, full_name), requester_shift:shifts!requester_shift_id(id, start_at, end_at), target_shift:shifts!target_shift_id(id, start_at, end_at)"
+        )
+        .order("created_at", { ascending: false })
+        .limit(15),
+      supabase
+        .from("leave_requests")
+        .select("*, profile:profiles!profile_id(id, full_name)")
+        .order("created_at", { ascending: false })
+        .limit(15),
+      supabase
+        .from("shift_requests")
+        .select("*, profile:profiles!profile_id(id, full_name)")
+        .order("created_at", { ascending: false })
+        .limit(15),
+      supabase
+        .from("attendance_corrections")
+        .select("*, profile:profiles!profile_id(id, full_name)")
+        .order("created_at", { ascending: false })
+        .limit(15),
+    ]);
 
   const notifications = buildNotifications({
     profile,
     swaps: (swaps as SwapRequestDetailed[]) ?? [],
     leaves: (leaves as LeaveRequestDetailed[]) ?? [],
     shiftRequests: (shiftRequests as ShiftRequestDetailed[]) ?? [],
+    attendanceCorrections: (attendanceCorrections as AttendanceCorrectionDetailed[]) ?? [],
   });
 
   return (

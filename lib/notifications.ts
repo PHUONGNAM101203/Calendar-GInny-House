@@ -1,7 +1,13 @@
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 import { isManagerRole, isCeo } from "@/lib/roles";
-import type { LeaveRequestDetailed, Profile, ShiftRequestDetailed, SwapRequestDetailed } from "@/types";
+import type {
+  AttendanceCorrectionDetailed,
+  LeaveRequestDetailed,
+  Profile,
+  ShiftRequestDetailed,
+  SwapRequestDetailed,
+} from "@/types";
 
 export type AppNotification = {
   id: string;
@@ -20,11 +26,13 @@ export function buildNotifications({
   swaps,
   leaves,
   shiftRequests,
+  attendanceCorrections,
 }: {
   profile: Pick<Profile, "id" | "role">;
   swaps: SwapRequestDetailed[];
   leaves: LeaveRequestDetailed[];
   shiftRequests: ShiftRequestDetailed[];
+  attendanceCorrections: AttendanceCorrectionDetailed[];
 }): AppNotification[] {
   const isManager = isManagerRole(profile.role);
   const ceo = isCeo(profile.role);
@@ -103,6 +111,35 @@ export function buildNotifications({
             : "Đăng ký ca làm của bạn đã bị từ chối",
         href: "/calendar",
         at: r.resolved_at,
+        needsAction: false,
+      });
+    }
+  }
+
+  for (const c of attendanceCorrections) {
+    const isMine = c.profile_id === profile.id;
+    if (c.status === "pending" && isManager) {
+      items.push({
+        id: `attendance-correction-${c.id}`,
+        text: `${c.profile.full_name} gửi đơn giải trình công đang chờ duyệt`,
+        href: "/manager",
+        at: c.created_at,
+        needsAction: true,
+      });
+    } else if (
+      isMine &&
+      c.status !== "pending" &&
+      c.resolved_at &&
+      new Date(c.resolved_at).getTime() > recentCutoff
+    ) {
+      items.push({
+        id: `attendance-correction-resolved-${c.id}`,
+        text:
+          c.status === "approved"
+            ? "Đơn giải trình công của bạn đã được duyệt"
+            : "Đơn giải trình công của bạn đã bị từ chối",
+        href: "/attendance/explain",
+        at: c.resolved_at,
         needsAction: false,
       });
     }
