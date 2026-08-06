@@ -18,8 +18,10 @@ import StaffTable from "@/components/manager/StaffTable";
 import SwapRequestCard from "@/components/swaps/SwapRequestCard";
 import LeaveRequestCard from "@/components/leave/LeaveRequestCard";
 import ShiftRequestCard from "@/components/shifts/ShiftRequestCard";
+import AttendanceCorrectionCard from "@/components/attendance/AttendanceCorrectionCard";
 import type {
   Attendance,
+  AttendanceCorrectionDetailed,
   AttendanceWithProfile,
   LeaveRequestDetailed,
   Profile,
@@ -83,6 +85,7 @@ export default async function ManagerPage() {
     { data: leaves },
     { data: yearAttendance },
     { data: shiftRequests },
+    { data: attendanceCorrections },
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -113,6 +116,10 @@ export default async function ManagerPage() {
       .from("shift_requests")
       .select("*, profile:profiles!profile_id(id, full_name, role)")
       .order("created_at", { ascending: false }),
+    supabase
+      .from("attendance_corrections")
+      .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at)")
+      .order("created_at", { ascending: false }),
   ]);
 
   const staffList = (staff as Pick<Profile, "id" | "full_name" | "phone" | "role" | "branch_id">[]) ?? [];
@@ -121,6 +128,7 @@ export default async function ManagerPage() {
   const clockedInList = (clockedIn as (AttendanceWithProfile & { profile: ProfileRoleRef })[]) ?? [];
   const attendanceList = (yearAttendance as Attendance[]) ?? [];
   const shiftRequestsList = (shiftRequests as ShiftRequestDetailed[]) ?? [];
+  const attendanceCorrectionsList = (attendanceCorrections as AttendanceCorrectionDetailed[]) ?? [];
   const shiftsTodayList = (shiftsTodayRows as Pick<{ assignee_id: string }, "assignee_id">[]) ?? [];
 
   const isTechnical = manager.role === "technical";
@@ -151,6 +159,9 @@ export default async function ManagerPage() {
   const scopedShiftRequests = groupRoles
     ? shiftRequestsList.filter((r) => groupRoles.has(r.profile.role))
     : shiftRequestsList;
+  const scopedAttendanceCorrections = groupRoles
+    ? attendanceCorrectionsList.filter((r) => groupRoles.has(r.profile.role))
+    : attendanceCorrectionsList;
   const scopedShiftsToday = groupRoles
     ? shiftsTodayList.filter((s) => scopedStaffIds.has(s.assignee_id)).length
     : shiftsTodayList.length;
@@ -247,6 +258,28 @@ export default async function ManagerPage() {
           <div className="grid gap-3 sm:grid-cols-2">
             {scopedLeaves.map((r) => (
               <LeaveRequestCard
+                key={r.id}
+                request={r}
+                canRespond={
+                  r.status === "pending" &&
+                  isLeaveApprover(manager.role) &&
+                  canApproveLeaveFor(manager.role, r.profile.role)
+                }
+                canCancel={r.status === "pending"}
+                showName
+              />
+            ))}
+          </div>
+        )}
+      </Section>
+
+      <Section id="attendance-corrections" title="Giải trình công" count={scopedAttendanceCorrections.length}>
+        {scopedAttendanceCorrections.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Chưa có đơn giải trình công nào.</p>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {scopedAttendanceCorrections.map((r) => (
+              <AttendanceCorrectionCard
                 key={r.id}
                 request={r}
                 canRespond={
