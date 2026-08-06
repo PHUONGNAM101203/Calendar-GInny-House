@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { requireManager } from "@/lib/auth";
 import { getBranches } from "@/lib/branches";
 import {
-  isOperationsGroupRole,
+  getViewableGroupRoles,
+  MANAGER_GROUP_META,
   isCeo,
   isLeaveApprover,
   canApproveLeaveFor,
@@ -77,7 +78,7 @@ export default async function ManagerPage() {
     { data: staff },
     { data: swaps },
     branches,
-    { count: shiftsToday },
+    { data: shiftsTodayRows },
     { data: clockedIn },
     { data: leaves },
     { data: yearAttendance },
@@ -91,7 +92,7 @@ export default async function ManagerPage() {
     getBranches(),
     supabase
       .from("shifts")
-      .select("*", { count: "exact", head: true })
+      .select("assignee_id")
       .gte("start_at", todayStart)
       .lte("start_at", todayEnd),
     supabase
@@ -120,32 +121,71 @@ export default async function ManagerPage() {
   const clockedInList = (clockedIn as (AttendanceWithProfile & { profile: ProfileRoleRef })[]) ?? [];
   const attendanceList = (yearAttendance as Attendance[]) ?? [];
   const shiftRequestsList = (shiftRequests as ShiftRequestDetailed[]) ?? [];
+  const shiftsTodayList = (shiftsTodayRows as Pick<{ assignee_id: string }, "assignee_id">[]) ?? [];
 
-  const isCoo = manager.role === "coo";
   const isTechnical = manager.role === "technical";
   const managerIsCeo = isCeo(manager.role);
-  const opsStaff = staffList.filter((s) => isOperationsGroupRole(s.role));
-  const opsStaffIds = new Set(opsStaff.map((s) => s.id));
-  const opsClockedIn = clockedInList.filter((a) => isOperationsGroupRole(a.profile.role));
-  const opsAttendance = attendanceList.filter((a) => opsStaffIds.has(a.profile_id));
-  const opsLeaves = leavesList.filter((l) => isOperationsGroupRole(l.profile.role));
+
+  // null => org-wide (ceo, technical); otherwise the exact set of roles
+  // this viewer's dashboard is scoped to. Single source of truth for "my
+  // group" on this page — see
+  // docs/superpowers/specs/2026-08-06-manager-dashboard-group-scope-design.md §4.2
+  // for why the page re-filters on top of RLS instead of trusting RLS alone.
+  const groupRoles = getViewableGroupRoles(manager.role);
+  const groupMeta = groupRoles ? MANAGER_GROUP_META[manager.role] : undefined;
+
+  const scopedStaff = groupRoles ? staffList.filter((s) => groupRoles.has(s.role)) : staffList;
+  const scopedStaffIds = new Set(scopedStaff.map((s) => s.id));
+  const scopedClockedIn = groupRoles
+    ? clockedInList.filter((a) => groupRoles.has(a.profile.role))
+    : clockedInList;
+  const scopedAttendance = groupRoles
+    ? attendanceList.filter((a) => scopedStaffIds.has(a.profile_id))
+    : attendanceList;
+  const scopedLeaves = groupRoles ? leavesList.filter((l) => groupRoles.has(l.profile.role)) : leavesList;
+  const scopedSwaps = groupRoles
+    ? swapsList.filter(
+        (s) => scopedStaffIds.has(s.requester_id) || (!!s.target_id && scopedStaffIds.has(s.target_id))
+      )
+    : swapsList;
+  const scopedShiftRequests = groupRoles
+    ? shiftRequestsList.filter((r) => groupRoles.has(r.profile.role))
+    : shiftRequestsList;
+  const scopedShiftsToday = groupRoles
+    ? shiftsTodayList.filter((s) => scopedStaffIds.has(s.assignee_id)).length
+    : shiftsTodayList.length;
 
   return (
     <div className="mx-auto w-full max-w-6xl flex-1 space-y-8 overflow-y-auto p-4 sm:p-6">
       <div>
         <h1 className="font-heading text-2xl font-semibold tracking-tight">Quản lý</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Theo dõi nhân sự và yêu cầu đổi ca trong cơ sở của bạn.
+          {groupMeta
+            ? `Theo dõi nhân sự và yêu cầu đổi ca trong ${groupMeta.label.toLowerCase()} bạn quản lý.`
+            : "Theo dõi nhân sự và yêu cầu đổi ca trong cơ sở của bạn."}
         </p>
       </div>
 
       {isTechnical ? (
         <TechnicalDashboard staff={staffList} attendance={attendanceList} leaveRequests={leavesList} />
+      ) : groupRoles ? (
+        <ManagerDashboard
+          totalStaff={scopedStaff.length}
+          unassignedStaff={scopedStaff.filter((s) => !s.branch_id).length}
+          shiftsToday={scopedShiftsToday}
+          pendingSwaps={scopedSwaps.filter((s) => s.status === "pending").length}
+          pendingLeave={scopedLeaves.filter((l) => l.status === "pending").length}
+          clockedInCount={scopedClockedIn.length}
+          staff={scopedStaff}
+          attendance={scopedAttendance}
+          leaveRequests={scopedLeaves}
+          overviewTitle={groupMeta ? `Tổng hợp chấm công — ${groupMeta.label}` : undefined}
+        />
       ) : (
         <ManagerDashboard
           totalStaff={staffList.length}
           unassignedStaff={staffList.filter((s) => !s.branch_id && !isManagerRole(s.role)).length}
-          shiftsToday={shiftsToday ?? 0}
+          shiftsToday={scopedShiftsToday}
           pendingSwaps={swapsList.filter((s) => s.status === "pending").length}
           pendingLeave={leavesList.filter((l) => l.status === "pending").length}
           clockedInCount={clockedInList.length}
@@ -155,50 +195,26 @@ export default async function ManagerPage() {
         />
       )}
 
-      {isCoo && (
-        <Section title="Nhóm vận hành">
-          <p className="mb-4 text-sm text-muted-foreground">
-            HR, CSKH và Nhân viên vận hành — {opsStaff.length} người.
-          </p>
-          <div className="space-y-4">
-            <ManagerDashboard
-              totalStaff={opsStaff.length}
-              unassignedStaff={opsStaff.filter((s) => !s.branch_id).length}
-              shiftsToday={shiftsToday ?? 0}
-              pendingSwaps={swapsList.filter(
-                (s) => s.status === "pending" && opsStaff.some((m) => m.id === s.requester_id)
-              ).length}
-              pendingLeave={opsLeaves.filter((l) => l.status === "pending").length}
-              clockedInCount={opsClockedIn.length}
-              staff={opsStaff}
-              attendance={opsAttendance}
-              leaveRequests={opsLeaves}
-              overviewTitle="Tổng hợp chấm công — Nhóm vận hành"
-            />
-            <Card>
-              <CardContent>
-                <StaffTable staff={opsStaff} branches={branches} currentUserId={manager.id} />
-              </CardContent>
-            </Card>
-          </div>
-        </Section>
-      )}
-
-      <Section id="staff" title="Nhân viên" count={staffList.length}>
+      <Section
+        id="staff"
+        title={groupMeta ? `Nhân viên — ${groupMeta.label}` : "Nhân viên"}
+        count={scopedStaff.length}
+      >
+        {groupMeta && <p className="mb-4 text-sm text-muted-foreground">{groupMeta.description}</p>}
         <Card>
           <CardContent>
-            <StaffTable staff={staffList} branches={branches} currentUserId={manager.id} />
+            <StaffTable staff={scopedStaff} branches={branches} currentUserId={manager.id} />
           </CardContent>
         </Card>
       </Section>
 
       {(managerIsCeo || manager.role === "hr") && (
-        <Section title="Đăng ký ca" count={shiftRequestsList.length}>
-          {shiftRequestsList.length === 0 ? (
+        <Section title="Đăng ký ca" count={scopedShiftRequests.length}>
+          {scopedShiftRequests.length === 0 ? (
             <p className="text-sm text-muted-foreground">Chưa có đăng ký ca làm nào.</p>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2">
-              {shiftRequestsList.map((r) => (
+              {scopedShiftRequests.map((r) => (
                 <ShiftRequestCard
                   key={r.id}
                   request={r}
@@ -212,24 +228,24 @@ export default async function ManagerPage() {
         </Section>
       )}
 
-      <Section id="swaps" title="Yêu cầu đổi ca" count={swapsList.length}>
-        {swapsList.length === 0 ? (
+      <Section id="swaps" title="Yêu cầu đổi ca" count={scopedSwaps.length}>
+        {scopedSwaps.length === 0 ? (
           <p className="text-sm text-muted-foreground">Chưa có yêu cầu đổi ca nào.</p>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
-            {swapsList.map((r) => (
+            {scopedSwaps.map((r) => (
               <SwapRequestCard key={r.id} request={r} canRespond={false} canCancel={r.status === "pending"} />
             ))}
           </div>
         )}
       </Section>
 
-      <Section id="leave" title="Nghỉ phép" count={leavesList.length}>
-        {leavesList.length === 0 ? (
+      <Section id="leave" title="Nghỉ phép" count={scopedLeaves.length}>
+        {scopedLeaves.length === 0 ? (
           <p className="text-sm text-muted-foreground">Chưa có đơn nghỉ phép nào.</p>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
-            {leavesList.map((r) => (
+            {scopedLeaves.map((r) => (
               <LeaveRequestCard
                 key={r.id}
                 request={r}
