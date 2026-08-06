@@ -35,16 +35,13 @@ async function ensureProfile(user: { id: string; email?: string | null }) {
 
 export const getSessionProfile = cache(async () => {
   const supabase = await createClient();
-  // proxy.ts already called getUser() for this exact request (a network
-  // round-trip to Supabase Auth) before the RSC tree even started
-  // rendering — that's the authoritative check for every matched route.
-  // Calling getUser() again here would pay that network cost a second
-  // time per page load for no extra security, so we read the
-  // already-verified session straight from the (proxy-refreshed) cookie.
+  // getUser() re-validates the token against the Auth server instead of
+  // trusting the cookie payload — getSession() does not, so per Supabase's
+  // own guidance it must not be used to gate access or read user data.
+  // React's cache() still limits this to one network round trip per request.
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const user = session?.user;
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) return null;
 
