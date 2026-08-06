@@ -51,12 +51,13 @@ export async function signUpAction(input: unknown): Promise<ActionResult> {
     return { ok: false, error: mapSignUpError(error.message) };
   }
 
-  // Never assume signUp() left us with an active session — if the
-  // Supabase project has "Confirm email" enabled, data.session is null
-  // here and there's no auth cookie yet, so redirecting to a protected
-  // route like /calendar would just bounce through the proxy (or, worse,
-  // depend on an email-confirmation callback route this app doesn't
-  // have). Always land on /login and let the user sign in explicitly.
+  // This Supabase project has "Confirm email" OFF, so signUp() above just
+  // authenticated the browser — proxy.ts's own rule ("already signed in +
+  // on a public path like /login -> bounce to /calendar") would otherwise
+  // undo the redirect below and send a brand-new profile straight into
+  // /calendar before its data has settled. Sign back out so /login is
+  // actually where they land, and they log in explicitly afterward.
+  await supabase.auth.signOut();
   redirect("/login?registered=1");
 }
 
