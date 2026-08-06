@@ -181,6 +181,56 @@ export const SELF_SIGNUP_ROLES = [
 
 export type SelfSignupRole = (typeof SELF_SIGNUP_ROLES)[number];
 
+// Calendar-follow-sidebar grouping (2026-08) — deliberately SEPARATE from
+// OPERATIONS_GROUP_ROLES/TRAINING_GROUP_ROLES/HR_GROUP_ROLES above, which
+// drive leave/shift-request approval and must not change. The calendar
+// groups diverge on purpose: "Đào tạo" here is {teacher} only (not
+// {teacher, collaborator} — CTV gets its own group for ceo/technical and
+// is dropped entirely from training_director's calendar view), and
+// training_director additionally gets a Trợ giảng-only group for VIEWING
+// teaching_assistant's calendar — see 0029_calendar_visibility_training_
+// director_teaching_assistant.sql for the matching RLS widening. HR
+// remains the sole approver for teaching_assistant either way.
+export type CalendarFollowGroup = { key: string; label: string; roles: ReadonlySet<Role> };
+
+const CALENDAR_TEACHER_ONLY: ReadonlySet<Role> = new Set(["teacher"]);
+const CALENDAR_COLLABORATOR_ONLY: ReadonlySet<Role> = new Set(["collaborator"]);
+const CALENDAR_TEACHING_ASSISTANT_ONLY: ReadonlySet<Role> = new Set(["teaching_assistant"]);
+const CALENDAR_MANAGEMENT_ROLES: ReadonlySet<Role> = new Set([
+  "ceo",
+  "coo",
+  "training_director",
+  "hr",
+  "technical",
+]);
+
+// null => this viewer keeps the flat, non-interactive legend (canFollowAll
+// is already false for every role that returns null here).
+export function getCalendarFollowGroups(role: Role): CalendarFollowGroup[] | null {
+  if (role === "ceo" || role === "technical") {
+    return [
+      { key: "operations", label: "Vận hành", roles: OPERATIONS_GROUP_ROLES },
+      { key: "training", label: "Đào tạo", roles: CALENDAR_TEACHER_ONLY },
+      { key: "hr_group", label: "Quản sinh + Trợ giảng", roles: HR_GROUP_ROLES },
+      { key: "collaborators", label: "CTV", roles: CALENDAR_COLLABORATOR_ONLY },
+      { key: "management", label: "Quản lý", roles: CALENDAR_MANAGEMENT_ROLES },
+    ];
+  }
+  if (role === "coo") {
+    return [{ key: "operations", label: "Nhóm vận hành", roles: OPERATIONS_GROUP_ROLES }];
+  }
+  if (role === "hr") {
+    return [{ key: "hr_group", label: "Nhóm trợ giảng + quản sinh", roles: HR_GROUP_ROLES }];
+  }
+  if (role === "training_director") {
+    return [
+      { key: "training", label: "Đào tạo", roles: CALENDAR_TEACHER_ONLY },
+      { key: "teaching_assistant", label: "Trợ giảng", roles: CALENDAR_TEACHING_ASSISTANT_ONLY },
+    ];
+  }
+  return null;
+}
+
 // Who can open the /manager page at all: manager-tier roles, plus HR for
 // its own scoped "Nhóm HR" section (HR itself isn't manager-tier — no
 // MANAGER_ROLES/is_manager() access — it just gets a narrow view+approve

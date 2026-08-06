@@ -27,6 +27,7 @@ import {
   type CalendarEvent,
 } from "@/lib/calendar";
 import { VIETNAM_HOLIDAYS } from "@/lib/holidays";
+import { getCalendarFollowGroups } from "@/lib/roles";
 import { useCalendarNav } from "@/hooks/use-calendar-nav";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { CALENDAR_MAX_HOUR, CALENDAR_MIN_HOUR } from "@/lib/constants";
@@ -49,6 +50,7 @@ import type {
   CustomEvent,
   LeaveRequestDetailed,
   Profile,
+  Role,
   ShiftWithAssignee,
   SwapRequest,
 } from "@/types";
@@ -68,6 +70,7 @@ export default function ShiftCalendar({
   customEvents,
   currentUserId,
   currentUserName,
+  currentUserRole,
   canManageShifts,
   branchMembers,
   canFollowAll,
@@ -84,8 +87,9 @@ export default function ShiftCalendar({
   customEvents: CustomEvent[];
   currentUserId: string;
   currentUserName: string;
+  currentUserRole: Role;
   canManageShifts: boolean;
-  branchMembers: Pick<Profile, "id" | "full_name">[];
+  branchMembers: Pick<Profile, "id" | "full_name" | "role">[];
   canFollowAll: boolean;
   followedIds: string[];
   followColors: Record<string, string>;
@@ -280,6 +284,33 @@ export default function ShiftCalendar({
       .sort((a, b) => Number(b.followed) - Number(a.followed));
   }, [branchMembers, currentUserId, followedIds, followColors]);
 
+  // Same source (branchMembers) as `coworkers`, bucketed into role-based
+  // groups instead of one flat list — see getCalendarFollowGroups() for
+  // which roles land in which group per viewer role. null for viewers
+  // without the group feature (canFollowAll === false), who keep the flat
+  // `coworkers` legend below unchanged. Filtering here (not on the raw
+  // branchMembers prop) matters: branchMembers is also threaded straight
+  // into ShiftFormDialog for the shift-assignee picker, which must keep
+  // seeing everyone RLS allows, not just this viewer's calendar groups.
+  const followGroups = useMemo(() => {
+    const defs = getCalendarFollowGroups(currentUserRole);
+    if (!defs) return null;
+    const followedSet = new Set(followedIds);
+    return defs.map((def) => ({
+      key: def.key,
+      label: def.label,
+      people: branchMembers
+        .filter((m) => m.id !== currentUserId && def.roles.has(m.role))
+        .map((m) => ({
+          id: m.id,
+          name: m.full_name,
+          color: followColors[m.id] ?? null,
+          followed: followedSet.has(m.id),
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name, "vi")),
+    }));
+  }, [branchMembers, currentUserId, currentUserRole, followedIds, followColors]);
+
   function handleQuickCreate() {
     const start = new Date();
     start.setHours(CALENDAR_MIN_HOUR + 3, 0, 0, 0);
@@ -295,6 +326,7 @@ export default function ShiftCalendar({
     onOpenDay: (d: Date) => navigate(d, "day"),
     onCreate: handleQuickCreate,
     people: coworkers,
+    groups: followGroups,
     canFollowAll,
     currentUserName,
     showHolidays,

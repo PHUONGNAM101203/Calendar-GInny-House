@@ -22,9 +22,18 @@ export default async function LeavePage() {
   const requests = (data as (LeaveRequestDetailed & { profile: Pick<Profile, "id" | "full_name" | "role"> })[]) ?? [];
   const canRespondTo = (r: (typeof requests)[number]) =>
     isApprover && canApproveLeaveFor(profile.role, r.profile.role);
-  const pending = requests.filter((r) => r.status === "pending" && r.profile_id !== profile.id);
+  // RLS visibility (can_view_profile_calendar) is now a superset of who an
+  // approver can actually act on (can_view_profile, via canApproveLeaveFor)
+  // — e.g. training_director can see but not approve teaching_assistant's
+  // leave. Filter these two sections down to rows the viewer can act on,
+  // so nothing shows up under "Chờ bạn duyệt" with no working buttons.
+  const pending = requests.filter(
+    (r) => r.status === "pending" && r.profile_id !== profile.id && (!isApprover || canApproveLeaveFor(profile.role, r.profile.role))
+  );
   const mine = requests.filter((r) => r.profile_id === profile.id);
-  const history = requests.filter((r) => r.status !== "pending" && r.profile_id !== profile.id);
+  const history = requests.filter(
+    (r) => r.status !== "pending" && r.profile_id !== profile.id && (!isApprover || canApproveLeaveFor(profile.role, r.profile.role))
+  );
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 overflow-y-auto p-4 sm:p-6">

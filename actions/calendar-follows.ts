@@ -64,6 +64,32 @@ export async function updateFollowColorAction(
   return { ok: true, data: undefined };
 }
 
+// Bulk version of followPersonAction — one upsert for the whole group
+// instead of N round trips. Deliberately omits `color` from the payload
+// (same as followPersonAction) so a previously-picked color survives a
+// bulk unfollow/re-follow cycle instead of being reset to the column
+// default.
+export async function followGroupAction(followeeIds: string[]): Promise<ActionResult> {
+  const profile = await requireProfile();
+  if (!canSeeAllCalendars(profile.role)) {
+    return { ok: false, error: "Bạn không có quyền theo dõi lịch người khác" };
+  }
+  if (followeeIds.length === 0) return { ok: true, data: undefined };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("calendar_follows")
+    .upsert(
+      followeeIds.map((followeeId) => ({ follower_id: profile.id, followee_id: followeeId, followed: true })),
+      { onConflict: "follower_id,followee_id" }
+    );
+
+  if (error) return { ok: false, error: "Không thể theo dõi cả nhóm" };
+
+  revalidatePath("/calendar");
+  return { ok: true, data: undefined };
+}
+
 // Flips "followed" off instead of deleting the row — deleting would also
 // wipe this viewer's chosen color for that person (see migration
 // 0016_calendar_follows_keep_color.sql). Re-following just flips it back
@@ -79,6 +105,26 @@ export async function unfollowPersonAction(followeeId: string): Promise<ActionRe
     );
 
   if (error) return { ok: false, error: "Không thể bỏ theo dõi" };
+
+  revalidatePath("/calendar");
+  return { ok: true, data: undefined };
+}
+
+// Bulk version of unfollowPersonAction — mirrors it exactly: no role gate,
+// anyone can unfollow.
+export async function unfollowGroupAction(followeeIds: string[]): Promise<ActionResult> {
+  const profile = await requireProfile();
+  if (followeeIds.length === 0) return { ok: true, data: undefined };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("calendar_follows")
+    .upsert(
+      followeeIds.map((followeeId) => ({ follower_id: profile.id, followee_id: followeeId, followed: false })),
+      { onConflict: "follower_id,followee_id" }
+    );
+
+  if (error) return { ok: false, error: "Không thể bỏ theo dõi cả nhóm" };
 
   revalidatePath("/calendar");
   return { ok: true, data: undefined };

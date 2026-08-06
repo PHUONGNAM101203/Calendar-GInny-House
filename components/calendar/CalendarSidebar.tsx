@@ -2,7 +2,17 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { MenuIcon, PlusIcon, CheckIcon, ChevronDownIcon, Trash2Icon, LinkIcon, LayoutGridIcon } from "lucide-react";
+import {
+  MenuIcon,
+  PlusIcon,
+  CheckIcon,
+  MinusIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  Trash2Icon,
+  LinkIcon,
+  LayoutGridIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -11,6 +21,8 @@ import {
   followPersonAction,
   unfollowPersonAction,
   updateFollowColorAction,
+  followGroupAction,
+  unfollowGroupAction,
 } from "@/actions/calendar-follows";
 import { updateBranchColorAction } from "@/actions/branch-colors";
 import { createCustomCalendarAction, deleteCustomCalendarAction } from "@/actions/custom-calendars";
@@ -21,6 +33,7 @@ import ColorPickerDialog from "@/components/calendar/ColorPickerDialog";
 import type { ActionResult, Branch, CustomCalendar } from "@/types";
 
 type Person = { id: string; name: string; followed: boolean; color: string | null };
+type PersonGroup = { key: string; label: string; people: Person[] };
 
 type EventTypeToggles = {
   showAttendance: boolean;
@@ -36,6 +49,7 @@ type SidebarProps = {
   onOpenDay: (date: Date) => void;
   onCreate: () => void;
   people: Person[];
+  groups: PersonGroup[] | null;
   canFollowAll: boolean;
   currentUserName: string;
   showHolidays: boolean;
@@ -427,6 +441,85 @@ function AddOtherCalendarMenu() {
   );
 }
 
+// Group header: a tri-state checkbox-square (same visual language as
+// PersonRow/CalendarCheckItem) that bulk-follows/unfollows every member at
+// once, plus a collapse toggle for the member list below it.
+function GroupCheckbox({
+  triState,
+  onToggle,
+  disabled,
+}: {
+  triState: "all" | "some" | "none";
+  onToggle: () => void;
+  disabled: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      disabled={disabled}
+      aria-label={triState === "all" ? "Bỏ theo dõi cả nhóm" : "Theo dõi cả nhóm"}
+      className="flex size-3.5 shrink-0 items-center justify-center rounded-[4px] disabled:opacity-50"
+      style={{
+        backgroundColor: triState === "none" ? "transparent" : "var(--foreground)",
+        boxShadow: "inset 0 0 0 1.5px var(--foreground)",
+      }}
+    >
+      {triState === "all" && <CheckIcon className="size-2.5 text-background" strokeWidth={3} />}
+      {triState === "some" && <MinusIcon className="size-2.5 text-background" strokeWidth={3} />}
+    </button>
+  );
+}
+
+function GroupSection({ group, canFollowAll }: { group: PersonGroup; canFollowAll: boolean }) {
+  const [collapsed, setCollapsed] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  const followedCount = group.people.filter((p) => p.followed).length;
+  const triState: "all" | "some" | "none" =
+    group.people.length === 0
+      ? "none"
+      : followedCount === group.people.length
+        ? "all"
+        : followedCount === 0
+          ? "none"
+          : "some";
+
+  function toggleGroup() {
+    const ids = group.people.map((p) => p.id);
+    startTransition(async () => {
+      const result = triState === "all" ? await unfollowGroupAction(ids) : await followGroupAction(ids);
+      if (!result.ok) toast.error(result.error);
+    });
+  }
+
+  return (
+    <div>
+      <div className="mb-1.5 flex items-center gap-2">
+        {canFollowAll && group.people.length > 0 && (
+          <GroupCheckbox triState={triState} onToggle={toggleGroup} disabled={isPending} />
+        )}
+        <button
+          type="button"
+          onClick={() => setCollapsed((c) => !c)}
+          className="flex flex-1 items-center gap-1 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase"
+        >
+          {collapsed ? <ChevronRightIcon className="size-3" /> : <ChevronDownIcon className="size-3" />}
+          <span className="truncate">{group.label}</span>
+          <span className="ml-auto shrink-0 font-normal normal-case">{group.people.length}</span>
+        </button>
+      </div>
+      {!collapsed && group.people.length > 0 && (
+        <ul className="mb-3 space-y-1.5 pl-[22px] text-sm">
+          {group.people.map((person) => (
+            <PersonRow key={person.id} person={person} canFollowAll={canFollowAll} />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function SidebarContent({
   canManageShifts,
   date,
@@ -434,6 +527,7 @@ function SidebarContent({
   onOpenDay,
   onCreate,
   people,
+  groups,
   canFollowAll,
   currentUserName,
   showHolidays,
@@ -463,7 +557,7 @@ function SidebarContent({
 
       <div>
         <p className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-          {canFollowAll ? "Toàn hệ thống" : "Chú giải"}
+          {groups ? "Bạn" : canFollowAll ? "Toàn hệ thống" : "Chú giải"}
         </p>
         <ul className="space-y-1.5 text-sm">
           <li className="flex items-center gap-2">
@@ -472,11 +566,17 @@ function SidebarContent({
             </span>
             <span className="truncate">{currentUserName}</span>
           </li>
-          {people.map((person) => (
-            <PersonRow key={person.id} person={person} canFollowAll={canFollowAll} />
-          ))}
+          {!groups && people.map((person) => <PersonRow key={person.id} person={person} canFollowAll={canFollowAll} />)}
         </ul>
       </div>
+
+      {groups && (
+        <div className="space-y-1">
+          {groups.map((group) => (
+            <GroupSection key={group.key} group={group} canFollowAll={canFollowAll} />
+          ))}
+        </div>
+      )}
 
       <div>
         <p className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">

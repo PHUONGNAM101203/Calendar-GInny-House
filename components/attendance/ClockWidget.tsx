@@ -2,13 +2,15 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { format, intervalToDuration } from "date-fns";
+import { format, intervalToDuration, subHours } from "date-fns";
 import { vi } from "date-fns/locale";
 import { LogInIcon, LogOutIcon } from "lucide-react";
 import { clockInAction, clockOutAction } from "@/actions/attendance";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import type { Attendance } from "@/types";
+import type { Attendance, Shift } from "@/types";
+
+type RelevantShift = Pick<Shift, "id" | "start_at" | "end_at">;
 
 function formatDuration(from: Date, to: Date) {
   const d = intervalToDuration({ start: from, end: to });
@@ -18,7 +20,29 @@ function formatDuration(from: Date, to: Date) {
   return `${h}g ${String(m).padStart(2, "0")}p ${String(s).padStart(2, "0")}s`;
 }
 
-export default function ClockWidget({ open }: { open: Attendance | null }) {
+// Mirrors clock_in()'s own window (start_at - 1h .. end_at) exactly, so the
+// button's enabled state can't disagree with what the RPC will actually
+// accept — this is UX polish only, the RPC stays the authoritative reject.
+type ClockInGate =
+  | { state: "ready" }
+  | { state: "upcoming"; opensAt: Date }
+  | { state: "ended" }
+  | { state: "none" };
+
+function getClockInGate(shifts: RelevantShift[], now: Date): ClockInGate {
+  const active = shifts.find((s) => now >= subHours(new Date(s.start_at), 1) && now <= new Date(s.end_at));
+  if (active) return { state: "ready" };
+
+  const upcoming = shifts.find((s) => now < subHours(new Date(s.start_at), 1));
+  if (upcoming) return { state: "upcoming", opensAt: subHours(new Date(upcoming.start_at), 1) };
+
+  const hasEnded = shifts.some((s) => new Date(s.end_at) < now);
+  if (hasEnded) return { state: "ended" };
+
+  return { state: "none" };
+}
+
+export default function ClockWidget({ open, shifts }: { open: Attendance | null; shifts: RelevantShift[] }) {
   const [isPending, startTransition] = useTransition();
   const [now, setNow] = useState(() => new Date());
 
@@ -26,6 +50,9 @@ export default function ClockWidget({ open }: { open: Attendance | null }) {
     const id = setInterval(() => setNow(new Date()), 1_000);
     return () => clearInterval(id);
   }, []);
+
+  const gate = getClockInGate(shifts, now);
+  const canClockIn = gate.state === "ready";
 
   function handleClockIn() {
     startTransition(async () => {
@@ -48,6 +75,15 @@ export default function ClockWidget({ open }: { open: Attendance | null }) {
       toast.success("Đã chấm công ra");
     });
   }
+
+  const gateMessage =
+    gate.state === "upcoming"
+      ? `Có thể chấm công vào lúc ${format(gate.opensAt, "HH:mm", { locale: vi })}`
+      : gate.state === "ended"
+        ? "Ca đã kết thúc, không thể chấm công"
+        : gate.state === "none"
+          ? "Bạn không có ca làm việc hôm nay"
+          : "Tới cơ sở rồi thì bấm một nút là vào ca.";
 
   return (
     <Card className="relative overflow-hidden">
@@ -85,9 +121,7 @@ export default function ClockWidget({ open }: { open: Attendance | null }) {
             >
               {format(now, "HH:mm:ss", { locale: vi })}
             </p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Tới cơ sở rồi thì bấm một nút là vào ca.
-            </p>
+            <p className="mt-2 text-sm text-muted-foreground">{gateMessage}</p>
           </div>
         )}
 
@@ -106,7 +140,7 @@ export default function ClockWidget({ open }: { open: Attendance | null }) {
           <Button
             size="lg"
             onClick={handleClockIn}
-            disabled={isPending}
+            disabled={isPending || !canClockIn}
             className="h-12 gap-2 rounded-full px-8"
           >
             <LogInIcon className="size-4" />

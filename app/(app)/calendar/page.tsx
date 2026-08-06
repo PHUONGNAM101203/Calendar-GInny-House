@@ -54,7 +54,7 @@ export default async function CalendarPage({
       .lte("start_at", end.toISOString())
       .order("start_at"),
     supabase.from("shift_swap_requests").select("*").eq("status", "pending"),
-    supabase.from("profiles").select("id, full_name").order("full_name"),
+    supabase.from("profiles").select("id, full_name, role").order("full_name"),
     canFollowAll
       ? supabase.from("calendar_follows").select("followee_id, color, followed").eq("follower_id", profile.id)
       : Promise.resolve({ data: [] }),
@@ -108,8 +108,9 @@ export default async function CalendarPage({
       customEvents={(customEvents as CustomEvent[]) ?? []}
       currentUserId={profile.id}
       currentUserName={profile.full_name}
+      currentUserRole={profile.role}
       canManageShifts={canCreateShiftDirectly(profile.role)}
-      branchMembers={(branchMembers as Pick<Profile, "id" | "full_name">[]) ?? []}
+      branchMembers={(branchMembers as Pick<Profile, "id" | "full_name" | "role">[]) ?? []}
       canFollowAll={canFollowAll}
       followedIds={followRows.filter((f) => f.followed).map((f) => f.followee_id)}
       followColors={followColors}
