@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 import { PageHeader, SectionHeading } from "@/components/layout/PageChrome";
@@ -28,6 +29,13 @@ export default async function AttendancePage() {
       />
 
       <ClockWidget open={open} />
+
+      <p className="text-sm text-muted-foreground">
+        Quên chấm công hoặc chấm công trễ?{" "}
+        <Link href="/attendance/explain" className="font-medium text-foreground underline underline-offset-4">
+          Gửi giải trình
+        </Link>
+      </p>
 
       <section className="space-y-3">
         <SectionHeading title="Lịch sử của tôi" />
