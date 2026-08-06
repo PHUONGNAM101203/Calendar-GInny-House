@@ -41,6 +41,24 @@ yarn-error.log*
 next-env.d.ts
 .planning/
 
+# eslint
+.eslintcache
+
+# supabase (local CLI link state — machine-specific, not shared)
+/supabase/.branches
+/supabase/.temp
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# os
+Thumbs.db
+
+# logs
+*.log
+
 # agent tooling (local-only, not part of the app)
 .agents/
 .claude/
