@@ -89,7 +89,7 @@ export default async function ManagerPage() {
   ] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, full_name, phone, role, branch_id")
+      .select("id, full_name, phone, role, profile_branches(branch_id)")
       .order("full_name"),
     supabase.from("shift_swap_requests").select(SELECT).order("created_at", { ascending: false }),
     getBranches(),
@@ -122,7 +122,16 @@ export default async function ManagerPage() {
       .order("created_at", { ascending: false }),
   ]);
 
-  const staffList = (staff as Pick<Profile, "id" | "full_name" | "phone" | "role" | "branch_id">[]) ?? [];
+  type StaffQueryRow = Pick<Profile, "id" | "full_name" | "phone" | "role"> & {
+    profile_branches: { branch_id: string }[];
+  };
+  const staffList = ((staff as StaffQueryRow[] | null) ?? []).map((s) => ({
+    id: s.id,
+    full_name: s.full_name,
+    phone: s.phone,
+    role: s.role,
+    branch_ids: s.profile_branches.map((pb) => pb.branch_id),
+  }));
   const swapsList = (swaps as SwapRequestDetailed[]) ?? [];
   const leavesList = (leaves as (LeaveRequestDetailed & { profile: ProfileRoleRef })[]) ?? [];
   const clockedInList = (clockedIn as (AttendanceWithProfile & { profile: ProfileRoleRef })[]) ?? [];
@@ -182,7 +191,7 @@ export default async function ManagerPage() {
       ) : groupRoles ? (
         <ManagerDashboard
           totalStaff={scopedStaff.length}
-          unassignedStaff={scopedStaff.filter((s) => !s.branch_id).length}
+          unassignedStaff={scopedStaff.filter((s) => s.branch_ids.length === 0).length}
           shiftsToday={scopedShiftsToday}
           pendingSwaps={scopedSwaps.filter((s) => s.status === "pending").length}
           pendingLeave={scopedLeaves.filter((l) => l.status === "pending").length}
@@ -195,7 +204,7 @@ export default async function ManagerPage() {
       ) : (
         <ManagerDashboard
           totalStaff={staffList.length}
-          unassignedStaff={staffList.filter((s) => !s.branch_id && !isManagerRole(s.role)).length}
+          unassignedStaff={staffList.filter((s) => s.branch_ids.length === 0 && !isManagerRole(s.role)).length}
           shiftsToday={scopedShiftsToday}
           pendingSwaps={swapsList.filter((s) => s.status === "pending").length}
           pendingLeave={leavesList.filter((l) => l.status === "pending").length}

@@ -57,10 +57,11 @@ export default async function AppShellLayout({
     <div className="flex flex-1 flex-col">
       <AppHeader fullName={profile.full_name} role={profile.role} notifications={notifications} />
       {/* Manager-tier roles (ceo/coo/training_director/technical) never have
-          a branch_id by design — they run every cơ sở at once (see
-          isManagerRole in lib/roles.ts). Only front-line roles missing a
-          branch get the nag; a manager missing one isn't a data problem. */}
-      {!profile.branch_id && !isManager && (
+          any profile_branches rows by design — they run every cơ sở at once
+          (see isManagerRole in lib/roles.ts). Only front-line roles with
+          zero branch memberships get the nag; a manager having none isn't a
+          data problem. */}
+      {profile.branch_ids.length === 0 && !isManager && (
         <div className="border-b bg-destructive/10 px-4 py-2 text-center text-sm text-destructive sm:px-6">
           Bạn chưa được gán cơ sở làm việc. Vui lòng liên hệ quản lý.
         </div>
