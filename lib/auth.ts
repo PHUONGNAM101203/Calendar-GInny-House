@@ -3,9 +3,29 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { canAccessManagerPage } from "@/lib/roles";
-import type { Profile } from "@/types";
+import type { Profile, Role } from "@/types";
 
-const PROFILE_COLUMNS = "id, full_name, phone, role, branch_id, color";
+const PROFILE_COLUMNS = "id, full_name, phone, role, color, profile_branches(branch_id)";
+
+type ProfileRow = {
+  id: string;
+  full_name: string;
+  phone: string | null;
+  role: Role;
+  color: string | null;
+  profile_branches: { branch_id: string }[] | null;
+};
+
+function toProfile(row: ProfileRow): Omit<Profile, "email"> {
+  return {
+    id: row.id,
+    full_name: row.full_name,
+    phone: row.phone,
+    role: row.role,
+    color: row.color,
+    branch_ids: (row.profile_branches ?? []).map((pb) => pb.branch_id),
+  };
+}
 
 // Self-heals accounts that have a Supabase auth user but no `profiles` row
 // yet (e.g. created before the trigger existed, or the trigger raced with
@@ -22,7 +42,7 @@ async function ensureProfile(user: { id: string; email?: string | null }) {
     .select(PROFILE_COLUMNS)
     .single();
 
-  if (created) return created as Profile;
+  if (created) return toProfile(created as ProfileRow);
 
   const { data: existing } = await supabaseAdmin
     .from("profiles")
@@ -30,7 +50,7 @@ async function ensureProfile(user: { id: string; email?: string | null }) {
     .eq("id", user.id)
     .single();
 
-  return existing as Profile | null;
+  return existing ? toProfile(existing as ProfileRow) : null;
 }
 
 export const getSessionProfile = cache(async () => {
@@ -51,10 +71,10 @@ export const getSessionProfile = cache(async () => {
     .eq("id", user.id)
     .single();
 
-  const resolved = profile ?? (await ensureProfile(user));
+  const resolved = profile ? toProfile(profile as ProfileRow) : await ensureProfile(user);
   if (!resolved) return null;
 
-  return { ...(resolved as Profile), email: user.email ?? "" };
+  return { ...resolved, email: user.email ?? "" };
 });
 
 export async function requireProfile() {

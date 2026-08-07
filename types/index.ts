@@ -27,7 +27,7 @@ export type Profile = {
   full_name: string;
   phone: string | null;
   role: Role;
-  branch_id: string | null;
+  branch_ids: string[];
   color: string | null;
 };
 
