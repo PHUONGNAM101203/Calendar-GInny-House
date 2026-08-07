@@ -60,6 +60,7 @@ type SidebarProps = {
   hiddenCustomCalendarIds: Set<string>;
   onToggleCustomCalendar: (calendarId: string, visible: boolean) => void;
   branches: Branch[];
+  requestableBranches: Branch[];
   hiddenBranchKeys: Set<string>;
   onToggleBranch: (key: string, visible: boolean) => void;
   branchColors: Record<string, string>;
@@ -538,6 +539,7 @@ function SidebarContent({
   hiddenCustomCalendarIds,
   onToggleCustomCalendar,
   branches,
+  requestableBranches,
   hiddenBranchKeys,
   onToggleBranch,
   branchColors,
@@ -550,7 +552,7 @@ function SidebarContent({
           Tạo ca làm việc
         </Button>
       ) : (
-        <ShiftRequestDialog branches={branches} />
+        <ShiftRequestDialog branches={requestableBranches} />
       )}
 
       <MiniMonth date={date} onPick={onPickDate} onOpenDay={onOpenDay} />

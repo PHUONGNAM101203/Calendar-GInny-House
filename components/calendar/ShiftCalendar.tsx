@@ -27,7 +27,7 @@ import {
   type CalendarEvent,
 } from "@/lib/calendar";
 import { VIETNAM_HOLIDAYS } from "@/lib/holidays";
-import { getCalendarFollowGroups } from "@/lib/roles";
+import { getCalendarFollowGroups, isManagerRole } from "@/lib/roles";
 import { useCalendarNav } from "@/hooks/use-calendar-nav";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { CALENDAR_MAX_HOUR, CALENDAR_MIN_HOUR } from "@/lib/constants";
@@ -311,6 +311,18 @@ export default function ShiftCalendar({
     }));
   }, [branchMembers, currentUserId, currentUserRole, followedIds, followColors]);
 
+  // ShiftRequestDialog only ever renders for the current viewer requesting
+  // their OWN shift, so this is scoped to their branches, not the
+  // assignee-varies logic ShiftFormDialog needs. Management-tier requesters
+  // (training_director, notably — manager-tier but not in
+  // DIRECT_SHIFT_ROLES, so they use this dialog too) still see every
+  // branch, matching their "all branches" status everywhere else.
+  const requestableBranches = useMemo(() => {
+    if (isManagerRole(currentUserRole)) return branches;
+    const self = branchMembers.find((m) => m.id === currentUserId);
+    return branches.filter((b) => self?.branch_ids.includes(b.id));
+  }, [branches, branchMembers, currentUserId, currentUserRole]);
+
   function handleQuickCreate() {
     const start = new Date();
     start.setHours(CALENDAR_MIN_HOUR + 3, 0, 0, 0);
@@ -343,6 +355,7 @@ export default function ShiftCalendar({
         return next;
       }),
     branches,
+    requestableBranches,
     hiddenBranchKeys,
     onToggleBranch: (key: string, visible: boolean) =>
       setHiddenBranchKeys((prev) => {
