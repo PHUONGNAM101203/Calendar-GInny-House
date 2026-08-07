@@ -38,6 +38,9 @@ function mapShiftError(message: string): string {
   if (message.includes("Nhân viên chưa được gán cơ sở")) {
     return "Nhân viên chưa được gán cơ sở";
   }
+  if (message.includes("Ca này đã có đăng ký quản sinh")) {
+    return "Ca này đã có đăng ký quản sinh";
+  }
   return "Không thể lưu ca làm việc";
 }
 

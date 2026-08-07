@@ -14,6 +14,9 @@ function mapShiftRequestError(message: string): string {
   if (message.includes("shifts_no_overlap")) {
     return "Ca này trùng giờ với một ca đã được duyệt của bạn";
   }
+  if (message.includes("Ca này đã có đăng ký quản sinh")) {
+    return "Ca này đã có đăng ký quản sinh";
+  }
   return "Không thể gửi đăng ký ca làm";
 }
 
@@ -32,6 +35,7 @@ const SHIFT_RPC_MESSAGES = [
   "Nhân viên chưa được gán cơ sở",
   "Giờ kết thúc phải sau giờ bắt đầu",
   "Vui lòng chọn cơ sở",
+  "Ca này đã có đăng ký quản sinh",
 ];
 
 function mapShiftRpcError(message: string, fallback: string): string {
