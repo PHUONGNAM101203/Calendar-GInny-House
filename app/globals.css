@@ -271,6 +271,26 @@
 .rbc-time-header .rbc-header + .rbc-header {
   border-left: none;
 }
+/* Sticky day-of-week row (week/day view) — separate from CalendarToolbar's
+   own `sticky top-0` (the month/nav bar above it). Stacks directly below
+   the toolbar so both stay pinned while the hour grid scrolls beneath.
+   `top` is an estimate of the toolbar's rendered height (h-7 buttons +
+   pt-1/pb-2 padding) — nudge this value if it doesn't line up flush once
+   checked in a real browser, since this couldn't be visually verified here. */
+.rbc-time-view .rbc-time-header {
+  position: sticky;
+  top: 3.5rem;
+  z-index: 15;
+  background: var(--background);
+}
+/* Month view has no CalendarToolbar-style day-number row, just the plain
+   weekday label row — same treatment for consistency. */
+.rbc-month-view .rbc-month-header {
+  position: sticky;
+  top: 3.5rem;
+  z-index: 15;
+  background: var(--background);
+}
 .rbc-off-range {
   color: var(--muted-foreground);
 }

@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { usePersistentCollapse } from "@/hooks/use-persistent-collapse";
 import { getPersonColorVar, resolveColor, isCustomHexColor, EVENT_COLOR_SWATCHES } from "@/lib/calendar";
 import { formatNotificationTime } from "@/lib/notifications";
 import {
@@ -493,8 +494,42 @@ function GroupCheckbox({
   );
 }
 
+// Shared chevron + label header for every collapsible sidebar section
+// ("Loại sự kiện", "Cơ sở", "Lịch khác" — plus GroupSection below, which
+// has its own header for the extra group-follow checkbox). State comes
+// from usePersistentCollapse, so collapsing one survives a reload.
+function CollapsibleSectionHeader({
+  storageKey,
+  label,
+  collapsed,
+  onToggle,
+  trailing,
+}: {
+  storageKey: string;
+  label: string;
+  collapsed: boolean;
+  onToggle: () => void;
+  trailing?: React.ReactNode;
+}) {
+  return (
+    <div className="mb-2 flex items-center gap-1">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={!collapsed}
+        aria-controls={`sidebar-section-${storageKey}`}
+        className="flex flex-1 items-center gap-1 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase"
+      >
+        {collapsed ? <ChevronRightIcon className="size-3" /> : <ChevronDownIcon className="size-3" />}
+        <span className="truncate">{label}</span>
+      </button>
+      {trailing}
+    </div>
+  );
+}
+
 function GroupSection({ group, canFollowAll }: { group: PersonGroup; canFollowAll: boolean }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = usePersistentCollapse(`group-${group.key}`);
   const [isPending, startTransition] = useTransition();
 
   const followedCount = group.people.filter((p) => p.followed).length;
@@ -523,7 +558,7 @@ function GroupSection({ group, canFollowAll }: { group: PersonGroup; canFollowAl
         )}
         <button
           type="button"
-          onClick={() => setCollapsed((c) => !c)}
+          onClick={() => setCollapsed(!collapsed)}
           className="flex flex-1 items-center gap-1 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase"
         >
           {collapsed ? <ChevronRightIcon className="size-3" /> : <ChevronDownIcon className="size-3" />}
@@ -587,6 +622,10 @@ function SidebarContent({
   onToggleBranch,
   branchColors,
 }: SidebarProps) {
+  const [eventTypesCollapsed, setEventTypesCollapsed] = usePersistentCollapse("event-types");
+  const [branchesCollapsed, setBranchesCollapsed] = usePersistentCollapse("branches");
+  const [otherCalendarsCollapsed, setOtherCalendarsCollapsed] = usePersistentCollapse("other-calendars");
+
   return (
     <div className="flex flex-col gap-6">
       {canManageShifts ? (
@@ -624,35 +663,40 @@ function SidebarContent({
       )}
 
       <div>
-        <p className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-          Loại sự kiện
-        </p>
-        <ul className="space-y-1.5 text-sm">
-          <CalendarCheckItem
-            label="Chấm công"
-            checked={eventToggles.showAttendance}
-            onChange={(v) => onEventTogglesChange({ ...eventToggles, showAttendance: v })}
-            colorVar="--chart-3"
-          />
-          <CalendarCheckItem
-            label="Nghỉ phép"
-            checked={eventToggles.showLeave}
-            onChange={(v) => onEventTogglesChange({ ...eventToggles, showLeave: v })}
-            colorVar="--chart-5"
-          />
-          <CalendarCheckItem
-            label="Đến muộn"
-            checked={eventToggles.showLateArrival}
-            onChange={(v) => onEventTogglesChange({ ...eventToggles, showLateArrival: v })}
-            colorVar="--gold"
-          />
-          <CalendarCheckItem
-            label="Đổi ca"
-            checked={eventToggles.showSwapIndicator}
-            onChange={(v) => onEventTogglesChange({ ...eventToggles, showSwapIndicator: v })}
-            colorVar="--chart-6"
-          />
-        </ul>
+        <CollapsibleSectionHeader
+          storageKey="event-types"
+          label="Loại sự kiện"
+          collapsed={eventTypesCollapsed}
+          onToggle={() => setEventTypesCollapsed(!eventTypesCollapsed)}
+        />
+        {!eventTypesCollapsed && (
+          <ul id="sidebar-section-event-types" className="space-y-1.5 text-sm">
+            <CalendarCheckItem
+              label="Chấm công"
+              checked={eventToggles.showAttendance}
+              onChange={(v) => onEventTogglesChange({ ...eventToggles, showAttendance: v })}
+              colorVar="--chart-3"
+            />
+            <CalendarCheckItem
+              label="Nghỉ phép"
+              checked={eventToggles.showLeave}
+              onChange={(v) => onEventTogglesChange({ ...eventToggles, showLeave: v })}
+              colorVar="--chart-5"
+            />
+            <CalendarCheckItem
+              label="Đến muộn"
+              checked={eventToggles.showLateArrival}
+              onChange={(v) => onEventTogglesChange({ ...eventToggles, showLateArrival: v })}
+              colorVar="--gold"
+            />
+            <CalendarCheckItem
+              label="Đổi ca"
+              checked={eventToggles.showSwapIndicator}
+              onChange={(v) => onEventTogglesChange({ ...eventToggles, showSwapIndicator: v })}
+              colorVar="--chart-6"
+            />
+          </ul>
+        )}
       </div>
 
       {pendingApprovals.length > 0 && (
@@ -669,53 +713,61 @@ function SidebarContent({
       )}
 
       <div>
-        <p className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-          Cơ sở
-        </p>
-        <ul className="space-y-1.5 text-sm">
-          {branches.map((branch) => (
+        <CollapsibleSectionHeader
+          storageKey="branches"
+          label="Cơ sở"
+          collapsed={branchesCollapsed}
+          onToggle={() => setBranchesCollapsed(!branchesCollapsed)}
+        />
+        {!branchesCollapsed && (
+          <ul id="sidebar-section-branches" className="space-y-1.5 text-sm">
+            {branches.map((branch) => (
+              <BranchRow
+                key={branch.id}
+                label={branch.name}
+                checked={!hiddenBranchKeys.has(branch.id)}
+                onChange={(v) => onToggleBranch(branch.id, v)}
+                colorVar={branchColors[branch.id] ?? `--${branch.color_token}`}
+                onPickColor={(color) => updateBranchColorAction(branch.id, color)}
+              />
+            ))}
             <BranchRow
-              key={branch.id}
-              label={branch.name}
-              checked={!hiddenBranchKeys.has(branch.id)}
-              onChange={(v) => onToggleBranch(branch.id, v)}
-              colorVar={branchColors[branch.id] ?? `--${branch.color_token}`}
-              onPickColor={(color) => updateBranchColorAction(branch.id, color)}
+              label="Remote"
+              checked={!hiddenBranchKeys.has("remote")}
+              onChange={(v) => onToggleBranch("remote", v)}
+              colorVar={branchColors["remote"] ?? "--chart-4"}
+              onPickColor={(color) => updateBranchColorAction("remote", color)}
             />
-          ))}
-          <BranchRow
-            label="Remote"
-            checked={!hiddenBranchKeys.has("remote")}
-            onChange={(v) => onToggleBranch("remote", v)}
-            colorVar={branchColors["remote"] ?? "--chart-4"}
-            onPickColor={(color) => updateBranchColorAction("remote", color)}
-          />
-        </ul>
+          </ul>
+        )}
       </div>
 
       <div>
-        <div className="mb-2 flex items-center">
-          <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-            Lịch khác
-          </p>
-          <AddOtherCalendarMenu />
-        </div>
-        <ul className="space-y-1.5 text-sm">
-          <CalendarCheckItem
-            label="Ngày lễ ở Việt Nam"
-            checked={showHolidays}
-            onChange={onToggleHolidays}
-            colorVar="--success"
-          />
-          {customCalendars.map((calendar) => (
-            <CustomCalendarRow
-              key={calendar.id}
-              calendar={calendar}
-              visible={!hiddenCustomCalendarIds.has(calendar.id)}
-              onToggle={(next) => onToggleCustomCalendar(calendar.id, next)}
+        <CollapsibleSectionHeader
+          storageKey="other-calendars"
+          label="Lịch khác"
+          collapsed={otherCalendarsCollapsed}
+          onToggle={() => setOtherCalendarsCollapsed(!otherCalendarsCollapsed)}
+          trailing={<AddOtherCalendarMenu />}
+        />
+        {!otherCalendarsCollapsed && (
+          <ul id="sidebar-section-other-calendars" className="space-y-1.5 text-sm">
+            <CalendarCheckItem
+              label="Ngày lễ ở Việt Nam"
+              checked={showHolidays}
+              onChange={onToggleHolidays}
+              colorVar="--success"
             />
-          ))}
-        </ul>
+            {customCalendars.map((calendar) => (
+              <CustomCalendarRow
+                key={calendar.id}
+                calendar={calendar}
+                visible={!hiddenCustomCalendarIds.has(calendar.id)}
+                onToggle={(next) => onToggleCustomCalendar(calendar.id, next)}
+              />
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

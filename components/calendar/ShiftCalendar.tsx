@@ -487,15 +487,21 @@ export default function ShiftCalendar({
   // doesn't need this pass (its RLS select is already exactly that shape,
   // see calendar/page.tsx); the other three tables' RLS is broader
   // (visibility, not approval rights), so this is where that gets applied.
+  // canFollowAll roles (ceo/technical) already see everyone's calendar —
+  // extend that same blanket visibility to "Cần xét duyệt" for roles that
+  // aren't actual approvers (technical today), so they can at least see
+  // what's pending. The dialogs opened from these rows independently gate
+  // their own Duyệt/Từ chối buttons via isLeaveApprover/canApproveLeaveFor,
+  // so a non-approver seeing the row here still can't act on it.
   const pendingLeaveForApproval = useMemo(
     () =>
       scopeToOwnOrApprovable(
         leaveRequests.filter((r) => r.status === "pending"),
         currentUserId,
         (r) => r.profile_id,
-        (r) => isLeaveApprover(currentUserRole) && canApproveLeaveFor(currentUserRole, r.profile.role)
+        (r) => (isLeaveApprover(currentUserRole) && canApproveLeaveFor(currentUserRole, r.profile.role)) || canFollowAll
       ),
-    [leaveRequests, currentUserId, currentUserRole]
+    [leaveRequests, currentUserId, currentUserRole, canFollowAll]
   );
   const pendingSwapsForApproval = useMemo(
     () =>
@@ -503,9 +509,10 @@ export default function ShiftCalendar({
         pendingSwaps,
         currentUserId,
         (r) => r.requester_id,
-        (r) => r.target_id === currentUserId || (r.target_id === null && r.requester_id !== currentUserId)
+        (r) =>
+          r.target_id === currentUserId || (r.target_id === null && r.requester_id !== currentUserId) || canFollowAll
       ),
-    [pendingSwaps, currentUserId]
+    [pendingSwaps, currentUserId, canFollowAll]
   );
   const attendanceCorrectionsForApproval = useMemo(
     () =>
@@ -513,9 +520,9 @@ export default function ShiftCalendar({
         attendanceCorrections,
         currentUserId,
         (r) => r.profile_id,
-        (r) => isLeaveApprover(currentUserRole) && canApproveLeaveFor(currentUserRole, r.profile.role)
+        (r) => (isLeaveApprover(currentUserRole) && canApproveLeaveFor(currentUserRole, r.profile.role)) || canFollowAll
       ),
-    [attendanceCorrections, currentUserId, currentUserRole]
+    [attendanceCorrections, currentUserId, currentUserRole, canFollowAll]
   );
   const pendingApprovals: PendingApprovalItem[] = useMemo(() => {
     const items: PendingApprovalItem[] = [

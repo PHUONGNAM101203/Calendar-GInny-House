@@ -196,6 +196,7 @@ export type CalendarFollowGroup = { key: string; label: string; roles: ReadonlyS
 const CALENDAR_TEACHER_ONLY: ReadonlySet<Role> = new Set(["teacher"]);
 const CALENDAR_COLLABORATOR_ONLY: ReadonlySet<Role> = new Set(["collaborator"]);
 const CALENDAR_TEACHING_ASSISTANT_ONLY: ReadonlySet<Role> = new Set(["teaching_assistant"]);
+const CALENDAR_STUDENT_AFFAIRS_ONLY: ReadonlySet<Role> = new Set(["student_affairs"]);
 const CALENDAR_MANAGEMENT_ROLES: ReadonlySet<Role> = new Set([
   "ceo",
   "coo",
@@ -212,7 +213,8 @@ export function getCalendarFollowGroups(role: Role): CalendarFollowGroup[] | nul
       { key: "management", label: "Quản lý", roles: CALENDAR_MANAGEMENT_ROLES },
       { key: "operations", label: "Vận hành", roles: OPERATIONS_GROUP_ROLES },
       { key: "training", label: "Đào tạo", roles: CALENDAR_TEACHER_ONLY },
-      { key: "hr_group", label: "Quản sinh + Trợ giảng", roles: HR_GROUP_ROLES },
+      { key: "student_affairs", label: "Quản sinh", roles: CALENDAR_STUDENT_AFFAIRS_ONLY },
+      { key: "teaching_assistant", label: "Trợ giảng", roles: CALENDAR_TEACHING_ASSISTANT_ONLY },
       { key: "collaborators", label: "CTV", roles: CALENDAR_COLLABORATOR_ONLY },
     ];
   }
