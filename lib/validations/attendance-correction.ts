@@ -10,6 +10,14 @@ export const attendanceCorrectionSchema = z.object({
 });
 export type AttendanceCorrectionInput = z.infer<typeof attendanceCorrectionSchema>;
 
+// One submit can cover several shifts at once (each row validated the same
+// way as a single-shift request) — see AttendanceCorrectionForm.tsx's
+// repeatable rows.
+export const attendanceCorrectionsSchema = z
+  .array(attendanceCorrectionSchema)
+  .min(1, "Vui lòng thêm ít nhất một ca cần giải trình");
+export type AttendanceCorrectionsInput = z.infer<typeof attendanceCorrectionsSchema>;
+
 export const correctionPreviewSchema = z.object({
   date: z.string().min(1, "Vui lòng chọn ngày"),
 });

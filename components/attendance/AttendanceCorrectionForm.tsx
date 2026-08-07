@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { attendanceCorrectionSchema, type AttendanceCorrectionInput } from "@/lib/validations/attendance-correction";
+import { PlusIcon, XIcon } from "lucide-react";
+import { attendanceCorrectionSchema } from "@/lib/validations/attendance-correction";
 import {
   getAttendanceCorrectionPreviewAction,
-  requestAttendanceCorrectionAction,
+  requestAttendanceCorrectionsAction,
   type CorrectionPreview,
 } from "@/actions/attendance-corrections";
 import { Button } from "@/components/ui/button";
@@ -17,95 +16,208 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 
-export default function AttendanceCorrectionForm() {
-  const [date, setDate] = useState("");
-  const [preview, setPreview] = useState<CorrectionPreview | null>(null);
-  const [previewError, setPreviewError] = useState("");
-  const [loadingPreview, setLoadingPreview] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    formState: { errors, isSubmitting },
-  } = useForm<AttendanceCorrectionInput>({ resolver: zodResolver(attendanceCorrectionSchema) });
+type CorrectionRow = {
+  key: string;
+  date: string;
+  preview: CorrectionPreview | null;
+  previewError: string;
+  loadingPreview: boolean;
+  reason: string;
+  reasonError: string;
+};
 
-  async function handleDateChange(value: string) {
-    setDate(value);
-    setPreview(null);
-    setPreviewError("");
-    setValue("shift_id", "");
+function emptyRow(): CorrectionRow {
+  return {
+    key: crypto.randomUUID(),
+    date: "",
+    preview: null,
+    previewError: "",
+    loadingPreview: false,
+    reason: "",
+    reasonError: "",
+  };
+}
+
+function canSubmitRow(row: CorrectionRow) {
+  return row.preview?.kind === "missed_check_in" || row.preview?.kind === "late_check_in";
+}
+
+function shiftIdForRow(row: CorrectionRow): string | null {
+  return row.preview?.kind === "missed_check_in" || row.preview?.kind === "late_check_in"
+    ? row.preview.shift.id
+    : null;
+}
+
+// Supports both a single giải trình (the default one-row state) and several
+// at once — "Thêm ca cần giải trình" appends another independent row, each
+// with its own date → shift-preview → reason flow, submitted together in
+// one requestAttendanceCorrectionsAction call.
+export default function AttendanceCorrectionForm() {
+  const [rows, setRows] = useState<CorrectionRow[]>([emptyRow()]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  function updateRow(key: string, patch: Partial<CorrectionRow>) {
+    setRows((prev) => prev.map((r) => (r.key === key ? { ...r, ...patch } : r)));
+  }
+
+  async function handleDateChange(key: string, value: string) {
+    updateRow(key, { date: value, preview: null, previewError: "", loadingPreview: Boolean(value) });
     if (!value) return;
 
-    setLoadingPreview(true);
     const result = await getAttendanceCorrectionPreviewAction({ date: value });
-    setLoadingPreview(false);
     if (!result.ok) {
-      setPreviewError(result.error);
+      updateRow(key, { previewError: result.error, loadingPreview: false });
       return;
     }
-    setPreview(result.data);
-    if (result.data.kind === "missed_check_in" || result.data.kind === "late_check_in") {
-      setValue("shift_id", result.data.shift.id, { shouldValidate: true });
+    updateRow(key, { preview: result.data, loadingPreview: false });
+  }
+
+  function addRow() {
+    setRows((prev) => [...prev, emptyRow()]);
+  }
+
+  function removeRow(key: string) {
+    setRows((prev) => (prev.length > 1 ? prev.filter((r) => r.key !== key) : prev));
+  }
+
+  async function handleSubmit() {
+    const submittable = rows.filter(canSubmitRow);
+    if (submittable.length === 0) return;
+
+    const entries: { key: string; shift_id: string; reason: string }[] = [];
+    let hasError = false;
+    for (const row of submittable) {
+      const parsed = attendanceCorrectionSchema.safeParse({
+        shift_id: shiftIdForRow(row),
+        reason: row.reason,
+      });
+      if (!parsed.success) {
+        updateRow(row.key, { reasonError: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" });
+        hasError = true;
+        continue;
+      }
+      updateRow(row.key, { reasonError: "" });
+      entries.push({ key: row.key, shift_id: parsed.data.shift_id, reason: parsed.data.reason });
+    }
+    if (hasError || entries.length === 0) return;
+
+    setIsSubmitting(true);
+    const result = await requestAttendanceCorrectionsAction(
+      entries.map(({ shift_id, reason }) => ({ shift_id, reason }))
+    );
+    setIsSubmitting(false);
+
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+
+    const failedByKey = new Map(
+      entries
+        .map((entry) => ({ entry, failure: result.data.failed.find((f) => f.shift_id === entry.shift_id) }))
+        .filter((x): x is typeof x & { failure: NonNullable<typeof x.failure> } => Boolean(x.failure))
+        .map(({ entry, failure }) => [entry.key, failure.error])
+    );
+
+    setRows((prev) => {
+      const kept = prev.filter((r) => !canSubmitRow(r) || failedByKey.has(r.key));
+      const withErrors = kept.map((r) => (failedByKey.has(r.key) ? { ...r, reasonError: failedByKey.get(r.key)! } : r));
+      return withErrors.length === 0 ? [emptyRow()] : withErrors;
+    });
+
+    if (result.data.succeededCount > 0) {
+      toast.info(
+        result.data.succeededCount === 1
+          ? "Đã gửi đơn giải trình công"
+          : `Đã gửi ${result.data.succeededCount} đơn giải trình công`
+      );
+    }
+    if (result.data.failed.length > 0 && result.data.succeededCount > 0) {
+      toast.warning(`${result.data.failed.length} ca gửi thất bại, vui lòng kiểm tra lại`);
     }
   }
 
-  async function onSubmit(values: AttendanceCorrectionInput) {
-    const result = await requestAttendanceCorrectionAction(values);
-    if (!result.ok) {
-      setPreviewError(result.error);
-      return;
-    }
-    toast.info("Đã gửi đơn giải trình công");
-    setDate("");
-    setPreview(null);
-    reset({ shift_id: "", reason: "" });
-  }
-
-  const canSubmit = preview?.kind === "missed_check_in" || preview?.kind === "late_check_in";
+  const hasSubmittable = rows.some(canSubmitRow);
 
   return (
     <Card>
-      <CardContent className="space-y-4">
-        <DatePickerField id="correction_date" label="Ngày cần giải trình" value={date} onChange={handleDateChange} />
-
-        {loadingPreview && <p className="text-sm text-muted-foreground">Đang kiểm tra...</p>}
-
-        {!loadingPreview && preview?.kind === "no_shift" && (
-          <p className="text-sm text-muted-foreground">Bạn không có ca làm việc vào ngày này.</p>
-        )}
-        {!loadingPreview && preview?.kind === "no_discrepancy" && (
-          <p className="text-sm text-muted-foreground">Bạn đã chấm công đúng giờ ngày này, không cần giải trình.</p>
-        )}
-        {!loadingPreview && preview?.kind === "missed_check_in" && (
-          <p className="text-sm text-destructive">
-            Bạn chưa chấm công ngày này. Ca {format(new Date(preview.shift.start_at), "HH:mm")}–
-            {format(new Date(preview.shift.end_at), "HH:mm")} — hệ thống sẽ sửa giờ vào ca thành{" "}
-            {format(new Date(preview.shift.start_at), "HH:mm")}.
-          </p>
-        )}
-        {!loadingPreview && preview?.kind === "late_check_in" && (
-          <p className="text-sm text-destructive">
-            Bạn chấm công lúc {format(new Date(preview.actualCheckInAt), "HH:mm")}, trễ so với giờ ca{" "}
-            {format(new Date(preview.shift.start_at), "HH:mm")}–{format(new Date(preview.shift.end_at), "HH:mm")} —
-            hệ thống sẽ sửa lại thành {format(new Date(preview.shift.start_at), "HH:mm")}.
-          </p>
-        )}
-        {previewError && <p className="text-sm text-destructive">{previewError}</p>}
-
-        {canSubmit && (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-            <input type="hidden" {...register("shift_id")} />
-            <div className="space-y-1.5">
-              <Label htmlFor="reason">Lý do giải trình</Label>
-              <Textarea id="reason" rows={3} {...register("reason")} />
-              {errors.reason && <p className="text-sm text-destructive">{errors.reason.message}</p>}
+      <CardContent className="space-y-5">
+        {rows.map((row, index) => (
+          <div key={row.key} className={index > 0 ? "space-y-3 border-t pt-5" : "space-y-3"}>
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1">
+                <DatePickerField
+                  id={`correction_date_${row.key}`}
+                  label="Ngày cần giải trình"
+                  value={row.date}
+                  onChange={(value) => handleDateChange(row.key, value)}
+                />
+              </div>
+              {rows.length > 1 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="mt-6"
+                  onClick={() => removeRow(row.key)}
+                  aria-label="Xoá dòng giải trình này"
+                >
+                  <XIcon className="size-4" />
+                </Button>
+              )}
             </div>
-            <Button type="submit" disabled={isSubmitting}>
-              Gửi giải trình
-            </Button>
-          </form>
-        )}
+
+            {row.loadingPreview && <p className="text-sm text-muted-foreground">Đang kiểm tra...</p>}
+
+            {!row.loadingPreview && row.preview?.kind === "no_shift" && (
+              <p className="text-sm text-muted-foreground">Bạn không có ca làm việc vào ngày này.</p>
+            )}
+            {!row.loadingPreview && row.preview?.kind === "no_discrepancy" && (
+              <p className="text-sm text-muted-foreground">
+                Bạn đã chấm công đúng giờ ngày này, không cần giải trình.
+              </p>
+            )}
+            {!row.loadingPreview && row.preview?.kind === "missed_check_in" && (
+              <p className="text-sm text-destructive">
+                Bạn chưa chấm công ngày này. Ca {format(new Date(row.preview.shift.start_at), "HH:mm")}–
+                {format(new Date(row.preview.shift.end_at), "HH:mm")} — hệ thống sẽ sửa giờ vào ca thành{" "}
+                {format(new Date(row.preview.shift.start_at), "HH:mm")}.
+              </p>
+            )}
+            {!row.loadingPreview && row.preview?.kind === "late_check_in" && (
+              <p className="text-sm text-destructive">
+                Bạn chấm công lúc {format(new Date(row.preview.actualCheckInAt), "HH:mm")}, trễ so với giờ ca{" "}
+                {format(new Date(row.preview.shift.start_at), "HH:mm")}–
+                {format(new Date(row.preview.shift.end_at), "HH:mm")} — hệ thống sẽ sửa lại thành{" "}
+                {format(new Date(row.preview.shift.start_at), "HH:mm")}.
+              </p>
+            )}
+            {row.previewError && <p className="text-sm text-destructive">{row.previewError}</p>}
+
+            {canSubmitRow(row) && (
+              <div className="space-y-1.5">
+                <Label htmlFor={`reason_${row.key}`}>Lý do giải trình</Label>
+                <Textarea
+                  id={`reason_${row.key}`}
+                  rows={3}
+                  value={row.reason}
+                  onChange={(e) => updateRow(row.key, { reason: e.target.value, reasonError: "" })}
+                />
+                {row.reasonError && <p className="text-sm text-destructive">{row.reasonError}</p>}
+              </div>
+            )}
+          </div>
+        ))}
+
+        <div className="flex items-center justify-between gap-2 pt-1">
+          <Button type="button" variant="outline" size="sm" onClick={addRow} className="gap-1.5">
+            <PlusIcon className="size-4" />
+            Thêm ca cần giải trình
+          </Button>
+          <Button type="button" disabled={!hasSubmittable || isSubmitting} onClick={handleSubmit}>
+            {isSubmitting ? "Đang gửi..." : "Gửi giải trình"}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

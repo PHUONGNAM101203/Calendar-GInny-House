@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
-import { attendanceCorrectionSchema, correctionPreviewSchema } from "@/lib/validations/attendance-correction";
+import { attendanceCorrectionsSchema, correctionPreviewSchema } from "@/lib/validations/attendance-correction";
 import { sendPushToLeaveApprovers, sendPushToProfile } from "@/lib/push";
 import type { ActionResult, Attendance, Shift } from "@/types";
 
@@ -16,7 +16,7 @@ export type CorrectionPreview =
 function mapAttendanceCorrectionError(message: string): string {
   const known = [
     "Không tìm thấy ca làm việc này",
-    "Đã quá hạn 2 ngày để giải trình ca này",
+    "Đã quá hạn 1 tuần để giải trình ca này",
     "Ca này không có sai lệch cần giải trình",
     "Ca này đã có đơn giải trình đang chờ duyệt",
     "Vui lòng nhập lý do giải trình",
@@ -37,29 +37,57 @@ function revalidateAttendanceCorrectionPaths() {
   revalidatePath("/", "layout");
 }
 
-export async function requestAttendanceCorrectionAction(input: unknown): Promise<ActionResult> {
+export type AttendanceCorrectionsBatchResult = {
+  succeededCount: number;
+  failed: { shift_id: string; error: string }[];
+};
+
+// Handles both the single-shift case (array of length 1) and the "giải
+// trình nhiều ca cùng lúc" case — one submit, N independent RPC calls, each
+// shift's own success/failure reported back so the form can keep only the
+// failed rows on screen for the user to fix and retry.
+export async function requestAttendanceCorrectionsAction(
+  input: unknown
+): Promise<ActionResult<AttendanceCorrectionsBatchResult>> {
   const profile = await requireProfile();
-  const parsed = attendanceCorrectionSchema.safeParse(input);
+  const parsed = attendanceCorrectionsSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" };
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("request_attendance_correction", {
-    p_shift_id: parsed.data.shift_id,
-    p_reason: parsed.data.reason,
-  });
+  const results = await Promise.all(
+    parsed.data.map(async (entry) => {
+      const { error } = await supabase.rpc("request_attendance_correction", {
+        p_shift_id: entry.shift_id,
+        p_reason: entry.reason,
+      });
+      return { shift_id: entry.shift_id, error: error ? mapAttendanceCorrectionError(error.message) : null };
+    })
+  );
 
-  if (error) return { ok: false, error: mapAttendanceCorrectionError(error.message) };
+  const failed = results
+    .filter((r) => r.error)
+    .map((r) => ({ shift_id: r.shift_id, error: r.error! }));
+  const succeededCount = results.length - failed.length;
 
-  revalidateAttendanceCorrectionPaths();
-  void sendPushToLeaveApprovers(profile.role, {
-    title: "Đơn giải trình công mới",
-    body: `${profile.full_name} vừa gửi đơn giải trình công`,
-    url: "/manager",
-    tag: "attendance-correction",
-  });
-  return { ok: true, data: undefined };
+  if (succeededCount > 0) {
+    revalidateAttendanceCorrectionPaths();
+    void sendPushToLeaveApprovers(profile.role, {
+      title: "Đơn giải trình công mới",
+      body:
+        succeededCount === 1
+          ? `${profile.full_name} vừa gửi đơn giải trình công`
+          : `${profile.full_name} vừa gửi ${succeededCount} đơn giải trình công`,
+      url: "/manager",
+      tag: "attendance-correction",
+    });
+  }
+
+  if (failed.length > 0 && succeededCount === 0) {
+    return { ok: false, error: failed[0].error };
+  }
+  return { ok: true, data: { succeededCount, failed } };
 }
 
 export async function respondToAttendanceCorrectionAction(
