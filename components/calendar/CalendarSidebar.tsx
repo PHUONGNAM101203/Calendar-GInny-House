@@ -46,6 +46,7 @@ type EventTypeToggles = {
   showLeave: boolean;
   showLateArrival: boolean;
   showSwapIndicator: boolean;
+  showPendingApprovals: boolean;
 };
 
 export type PendingApprovalItem = {
@@ -694,6 +695,12 @@ function SidebarContent({
               checked={eventToggles.showSwapIndicator}
               onChange={(v) => onEventTogglesChange({ ...eventToggles, showSwapIndicator: v })}
               colorVar="--chart-6"
+            />
+            <CalendarCheckItem
+              label="Cần xét duyệt"
+              checked={eventToggles.showPendingApprovals}
+              onChange={(v) => onEventTogglesChange({ ...eventToggles, showPendingApprovals: v })}
+              colorVar="--chart-2"
             />
           </ul>
         )}

@@ -13,6 +13,7 @@ import {
   toLeaveEvents,
   toCustomEvents,
   toShiftRequestPendingEvents,
+  toAttendanceCorrectionPendingEvents,
   getEventTextColorVar,
   getPersonColorVar,
   resolveColor,
@@ -22,6 +23,7 @@ import {
   isLeaveEvent,
   isCustomEvent,
   isShiftRequestPendingEvent,
+  isAttendanceCorrectionPendingEvent,
   type ShiftEvent,
   type AttendanceCalendarEvent,
   type LeaveCalendarEvent,
@@ -140,6 +142,7 @@ export default function ShiftCalendar({
     showLeave: true,
     showLateArrival: true,
     showSwapIndicator: true,
+    showPendingApprovals: true,
   });
 
   // The color a viewer sees for someone else's calendar is personal (see
@@ -210,13 +213,34 @@ export default function ShiftCalendar({
         : [],
     [visibleAttendance, branchNames, colorFor, eventToggles.showAttendance, pendingCorrectionsByShiftId]
   );
+  // "Nghỉ phép"/"Đến muộn" toggles now only cover approved leave — pending
+  // leave moved under the "Cần xét duyệt" toggle below, so a pending
+  // request's calendar visibility isn't tied to two different checkboxes.
+  const approvedLeaveRequests = useMemo(
+    () => visibleLeaveRequests.filter((r) => r.status === "approved"),
+    [visibleLeaveRequests]
+  );
+  const pendingLeaveRequestsForCalendar = useMemo(
+    () => visibleLeaveRequests.filter((r) => r.status === "pending"),
+    [visibleLeaveRequests]
+  );
   const leaveEvents = useMemo(
-    () => (eventToggles.showLeave ? toLeaveEvents(visibleLeaveRequests, false, colorFor) : []),
-    [visibleLeaveRequests, colorFor, eventToggles.showLeave]
+    () => (eventToggles.showLeave ? toLeaveEvents(approvedLeaveRequests, false, colorFor) : []),
+    [approvedLeaveRequests, colorFor, eventToggles.showLeave]
   );
   const lateArrivalEvents = useMemo(
-    () => (eventToggles.showLateArrival ? toLeaveEvents(visibleLeaveRequests, true, colorFor) : []),
-    [visibleLeaveRequests, colorFor, eventToggles.showLateArrival]
+    () => (eventToggles.showLateArrival ? toLeaveEvents(approvedLeaveRequests, true, colorFor) : []),
+    [approvedLeaveRequests, colorFor, eventToggles.showLateArrival]
+  );
+  const pendingLeaveEvents = useMemo(
+    () =>
+      eventToggles.showPendingApprovals
+        ? [
+            ...toLeaveEvents(pendingLeaveRequestsForCalendar, false, colorFor),
+            ...toLeaveEvents(pendingLeaveRequestsForCalendar, true, colorFor),
+          ]
+        : [],
+    [pendingLeaveRequestsForCalendar, colorFor, eventToggles.showPendingApprovals]
   );
   const visibleCustomCalendars = useMemo(
     () => customCalendars.filter((c) => !hiddenCustomCalendarIds.has(c.id)),
@@ -226,14 +250,20 @@ export default function ShiftCalendar({
     () => toCustomEvents(customEvents, visibleCustomCalendars),
     [customEvents, visibleCustomCalendars]
   );
-  // Self-service shift requests still awaiting a CEO/HR decision — no
-  // toggle to hide these behind (unlike leave/attendance/holidays): a
-  // pending request is only ever fetched for the current viewer's own
-  // submissions or something they can approve (shift_requests_select RLS),
-  // so it's already a short, relevant list, not calendar noise.
+  // Self-service shift requests still awaiting a CEO/HR decision, and
+  // giải trình công requests with no attendance row yet — both grouped
+  // under the same "Cần xét duyệt" toggle as pending leave above, so every
+  // pending-item type hides/shows together as one category.
   const shiftRequestPendingEvents = useMemo(
-    () => toShiftRequestPendingEvents(shiftRequests, colorFor),
-    [shiftRequests, colorFor]
+    () => (eventToggles.showPendingApprovals ? toShiftRequestPendingEvents(shiftRequests, colorFor) : []),
+    [shiftRequests, colorFor, eventToggles.showPendingApprovals]
+  );
+  const attendanceCorrectionPendingEvents = useMemo(
+    () =>
+      eventToggles.showPendingApprovals
+        ? toAttendanceCorrectionPendingEvents(attendanceCorrections, colorFor)
+        : [],
+    [attendanceCorrections, colorFor, eventToggles.showPendingApprovals]
   );
   const events = useMemo(
     () => [
@@ -241,18 +271,22 @@ export default function ShiftCalendar({
       ...attendanceEvents,
       ...leaveEvents,
       ...lateArrivalEvents,
+      ...pendingLeaveEvents,
       ...customCalendarEvents,
       ...shiftEvents,
       ...shiftRequestPendingEvents,
+      ...attendanceCorrectionPendingEvents,
     ],
     [
       holidayEvents,
       attendanceEvents,
       leaveEvents,
       lateArrivalEvents,
+      pendingLeaveEvents,
       customCalendarEvents,
       shiftEvents,
       shiftRequestPendingEvents,
+      attendanceCorrectionPendingEvents,
     ]
   );
 
@@ -297,6 +331,10 @@ export default function ShiftCalendar({
     }
     if (isShiftRequestPendingEvent(event)) {
       setShiftRequestDetail(event);
+      return;
+    }
+    if (isAttendanceCorrectionPendingEvent(event)) {
+      openAttendanceCorrectionDetail(event.resource.correction);
       return;
     }
     if (!isShiftEvent(event)) return;
@@ -600,13 +638,18 @@ export default function ShiftCalendar({
     <div className="flex flex-1 overflow-hidden">
       <CalendarSidebar {...sidebarProps} />
 
-      {/* overflow-y-auto (not overflow-hidden) so month view's day rows —
-          which, unlike week/day view's internal .rbc-time-content, have no
-          scroll region of their own — can actually be scrolled to instead
-          of silently clipping past the viewport. CalendarToolbar/
-          MobileDayStrip are sticky within this same container, so the date
-          header stays pinned through that scroll. */}
-      <div className="flex flex-1 flex-col overflow-y-auto p-4 sm:p-6">
+      {/* overflow-hidden (react-big-calendar's own expected containment) —
+          .rbc-time-content already ships its own overflow-y:auto internal
+          scroll region that keeps the toolbar and .rbc-time-header fixed
+          automatically; that only works if this ancestor chain actually
+          bounds the calendar's height instead of letting it grow to fit
+          all 6am-11pm content. See the min-h-0 on <Calendar> below — flex
+          items default to min-height:auto, which was the real reason that
+          internal scroll never engaged and everything scrolled together
+          as one unstyled blob instead. Month view needs no separate
+          handling: RBC's own "+N more" popover already covers cells with
+          too many events, it was never actually clipping. */}
+      <div className="flex flex-1 flex-col overflow-hidden p-4 sm:p-6">
         <div className="mb-2 flex items-center justify-between gap-2 lg:hidden">
           <CalendarMobileMenu {...sidebarProps} />
           <RealtimeClock className="flex" />
@@ -665,6 +708,12 @@ export default function ShiftCalendar({
                 style: { "--event-color": resolveColor(event.resource.colorVar) } as React.CSSProperties,
               };
             }
+            if (event.resource.kind === "attendance_correction_pending") {
+              return {
+                className: "shift-event shift-event--shift-request-pending",
+                style: { "--event-color": resolveColor(event.resource.colorVar) } as React.CSSProperties,
+              };
+            }
 
             const { isMine, pendingSwap, colorVar } = event.resource;
             const showPending = pendingSwap !== "none" && eventToggles.showSwapIndicator;
@@ -695,7 +744,7 @@ export default function ShiftCalendar({
           // what makes "nhảy nhanh" (jumping to a date) read as instant —
           // the mini-month's selected day already updates optimistically,
           // this just signals the main grid is catching up.
-          className={cn("flex-1 transition-opacity", isPending && "opacity-60")}
+          className={cn("min-h-0 flex-1 transition-opacity", isPending && "opacity-60")}
         />
 
         {canManageShifts && (

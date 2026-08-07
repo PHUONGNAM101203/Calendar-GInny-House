@@ -71,6 +71,15 @@ export default function ShiftEventCell({ event }: EventProps<CalendarEvent>) {
     );
   }
 
+  if (event.resource.kind === "attendance_correction_pending") {
+    return (
+      <div className="flex items-center gap-1.5 truncate">
+        <CalendarClockIcon className="size-3 shrink-0" />
+        <span className="truncate">{event.title}</span>
+      </div>
+    );
+  }
+
   const { isMine, pendingSwap, colorVar } = event.resource;
 
   return (

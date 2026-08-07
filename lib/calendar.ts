@@ -267,13 +267,32 @@ export type ShiftRequestPendingEvent = {
   };
 };
 
+// A giải trình công (attendance correction) request that has no matching
+// attendance row yet (missed check-in — attendance_id is null). Corrections
+// that DO reference a real attendance row are badged onto that row's normal
+// AttendanceCalendarEvent instead (see toAttendanceEvents); this covers the
+// case that would otherwise be completely invisible on the grid.
+export type AttendanceCorrectionPendingEvent = {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  allDay?: false;
+  resource: {
+    kind: "attendance_correction_pending";
+    correction: AttendanceCorrectionDetailed;
+    colorVar: string;
+  };
+};
+
 export type CalendarEvent =
   | ShiftEvent
   | HolidayEvent
   | AttendanceCalendarEvent
   | LeaveCalendarEvent
   | CustomCalendarEvent
-  | ShiftRequestPendingEvent;
+  | ShiftRequestPendingEvent
+  | AttendanceCorrectionPendingEvent;
 
 export function isShiftEvent(event: CalendarEvent): event is ShiftEvent {
   return event.resource.kind === "shift";
@@ -289,6 +308,12 @@ export function isLeaveEvent(event: CalendarEvent): event is LeaveCalendarEvent 
 
 export function isCustomEvent(event: CalendarEvent): event is CustomCalendarEvent {
   return event.resource.kind === "custom";
+}
+
+export function isAttendanceCorrectionPendingEvent(
+  event: CalendarEvent
+): event is AttendanceCorrectionPendingEvent {
+  return event.resource.kind === "attendance_correction_pending";
 }
 
 export function isShiftRequestPendingEvent(event: CalendarEvent): event is ShiftRequestPendingEvent {
@@ -571,6 +596,30 @@ export function toShiftRequestPendingEvents(
         kind: "shift_request_pending" as const,
         request: r,
         colorVar: colorFor(r.profile_id),
+      },
+    }));
+}
+
+// Giải trình công requests for a missed check-in have no attendance row at
+// all yet — without this, they're invisible on the grid (toAttendanceEvents
+// can only badge a correction onto a row that already exists). Uses the
+// referenced shift's own time range, same as the sidebar's synthetic
+// single-session construction.
+export function toAttendanceCorrectionPendingEvents(
+  corrections: AttendanceCorrectionDetailed[],
+  colorFor: (profileId: string) => string
+): AttendanceCorrectionPendingEvent[] {
+  return corrections
+    .filter((c) => c.status === "pending" && c.attendance_id === null)
+    .map((c) => ({
+      id: `attendance-correction-pending-${c.id}`,
+      title: `Chờ duyệt giải trình · ${c.profile.full_name}`,
+      start: new Date(c.actual_check_in_at ?? c.shift.start_at),
+      end: new Date(c.shift.end_at),
+      resource: {
+        kind: "attendance_correction_pending" as const,
+        correction: c,
+        colorVar: colorFor(c.profile_id),
       },
     }));
 }
