@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 import { swapRequestSchema } from "@/lib/validations/swap";
@@ -56,12 +57,17 @@ export async function createSwapRequestAction(input: unknown): Promise<ActionRes
   // Open swaps (no target_id) have no single recipient — skip push rather
   // than notifying every colleague at the branch.
   if (parsed.data.target_id) {
-    void sendPushToProfile(parsed.data.target_id, {
-      title: "Yêu cầu đổi ca mới",
-      body: `${profile.full_name} muốn đổi ca với bạn`,
-      url: "/swaps",
-      tag: "swap",
-    });
+    const targetId = parsed.data.target_id;
+    // See actions/leave.ts's requestLeaveAction for why this is wrapped in
+    // after() rather than fire-and-forget.
+    after(() =>
+      sendPushToProfile(targetId, {
+        title: "Yêu cầu đổi ca mới",
+        body: `${profile.full_name} muốn đổi ca với bạn`,
+        url: "/swaps",
+        tag: "swap",
+      })
+    );
   }
   return { ok: true, data: undefined };
 }
@@ -87,12 +93,15 @@ export async function respondToSwapRequestAction(
 
   revalidateSwapPaths();
   if (existing) {
-    void sendPushToProfile(existing.requester_id, {
-      title: accept ? "Yêu cầu đổi ca được chấp nhận" : "Yêu cầu đổi ca bị từ chối",
-      body: accept ? "Đồng nghiệp đã đồng ý đổi ca với bạn" : "Yêu cầu đổi ca của bạn đã bị từ chối",
-      url: "/swaps",
-      tag: "swap",
-    });
+    const requesterId = existing.requester_id;
+    after(() =>
+      sendPushToProfile(requesterId, {
+        title: accept ? "Yêu cầu đổi ca được chấp nhận" : "Yêu cầu đổi ca bị từ chối",
+        body: accept ? "Đồng nghiệp đã đồng ý đổi ca với bạn" : "Yêu cầu đổi ca của bạn đã bị từ chối",
+        url: "/swaps",
+        tag: "swap",
+      })
+    );
   }
   return { ok: true, data: undefined };
 }

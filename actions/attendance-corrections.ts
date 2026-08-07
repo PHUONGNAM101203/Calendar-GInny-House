@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 import { attendanceCorrectionsSchema, correctionPreviewSchema } from "@/lib/validations/attendance-correction";
@@ -73,15 +74,19 @@ export async function requestAttendanceCorrectionsAction(
 
   if (succeededCount > 0) {
     revalidateAttendanceCorrectionPaths();
-    void sendPushToLeaveApprovers(profile.role, {
-      title: "Đơn giải trình công mới",
-      body:
-        succeededCount === 1
-          ? `${profile.full_name} vừa gửi đơn giải trình công`
-          : `${profile.full_name} vừa gửi ${succeededCount} đơn giải trình công`,
-      url: "/manager",
-      tag: "attendance-correction",
-    });
+    // See actions/leave.ts's requestLeaveAction for why this is wrapped in
+    // after() rather than fire-and-forget.
+    after(() =>
+      sendPushToLeaveApprovers(profile.role, {
+        title: "Đơn giải trình công mới",
+        body:
+          succeededCount === 1
+            ? `${profile.full_name} vừa gửi đơn giải trình công`
+            : `${profile.full_name} vừa gửi ${succeededCount} đơn giải trình công`,
+        url: "/manager",
+        tag: "attendance-correction",
+      })
+    );
   }
 
   if (failed.length > 0 && succeededCount === 0) {
@@ -105,12 +110,15 @@ export async function respondToAttendanceCorrectionAction(
 
   revalidateAttendanceCorrectionPaths();
   if (data) {
-    void sendPushToProfile((data as { profile_id: string }).profile_id, {
-      title: approve ? "Đơn giải trình công đã được duyệt" : "Đơn giải trình công bị từ chối",
-      body: approve ? "Đơn giải trình công của bạn đã được duyệt" : "Đơn giải trình công của bạn đã bị từ chối",
-      url: "/attendance/explain",
-      tag: "attendance-correction",
-    });
+    const targetId = (data as { profile_id: string }).profile_id;
+    after(() =>
+      sendPushToProfile(targetId, {
+        title: approve ? "Đơn giải trình công đã được duyệt" : "Đơn giải trình công bị từ chối",
+        body: approve ? "Đơn giải trình công của bạn đã được duyệt" : "Đơn giải trình công của bạn đã bị từ chối",
+        url: "/attendance/explain",
+        tag: "attendance-correction",
+      })
+    );
   }
   return { ok: true, data: undefined };
 }

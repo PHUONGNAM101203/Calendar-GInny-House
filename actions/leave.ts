@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 import { leaveRequestSchema } from "@/lib/validations/leave";
@@ -54,12 +55,18 @@ export async function requestLeaveAction(input: unknown): Promise<ActionResult> 
   if (error) return { ok: false, error: mapLeaveError(error.message) };
 
   revalidateLeavePaths();
-  void sendPushToLeaveApprovers(profile.role, {
-    title: "Đơn nghỉ phép mới",
-    body: `${profile.full_name} vừa gửi đơn xin nghỉ phép`,
-    url: "/leave",
-    tag: "leave",
-  });
+  // Vercel serverless functions don't keep running once the response is
+  // sent — a bare `void asyncFn()` here can get cut off mid-flight before
+  // web-push's HTTP call to the push service completes. after() registers
+  // it with the platform's waitUntil so it's guaranteed to finish.
+  after(() =>
+    sendPushToLeaveApprovers(profile.role, {
+      title: "Đơn nghỉ phép mới",
+      body: `${profile.full_name} vừa gửi đơn xin nghỉ phép`,
+      url: "/leave",
+      tag: "leave",
+    })
+  );
   return { ok: true, data: undefined };
 }
 
@@ -78,12 +85,15 @@ export async function respondToLeaveRequestAction(
 
   revalidateLeavePaths();
   if (data) {
-    void sendPushToProfile((data as { profile_id: string }).profile_id, {
-      title: approve ? "Đơn nghỉ phép đã được duyệt" : "Đơn nghỉ phép bị từ chối",
-      body: approve ? "Đơn xin nghỉ phép của bạn đã được duyệt" : "Đơn xin nghỉ phép của bạn đã bị từ chối",
-      url: "/leave",
-      tag: "leave",
-    });
+    const targetId = (data as { profile_id: string }).profile_id;
+    after(() =>
+      sendPushToProfile(targetId, {
+        title: approve ? "Đơn nghỉ phép đã được duyệt" : "Đơn nghỉ phép bị từ chối",
+        body: approve ? "Đơn xin nghỉ phép của bạn đã được duyệt" : "Đơn xin nghỉ phép của bạn đã bị từ chối",
+        url: "/leave",
+        tag: "leave",
+      })
+    );
   }
   return { ok: true, data: undefined };
 }

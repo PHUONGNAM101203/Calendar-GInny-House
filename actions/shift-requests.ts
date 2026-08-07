@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 import { isCeo } from "@/lib/roles";
@@ -78,12 +79,16 @@ export async function requestShiftAction(input: unknown): Promise<ActionResult> 
   if (error) return { ok: false, error: mapShiftRequestError(error.message) };
 
   revalidateShiftRequestPaths();
-  void sendPushToShiftRequestApprovers(profile.role, {
-    title: "Đăng ký ca làm mới",
-    body: `${profile.full_name} vừa gửi đăng ký ca làm`,
-    url: "/manager",
-    tag: "shift-request",
-  });
+  // See actions/leave.ts's requestLeaveAction for why this is wrapped in
+  // after() rather than fire-and-forget.
+  after(() =>
+    sendPushToShiftRequestApprovers(profile.role, {
+      title: "Đăng ký ca làm mới",
+      body: `${profile.full_name} vừa gửi đăng ký ca làm`,
+      url: "/manager",
+      tag: "shift-request",
+    })
+  );
   return { ok: true, data: undefined };
 }
 
@@ -121,12 +126,15 @@ export async function respondToShiftRequestAction(
 
   revalidateShiftRequestPaths();
   if (data) {
-    void sendPushToProfile((data as { profile_id: string }).profile_id, {
-      title: approve ? "Đăng ký ca làm đã được duyệt" : "Đăng ký ca làm bị từ chối",
-      body: approve ? "Đăng ký ca làm của bạn đã được duyệt" : "Đăng ký ca làm của bạn đã bị từ chối",
-      url: "/calendar",
-      tag: "shift-request",
-    });
+    const targetId = (data as { profile_id: string }).profile_id;
+    after(() =>
+      sendPushToProfile(targetId, {
+        title: approve ? "Đăng ký ca làm đã được duyệt" : "Đăng ký ca làm bị từ chối",
+        body: approve ? "Đăng ký ca làm của bạn đã được duyệt" : "Đăng ký ca làm của bạn đã bị từ chối",
+        url: "/calendar",
+        tag: "shift-request",
+      })
+    );
   }
   return { ok: true, data: undefined };
 }
