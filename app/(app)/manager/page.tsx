@@ -203,7 +203,14 @@ export default async function ManagerPage({
       <DateRangeFilter />
 
       {isTechnical ? (
-        <TechnicalDashboard staff={staffList} attendance={attendanceList} leaveRequests={leavesList} />
+        <TechnicalDashboard
+          staff={staffList}
+          attendance={attendanceList}
+          leaveRequests={leavesList}
+          swapRequests={swapsList}
+          shiftRequests={shiftRequestsList}
+          attendanceCorrections={attendanceCorrectionsList}
+        />
       ) : groupRoles ? (
         <ManagerDashboard
           totalStaff={scopedStaff.length}
@@ -211,10 +218,20 @@ export default async function ManagerPage({
           shiftsToday={scopedShiftsToday}
           pendingSwaps={scopedSwaps.filter((s) => s.status === "pending").length}
           pendingLeave={scopedLeaves.filter((l) => l.status === "pending").length}
+          // Only CEO/HR can ever approve a shift request (see canApproveShiftRequestFor
+          // in lib/roles.ts) — a COO/training_director group scope would otherwise
+          // show a queue count they can never click through to resolve.
+          pendingShiftRequests={
+            manager.role === "hr" ? scopedShiftRequests.filter((r) => r.status === "pending").length : 0
+          }
+          pendingAttendanceCorrections={scopedAttendanceCorrections.filter((r) => r.status === "pending").length}
           clockedInCount={scopedClockedIn.length}
           staff={scopedStaff}
           attendance={scopedAttendance}
           leaveRequests={scopedLeaves}
+          swapRequests={scopedSwaps}
+          shiftRequests={scopedShiftRequests}
+          attendanceCorrections={scopedAttendanceCorrections}
           overviewTitle={groupMeta ? `Tổng hợp chấm công — ${groupMeta.label}` : undefined}
         />
       ) : (
@@ -224,10 +241,15 @@ export default async function ManagerPage({
           shiftsToday={scopedShiftsToday}
           pendingSwaps={swapsList.filter((s) => s.status === "pending").length}
           pendingLeave={leavesList.filter((l) => l.status === "pending").length}
+          pendingShiftRequests={shiftRequestsList.filter((r) => r.status === "pending").length}
+          pendingAttendanceCorrections={attendanceCorrectionsList.filter((r) => r.status === "pending").length}
           clockedInCount={clockedInList.length}
           staff={staffList}
           attendance={attendanceList}
           leaveRequests={leavesList}
+          swapRequests={swapsList}
+          shiftRequests={shiftRequestsList}
+          attendanceCorrections={attendanceCorrectionsList}
         />
       )}
 
@@ -245,7 +267,7 @@ export default async function ManagerPage({
       </Section>
 
       {(managerIsCeo || manager.role === "hr") && (
-        <Section title="Đăng ký ca" count={scopedShiftRequests.length}>
+        <Section id="shift-requests" title="Đăng ký ca" count={scopedShiftRequests.length}>
           {scopedShiftRequests.length === 0 ? (
             <p className="text-sm text-muted-foreground">Chưa có đăng ký ca làm nào.</p>
           ) : (

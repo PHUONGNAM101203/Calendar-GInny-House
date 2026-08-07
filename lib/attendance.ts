@@ -12,7 +12,10 @@ export type StaffOverviewRow = {
   onLeaveToday: boolean;
 };
 
-function periodRange(period: OverviewPeriod, now: Date) {
+// Exported so drill-down UI (StaffAttendanceDetailDialog) and the requests
+// overview (lib/requests-overview.ts) compute the exact same day/month/year
+// boundaries as this table — one definition of "what does 'theo tháng' mean".
+export function periodRange(period: OverviewPeriod, now: Date) {
   switch (period) {
     case "month":
       return { start: startOfMonth(now), end: endOfMonth(now) };
@@ -81,6 +84,60 @@ export function buildStaffOverview(
       onLeaveToday: onLeaveToday.has(s.id),
     }))
     .sort((a, b) => b.totalMinutes - a.totalMinutes || a.fullName.localeCompare(b.fullName, "vi"));
+}
+
+export type AttendanceSession = { checkInAt: string; checkOutAt: string | null };
+export type DayBreakdownEntry = { date: string; sessions: AttendanceSession[]; totalMinutes: number };
+
+// One entry per calendar day within [rangeStart, rangeEnd] that has at least
+// one attendance record for this person — feeds StaffAttendanceDetailDialog's
+// day-by-day view (used for "theo ngày"/"theo tháng", and for a single month
+// drilled into from "theo năm").
+export function buildDayBreakdown(
+  attendance: Attendance[],
+  profileId: string,
+  rangeStart: Date,
+  rangeEnd: Date,
+  now: Date = new Date()
+): DayBreakdownEntry[] {
+  const byDate = new Map<string, DayBreakdownEntry>();
+  for (const record of attendance) {
+    if (record.profile_id !== profileId) continue;
+    const checkIn = new Date(record.check_in_at);
+    if (checkIn < rangeStart || checkIn > rangeEnd) continue;
+    const key = format(checkIn, "yyyy-MM-dd");
+    const checkOut = record.check_out_at ? new Date(record.check_out_at) : null;
+    const minutes = Math.max(0, ((checkOut ?? now).getTime() - checkIn.getTime()) / 60000);
+    const entry = byDate.get(key) ?? { date: key, sessions: [], totalMinutes: 0 };
+    entry.sessions.push({ checkInAt: record.check_in_at, checkOutAt: record.check_out_at });
+    entry.totalMinutes += minutes;
+    byDate.set(key, entry);
+  }
+  return Array.from(byDate.values())
+    .map((entry) => ({ ...entry, totalMinutes: Math.round(entry.totalMinutes) }))
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export type MonthBreakdownEntry = { month: number; totalMinutes: number };
+
+// 12-month rollup for one person in one calendar year — feeds the "cả năm"
+// summary in StaffAttendanceDetailDialog, which a manager then drills into
+// (picks a month) to get the day-by-day view above.
+export function buildMonthBreakdown(
+  attendance: Attendance[],
+  profileId: string,
+  year: number,
+  now: Date = new Date()
+): MonthBreakdownEntry[] {
+  const totals = new Array(12).fill(0) as number[];
+  for (const record of attendance) {
+    if (record.profile_id !== profileId) continue;
+    const checkIn = new Date(record.check_in_at);
+    if (checkIn.getFullYear() !== year) continue;
+    const checkOut = record.check_out_at ? new Date(record.check_out_at) : now;
+    totals[checkIn.getMonth()] += Math.max(0, (checkOut.getTime() - checkIn.getTime()) / 60000);
+  }
+  return totals.map((totalMinutes, i) => ({ month: i + 1, totalMinutes: Math.round(totalMinutes) }));
 }
 
 export type DayHours = { date: string; label: string; hours: number };

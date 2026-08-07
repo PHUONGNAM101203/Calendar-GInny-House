@@ -17,9 +17,17 @@ import {
 } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import StaffOverviewTable from "@/components/manager/StaffOverviewTable";
+import RequestsOverviewTable from "@/components/manager/RequestsOverviewTable";
 import { aggregateStaffByRole, aggregateHoursByDay } from "@/lib/attendance";
 import { ROLE_LABELS } from "@/lib/roles";
-import type { Attendance, LeaveRequest, Profile } from "@/types";
+import type {
+  Attendance,
+  AttendanceCorrectionDetailed,
+  LeaveRequestDetailed,
+  Profile,
+  ShiftRequestDetailed,
+  SwapRequestDetailed,
+} from "@/types";
 
 // Title + a real headline number, nothing else — no icon chip. The number
 // alone (staff count / total hours) already tells you what the chart below
@@ -53,10 +61,16 @@ export default function TechnicalDashboard({
   staff,
   attendance,
   leaveRequests,
+  swapRequests,
+  shiftRequests,
+  attendanceCorrections,
 }: {
   staff: Pick<Profile, "id" | "full_name" | "role">[];
   attendance: Attendance[];
-  leaveRequests: Pick<LeaveRequest, "profile_id" | "start_date" | "end_date" | "status">[];
+  leaveRequests: LeaveRequestDetailed[];
+  swapRequests: SwapRequestDetailed[];
+  shiftRequests: ShiftRequestDetailed[];
+  attendanceCorrections: AttendanceCorrectionDetailed[];
 }) {
   const roleCounts = aggregateStaffByRole(staff);
   const hoursByDay = aggregateHoursByDay(attendance);
@@ -184,6 +198,19 @@ export default function TechnicalDashboard({
             staff={staff}
             attendance={attendance}
             leaveRequests={leaveRequests}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent>
+          <RequestsOverviewTable
+            title="Tổng hợp đơn đã gửi — Toàn hệ thống"
+            staff={staff}
+            leaveRequests={leaveRequests}
+            swapRequests={swapRequests}
+            shiftRequests={shiftRequests}
+            attendanceCorrections={attendanceCorrections}
           />
         </CardContent>
       </Card>

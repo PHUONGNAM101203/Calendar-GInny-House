@@ -4,11 +4,17 @@ import { useMemo, useState } from "react";
 import { SearchIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import StaffAttendanceDetailDialog from "@/components/manager/StaffAttendanceDetailDialog";
-import { buildStaffOverview, type OverviewPeriod } from "@/lib/attendance";
+import StaffRequestsDetailDialog from "@/components/manager/StaffRequestsDetailDialog";
+import { buildRequestsOverview } from "@/lib/requests-overview";
+import { type OverviewPeriod } from "@/lib/attendance";
 import { ROLE_LABELS } from "@/lib/roles";
-import { cn } from "@/lib/utils";
-import type { Attendance, LeaveRequest, Profile } from "@/types";
+import type {
+  AttendanceCorrectionDetailed,
+  LeaveRequestDetailed,
+  Profile,
+  ShiftRequestDetailed,
+  SwapRequestDetailed,
+} from "@/types";
 
 // Vietnamese users commonly type without diacritics when searching — strip
 // them from both sides so "nam" matches "Nam" as well as "Năm".
@@ -19,35 +25,31 @@ function normalizeForSearch(value: string): string {
     .toLowerCase();
 }
 
-function formatHours(totalMinutes: number) {
-  const h = Math.floor(totalMinutes / 60);
-  const m = Math.round(totalMinutes % 60);
-  return m > 0 ? `${h}g ${m}p` : `${h}g`;
-}
-
-const STATUS_LABEL = {
-  in_shift: "Đang trong ca",
-  checked_out: "Đã checkout",
-  not_clocked: "Chưa chấm công",
-} as const;
-
-export default function StaffOverviewTable({
-  title = "Tổng hợp chấm công",
+// Mirrors StaffOverviewTable's shape/UX (period tabs, search, click-to-drill-
+// down) but for "how many of each request type did each person submit" —
+// a convenient activity overview, separate from the approval queue.
+export default function RequestsOverviewTable({
+  title = "Tổng hợp đơn đã gửi",
   staff,
-  attendance,
   leaveRequests,
+  swapRequests,
+  shiftRequests,
+  attendanceCorrections,
 }: {
   title?: string;
   staff: Pick<Profile, "id" | "full_name" | "role">[];
-  attendance: Attendance[];
-  leaveRequests: Pick<LeaveRequest, "profile_id" | "start_date" | "end_date" | "status">[];
+  leaveRequests: LeaveRequestDetailed[];
+  swapRequests: SwapRequestDetailed[];
+  shiftRequests: ShiftRequestDetailed[];
+  attendanceCorrections: AttendanceCorrectionDetailed[];
 }) {
-  const [period, setPeriod] = useState<OverviewPeriod>("day");
+  const [period, setPeriod] = useState<OverviewPeriod>("month");
   const [search, setSearch] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState<{ id: string; fullName: string } | null>(null);
+
   const allRows = useMemo(
-    () => buildStaffOverview(staff, attendance, leaveRequests, period),
-    [staff, attendance, leaveRequests, period]
+    () => buildRequestsOverview(staff, leaveRequests, swapRequests, shiftRequests, attendanceCorrections, period),
+    [staff, leaveRequests, swapRequests, shiftRequests, attendanceCorrections, period]
   );
   const rows = useMemo(() => {
     const query = normalizeForSearch(search.trim());
@@ -79,18 +81,17 @@ export default function StaffOverviewTable({
         </div>
       </div>
 
-      {/* Deliberately a real bordered grid, not cards — a manager scanning
-          headcount x hours x status wants a spreadsheet, one row per
-          person, not a stack of prose. */}
       <div className="overflow-x-auto rounded-xl ring-1 ring-foreground/10">
         <table className="w-full border-collapse text-sm">
           <thead className="bg-muted/50 text-left text-muted-foreground">
             <tr>
               <th className="border-b border-r px-3 py-2 font-medium">Nhân viên</th>
               <th className="border-b border-r px-3 py-2 font-medium">Vai trò</th>
-              <th className="border-b border-r px-3 py-2 font-medium">Giờ làm</th>
-              <th className="border-b border-r px-3 py-2 font-medium">Trạng thái</th>
-              <th className="border-b px-3 py-2 font-medium">Nghỉ phép hôm nay</th>
+              <th className="border-b border-r px-3 py-2 text-right font-medium">Nghỉ phép</th>
+              <th className="border-b border-r px-3 py-2 text-right font-medium">Đổi ca</th>
+              <th className="border-b border-r px-3 py-2 text-right font-medium">Đăng ký ca</th>
+              <th className="border-b border-r px-3 py-2 text-right font-medium">Giải trình công</th>
+              <th className="border-b px-3 py-2 text-right font-medium">Tổng</th>
             </tr>
           </thead>
           <tbody>
@@ -101,40 +102,26 @@ export default function StaffOverviewTable({
                 onClick={() => setSelectedEmployee({ id: row.id, fullName: row.fullName })}
               >
                 <td className="border-b border-r px-3 py-2 font-medium">{row.fullName}</td>
-                <td className="border-b border-r px-3 py-2 text-muted-foreground">
-                  {ROLE_LABELS[row.role]}
+                <td className="border-b border-r px-3 py-2 text-muted-foreground">{ROLE_LABELS[row.role]}</td>
+                <td className="border-b border-r px-3 py-2 text-right tabular-nums">
+                  {row.leaveCount || <span className="text-muted-foreground">—</span>}
                 </td>
-                <td className="border-b border-r px-3 py-2 tabular-nums">
-                  {formatHours(row.totalMinutes)}
+                <td className="border-b border-r px-3 py-2 text-right tabular-nums">
+                  {row.swapCount || <span className="text-muted-foreground">—</span>}
                 </td>
-                <td className="border-b border-r px-3 py-2">
-                  <span
-                    className={cn(
-                      "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
-                      row.status === "in_shift" && "bg-primary/15 text-primary",
-                      row.status === "checked_out" && "bg-muted text-muted-foreground",
-                      row.status === "not_clocked" &&
-                        "border border-dashed border-muted-foreground/40 text-muted-foreground"
-                    )}
-                  >
-                    {STATUS_LABEL[row.status]}
-                  </span>
+                <td className="border-b border-r px-3 py-2 text-right tabular-nums">
+                  {row.shiftRequestCount || <span className="text-muted-foreground">—</span>}
                 </td>
-                <td className="border-b px-3 py-2">
-                  {row.onLeaveToday ? (
-                    <span className="inline-flex rounded-full bg-gold/20 px-2 py-0.5 text-xs font-medium text-gold-foreground">
-                      Nghỉ phép
-                    </span>
-                  ) : (
-                    <span className="text-muted-foreground">—</span>
-                  )}
+                <td className="border-b border-r px-3 py-2 text-right tabular-nums">
+                  {row.correctionCount || <span className="text-muted-foreground">—</span>}
                 </td>
+                <td className="border-b px-3 py-2 text-right font-medium tabular-nums">{row.total}</td>
               </tr>
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-3 py-6 text-center text-muted-foreground">
-                  {search.trim() ? "Không tìm thấy nhân viên phù hợp." : "Chưa có dữ liệu."}
+                <td colSpan={7} className="px-3 py-6 text-center text-muted-foreground">
+                  {search.trim() ? "Không tìm thấy nhân viên phù hợp." : "Chưa có đơn nào."}
                 </td>
               </tr>
             )}
@@ -143,7 +130,7 @@ export default function StaffOverviewTable({
       </div>
 
       {selectedEmployee && (
-        <StaffAttendanceDetailDialog
+        <StaffRequestsDetailDialog
           key={`${selectedEmployee.id}-${period}`}
           open={Boolean(selectedEmployee)}
           onOpenChange={(next) => {
@@ -152,7 +139,10 @@ export default function StaffOverviewTable({
           employeeId={selectedEmployee.id}
           employeeName={selectedEmployee.fullName}
           period={period}
-          attendance={attendance}
+          leaveRequests={leaveRequests}
+          swapRequests={swapRequests}
+          shiftRequests={shiftRequests}
+          attendanceCorrections={attendanceCorrections}
         />
       )}
     </div>

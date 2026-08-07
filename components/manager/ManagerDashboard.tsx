@@ -17,9 +17,17 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import BrandMark from "@/components/brand/BrandMark";
 import StaffOverviewTable from "@/components/manager/StaffOverviewTable";
+import RequestsOverviewTable from "@/components/manager/RequestsOverviewTable";
 import { aggregateHoursByDay } from "@/lib/attendance";
 import { cn } from "@/lib/utils";
-import type { Attendance, LeaveRequest, Profile } from "@/types";
+import type {
+  Attendance,
+  AttendanceCorrectionDetailed,
+  LeaveRequestDetailed,
+  Profile,
+  ShiftRequestDetailed,
+  SwapRequestDetailed,
+} from "@/types";
 
 /* Băng điều hành — một tấm panel navy duy nhất thay cho 5 card rời rạc.
    Trên nền tối, con số nào cần hành động thì tự phát sáng (vàng = chờ
@@ -117,10 +125,15 @@ export default function ManagerDashboard({
   shiftsToday,
   pendingSwaps,
   pendingLeave,
+  pendingShiftRequests,
+  pendingAttendanceCorrections,
   clockedInCount,
   staff,
   attendance,
   leaveRequests,
+  swapRequests,
+  shiftRequests,
+  attendanceCorrections,
   overviewTitle,
 }: {
   totalStaff: number;
@@ -128,10 +141,15 @@ export default function ManagerDashboard({
   shiftsToday: number;
   pendingSwaps: number;
   pendingLeave: number;
+  pendingShiftRequests: number;
+  pendingAttendanceCorrections: number;
   clockedInCount: number;
   staff: Pick<Profile, "id" | "full_name" | "role">[];
   attendance: Attendance[];
-  leaveRequests: Pick<LeaveRequest, "profile_id" | "start_date" | "end_date" | "status">[];
+  leaveRequests: LeaveRequestDetailed[];
+  swapRequests: SwapRequestDetailed[];
+  shiftRequests: ShiftRequestDetailed[];
+  attendanceCorrections: AttendanceCorrectionDetailed[];
   overviewTitle?: string;
 }) {
   const hoursByDay = useMemo(() => aggregateHoursByDay(attendance, 7), [attendance]);
@@ -153,7 +171,7 @@ export default function ManagerDashboard({
       }).format(new Date()),
     []
   );
-  const needsAttention = pendingSwaps + pendingLeave;
+  const needsAttention = pendingSwaps + pendingLeave + pendingShiftRequests + pendingAttendanceCorrections;
 
   return (
     <div className="space-y-6">
@@ -273,6 +291,13 @@ export default function ManagerDashboard({
             <div className="flex flex-1 flex-col justify-center gap-2">
               <QueueRow href="#swaps" label="Yêu cầu đổi ca" value={pendingSwaps} tone="gold" />
               <QueueRow href="#leave" label="Đơn nghỉ phép" value={pendingLeave} tone="gold" />
+              <QueueRow href="#shift-requests" label="Đăng ký ca" value={pendingShiftRequests} tone="gold" />
+              <QueueRow
+                href="#attendance-corrections"
+                label="Giải trình công"
+                value={pendingAttendanceCorrections}
+                tone="gold"
+              />
               <QueueRow href="#staff" label="Đang trong ca" value={clockedInCount} tone="success" />
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
@@ -291,6 +316,18 @@ export default function ManagerDashboard({
             staff={staff}
             attendance={attendance}
             leaveRequests={leaveRequests}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent>
+          <RequestsOverviewTable
+            staff={staff}
+            leaveRequests={leaveRequests}
+            swapRequests={swapRequests}
+            shiftRequests={shiftRequests}
+            attendanceCorrections={attendanceCorrections}
           />
         </CardContent>
       </Card>
