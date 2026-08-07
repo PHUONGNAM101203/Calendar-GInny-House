@@ -72,7 +72,7 @@ export default function TechnicalDashboard({
         <Card className="transition-shadow hover:shadow-md">
           <CardContent>
             <ChartCardHeader title="Nhân sự theo vai trò" total={`${staff.length} người`} />
-            <div className="h-64">
+            <div className="relative h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -101,6 +101,10 @@ export default function TechnicalDashboard({
                   />
                 </PieChart>
               </ResponsiveContainer>
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                <span className="font-heading text-2xl font-semibold tabular-nums">{staff.length}</span>
+                <span className="text-xs text-muted-foreground">người</span>
+              </div>
             </div>
             <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
               {roleCounts.map((r, i) => (

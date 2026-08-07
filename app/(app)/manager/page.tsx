@@ -1,4 +1,4 @@
-import { startOfDay, endOfDay, startOfYear } from "date-fns";
+import { startOfDay, endOfDay, startOfYear, parse, isValid } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { requireManager } from "@/lib/auth";
 import { getBranches } from "@/lib/branches";
@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import ManagerDashboard from "@/components/manager/ManagerDashboard";
 import TechnicalDashboard from "@/components/manager/TechnicalDashboard";
 import StaffTable from "@/components/manager/StaffTable";
+import DateRangeFilter from "@/components/manager/DateRangeFilter";
 import SwapRequestCard from "@/components/swaps/SwapRequestCard";
 import LeaveRequestCard from "@/components/leave/LeaveRequestCard";
 import ShiftRequestCard from "@/components/shifts/ShiftRequestCard";
@@ -67,14 +68,27 @@ function Section({
   );
 }
 
-export default async function ManagerPage() {
+export default async function ManagerPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ from?: string; to?: string }>;
+}) {
   const manager = await requireManager();
   const supabase = await createClient();
+  const params = await searchParams;
   const todayStart = startOfDay(new Date()).toISOString();
   const todayEnd = endOfDay(new Date()).toISOString();
-  // One fetch covers the whole page now that it's a single scroll, not a
-  // per-tab lazy load — every section below reads from these same arrays.
-  const yearWindowStart = startOfYear(new Date()).toISOString();
+
+  // parse(), not new Date(params.from) — see app/(app)/calendar/page.tsx's
+  // comment: the latter reads "yyyy-MM-dd" as UTC midnight, which drifts a
+  // day in a positive UTC-offset timezone (Vietnam). Falls back to the
+  // original whole-year window when no filter is set, so existing behavior
+  // is unchanged unless the user explicitly picks a range.
+  const parsedFrom = params.from ? parse(params.from, "yyyy-MM-dd", new Date()) : null;
+  const parsedTo = params.to ? parse(params.to, "yyyy-MM-dd", new Date()) : null;
+  const attendanceWindowStart =
+    parsedFrom && isValid(parsedFrom) ? startOfDay(parsedFrom).toISOString() : startOfYear(new Date()).toISOString();
+  const attendanceWindowEnd = parsedTo && isValid(parsedTo) ? endOfDay(parsedTo).toISOString() : null;
 
   const [
     { data: staff },
@@ -107,11 +121,11 @@ export default async function ManagerPage() {
       .from("leave_requests")
       .select("*, profile:profiles!profile_id(id, full_name, role)")
       .order("created_at", { ascending: false }),
-    supabase
-      .from("attendance")
-      .select("*")
-      .gte("check_in_at", yearWindowStart)
-      .order("check_in_at", { ascending: false }),
+    (() => {
+      let query = supabase.from("attendance").select("*").gte("check_in_at", attendanceWindowStart);
+      if (attendanceWindowEnd) query = query.lte("check_in_at", attendanceWindowEnd);
+      return query.order("check_in_at", { ascending: false });
+    })(),
     supabase
       .from("shift_requests")
       .select("*, profile:profiles!profile_id(id, full_name, role)")
@@ -185,6 +199,8 @@ export default async function ManagerPage() {
             : "Theo dõi nhân sự và yêu cầu đổi ca trong cơ sở của bạn."}
         </p>
       </div>
+
+      <DateRangeFilter />
 
       {isTechnical ? (
         <TechnicalDashboard staff={staffList} attendance={attendanceList} leaveRequests={leavesList} />
