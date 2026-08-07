@@ -1,11 +1,22 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { SearchIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import { buildStaffOverview, type OverviewPeriod } from "@/lib/attendance";
 import { ROLE_LABELS } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 import type { Attendance, LeaveRequest, Profile } from "@/types";
+
+// Vietnamese users commonly type without diacritics when searching — strip
+// them from both sides so "nam" matches "Nam" as well as "Năm".
+function normalizeForSearch(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
 
 function formatHours(totalMinutes: number) {
   const h = Math.floor(totalMinutes / 60);
@@ -31,22 +42,39 @@ export default function StaffOverviewTable({
   leaveRequests: Pick<LeaveRequest, "profile_id" | "start_date" | "end_date" | "status">[];
 }) {
   const [period, setPeriod] = useState<OverviewPeriod>("day");
-  const rows = useMemo(
+  const [search, setSearch] = useState("");
+  const allRows = useMemo(
     () => buildStaffOverview(staff, attendance, leaveRequests, period),
     [staff, attendance, leaveRequests, period]
   );
+  const rows = useMemo(() => {
+    const query = normalizeForSearch(search.trim());
+    if (!query) return allRows;
+    return allRows.filter((row) => normalizeForSearch(row.fullName).includes(query));
+  }, [allRows, search]);
 
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-heading text-base font-semibold">{title}</h3>
-        <Tabs value={period} onValueChange={(v) => setPeriod(v as OverviewPeriod)}>
-          <TabsList>
-            <TabsTrigger value="day">Theo ngày</TabsTrigger>
-            <TabsTrigger value="month">Theo tháng</TabsTrigger>
-            <TabsTrigger value="year">Theo năm</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="flex flex-wrap items-center gap-2">
+          <Tabs value={period} onValueChange={(v) => setPeriod(v as OverviewPeriod)}>
+            <TabsList>
+              <TabsTrigger value="day">Theo ngày</TabsTrigger>
+              <TabsTrigger value="month">Theo tháng</TabsTrigger>
+              <TabsTrigger value="year">Theo năm</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <div className="relative">
+            <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Tìm nhân viên..."
+              className="h-8 w-40 pl-8 text-sm"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Deliberately a real bordered grid, not cards — a manager scanning
@@ -100,7 +128,7 @@ export default function StaffOverviewTable({
             {rows.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-3 py-6 text-center text-muted-foreground">
-                  Chưa có dữ liệu.
+                  {search.trim() ? "Không tìm thấy nhân viên phù hợp." : "Chưa có dữ liệu."}
                 </td>
               </tr>
             )}
