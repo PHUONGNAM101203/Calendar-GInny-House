@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 import { isCeo } from "@/lib/roles";
 import { shiftRequestSchema } from "@/lib/validations/shift-request";
+import { sendPushToShiftRequestApprovers, sendPushToProfile } from "@/lib/push";
 import type { ActionResult } from "@/types";
 
 function mapShiftRequestError(message: string): string {
@@ -50,8 +51,16 @@ function mapShiftRpcError(message: string, fallback: string): string {
   return fallback;
 }
 
+function revalidateShiftRequestPaths() {
+  revalidatePath("/calendar");
+  revalidatePath("/manager");
+  // See actions/leave.ts's revalidateLeavePaths for why this is needed —
+  // the notification bell is in the shared app/(app)/layout.tsx.
+  revalidatePath("/", "layout");
+}
+
 export async function requestShiftAction(input: unknown): Promise<ActionResult> {
-  await requireProfile();
+  const profile = await requireProfile();
   const parsed = shiftRequestSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" };
@@ -68,8 +77,13 @@ export async function requestShiftAction(input: unknown): Promise<ActionResult> 
 
   if (error) return { ok: false, error: mapShiftRequestError(error.message) };
 
-  revalidatePath("/calendar");
-  revalidatePath("/manager");
+  revalidateShiftRequestPaths();
+  void sendPushToShiftRequestApprovers(profile.role, {
+    title: "Đăng ký ca làm mới",
+    body: `${profile.full_name} vừa gửi đăng ký ca làm`,
+    url: "/manager",
+    tag: "shift-request",
+  });
   return { ok: true, data: undefined };
 }
 
@@ -82,8 +96,7 @@ export async function cancelShiftRequestAction(id: string): Promise<ActionResult
     return { ok: false, error: mapShiftRpcError(error.message, "Không thể huỷ đăng ký ca này") };
   }
 
-  revalidatePath("/calendar");
-  revalidatePath("/manager");
+  revalidateShiftRequestPaths();
   return { ok: true, data: undefined };
 }
 
@@ -97,7 +110,7 @@ export async function respondToShiftRequestAction(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("respond_to_shift_request", {
+  const { data, error } = await supabase.rpc("respond_to_shift_request", {
     p_id: id,
     p_approve: approve,
   });
@@ -106,7 +119,14 @@ export async function respondToShiftRequestAction(
     return { ok: false, error: mapShiftRpcError(error.message, "Không thể xử lý đăng ký ca này") };
   }
 
-  revalidatePath("/calendar");
-  revalidatePath("/manager");
+  revalidateShiftRequestPaths();
+  if (data) {
+    void sendPushToProfile((data as { profile_id: string }).profile_id, {
+      title: approve ? "Đăng ký ca làm đã được duyệt" : "Đăng ký ca làm bị từ chối",
+      body: approve ? "Đăng ký ca làm của bạn đã được duyệt" : "Đăng ký ca làm của bạn đã bị từ chối",
+      url: "/calendar",
+      tag: "shift-request",
+    });
+  }
   return { ok: true, data: undefined };
 }

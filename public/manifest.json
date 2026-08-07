@@ -1,0 +1,24 @@
+{
+  "name": "Ginny House Calendar",
+  "short_name": "Ginny House",
+  "description": "Lịch làm việc, chấm công và duyệt đơn cho nhân viên Ginny House",
+  "start_url": "/calendar",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e3a5f",
+  "lang": "vi",
+  "icons": [
+    {
+      "src": "/brand/icon-square.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/brand/icon-square.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

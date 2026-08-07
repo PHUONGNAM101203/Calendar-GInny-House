@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Be_Vietnam_Pro } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -23,6 +23,19 @@ const beVietnamPro = Be_Vietnam_Pro({
 export const metadata: Metadata = {
   title: "Ginny House · Lịch làm việc",
   description: "Lịch làm việc và đổi ca cho đội ngũ Ginny House.",
+  manifest: "/manifest.json",
+  // iOS only allows web push for a PWA opened from its home-screen icon,
+  // not a plain Safari tab — this is what makes "Add to Home Screen" turn
+  // into a real standalone app instead of a bookmark shortcut.
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Ginny House",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#1e3a5f",
 };
 
 export default function RootLayout({

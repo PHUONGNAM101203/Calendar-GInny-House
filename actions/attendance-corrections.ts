@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 import { attendanceCorrectionSchema, correctionPreviewSchema } from "@/lib/validations/attendance-correction";
+import { sendPushToLeaveApprovers, sendPushToProfile } from "@/lib/push";
 import type { ActionResult, Attendance, Shift } from "@/types";
 
 export type CorrectionPreview =
@@ -31,10 +32,13 @@ function revalidateAttendanceCorrectionPaths() {
   revalidatePath("/attendance/explain");
   revalidatePath("/manager");
   revalidatePath("/calendar");
+  // See actions/leave.ts's revalidateLeavePaths for why this is needed —
+  // the notification bell is in the shared app/(app)/layout.tsx.
+  revalidatePath("/", "layout");
 }
 
 export async function requestAttendanceCorrectionAction(input: unknown): Promise<ActionResult> {
-  await requireProfile();
+  const profile = await requireProfile();
   const parsed = attendanceCorrectionSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" };
@@ -49,6 +53,12 @@ export async function requestAttendanceCorrectionAction(input: unknown): Promise
   if (error) return { ok: false, error: mapAttendanceCorrectionError(error.message) };
 
   revalidateAttendanceCorrectionPaths();
+  void sendPushToLeaveApprovers(profile.role, {
+    title: "Đơn giải trình công mới",
+    body: `${profile.full_name} vừa gửi đơn giải trình công`,
+    url: "/manager",
+    tag: "attendance-correction",
+  });
   return { ok: true, data: undefined };
 }
 
@@ -58,7 +68,7 @@ export async function respondToAttendanceCorrectionAction(
 ): Promise<ActionResult> {
   await requireProfile();
   const supabase = await createClient();
-  const { error } = await supabase.rpc("respond_to_attendance_correction", {
+  const { data, error } = await supabase.rpc("respond_to_attendance_correction", {
     p_id: id,
     p_approve: approve,
   });
@@ -66,6 +76,14 @@ export async function respondToAttendanceCorrectionAction(
   if (error) return { ok: false, error: mapAttendanceCorrectionError(error.message) };
 
   revalidateAttendanceCorrectionPaths();
+  if (data) {
+    void sendPushToProfile((data as { profile_id: string }).profile_id, {
+      title: approve ? "Đơn giải trình công đã được duyệt" : "Đơn giải trình công bị từ chối",
+      body: approve ? "Đơn giải trình công của bạn đã được duyệt" : "Đơn giải trình công của bạn đã bị từ chối",
+      url: "/attendance/explain",
+      tag: "attendance-correction",
+    });
+  }
   return { ok: true, data: undefined };
 }
 

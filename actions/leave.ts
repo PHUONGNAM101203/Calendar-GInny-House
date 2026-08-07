@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 import { leaveRequestSchema } from "@/lib/validations/leave";
+import { sendPushToLeaveApprovers, sendPushToProfile } from "@/lib/push";
 import type { ActionResult } from "@/types";
 
 function mapLeaveError(message: string): string {
@@ -26,10 +27,15 @@ function revalidateLeavePaths() {
   revalidatePath("/leave");
   revalidatePath("/manager");
   revalidatePath("/calendar");
+  // Notification bell lives in app/(app)/layout.tsx, a shared segment —
+  // revalidating a leaf path's "page" cache doesn't refetch it (layouts
+  // persist across navigations by design). Without this, the bell's
+  // badge/list can go stale after approve/reject until a hard reload.
+  revalidatePath("/", "layout");
 }
 
 export async function requestLeaveAction(input: unknown): Promise<ActionResult> {
-  await requireProfile();
+  const profile = await requireProfile();
   const parsed = leaveRequestSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" };
@@ -48,6 +54,12 @@ export async function requestLeaveAction(input: unknown): Promise<ActionResult> 
   if (error) return { ok: false, error: mapLeaveError(error.message) };
 
   revalidateLeavePaths();
+  void sendPushToLeaveApprovers(profile.role, {
+    title: "Đơn nghỉ phép mới",
+    body: `${profile.full_name} vừa gửi đơn xin nghỉ phép`,
+    url: "/leave",
+    tag: "leave",
+  });
   return { ok: true, data: undefined };
 }
 
@@ -57,7 +69,7 @@ export async function respondToLeaveRequestAction(
 ): Promise<ActionResult> {
   await requireProfile();
   const supabase = await createClient();
-  const { error } = await supabase.rpc("respond_to_leave_request", {
+  const { data, error } = await supabase.rpc("respond_to_leave_request", {
     p_id: requestId,
     p_approve: approve,
   });
@@ -65,6 +77,14 @@ export async function respondToLeaveRequestAction(
   if (error) return { ok: false, error: mapLeaveError(error.message) };
 
   revalidateLeavePaths();
+  if (data) {
+    void sendPushToProfile((data as { profile_id: string }).profile_id, {
+      title: approve ? "Đơn nghỉ phép đã được duyệt" : "Đơn nghỉ phép bị từ chối",
+      body: approve ? "Đơn xin nghỉ phép của bạn đã được duyệt" : "Đơn xin nghỉ phép của bạn đã bị từ chối",
+      url: "/leave",
+      tag: "leave",
+    });
+  }
   return { ok: true, data: undefined };
 }
 

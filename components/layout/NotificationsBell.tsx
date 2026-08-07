@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { formatNotificationTime, type AppNotification } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
+import PushNotificationToggle from "@/components/layout/PushNotificationToggle";
 
 const LAST_SEEN_KEY = "ginny:notifications:lastSeenAt";
 
@@ -84,6 +85,7 @@ export default function NotificationsBell({
             </DropdownMenuItem>
           ))
         )}
+        <PushNotificationToggle />
       </DropdownMenuContent>
     </DropdownMenu>
   );

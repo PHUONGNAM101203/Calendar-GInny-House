@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 import { swapRequestSchema } from "@/lib/validations/swap";
+import { sendPushToProfile } from "@/lib/push";
 import type { ActionResult } from "@/types";
 
 function mapSwapError(message: string): string {
@@ -29,10 +30,13 @@ function revalidateSwapPaths() {
   revalidatePath("/calendar");
   revalidatePath("/swaps");
   revalidatePath("/manager");
+  // See actions/leave.ts's revalidateLeavePaths for why this is needed —
+  // the notification bell is in the shared app/(app)/layout.tsx.
+  revalidatePath("/", "layout");
 }
 
 export async function createSwapRequestAction(input: unknown): Promise<ActionResult> {
-  await requireProfile();
+  const profile = await requireProfile();
   const parsed = swapRequestSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" };
@@ -49,6 +53,16 @@ export async function createSwapRequestAction(input: unknown): Promise<ActionRes
   if (error) return { ok: false, error: mapSwapError(error.message) };
 
   revalidateSwapPaths();
+  // Open swaps (no target_id) have no single recipient — skip push rather
+  // than notifying every colleague at the branch.
+  if (parsed.data.target_id) {
+    void sendPushToProfile(parsed.data.target_id, {
+      title: "Yêu cầu đổi ca mới",
+      body: `${profile.full_name} muốn đổi ca với bạn`,
+      url: "/swaps",
+      tag: "swap",
+    });
+  }
   return { ok: true, data: undefined };
 }
 
@@ -58,6 +72,12 @@ export async function respondToSwapRequestAction(
 ): Promise<ActionResult> {
   await requireProfile();
   const supabase = await createClient();
+  const { data: existing } = await supabase
+    .from("shift_swap_requests")
+    .select("requester_id")
+    .eq("id", requestId)
+    .single();
+
   const { error } = await supabase.rpc("respond_to_swap_request", {
     p_request_id: requestId,
     p_accept: accept,
@@ -66,6 +86,14 @@ export async function respondToSwapRequestAction(
   if (error) return { ok: false, error: mapSwapError(error.message) };
 
   revalidateSwapPaths();
+  if (existing) {
+    void sendPushToProfile(existing.requester_id, {
+      title: accept ? "Yêu cầu đổi ca được chấp nhận" : "Yêu cầu đổi ca bị từ chối",
+      body: accept ? "Đồng nghiệp đã đồng ý đổi ca với bạn" : "Yêu cầu đổi ca của bạn đã bị từ chối",
+      url: "/swaps",
+      tag: "swap",
+    });
+  }
   return { ok: true, data: undefined };
 }
 
