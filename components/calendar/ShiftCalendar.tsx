@@ -89,7 +89,7 @@ export default function ShiftCalendar({
   currentUserName: string;
   currentUserRole: Role;
   canManageShifts: boolean;
-  branchMembers: Pick<Profile, "id" | "full_name" | "role">[];
+  branchMembers: Pick<Profile, "id" | "full_name" | "role" | "branch_ids">[];
   canFollowAll: boolean;
   followedIds: string[];
   followColors: Record<string, string>;

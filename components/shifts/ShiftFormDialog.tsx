@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,6 +10,7 @@ import { ClockIcon } from "lucide-react";
 import { createShiftAction, deleteShiftAction, updateShiftAction } from "@/actions/shifts";
 import { SHIFT_TYPE_LABELS, detectShiftType } from "@/lib/constants";
 import { SHIFT_TYPES } from "@/lib/validations/shift";
+import { isManagerRole } from "@/lib/roles";
 import type { ShiftType } from "@/types";
 import { Button } from "@/components/ui/button";
 import { DatePickerField } from "@/components/ui/date-picker-field";
@@ -68,7 +69,7 @@ export default function ShiftFormDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  branchMembers: Pick<Profile, "id" | "full_name">[];
+  branchMembers: Pick<Profile, "id" | "full_name" | "role" | "branch_ids">[];
   branches: Branch[];
   shift?: ShiftWithAssignee | null;
   initialRange?: { start: Date; end: Date } | null;
@@ -91,8 +92,36 @@ export default function ShiftFormDialog({
     register,
     handleSubmit,
     reset,
+    watch,
+    getValues,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(formSchema) });
+
+  // The branch picker narrows to whichever assignee is currently selected —
+  // full list for management-tier (no profile_branches rows, "all
+  // branches" by design), otherwise only the branches that person actually
+  // belongs to.
+  const selectedAssigneeId = watch("assignee_id");
+  const selectedAssignee = branchMembers.find((m) => m.id === selectedAssigneeId);
+  const allowedBranches = !selectedAssignee || isManagerRole(selectedAssignee.role)
+    ? branches
+    : branches.filter((b) => selectedAssignee.branch_ids.includes(b.id));
+
+  const previousAssigneeIdRef = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (
+      previousAssigneeIdRef.current !== undefined &&
+      previousAssigneeIdRef.current !== selectedAssigneeId
+    ) {
+      const currentBranchId = getValues("branch_id");
+      if (currentBranchId && !allowedBranches.some((b) => b.id === currentBranchId)) {
+        setValue("branch_id", "");
+      }
+    }
+    previousAssigneeIdRef.current = selectedAssigneeId;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedAssigneeId]);
 
   if (open !== wasOpen) {
     setWasOpen(open);
@@ -210,7 +239,7 @@ export default function ShiftFormDialog({
                     <SelectValue placeholder="Chọn cơ sở" />
                   </SelectTrigger>
                   <SelectContent>
-                    {branches.map((branch) => (
+                    {allowedBranches.map((branch) => (
                       <SelectItem key={branch.id} value={branch.id}>
                         {branch.name}
                       </SelectItem>

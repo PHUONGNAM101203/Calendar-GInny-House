@@ -4,7 +4,29 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireManager } from "@/lib/auth";
 import { shiftSchema } from "@/lib/validations/shift";
+import { isManagerRole } from "@/lib/roles";
 import type { ActionResult } from "@/types";
+
+// Defense in depth — ShiftFormDialog's picker already narrows options to
+// the assignee's branches, but a manager could still bypass the client. A
+// management-tier assignee has no profile_branches rows by design and is
+// exempt (they cover every branch), matching that convention everywhere
+// else in the app.
+async function assertBranchAllowed(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  assigneeId: string,
+  branchId: string
+): Promise<string | null> {
+  const { data: assignee } = await supabase.from("profiles").select("role").eq("id", assigneeId).single();
+  if (!assignee) return "Không tìm thấy nhân viên này";
+  if (isManagerRole(assignee.role)) return null;
+
+  const { data: isMember } = await supabase.rpc("is_branch_member", {
+    p_profile_id: assigneeId,
+    p_branch_id: branchId,
+  });
+  return isMember ? null : "Nhân viên này không thuộc cơ sở đã chọn";
+}
 
 function mapShiftError(message: string): string {
   if (message.includes("shifts_no_overlap")) {
@@ -27,6 +49,10 @@ export async function createShiftAction(input: unknown): Promise<ActionResult> {
   }
 
   const supabase = await createClient();
+
+  const branchError = await assertBranchAllowed(supabase, parsed.data.assignee_id, parsed.data.branch_id);
+  if (branchError) return { ok: false, error: branchError };
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -59,6 +85,10 @@ export async function updateShiftAction(
   }
 
   const supabase = await createClient();
+
+  const branchError = await assertBranchAllowed(supabase, parsed.data.assignee_id, parsed.data.branch_id);
+  if (branchError) return { ok: false, error: branchError };
+
   const { error } = await supabase
     .from("shifts")
     .update({
