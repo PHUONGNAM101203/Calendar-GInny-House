@@ -28,7 +28,7 @@ export const registerSchema = z
     email: emailField,
     password: passwordField,
     confirm_password: z.string(),
-    branch_id: z.uuid("Vui lòng chọn cơ sở"),
+    branch_ids: z.array(z.uuid()).min(1, "Vui lòng chọn ít nhất 1 cơ sở"),
     role: z.enum(SELF_SIGNUP_ROLES, "Vui lòng chọn vai trò"),
   })
   .refine((v) => v.password === v.confirm_password, {

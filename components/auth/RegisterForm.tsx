@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { MultiSelectBranches } from "@/components/ui/multi-select-branches";
 import {
   Card,
   CardContent,
@@ -119,27 +120,22 @@ export default function RegisterForm({ branches }: { branches: Branch[] }) {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="branch_id">Cơ sở</Label>
+            <Label htmlFor="branch_ids">Cơ sở</Label>
             <Controller
               control={control}
-              name="branch_id"
+              name="branch_ids"
+              defaultValue={[]}
               render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <SelectTrigger id="branch_id" className="h-11! w-full rounded-lg">
-                    <SelectValue placeholder="Chọn cơ sở làm việc" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {branches.map((branch) => (
-                      <SelectItem key={branch.id} value={branch.id}>
-                        {branch.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <MultiSelectBranches
+                  branches={branches}
+                  value={field.value ?? []}
+                  onChange={field.onChange}
+                  placeholder="Chọn cơ sở làm việc"
+                />
               )}
             />
-            {errors.branch_id && (
-              <p className="text-sm text-destructive">{errors.branch_id.message}</p>
+            {errors.branch_ids && (
+              <p className="text-sm text-destructive">{errors.branch_ids.message}</p>
             )}
           </div>
 

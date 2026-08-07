@@ -39,12 +39,12 @@ export async function signUpAction(input: unknown): Promise<ActionResult> {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" };
   }
 
-  const { full_name, email, password, branch_id, role } = parsed.data;
+  const { full_name, email, password, branch_ids, role } = parsed.data;
   const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name, branch_id, role } },
+    options: { data: { full_name, branch_ids, role } },
   });
 
   if (error) {
