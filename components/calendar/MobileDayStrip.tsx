@@ -29,7 +29,7 @@ export default function MobileDayStrip({ date, view, views, onNavigate, onView }
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   return (
-    <div className="mb-3">
+    <div className="sticky top-0 z-20 mb-3 bg-background pt-1 pb-1">
       <div className="mb-2 flex items-center justify-between">
         <Button
           variant="ghost"

@@ -22,7 +22,7 @@ export default function CalendarToolbar({
   const viewNames = Array.isArray(views) ? views : Object.keys(views ?? {});
 
   return (
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div className="sticky top-0 z-20 mb-4 flex flex-wrap items-center justify-between gap-3 bg-background pt-1 pb-2">
       <div className="flex items-center gap-3">
         <Button variant="outline" size="sm" className="rounded-full" onClick={() => onNavigate("TODAY")}>
           Hôm nay

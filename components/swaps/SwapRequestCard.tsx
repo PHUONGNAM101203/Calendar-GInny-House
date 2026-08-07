@@ -42,7 +42,11 @@ export default function SwapRequestCard({
       toast.error(result.error);
       return;
     }
-    toast.success(accept ? "Đã nhận ca thành công" : "Đã từ chối yêu cầu");
+    if (accept) {
+      toast.success("Đã nhận ca thành công");
+    } else {
+      toast.warning("Đã từ chối yêu cầu");
+    }
   }
 
   async function handleCancel() {

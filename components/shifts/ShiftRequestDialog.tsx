@@ -107,7 +107,7 @@ export default function ShiftRequestDialog({
       setServerError(result.error);
       return;
     }
-    toast.success("Đã gửi đăng ký ca làm cho Tổng giám đốc duyệt");
+    toast.info("Đã gửi đăng ký ca làm cho Tổng giám đốc duyệt");
     setOpen(false);
   }
 

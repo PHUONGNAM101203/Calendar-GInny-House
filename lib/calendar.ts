@@ -14,14 +14,36 @@ import {
 import { vi } from "date-fns/locale";
 import { LEAVE_REQUEST_TYPE_LABELS } from "@/lib/constants";
 import type {
+  AttendanceCorrectionDetailed,
   AttendanceWithProfile,
   CustomCalendar,
   CustomEvent,
   LeaveRequestDetailed,
+  Profile,
+  Role,
+  ShiftRequestDetailed,
   ShiftWithAssignee,
   SwapRequest,
 } from "@/types";
 import type { Holiday } from "@/lib/holidays";
+
+// Local widening of LeaveRequestDetailed's profile pick — the shared type
+// only carries id/full_name (see types/index.ts), but the calendar's
+// "Cần xét duyệt" gating needs the requester's role too. Follows the same
+// local-widening convention already used in manager/page.tsx and leave/
+// page.tsx rather than editing the shared type. Exported so page.tsx,
+// ShiftCalendarLoader, and ShiftCalendar all thread the same shape instead
+// of re-declaring the intersection three more times.
+export type LeaveRequestWithRole = LeaveRequestDetailed & {
+  profile: Pick<Profile, "id" | "full_name" | "role">;
+};
+
+// Same local-widening convention — AttendanceDetailDialog's edit/delete
+// buttons (canManageAttendanceFor) need the target's role, which the base
+// AttendanceWithProfile type doesn't carry.
+export type AttendanceWithProfileRole = AttendanceWithProfile & {
+  profile: Pick<Profile, "id" | "full_name" | "role">;
+};
 
 export type CalendarView = "month" | "week" | "day" | "agenda";
 
@@ -172,9 +194,17 @@ export type HolidayEvent = {
 };
 
 export type AttendanceSession = {
+  // The attendance row's own id — needed for updateAttendanceAction/
+  // deleteAttendanceAction, not just display.
+  id: string;
   checkInAt: string;
   checkOutAt: string | null;
   branchName: string;
+  // Which shift this session was clocked against, if any — used to look up
+  // a pending attendance_corrections row referencing the same shift_id, so
+  // AttendanceDetailDialog can surface it inline (see toAttendanceEvents).
+  shiftId: string | null;
+  correction: AttendanceCorrectionDetailed | null;
 };
 
 export type AttendanceCalendarEvent = {
@@ -187,10 +217,12 @@ export type AttendanceCalendarEvent = {
     kind: "attendance";
     profileId: string;
     profileName: string;
+    profileRole: Role;
     colorVar: string;
     totalMinutes: number;
     isOpen: boolean;
     sessions: AttendanceSession[];
+    hasPendingCorrection: boolean;
   };
 };
 
@@ -204,8 +236,8 @@ export type LeaveCalendarEvent = {
     kind: "leave";
     profileId: string;
     colorVar: string;
-    requestType: LeaveRequestDetailed["request_type"];
-    request: LeaveRequestDetailed;
+    requestType: LeaveRequestWithRole["request_type"];
+    request: LeaveRequestWithRole;
   };
 };
 
@@ -218,12 +250,30 @@ export type CustomCalendarEvent = {
   resource: { kind: "custom"; calendarId: string; calendarName: string; colorVar: string; eventId: string };
 };
 
+// Self-service "Đăng ký ca làm" rows still awaiting a CEO/HR decision — no
+// row in `shifts` exists yet, so unlike a real shift this has no swap flag,
+// no assignee join, just the raw request. Rendered dashed/amber, "Chờ
+// duyệt" prefixed, distinct from both a confirmed shift and a leave block.
+export type ShiftRequestPendingEvent = {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  allDay?: false;
+  resource: {
+    kind: "shift_request_pending";
+    request: ShiftRequestDetailed;
+    colorVar: string;
+  };
+};
+
 export type CalendarEvent =
   | ShiftEvent
   | HolidayEvent
   | AttendanceCalendarEvent
   | LeaveCalendarEvent
-  | CustomCalendarEvent;
+  | CustomCalendarEvent
+  | ShiftRequestPendingEvent;
 
 export function isShiftEvent(event: CalendarEvent): event is ShiftEvent {
   return event.resource.kind === "shift";
@@ -239,6 +289,10 @@ export function isLeaveEvent(event: CalendarEvent): event is LeaveCalendarEvent 
 
 export function isCustomEvent(event: CalendarEvent): event is CustomCalendarEvent {
   return event.resource.kind === "custom";
+}
+
+export function isShiftRequestPendingEvent(event: CalendarEvent): event is ShiftRequestPendingEvent {
+  return event.resource.kind === "shift_request_pending";
 }
 
 // Holidays render as all-day banners (like Google Calendar's holiday row),
@@ -302,12 +356,15 @@ export function toCustomEvents(
 // session. Purely additive to the shift grid, toggled by the sidebar's
 // "Chấm công" checkbox.
 export function toAttendanceEvents(
-  records: AttendanceWithProfile[],
+  records: AttendanceWithProfileRole[],
   branchNames: Map<string, string>,
-  colorFor: (profileId: string) => string
+  colorFor: (profileId: string) => string,
+  // Keyed by shift_id — at most one pending correction per shift (DB has a
+  // partial unique index enforcing this), so a 1:1 lookup is enough.
+  pendingCorrectionsByShiftId: Map<string, AttendanceCorrectionDetailed> = new Map()
 ): AttendanceCalendarEvent[] {
   const now = new Date();
-  const groups = new Map<string, AttendanceWithProfile[]>();
+  const groups = new Map<string, AttendanceWithProfileRole[]>();
   for (const r of records) {
     const day = format(new Date(r.check_in_at), "yyyy-MM-dd");
     const key = `${r.profile_id}|${day}`;
@@ -326,6 +383,7 @@ export function toAttendanceEvents(
     for (const r of open) {
       const start = new Date(r.check_in_at);
       const minutes = (now.getTime() - start.getTime()) / 60000;
+      const correction = r.shift_id ? (pendingCorrectionsByShiftId.get(r.shift_id) ?? null) : null;
       events.push({
         id: `attendance-open-${r.id}`,
         title: `${name} · Đang chấm công`,
@@ -335,16 +393,21 @@ export function toAttendanceEvents(
           kind: "attendance" as const,
           profileId: r.profile_id,
           profileName: name,
+          profileRole: r.profile.role,
           colorVar,
           totalMinutes: Math.max(0, Math.round(minutes)),
           isOpen: true,
           sessions: [
             {
+              id: r.id,
               checkInAt: r.check_in_at,
               checkOutAt: null,
               branchName: branchNames.get(r.branch_id) ?? "—",
+              shiftId: r.shift_id,
+              correction,
             },
           ],
+          hasPendingCorrection: Boolean(correction),
         },
       });
     }
@@ -352,9 +415,12 @@ export function toAttendanceEvents(
     if (closed.length > 0) {
       const sessions: AttendanceSession[] = closed
         .map((r) => ({
+          id: r.id,
           checkInAt: r.check_in_at,
           checkOutAt: r.check_out_at,
           branchName: branchNames.get(r.branch_id) ?? "—",
+          shiftId: r.shift_id,
+          correction: r.shift_id ? (pendingCorrectionsByShiftId.get(r.shift_id) ?? null) : null,
         }))
         .sort((a, b) => a.checkInAt.localeCompare(b.checkInAt));
       const totalMinutes = closed.reduce(
@@ -376,10 +442,12 @@ export function toAttendanceEvents(
           kind: "attendance" as const,
           profileId: list[0].profile_id,
           profileName: name,
+          profileRole: list[0].profile.role,
           colorVar,
           totalMinutes: Math.round(totalMinutes),
           isOpen: false,
           sessions,
+          hasPendingCorrection: sessions.some((s) => s.correction !== null),
         },
       });
     }
@@ -395,7 +463,7 @@ export function toAttendanceEvents(
 // never render — only what's pending or approved is worth seeing on a
 // shared calendar.
 export function toLeaveEvents(
-  records: LeaveRequestDetailed[],
+  records: LeaveRequestWithRole[],
   onlyLateArrival: boolean,
   colorFor: (profileId: string) => string
 ): LeaveCalendarEvent[] {
@@ -481,4 +549,28 @@ export function toCalendarEvents(
       },
     };
   });
+}
+
+// Self-service "Đăng ký ca làm" rows still awaiting CEO/HR approval — these
+// have no row in `shifts` yet, so they can't reuse toCalendarEvents; each
+// pending request becomes its own dashed/amber block on the requester's
+// proposed start/end. Filters to pending defensively even though the
+// caller already fetches with .eq("status", "pending").
+export function toShiftRequestPendingEvents(
+  requests: ShiftRequestDetailed[],
+  colorFor: (profileId: string) => string
+): ShiftRequestPendingEvent[] {
+  return requests
+    .filter((r) => r.status === "pending")
+    .map((r) => ({
+      id: `shift-request-${r.id}`,
+      title: `Chờ duyệt · ${r.profile.full_name}`,
+      start: new Date(r.start_at),
+      end: new Date(r.end_at),
+      resource: {
+        kind: "shift_request_pending" as const,
+        request: r,
+        colorVar: colorFor(r.profile_id),
+      },
+    }));
 }

@@ -56,7 +56,7 @@ export default function AttendanceCorrectionForm() {
       setPreviewError(result.error);
       return;
     }
-    toast.success("Đã gửi đơn giải trình công");
+    toast.info("Đã gửi đơn giải trình công");
     setDate("");
     setPreview(null);
     reset({ shift_id: "", reason: "" });

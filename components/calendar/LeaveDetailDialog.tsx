@@ -1,12 +1,17 @@
 "use client";
 
+import { useState } from "react";
+import { toast } from "sonner";
 import { format, parse } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CalendarOffIcon, SunriseIcon, SunsetIcon, ClockIcon } from "lucide-react";
+import { respondToLeaveRequestAction } from "@/actions/leave";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -36,15 +41,34 @@ export default function LeaveDetailDialog({
   open,
   onOpenChange,
   event,
+  canRespond,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   event: LeaveCalendarEvent;
+  canRespond: boolean;
 }) {
+  const [pending, setPending] = useState(false);
   const request = event.resource.request;
   const Icon = TYPE_ICON[event.resource.requestType];
   const statusVariant =
     request.status === "approved" ? "success" : request.status === "pending" ? "gold" : "outline";
+
+  async function handleRespond(approve: boolean) {
+    setPending(true);
+    const result = await respondToLeaveRequestAction(request.id, approve);
+    setPending(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    if (approve) {
+      toast.success("Đã duyệt đơn nghỉ phép");
+    } else {
+      toast.warning("Đã từ chối đơn nghỉ phép");
+    }
+    onOpenChange(false);
+  }
 
   let timeDetail: string | null = null;
   if (request.request_type === "late_arrival" && request.start_time) {
@@ -85,6 +109,17 @@ export default function LeaveDetailDialog({
             <p className="text-sm text-muted-foreground italic">“{request.reason}”</p>
           )}
         </div>
+
+        {canRespond && request.status === "pending" && (
+          <DialogFooter>
+            <Button variant="outline" disabled={pending} onClick={() => handleRespond(false)}>
+              Từ chối
+            </Button>
+            <Button disabled={pending} onClick={() => handleRespond(true)}>
+              Duyệt
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );

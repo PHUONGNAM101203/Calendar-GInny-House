@@ -73,7 +73,7 @@ export default function SwapRequestDialog({
       setError(result.error);
       return;
     }
-    toast.success("Đã gửi yêu cầu đổi ca");
+    toast.info("Đã gửi yêu cầu đổi ca");
     onOpenChange(false);
     setMode("open");
     setTargetShiftId("");

@@ -12,6 +12,7 @@ import {
   toAttendanceEvents,
   toLeaveEvents,
   toCustomEvents,
+  toShiftRequestPendingEvents,
   getEventTextColorVar,
   getPersonColorVar,
   resolveColor,
@@ -20,21 +21,32 @@ import {
   isAttendanceEvent,
   isLeaveEvent,
   isCustomEvent,
+  isShiftRequestPendingEvent,
   type ShiftEvent,
   type AttendanceCalendarEvent,
   type LeaveCalendarEvent,
   type CustomCalendarEvent,
+  type ShiftRequestPendingEvent,
   type CalendarEvent,
+  type LeaveRequestWithRole,
+  type AttendanceWithProfileRole,
 } from "@/lib/calendar";
 import { VIETNAM_HOLIDAYS } from "@/lib/holidays";
-import { getCalendarFollowGroups, isManagerRole } from "@/lib/roles";
+import {
+  getCalendarFollowGroups,
+  isManagerRole,
+  isLeaveApprover,
+  canApproveLeaveFor,
+  canApproveShiftRequestFor,
+} from "@/lib/roles";
+import { scopeToOwnOrApprovable } from "@/lib/pending-approvals";
 import { useCalendarNav } from "@/hooks/use-calendar-nav";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { CALENDAR_MAX_HOUR, CALENDAR_MIN_HOUR } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import CalendarToolbar from "@/components/calendar/CalendarToolbar";
 import MobileDayStrip from "@/components/calendar/MobileDayStrip";
-import { CalendarSidebar, CalendarMobileMenu } from "@/components/calendar/CalendarSidebar";
+import { CalendarSidebar, CalendarMobileMenu, type PendingApprovalItem } from "@/components/calendar/CalendarSidebar";
 import RealtimeClock from "@/components/layout/RealtimeClock";
 import ShiftEventCell from "@/components/calendar/ShiftEventCell";
 import CalendarDayHeader from "@/components/calendar/CalendarDayHeader";
@@ -43,16 +55,17 @@ import ShiftDetailDialog from "@/components/shifts/ShiftDetailDialog";
 import AttendanceDetailDialog from "@/components/calendar/AttendanceDetailDialog";
 import LeaveDetailDialog from "@/components/calendar/LeaveDetailDialog";
 import CustomEventDetailDialog from "@/components/calendar/CustomEventDetailDialog";
+import ShiftRequestDetailDialog from "@/components/calendar/ShiftRequestDetailDialog";
 import type {
-  AttendanceWithProfile,
+  AttendanceCorrectionDetailed,
   Branch,
   CustomCalendar,
   CustomEvent,
-  LeaveRequestDetailed,
   Profile,
   Role,
+  ShiftRequestDetailed,
   ShiftWithAssignee,
-  SwapRequest,
+  SwapRequestDetailed,
 } from "@/types";
 
 const minTime = new Date();
@@ -65,6 +78,8 @@ export default function ShiftCalendar({
   pendingSwaps,
   attendance,
   leaveRequests,
+  shiftRequests,
+  attendanceCorrections,
   branches,
   customCalendars,
   customEvents,
@@ -79,9 +94,11 @@ export default function ShiftCalendar({
   branchColors,
 }: {
   shifts: ShiftWithAssignee[];
-  pendingSwaps: SwapRequest[];
-  attendance: AttendanceWithProfile[];
-  leaveRequests: LeaveRequestDetailed[];
+  pendingSwaps: SwapRequestDetailed[];
+  attendance: AttendanceWithProfileRole[];
+  leaveRequests: LeaveRequestWithRole[];
+  shiftRequests: ShiftRequestDetailed[];
+  attendanceCorrections: AttendanceCorrectionDetailed[];
   branches: Branch[];
   customCalendars: CustomCalendar[];
   customEvents: CustomEvent[];
@@ -177,9 +194,21 @@ export default function ShiftCalendar({
     const { start, end } = getVisibleRange(date, view);
     return toHolidayEvents(VIETNAM_HOLIDAYS, start, end);
   }, [date, view, showHolidays]);
+  // Keyed by shift_id — used to badge the matching attendance session with
+  // a "pending correction" indicator (see toAttendanceEvents). Built from
+  // the raw RLS-scoped list (visibility, not approval rights) since the
+  // badge is informational, not an approve/reject gate.
+  const pendingCorrectionsByShiftId = useMemo(() => {
+    const map = new Map<string, AttendanceCorrectionDetailed>();
+    for (const c of attendanceCorrections) map.set(c.shift_id, c);
+    return map;
+  }, [attendanceCorrections]);
   const attendanceEvents = useMemo(
-    () => (eventToggles.showAttendance ? toAttendanceEvents(visibleAttendance, branchNames, colorFor) : []),
-    [visibleAttendance, branchNames, colorFor, eventToggles.showAttendance]
+    () =>
+      eventToggles.showAttendance
+        ? toAttendanceEvents(visibleAttendance, branchNames, colorFor, pendingCorrectionsByShiftId)
+        : [],
+    [visibleAttendance, branchNames, colorFor, eventToggles.showAttendance, pendingCorrectionsByShiftId]
   );
   const leaveEvents = useMemo(
     () => (eventToggles.showLeave ? toLeaveEvents(visibleLeaveRequests, false, colorFor) : []),
@@ -197,6 +226,15 @@ export default function ShiftCalendar({
     () => toCustomEvents(customEvents, visibleCustomCalendars),
     [customEvents, visibleCustomCalendars]
   );
+  // Self-service shift requests still awaiting a CEO/HR decision — no
+  // toggle to hide these behind (unlike leave/attendance/holidays): a
+  // pending request is only ever fetched for the current viewer's own
+  // submissions or something they can approve (shift_requests_select RLS),
+  // so it's already a short, relevant list, not calendar noise.
+  const shiftRequestPendingEvents = useMemo(
+    () => toShiftRequestPendingEvents(shiftRequests, colorFor),
+    [shiftRequests, colorFor]
+  );
   const events = useMemo(
     () => [
       ...holidayEvents,
@@ -205,8 +243,17 @@ export default function ShiftCalendar({
       ...lateArrivalEvents,
       ...customCalendarEvents,
       ...shiftEvents,
+      ...shiftRequestPendingEvents,
     ],
-    [holidayEvents, attendanceEvents, leaveEvents, lateArrivalEvents, customCalendarEvents, shiftEvents]
+    [
+      holidayEvents,
+      attendanceEvents,
+      leaveEvents,
+      lateArrivalEvents,
+      customCalendarEvents,
+      shiftEvents,
+      shiftRequestPendingEvents,
+    ]
   );
 
   const [formState, setFormState] = useState<{
@@ -219,6 +266,7 @@ export default function ShiftCalendar({
   const [attendanceDetail, setAttendanceDetail] = useState<AttendanceCalendarEvent | null>(null);
   const [leaveDetail, setLeaveDetail] = useState<LeaveCalendarEvent | null>(null);
   const [customDetail, setCustomDetail] = useState<CustomCalendarEvent | null>(null);
+  const [shiftRequestDetail, setShiftRequestDetail] = useState<ShiftRequestPendingEvent | null>(null);
 
   // Double-clicking any day cell (month/week/day view alike) drills into
   // that day's own day view — independent of role, so it works the same
@@ -247,12 +295,115 @@ export default function ShiftCalendar({
       setCustomDetail(event);
       return;
     }
+    if (isShiftRequestPendingEvent(event)) {
+      setShiftRequestDetail(event);
+      return;
+    }
     if (!isShiftEvent(event)) return;
-    if (canManageShifts) {
+    // A pending swap makes the shift itself actionable (accept/reject/
+    // cancel) regardless of edit rights — respond_to_swap_request only
+    // ever lets the target person (or, for an open swap, any
+    // non-requester) accept; it has no manager-override branch, so a
+    // manager who happens to be that target/claimant needs the same
+    // response dialog everyone else gets, not the shift-edit form.
+    if (canManageShifts && event.resource.pendingSwap === "none") {
       setFormState({ open: true, shift: event.resource.shift, range: null });
     } else {
       setDetailEvent(event);
     }
+  }
+
+  // Sidebar "Cần xét duyệt" items open the matching detail dialog directly,
+  // reusing the same event-builders as the calendar grid so the dialog
+  // renders identically whichever entry point was clicked — independent of
+  // whatever toggle/visible-range state currently hides it from the grid
+  // itself (e.g. "Nghỉ phép" toggled off, or the item outside this week).
+  function openLeaveDetail(request: LeaveRequestWithRole) {
+    const [event] = toLeaveEvents([request], request.request_type === "late_arrival", colorFor);
+    if (event) setLeaveDetail(event);
+  }
+
+  function openShiftRequestDetail(request: ShiftRequestDetailed) {
+    const [event] = toShiftRequestPendingEvents([request], colorFor);
+    if (event) setShiftRequestDetail(event);
+  }
+
+  // No dedicated builder exists for a lone swap (toCalendarEvents needs the
+  // whole visible-range `shifts` list, which this swap's shift might not be
+  // in) — constructed directly from the swap's own joined shift pick
+  // instead. shift_type/branch_id/note aren't rendered by ShiftDetailDialog
+  // so their placeholder values here are never surfaced to the user.
+  function openSwapDetail(request: SwapRequestDetailed) {
+    const isMine = request.requester_id === currentUserId;
+    const pendingSwap: ShiftEvent["resource"]["pendingSwap"] = isMine
+      ? request.target_id
+        ? "outgoing"
+        : "open"
+      : request.target_id === currentUserId
+        ? "incoming"
+        : "open";
+    const shift: ShiftWithAssignee = {
+      id: request.requester_shift.id,
+      branch_id: request.branch_id,
+      assignee_id: request.requester_id,
+      start_at: request.requester_shift.start_at,
+      end_at: request.requester_shift.end_at,
+      note: null,
+      created_by: null,
+      shift_type: "morning",
+      assignee: { id: request.requester_id, full_name: request.requester.full_name, color: null },
+    };
+    setDetailEvent({
+      id: shift.id,
+      title: shift.assignee.full_name,
+      start: new Date(shift.start_at),
+      end: new Date(shift.end_at),
+      resource: {
+        kind: "shift",
+        shift,
+        isMine,
+        pendingSwap,
+        pendingSwapId: request.id,
+        colorVar: colorFor(request.requester_id),
+      },
+    });
+  }
+
+  // Same reasoning as openSwapDetail — AttendanceDetailDialog expects a
+  // grouped session-list event, but a sidebar click may reference a shift
+  // outside the currently visible attendance range, so a minimal
+  // single-session event carrying just this correction is built directly
+  // rather than searched for in the (possibly empty) rendered list.
+  function openAttendanceCorrectionDetail(correction: AttendanceCorrectionDetailed) {
+    setAttendanceDetail({
+      id: `attendance-correction-${correction.id}`,
+      title: `${correction.profile.full_name} · Giải trình công`,
+      start: new Date(correction.shift.start_at),
+      end: new Date(correction.shift.end_at),
+      resource: {
+        kind: "attendance",
+        profileId: correction.profile_id,
+        profileName: correction.profile.full_name,
+        profileRole: correction.profile.role,
+        colorVar: colorFor(correction.profile_id),
+        totalMinutes: 0,
+        isOpen: false,
+        sessions: [
+          {
+            // May be empty when the correction is for a missed check-in
+            // with no attendance row yet — AttendanceDetailDialog only
+            // offers edit/delete for a session with a real id.
+            id: correction.attendance_id ?? "",
+            checkInAt: correction.actual_check_in_at ?? correction.shift.start_at,
+            checkOutAt: null,
+            branchName: "—",
+            shiftId: correction.shift_id,
+            correction,
+          },
+        ],
+        hasPendingCorrection: true,
+      },
+    });
   }
 
   const otherShifts = useMemo(
@@ -331,6 +482,76 @@ export default function ShiftCalendar({
     setFormState({ open: true, shift: null, range: { start, end } });
   }
 
+  // "Cần xét duyệt" sidebar section — narrows each fetched pending list down
+  // to "I submitted this" ∪ "I can approve this," per row. shift_requests
+  // doesn't need this pass (its RLS select is already exactly that shape,
+  // see calendar/page.tsx); the other three tables' RLS is broader
+  // (visibility, not approval rights), so this is where that gets applied.
+  const pendingLeaveForApproval = useMemo(
+    () =>
+      scopeToOwnOrApprovable(
+        leaveRequests.filter((r) => r.status === "pending"),
+        currentUserId,
+        (r) => r.profile_id,
+        (r) => isLeaveApprover(currentUserRole) && canApproveLeaveFor(currentUserRole, r.profile.role)
+      ),
+    [leaveRequests, currentUserId, currentUserRole]
+  );
+  const pendingSwapsForApproval = useMemo(
+    () =>
+      scopeToOwnOrApprovable(
+        pendingSwaps,
+        currentUserId,
+        (r) => r.requester_id,
+        (r) => r.target_id === currentUserId || (r.target_id === null && r.requester_id !== currentUserId)
+      ),
+    [pendingSwaps, currentUserId]
+  );
+  const attendanceCorrectionsForApproval = useMemo(
+    () =>
+      scopeToOwnOrApprovable(
+        attendanceCorrections,
+        currentUserId,
+        (r) => r.profile_id,
+        (r) => isLeaveApprover(currentUserRole) && canApproveLeaveFor(currentUserRole, r.profile.role)
+      ),
+    [attendanceCorrections, currentUserId, currentUserRole]
+  );
+  const pendingApprovals: PendingApprovalItem[] = useMemo(() => {
+    const items: PendingApprovalItem[] = [
+      ...pendingLeaveForApproval.map((r) => ({
+        id: `leave-${r.id}`,
+        kind: "leave" as const,
+        label: `${r.profile.full_name} · Xin nghỉ phép`,
+        at: r.created_at,
+        onOpen: () => openLeaveDetail(r),
+      })),
+      ...shiftRequests.map((r) => ({
+        id: `shift-request-${r.id}`,
+        kind: "shift_request" as const,
+        label: `${r.profile.full_name} · Đăng ký ca làm`,
+        at: r.created_at,
+        onOpen: () => openShiftRequestDetail(r),
+      })),
+      ...pendingSwapsForApproval.map((r) => ({
+        id: `swap-${r.id}`,
+        kind: "swap" as const,
+        label: `${r.requester.full_name} · Đổi ca`,
+        at: r.created_at,
+        onOpen: () => openSwapDetail(r),
+      })),
+      ...attendanceCorrectionsForApproval.map((r) => ({
+        id: `attendance-correction-${r.id}`,
+        kind: "attendance_correction" as const,
+        label: `${r.profile.full_name} · Giải trình công`,
+        at: r.created_at,
+        onOpen: () => openAttendanceCorrectionDetail(r),
+      })),
+    ];
+    return items.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingLeaveForApproval, shiftRequests, pendingSwapsForApproval, attendanceCorrectionsForApproval]);
+
   const sidebarProps = {
     canManageShifts,
     date,
@@ -345,6 +566,7 @@ export default function ShiftCalendar({
     onToggleHolidays: setShowHolidays,
     eventToggles,
     onEventTogglesChange: setEventToggles,
+    pendingApprovals,
     customCalendars,
     hiddenCustomCalendarIds,
     onToggleCustomCalendar: (calendarId: string, visible: boolean) =>
@@ -371,7 +593,13 @@ export default function ShiftCalendar({
     <div className="flex flex-1 overflow-hidden">
       <CalendarSidebar {...sidebarProps} />
 
-      <div className="flex flex-1 flex-col overflow-hidden p-4 sm:p-6">
+      {/* overflow-y-auto (not overflow-hidden) so month view's day rows —
+          which, unlike week/day view's internal .rbc-time-content, have no
+          scroll region of their own — can actually be scrolled to instead
+          of silently clipping past the viewport. CalendarToolbar/
+          MobileDayStrip are sticky within this same container, so the date
+          header stays pinned through that scroll. */}
+      <div className="flex flex-1 flex-col overflow-y-auto p-4 sm:p-6">
         <div className="mb-2 flex items-center justify-between gap-2 lg:hidden">
           <CalendarMobileMenu {...sidebarProps} />
           <RealtimeClock className="flex" />
@@ -408,13 +636,25 @@ export default function ShiftCalendar({
             }
             if (event.resource.kind === "leave") {
               return {
-                className: "shift-event shift-event--leave",
+                className: [
+                  "shift-event",
+                  "shift-event--leave",
+                  event.resource.request.status === "pending" ? "shift-event--awaiting" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" "),
                 style: { "--event-color": resolveColor(event.resource.colorVar) } as React.CSSProperties,
               };
             }
             if (event.resource.kind === "custom") {
               return {
                 className: "shift-event shift-event--custom",
+                style: { "--event-color": resolveColor(event.resource.colorVar) } as React.CSSProperties,
+              };
+            }
+            if (event.resource.kind === "shift_request_pending") {
+              return {
+                className: "shift-event shift-event--shift-request-pending",
                 style: { "--event-color": resolveColor(event.resource.colorVar) } as React.CSSProperties,
               };
             }
@@ -462,7 +702,7 @@ export default function ShiftCalendar({
           />
         )}
 
-        {!canManageShifts && detailEvent && (
+        {detailEvent && (
           <ShiftDetailDialog
             open={Boolean(detailEvent)}
             onOpenChange={(open) => !open && setDetailEvent(null)}
@@ -476,6 +716,7 @@ export default function ShiftCalendar({
             open={Boolean(attendanceDetail)}
             onOpenChange={(open) => !open && setAttendanceDetail(null)}
             event={attendanceDetail}
+            currentUserRole={currentUserRole}
           />
         )}
 
@@ -484,6 +725,24 @@ export default function ShiftCalendar({
             open={Boolean(leaveDetail)}
             onOpenChange={(open) => !open && setLeaveDetail(null)}
             event={leaveDetail}
+            canRespond={
+              leaveDetail.resource.request.status === "pending" &&
+              isLeaveApprover(currentUserRole) &&
+              canApproveLeaveFor(currentUserRole, leaveDetail.resource.request.profile.role)
+            }
+          />
+        )}
+
+        {shiftRequestDetail && (
+          <ShiftRequestDetailDialog
+            open={Boolean(shiftRequestDetail)}
+            onOpenChange={(open) => !open && setShiftRequestDetail(null)}
+            event={shiftRequestDetail}
+            canRespond={canApproveShiftRequestFor(
+              currentUserRole,
+              shiftRequestDetail.resource.request.profile.role
+            )}
+            canCancel={shiftRequestDetail.resource.request.profile_id === currentUserId}
           />
         )}
 

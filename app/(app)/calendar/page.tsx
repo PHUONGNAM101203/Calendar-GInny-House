@@ -1,19 +1,37 @@
 import { parse, isValid, format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
-import { getVisibleRange, type CalendarView } from "@/lib/calendar";
+import {
+  getVisibleRange,
+  type CalendarView,
+  type LeaveRequestWithRole,
+  type AttendanceWithProfileRole,
+} from "@/lib/calendar";
 import { canCreateShiftDirectly, canSeeAllCalendars } from "@/lib/roles";
 import { getBranches } from "@/lib/branches";
 import ShiftCalendarLoader from "@/components/calendar/ShiftCalendarLoader";
 import type {
-  AttendanceWithProfile,
+  AttendanceCorrectionDetailed,
   CustomCalendar,
   CustomEvent,
-  LeaveRequestDetailed,
   Profile,
+  ShiftRequestDetailed,
   ShiftWithAssignee,
-  SwapRequest,
+  SwapRequestDetailed,
 } from "@/types";
+
+// Same joined shape as swaps/page.tsx and manager/page.tsx's SELECT — the
+// calendar's swap query used to be a bare `select("*")`, which meant the
+// pending-swap indicator on a shift had no requester/target names to show
+// in a detail dialog. Upgrading it here lets ShiftDetailDialog and the new
+// "Cần xét duyệt" sidebar section render names instead of raw ids.
+const SWAP_SELECT = `
+  *,
+  requester:profiles!requester_id(id, full_name),
+  target:profiles!target_id(id, full_name),
+  requester_shift:shifts!requester_shift_id(id, start_at, end_at),
+  target_shift:shifts!target_shift_id(id, start_at, end_at)
+`;
 
 export default async function CalendarPage({
   searchParams,
@@ -46,6 +64,8 @@ export default async function CalendarPage({
     { data: customCalendars },
     { data: customEvents },
     { data: branchColorRows },
+    { data: shiftRequests },
+    { data: attendanceCorrections },
   ] = await Promise.all([
     supabase
       .from("shifts")
@@ -53,21 +73,30 @@ export default async function CalendarPage({
       .gte("start_at", start.toISOString())
       .lte("start_at", end.toISOString())
       .order("start_at"),
-    supabase.from("shift_swap_requests").select("*").eq("status", "pending"),
+    // shift_swap_requests RLS (swaps_select_branch) is visibility-scoped,
+    // not approval-scoped — same broad set already used for the shift-level
+    // pendingSwap indicator, joined so both that indicator's dialog and the
+    // sidebar can show requester/target names.
+    supabase.from("shift_swap_requests").select(SWAP_SELECT).eq("status", "pending"),
     supabase.from("profiles").select("id, full_name, role, profile_branches(branch_id)").order("full_name"),
     canFollowAll
       ? supabase.from("calendar_follows").select("followee_id, color, followed").eq("follower_id", profile.id)
       : Promise.resolve({ data: [] }),
     // RLS (can_view_profile) already limits this to what the viewer can
     // see — own records, or their group/all for the manager-tier roles.
+    // profile.role added so AttendanceDetailDialog can gate edit/delete
+    // buttons with canManageAttendanceFor (see AttendanceWithProfileRole).
     supabase
       .from("attendance")
-      .select("*, profile:profiles!profile_id(id, full_name)")
+      .select("*, profile:profiles!profile_id(id, full_name, role)")
       .gte("check_in_at", start.toISOString())
       .lte("check_in_at", end.toISOString()),
+    // profile.role added (beyond the base LeaveRequestDetailed shape) so
+    // the "Cần xét duyệt" sidebar can gate each row with canApproveLeaveFor
+    // — see LeaveRequestWithRole in lib/calendar.ts.
     supabase
       .from("leave_requests")
-      .select("*, profile:profiles!profile_id(id, full_name)")
+      .select("*, profile:profiles!profile_id(id, full_name, role)")
       .in("status", ["pending", "approved"])
       .lte("start_date", format(end, "yyyy-MM-dd"))
       .gte("end_date", format(start, "yyyy-MM-dd")),
@@ -81,6 +110,23 @@ export default async function CalendarPage({
       .lte("start_at", end.toISOString())
       .gte("end_at", start.toISOString()),
     supabase.from("branch_color_overrides").select("branch_key, color").eq("profile_id", profile.id),
+    // shift_requests_select RLS already scopes to profile_id = viewer OR
+    // can_approve_shift_request(profile_id) — exactly the "own ∪
+    // approvable" shape this page needs, no app-level filtering required.
+    supabase
+      .from("shift_requests")
+      .select("*, profile:profiles!profile_id(id, full_name, role)")
+      .eq("status", "pending")
+      .order("created_at", { ascending: false }),
+    // attendance_corrections_select RLS is can_view_profile-scoped
+    // (visibility), broader than approval rights — used as-is for the
+    // pending-correction badge on attendance events; narrowed further
+    // client-side for the sidebar/dialog approve buttons.
+    supabase
+      .from("attendance_corrections")
+      .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at)")
+      .eq("status", "pending")
+      .order("created_at", { ascending: false }),
   ]);
 
   const followRows =
@@ -100,9 +146,11 @@ export default async function CalendarPage({
   return (
     <ShiftCalendarLoader
       shifts={(shifts as ShiftWithAssignee[]) ?? []}
-      pendingSwaps={(pendingSwaps as SwapRequest[]) ?? []}
-      attendance={(attendance as AttendanceWithProfile[]) ?? []}
-      leaveRequests={(leaveRequests as LeaveRequestDetailed[]) ?? []}
+      pendingSwaps={(pendingSwaps as SwapRequestDetailed[]) ?? []}
+      attendance={(attendance as AttendanceWithProfileRole[]) ?? []}
+      leaveRequests={(leaveRequests as LeaveRequestWithRole[]) ?? []}
+      shiftRequests={(shiftRequests as ShiftRequestDetailed[]) ?? []}
+      attendanceCorrections={(attendanceCorrections as AttendanceCorrectionDetailed[]) ?? []}
       branches={branches}
       customCalendars={(customCalendars as CustomCalendar[]) ?? []}
       customEvents={(customEvents as CustomEvent[]) ?? []}

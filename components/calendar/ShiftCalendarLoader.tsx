@@ -2,16 +2,17 @@
 
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { LeaveRequestWithRole, AttendanceWithProfileRole } from "@/lib/calendar";
 import type {
-  AttendanceWithProfile,
+  AttendanceCorrectionDetailed,
   Branch,
   CustomCalendar,
   CustomEvent,
-  LeaveRequestDetailed,
   Profile,
   Role,
+  ShiftRequestDetailed,
   ShiftWithAssignee,
-  SwapRequest,
+  SwapRequestDetailed,
 } from "@/types";
 
 // react-big-calendar touches the DOM (measuring rows/columns, scroll sync)
@@ -38,9 +39,11 @@ const ShiftCalendar = dynamic(() => import("@/components/calendar/ShiftCalendar"
 
 export default function ShiftCalendarLoader(props: {
   shifts: ShiftWithAssignee[];
-  pendingSwaps: SwapRequest[];
-  attendance: AttendanceWithProfile[];
-  leaveRequests: LeaveRequestDetailed[];
+  pendingSwaps: SwapRequestDetailed[];
+  attendance: AttendanceWithProfileRole[];
+  leaveRequests: LeaveRequestWithRole[];
+  shiftRequests: ShiftRequestDetailed[];
+  attendanceCorrections: AttendanceCorrectionDetailed[];
   branches: Branch[];
   customCalendars: CustomCalendar[];
   customEvents: CustomEvent[];

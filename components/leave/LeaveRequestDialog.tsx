@@ -78,7 +78,7 @@ export default function LeaveRequestDialog() {
       setServerError(result.error);
       return;
     }
-    toast.success("Đã gửi đơn xin nghỉ phép");
+    toast.info("Đã gửi đơn xin nghỉ phép");
     setOpen(false);
   }
 

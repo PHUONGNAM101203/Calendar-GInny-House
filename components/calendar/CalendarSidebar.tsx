@@ -12,11 +12,16 @@ import {
   Trash2Icon,
   LinkIcon,
   LayoutGridIcon,
+  CalendarClockIcon,
+  ClockAlertIcon,
+  RepeatIcon,
+  AlarmClockOffIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { getPersonColorVar, resolveColor, isCustomHexColor, EVENT_COLOR_SWATCHES } from "@/lib/calendar";
+import { formatNotificationTime } from "@/lib/notifications";
 import {
   followPersonAction,
   unfollowPersonAction,
@@ -42,6 +47,14 @@ type EventTypeToggles = {
   showSwapIndicator: boolean;
 };
 
+export type PendingApprovalItem = {
+  id: string;
+  kind: "leave" | "shift_request" | "swap" | "attendance_correction";
+  label: string;
+  at: string; // ISO, sorted newest first by the caller
+  onOpen: () => void;
+};
+
 type SidebarProps = {
   canManageShifts: boolean;
   date: Date;
@@ -56,6 +69,7 @@ type SidebarProps = {
   onToggleHolidays: (next: boolean) => void;
   eventToggles: EventTypeToggles;
   onEventTogglesChange: (next: EventTypeToggles) => void;
+  pendingApprovals: PendingApprovalItem[];
   customCalendars: CustomCalendar[];
   hiddenCustomCalendarIds: Set<string>;
   onToggleCustomCalendar: (calendarId: string, visible: boolean) => void;
@@ -64,6 +78,13 @@ type SidebarProps = {
   hiddenBranchKeys: Set<string>;
   onToggleBranch: (key: string, visible: boolean) => void;
   branchColors: Record<string, string>;
+};
+
+const PENDING_APPROVAL_ICON = {
+  leave: AlarmClockOffIcon,
+  shift_request: CalendarClockIcon,
+  swap: RepeatIcon,
+  attendance_correction: ClockAlertIcon,
 };
 
 // The Google Calendar move this whole sidebar is styled after: a small
@@ -521,6 +542,27 @@ function GroupSection({ group, canFollowAll }: { group: PersonGroup; canFollowAl
   );
 }
 
+// One row per pending item awaiting a decision — a colored dot (by kind,
+// matching the "Loại sự kiện" swatch language above it) + label + relative
+// time, click opens the matching detail dialog. Purely a shortcut into the
+// same dialogs the calendar grid already opens; no state of its own.
+function PendingApprovalRow({ item }: { item: PendingApprovalItem }) {
+  const Icon = PENDING_APPROVAL_ICON[item.kind];
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={item.onOpen}
+        className="flex w-full items-center gap-2 truncate text-left hover:text-foreground"
+      >
+        <Icon className="size-3.5 shrink-0 text-gold-foreground" />
+        <span className="min-w-0 flex-1 truncate">{item.label}</span>
+        <span className="shrink-0 text-xs text-muted-foreground">{formatNotificationTime(item.at)}</span>
+      </button>
+    </li>
+  );
+}
+
 function SidebarContent({
   canManageShifts,
   date,
@@ -535,6 +577,7 @@ function SidebarContent({
   onToggleHolidays,
   eventToggles,
   onEventTogglesChange,
+  pendingApprovals,
   customCalendars,
   hiddenCustomCalendarIds,
   onToggleCustomCalendar,
@@ -611,6 +654,19 @@ function SidebarContent({
           />
         </ul>
       </div>
+
+      {pendingApprovals.length > 0 && (
+        <div>
+          <p className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+            Cần xét duyệt
+          </p>
+          <ul className="space-y-1.5 text-sm">
+            {pendingApprovals.map((item) => (
+              <PendingApprovalRow key={item.id} item={item} />
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div>
         <p className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">

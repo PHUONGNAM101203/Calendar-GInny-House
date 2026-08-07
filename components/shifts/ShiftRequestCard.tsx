@@ -38,7 +38,11 @@ export default function ShiftRequestCard({
       toast.error(result.error);
       return;
     }
-    toast.success(approve ? "Đã duyệt đăng ký ca làm" : "Đã từ chối đăng ký ca làm");
+    if (approve) {
+      toast.success("Đã duyệt đăng ký ca làm");
+    } else {
+      toast.warning("Đã từ chối đăng ký ca làm");
+    }
   }
 
   async function handleCancel() {

@@ -41,7 +41,11 @@ export default function AttendanceCorrectionCard({
       toast.error(result.error);
       return;
     }
-    toast.success(approve ? "Đã duyệt đơn giải trình công" : "Đã từ chối đơn giải trình công");
+    if (approve) {
+      toast.success("Đã duyệt đơn giải trình công");
+    } else {
+      toast.warning("Đã từ chối đơn giải trình công");
+    }
   }
 
   async function handleCancel() {

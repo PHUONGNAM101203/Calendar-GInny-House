@@ -64,7 +64,11 @@ export default function LeaveRequestCard({
       toast.error(result.error);
       return;
     }
-    toast.success(approve ? "Đã duyệt đơn nghỉ phép" : "Đã từ chối đơn nghỉ phép");
+    if (approve) {
+      toast.success("Đã duyệt đơn nghỉ phép");
+    } else {
+      toast.warning("Đã từ chối đơn nghỉ phép");
+    }
   }
 
   async function handleCancel() {

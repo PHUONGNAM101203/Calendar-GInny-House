@@ -347,6 +347,22 @@
   background-color: var(--event-color, var(--chart-1));
   color: white;
 }
+/* Pending leave/late-arrival — same hatch fill as an approved one, plus a
+   gold outline (same visual language as shift-event--pending's swap
+   outline) so "still waiting on someone" reads distinctly from "confirmed
+   and on the calendar." */
+.rbc-event.shift-event--awaiting {
+  outline: 2px dashed var(--gold);
+  outline-offset: 1px;
+}
+/* Self-service "Đăng ký ca làm" rows with no shifts-table row yet — dashed
+   amber fill distinguishes "not yet a real shift" from both a normal solid
+   shift chip and chấm công's dashed person-color outline. */
+.rbc-event.shift-event--shift-request-pending {
+  background-color: color-mix(in oklch, var(--gold) 14%, var(--card));
+  color: var(--gold-foreground);
+  border: 1.5px dashed var(--gold);
+}
 .rbc-selected.shift-event {
   outline: 2px solid var(--ring);
 }

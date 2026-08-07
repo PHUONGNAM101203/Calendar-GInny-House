@@ -30,6 +30,7 @@ function mapAttendanceCorrectionError(message: string): string {
 function revalidateAttendanceCorrectionPaths() {
   revalidatePath("/attendance/explain");
   revalidatePath("/manager");
+  revalidatePath("/calendar");
 }
 
 export async function requestAttendanceCorrectionAction(input: unknown): Promise<ActionResult> {

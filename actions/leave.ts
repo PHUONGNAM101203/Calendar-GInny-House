@@ -25,6 +25,7 @@ function mapLeaveError(message: string): string {
 function revalidateLeavePaths() {
   revalidatePath("/leave");
   revalidatePath("/manager");
+  revalidatePath("/calendar");
 }
 
 export async function requestLeaveAction(input: unknown): Promise<ActionResult> {

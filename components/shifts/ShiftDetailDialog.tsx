@@ -48,7 +48,11 @@ export default function ShiftDetailDialog({
       toast.error(result.error);
       return;
     }
-    toast.success(accept ? "Đã nhận ca thành công" : "Đã từ chối yêu cầu");
+    if (accept) {
+      toast.success("Đã nhận ca thành công");
+    } else {
+      toast.warning("Đã từ chối yêu cầu");
+    }
     onOpenChange(false);
   }
 

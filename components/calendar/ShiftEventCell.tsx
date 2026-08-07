@@ -1,4 +1,14 @@
-import { ClockIcon, PartyPopperIcon, TimerIcon, CalendarOffIcon, SunriseIcon, SunsetIcon, StarIcon } from "lucide-react";
+import {
+  ClockIcon,
+  PartyPopperIcon,
+  TimerIcon,
+  CalendarOffIcon,
+  SunriseIcon,
+  SunsetIcon,
+  StarIcon,
+  CalendarClockIcon,
+  AlertCircleIcon,
+} from "lucide-react";
 import type { EventProps } from "react-big-calendar";
 import { resolveColor, type CalendarEvent } from "@/lib/calendar";
 
@@ -24,6 +34,11 @@ export default function ShiftEventCell({ event }: EventProps<CalendarEvent>) {
       <div className="flex items-center gap-1.5 truncate">
         <TimerIcon className="size-3 shrink-0" />
         <span className="truncate">{event.title}</span>
+        {event.resource.hasPendingCorrection && (
+          <AlertCircleIcon className="size-3 shrink-0" aria-label="Có đơn giải trình đang chờ duyệt">
+            <title>Có đơn giải trình đang chờ duyệt</title>
+          </AlertCircleIcon>
+        )}
       </div>
     );
   }
@@ -42,6 +57,15 @@ export default function ShiftEventCell({ event }: EventProps<CalendarEvent>) {
     return (
       <div className="flex items-center gap-1.5 truncate">
         <StarIcon className="size-3 shrink-0" />
+        <span className="truncate">{event.title}</span>
+      </div>
+    );
+  }
+
+  if (event.resource.kind === "shift_request_pending") {
+    return (
+      <div className="flex items-center gap-1.5 truncate">
+        <CalendarClockIcon className="size-3 shrink-0" />
         <span className="truncate">{event.title}</span>
       </div>
     );

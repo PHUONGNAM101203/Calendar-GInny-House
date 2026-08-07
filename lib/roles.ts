@@ -231,6 +231,18 @@ export function getCalendarFollowGroups(role: Role): CalendarFollowGroup[] | nul
   return null;
 }
 
+// Attendance edit/delete: ceo/technical manage everyone's records (incl.
+// old ones, to clean up erroneous check-ins); coo/training_director/hr only
+// their own group's people. Deliberately NOT reusing isLeaveApprover — this
+// is a net-new capability for technical, which approves no leave today.
+// Mirrors can_manage_attendance_for() in
+// 0038_attendance_manage_permissions.sql — keep both in sync.
+export function canManageAttendanceFor(viewerRole: Role, targetRole: Role): boolean {
+  if (viewerRole === "ceo" || viewerRole === "technical") return true;
+  const group = getViewableGroupRoles(viewerRole);
+  return group ? group.has(targetRole) : false;
+}
+
 // Who can open the /manager page at all: manager-tier roles, plus HR for
 // its own scoped "Nhóm HR" section (HR itself isn't manager-tier — no
 // MANAGER_ROLES/is_manager() access — it just gets a narrow view+approve
