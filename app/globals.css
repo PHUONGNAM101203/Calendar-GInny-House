@@ -31,6 +31,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-strong: var(--destructive-strong);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -123,6 +124,11 @@
   --accent: var(--blue-100);
   --accent-foreground: var(--blue-800);
   --destructive: var(--red-600);
+  /* red-600 as text on its own 10% tint measures 4.41:1 — just under the 4.5
+     floor the guideline's own contrast table sets. Solid-fill buttons are
+     fine (white on red-600), so only the tinted-surface text steps down to
+     red-700, which lands at 5.93:1. */
+  --destructive-strong: var(--red-700);
   --border: #E6E9F2;
   --input: #8B93AC;
   --ring: var(--blue-500);
@@ -212,6 +218,8 @@
   --accent: var(--blue-800);
   --accent-foreground: var(--blue-100);
   --destructive: var(--red-400);
+  /* Inverted on dark: the tint is dark, so the text lightens instead. */
+  --destructive-strong: var(--red-300);
   --border: rgb(255 255 255 / 10%);
   --input: rgb(255 255 255 / 15%);
   --ring: var(--blue-400);
