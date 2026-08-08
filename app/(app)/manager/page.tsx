@@ -21,6 +21,7 @@ import SwapRequestCard from "@/components/swaps/SwapRequestCard";
 import LeaveRequestCard from "@/components/leave/LeaveRequestCard";
 import ShiftRequestCard from "@/components/shifts/ShiftRequestCard";
 import AttendanceCorrectionCard from "@/components/attendance/AttendanceCorrectionCard";
+import CollapsibleGrid from "@/components/manager/CollapsibleGrid";
 import type {
   Attendance,
   AttendanceCorrectionDetailed,
@@ -270,7 +271,7 @@ export default async function ManagerPage({
           {scopedShiftRequests.length === 0 ? (
             <p className="text-sm text-muted-foreground">Chưa có đăng ký ca làm nào.</p>
           ) : (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <CollapsibleGrid initial={4} className="grid gap-3 sm:grid-cols-2">
               {scopedShiftRequests.map((r) => (
                 <ShiftRequestCard
                   key={r.id}
@@ -280,7 +281,7 @@ export default async function ManagerPage({
                   showName
                 />
               ))}
-            </div>
+            </CollapsibleGrid>
           )}
         </Section>
       )}
@@ -289,7 +290,7 @@ export default async function ManagerPage({
         {scopedSwaps.length === 0 ? (
           <p className="text-sm text-muted-foreground">Chưa có yêu cầu đổi ca nào.</p>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
+          <CollapsibleGrid initial={4} className="grid gap-3 sm:grid-cols-2">
             {scopedSwaps.map((r) => (
               <SwapRequestCard
                 key={r.id}
@@ -303,7 +304,7 @@ export default async function ManagerPage({
                 canCancel={r.status === "pending"}
               />
             ))}
-          </div>
+          </CollapsibleGrid>
         )}
       </Section>
 
@@ -311,7 +312,7 @@ export default async function ManagerPage({
         {scopedLeaves.length === 0 ? (
           <p className="text-sm text-muted-foreground">Chưa có đơn nghỉ phép nào.</p>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
+          <CollapsibleGrid initial={4} className="grid gap-3 sm:grid-cols-2">
             {scopedLeaves.map((r) => (
               <LeaveRequestCard
                 key={r.id}
@@ -325,7 +326,7 @@ export default async function ManagerPage({
                 showName
               />
             ))}
-          </div>
+          </CollapsibleGrid>
         )}
       </Section>
 
@@ -333,7 +334,7 @@ export default async function ManagerPage({
         {scopedAttendanceCorrections.length === 0 ? (
           <p className="text-sm text-muted-foreground">Chưa có đơn giải trình công nào.</p>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
+          <CollapsibleGrid initial={4} className="grid gap-3 sm:grid-cols-2">
             {scopedAttendanceCorrections.map((r) => (
               <AttendanceCorrectionCard
                 key={r.id}
@@ -347,7 +348,7 @@ export default async function ManagerPage({
                 showName
               />
             ))}
-          </div>
+          </CollapsibleGrid>
         )}
       </Section>
     </div>

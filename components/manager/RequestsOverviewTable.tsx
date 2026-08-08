@@ -8,6 +8,7 @@ import StaffRequestsDetailDialog from "@/components/manager/StaffRequestsDetailD
 import { buildRequestsOverview } from "@/lib/requests-overview";
 import { type OverviewPeriod } from "@/lib/attendance";
 import { ROLE_LABELS } from "@/lib/roles";
+import TableScroller from "@/components/manager/TableScroller";
 import type {
   AttendanceCorrectionDetailed,
   LeaveRequestDetailed,
@@ -81,7 +82,7 @@ export default function RequestsOverviewTable({
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl ring-1 ring-foreground/10">
+      <TableScroller visibleRows={10}>
         <table className="w-full border-collapse text-sm">
           <thead className="bg-muted/50 text-left text-muted-foreground">
             <tr>
@@ -127,7 +128,7 @@ export default function RequestsOverviewTable({
             )}
           </tbody>
         </table>
-      </div>
+      </TableScroller>
 
       {selectedEmployee && (
         <StaffRequestsDetailDialog

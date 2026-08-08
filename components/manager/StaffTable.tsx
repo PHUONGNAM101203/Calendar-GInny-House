@@ -13,6 +13,7 @@ import { MultiSelectBranches } from "@/components/ui/multi-select-branches";
 import { updateStaffBranchesAction, updateStaffRoleAction } from "@/actions/staff";
 import { ROLE_HIERARCHY, ROLE_LABELS, isManagerRole } from "@/lib/roles";
 import type { Branch, Profile, Role } from "@/types";
+import TableScroller from "@/components/manager/TableScroller";
 
 type StaffRow = Pick<Profile, "id" | "full_name" | "phone" | "role" | "branch_ids">;
 
@@ -26,7 +27,7 @@ export default function StaffTable({
   currentUserId: string;
 }) {
   return (
-    <div className="overflow-x-auto rounded-xl ring-1 ring-foreground/10">
+    <TableScroller visibleRows={10}>
       <table className="w-full text-sm">
         <thead className="bg-muted/50 text-left text-muted-foreground">
           <tr>
@@ -51,7 +52,7 @@ export default function StaffTable({
           ))}
         </tbody>
       </table>
-    </div>
+    </TableScroller>
   );
 }
 

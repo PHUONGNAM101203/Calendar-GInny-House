@@ -8,6 +8,7 @@ import StaffAttendanceDetailDialog from "@/components/manager/StaffAttendanceDet
 import { buildStaffOverview, type OverviewPeriod } from "@/lib/attendance";
 import { ROLE_LABELS } from "@/lib/roles";
 import { cn } from "@/lib/utils";
+import TableScroller from "@/components/manager/TableScroller";
 import type { Attendance, LeaveRequest, Profile } from "@/types";
 
 // Vietnamese users commonly type without diacritics when searching — strip
@@ -82,15 +83,15 @@ export default function StaffOverviewTable({
       {/* Deliberately a real bordered grid, not cards — a manager scanning
           headcount x hours x status wants a spreadsheet, one row per
           person, not a stack of prose. */}
-      <div className="overflow-x-auto rounded-xl ring-1 ring-foreground/10">
+      <TableScroller visibleRows={10}>
         <table className="w-full border-collapse text-sm">
           <thead className="bg-muted/50 text-left text-muted-foreground">
             <tr>
               <th className="border-b border-r px-3 py-2 font-medium">Nhân viên</th>
-              <th className="border-b border-r px-3 py-2 font-medium">Vai trò</th>
+              <th className="hidden border-b border-r px-3 py-2 font-medium sm:table-cell">Vai trò</th>
               <th className="border-b border-r px-3 py-2 font-medium">Giờ làm</th>
               <th className="border-b border-r px-3 py-2 font-medium">Trạng thái</th>
-              <th className="border-b px-3 py-2 font-medium">Nghỉ phép hôm nay</th>
+              <th className="hidden border-b px-3 py-2 font-medium md:table-cell">Nghỉ phép hôm nay</th>
             </tr>
           </thead>
           <tbody>
@@ -100,8 +101,15 @@ export default function StaffOverviewTable({
                 className="cursor-pointer transition-colors hover:bg-accent/40"
                 onClick={() => setSelectedEmployee({ id: row.id, fullName: row.fullName })}
               >
-                <td className="border-b border-r px-3 py-2 font-medium">{row.fullName}</td>
-                <td className="border-b border-r px-3 py-2 text-muted-foreground">
+                <td className="border-b border-r px-3 py-2 font-medium">
+                  {row.fullName}
+                  {/* Vai trò chui xuống dưới tên khi cột riêng của nó bị ẩn —
+                      đổi chỗ chứ không cắt bỏ, nên điện thoại không mất thông tin. */}
+                  <span className="block text-xs font-normal text-muted-foreground sm:hidden">
+                    {ROLE_LABELS[row.role]}
+                  </span>
+                </td>
+                <td className="hidden border-b border-r px-3 py-2 text-muted-foreground sm:table-cell">
                   {ROLE_LABELS[row.role]}
                 </td>
                 <td className="border-b border-r px-3 py-2 tabular-nums">
@@ -119,8 +127,15 @@ export default function StaffOverviewTable({
                   >
                     {STATUS_LABEL[row.status]}
                   </span>
+                  {/* Ở hẹp, cột "Nghỉ phép hôm nay" bị ẩn — huy hiệu bám theo
+                      trạng thái để tin đó không biến mất khỏi màn hình nhỏ. */}
+                  {row.onLeaveToday && (
+                    <span className="ml-1.5 inline-flex rounded-full bg-gold/20 px-2 py-0.5 text-xs font-medium text-gold-foreground md:hidden">
+                      Nghỉ phép
+                    </span>
+                  )}
                 </td>
-                <td className="border-b px-3 py-2">
+                <td className="hidden border-b px-3 py-2 md:table-cell">
                   {row.onLeaveToday ? (
                     <span className="inline-flex rounded-full bg-gold/20 px-2 py-0.5 text-xs font-medium text-gold-foreground">
                       Nghỉ phép
@@ -140,7 +155,7 @@ export default function StaffOverviewTable({
             )}
           </tbody>
         </table>
-      </div>
+      </TableScroller>
 
       {selectedEmployee && (
         <StaffAttendanceDetailDialog
