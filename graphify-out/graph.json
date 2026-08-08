@@ -108,15 +108,49 @@
   },
   "nodes": [
     {
+      "label": "proxy.ts",
+      "file_type": "code",
+      "source_file": "proxy.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "proxy",
+      "community": 36,
+      "community_name": "Auth Proxy Middleware",
+      "norm_label": "proxy.ts"
+    },
+    {
+      "label": "proxy()",
+      "file_type": "code",
+      "source_file": "proxy.ts",
+      "source_location": "L4",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "proxy_proxy",
+      "community": 36,
+      "community_name": "Auth Proxy Middleware",
+      "norm_label": "proxy()"
+    },
+    {
+      "label": "config",
+      "file_type": "code",
+      "source_file": "proxy.ts",
+      "source_location": "L21",
+      "_origin": "ast",
+      "id": "proxy_config",
+      "community": 36,
+      "community_name": "Auth Proxy Middleware",
+      "norm_label": "config"
+    },
+    {
       "label": "ShiftCalendar.tsx",
       "file_type": "code",
       "source_file": "components/calendar/ShiftCalendar.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "components_calendar_shiftcalendar",
       "community": 1,
       "community_name": "ShiftCalendar.tsx",
-      "norm_label": "shiftcalendar.tsx"
+      "norm_label": "shiftcalendar.tsx",
+      "id": "components_calendar_shiftcalendar"
     },
     {
       "label": "minTime",
@@ -124,10 +158,10 @@
       "source_file": "components/calendar/ShiftCalendar.tsx",
       "source_location": "L76",
       "_origin": "ast",
-      "id": "components_calendar_shiftcalendar_mintime",
       "community": 1,
       "community_name": "ShiftCalendar.tsx",
-      "norm_label": "mintime"
+      "norm_label": "mintime",
+      "id": "components_calendar_shiftcalendar_mintime"
     },
     {
       "label": "maxTime",
@@ -135,10 +169,10 @@
       "source_file": "components/calendar/ShiftCalendar.tsx",
       "source_location": "L78",
       "_origin": "ast",
-      "id": "components_calendar_shiftcalendar_maxtime",
       "community": 1,
       "community_name": "ShiftCalendar.tsx",
-      "norm_label": "maxtime"
+      "norm_label": "maxtime",
+      "id": "components_calendar_shiftcalendar_maxtime"
     },
     {
       "label": "ShiftCalendar()",
@@ -147,10 +181,10 @@
       "source_location": "L81",
       "_callable": true,
       "_origin": "ast",
-      "id": "components_calendar_shiftcalendar_shiftcalendar",
       "community": 1,
       "community_name": "ShiftCalendar.tsx",
-      "norm_label": "shiftcalendar()"
+      "norm_label": "shiftcalendar()",
+      "id": "components_calendar_shiftcalendar_shiftcalendar"
     },
     {
       "label": "(app)/layout.tsx",
@@ -8744,40 +8778,6 @@
       "id": "postcss_config_config"
     },
     {
-      "label": "proxy.ts",
-      "file_type": "code",
-      "source_file": "proxy.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 36,
-      "norm_label": "proxy.ts",
-      "community_name": "Auth Proxy Middleware",
-      "id": "proxy"
-    },
-    {
-      "label": "proxy()",
-      "file_type": "code",
-      "source_file": "proxy.ts",
-      "source_location": "L4",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "norm_label": "proxy()",
-      "community_name": "Auth Proxy Middleware",
-      "id": "proxy_proxy"
-    },
-    {
-      "label": "config",
-      "file_type": "code",
-      "source_file": "proxy.ts",
-      "source_location": "L8",
-      "_origin": "ast",
-      "community": 36,
-      "norm_label": "config",
-      "community_name": "Auth Proxy Middleware",
-      "id": "proxy_config"
-    },
-    {
       "label": "manifest.json",
       "file_type": "code",
       "source_file": "public/manifest.json",
@@ -13000,13 +13000,71 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "proxy.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "proxy",
+      "target": "lib_supabase_proxy",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "proxy.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "proxy",
+      "target": "lib_supabase_proxy_updatesession",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "proxy.ts",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "proxy",
+      "target": "proxy_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "proxy.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "proxy",
+      "target": "proxy_proxy",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "proxy.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "proxy_proxy",
+      "target": "lib_supabase_proxy_updatesession"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
       "source_location": "L60",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_calendar_attendancedetaildialog",
-      "confidence_score": 1.0
+      "target": "components_calendar_attendancedetaildialog"
     },
     {
       "relation": "imports_from",
@@ -13016,9 +13074,9 @@
       "source_location": "L57",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_calendar_calendardayheader",
-      "confidence_score": 1.0
+      "target": "components_calendar_calendardayheader"
     },
     {
       "relation": "imports_from",
@@ -13028,9 +13086,9 @@
       "source_location": "L54",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_calendar_calendarsidebar",
-      "confidence_score": 1.0
+      "target": "components_calendar_calendarsidebar"
     },
     {
       "relation": "imports",
@@ -13040,9 +13098,9 @@
       "source_location": "L54",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_calendar_calendarsidebar_calendarmobilemenu",
-      "confidence_score": 1.0
+      "target": "components_calendar_calendarsidebar_calendarmobilemenu"
     },
     {
       "relation": "imports",
@@ -13052,9 +13110,9 @@
       "source_location": "L54",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_calendar_calendarsidebar_calendarsidebar",
-      "confidence_score": 1.0
+      "target": "components_calendar_calendarsidebar_calendarsidebar"
     },
     {
       "relation": "imports",
@@ -13064,9 +13122,9 @@
       "source_location": "L54",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_calendar_calendarsidebar_pendingapprovalitem",
-      "confidence_score": 1.0
+      "target": "components_calendar_calendarsidebar_pendingapprovalitem"
     },
     {
       "relation": "imports_from",
@@ -13076,9 +13134,9 @@
       "source_location": "L52",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_calendar_calendartoolbar",
-      "confidence_score": 1.0
+      "target": "components_calendar_calendartoolbar"
     },
     {
       "relation": "imports_from",
@@ -13088,9 +13146,9 @@
       "source_location": "L62",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_calendar_customeventdetaildialog",
-      "confidence_score": 1.0
+      "target": "components_calendar_customeventdetaildialog"
     },
     {
       "relation": "imports_from",
@@ -13100,9 +13158,9 @@
       "source_location": "L61",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_calendar_leavedetaildialog",
-      "confidence_score": 1.0
+      "target": "components_calendar_leavedetaildialog"
     },
     {
       "relation": "imports_from",
@@ -13112,9 +13170,9 @@
       "source_location": "L53",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_calendar_mobiledaystrip",
-      "confidence_score": 1.0
+      "target": "components_calendar_mobiledaystrip"
     },
     {
       "relation": "contains",
@@ -13123,9 +13181,9 @@
       "source_location": "L78",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_calendar_shiftcalendar_maxtime",
-      "confidence_score": 1.0
+      "target": "components_calendar_shiftcalendar_maxtime"
     },
     {
       "relation": "contains",
@@ -13134,9 +13192,9 @@
       "source_location": "L76",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_calendar_shiftcalendar_mintime",
-      "confidence_score": 1.0
+      "target": "components_calendar_shiftcalendar_mintime"
     },
     {
       "relation": "contains",
@@ -13145,9 +13203,9 @@
       "source_location": "L81",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_calendar_shiftcalendar_shiftcalendar",
-      "confidence_score": 1.0
+      "target": "components_calendar_shiftcalendar_shiftcalendar"
     },
     {
       "relation": "imports_from",
@@ -13157,9 +13215,9 @@
       "source_location": "L56",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_calendar_shifteventcell",
-      "confidence_score": 1.0
+      "target": "components_calendar_shifteventcell"
     },
     {
       "relation": "imports_from",
@@ -13169,9 +13227,9 @@
       "source_location": "L63",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_calendar_shiftrequestdetaildialog",
-      "confidence_score": 1.0
+      "target": "components_calendar_shiftrequestdetaildialog"
     },
     {
       "relation": "imports_from",
@@ -13181,9 +13239,9 @@
       "source_location": "L55",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_layout_realtimeclock",
-      "confidence_score": 1.0
+      "target": "components_layout_realtimeclock"
     },
     {
       "relation": "imports_from",
@@ -13193,9 +13251,9 @@
       "source_location": "L59",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_shifts_shiftdetaildialog",
-      "confidence_score": 1.0
+      "target": "components_shifts_shiftdetaildialog"
     },
     {
       "relation": "imports_from",
@@ -13205,9 +13263,9 @@
       "source_location": "L58",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "components_shifts_shiftformdialog",
-      "confidence_score": 1.0
+      "target": "components_shifts_shiftformdialog"
     },
     {
       "relation": "imports_from",
@@ -13217,9 +13275,9 @@
       "source_location": "L48",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "hooks_use_calendar_nav",
-      "confidence_score": 1.0
+      "target": "hooks_use_calendar_nav"
     },
     {
       "relation": "imports",
@@ -13229,9 +13287,9 @@
       "source_location": "L48",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "hooks_use_calendar_nav_usecalendarnav",
-      "confidence_score": 1.0
+      "target": "hooks_use_calendar_nav_usecalendarnav"
     },
     {
       "relation": "imports_from",
@@ -13241,9 +13299,9 @@
       "source_location": "L49",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "hooks_use_is_mobile",
-      "confidence_score": 1.0
+      "target": "hooks_use_is_mobile"
     },
     {
       "relation": "imports",
@@ -13253,9 +13311,9 @@
       "source_location": "L49",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "hooks_use_is_mobile_useismobile",
-      "confidence_score": 1.0
+      "target": "hooks_use_is_mobile_useismobile"
     },
     {
       "relation": "imports_from",
@@ -13265,9 +13323,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar",
-      "confidence_score": 1.0
+      "target": "lib_calendar"
     },
     {
       "relation": "imports",
@@ -13277,9 +13335,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_attendancecalendarevent",
-      "confidence_score": 1.0
+      "target": "lib_calendar_attendancecalendarevent"
     },
     {
       "relation": "imports",
@@ -13289,9 +13347,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_attendancewithprofilerole",
-      "confidence_score": 1.0
+      "target": "lib_calendar_attendancewithprofilerole"
     },
     {
       "relation": "imports",
@@ -13301,9 +13359,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_calendarevent",
-      "confidence_score": 1.0
+      "target": "lib_calendar_calendarevent"
     },
     {
       "relation": "imports",
@@ -13313,9 +13371,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_calendarformats",
-      "confidence_score": 1.0
+      "target": "lib_calendar_calendarformats"
     },
     {
       "relation": "imports",
@@ -13325,9 +13383,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_calendarmessages",
-      "confidence_score": 1.0
+      "target": "lib_calendar_calendarmessages"
     },
     {
       "relation": "imports",
@@ -13337,9 +13395,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_calendarview",
-      "confidence_score": 1.0
+      "target": "lib_calendar_calendarview"
     },
     {
       "relation": "imports",
@@ -13349,9 +13407,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_customcalendarevent",
-      "confidence_score": 1.0
+      "target": "lib_calendar_customcalendarevent"
     },
     {
       "relation": "imports",
@@ -13361,9 +13419,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_geteventtextcolorvar",
-      "confidence_score": 1.0
+      "target": "lib_calendar_geteventtextcolorvar"
     },
     {
       "relation": "imports",
@@ -13373,9 +13431,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_getpersoncolorvar",
-      "confidence_score": 1.0
+      "target": "lib_calendar_getpersoncolorvar"
     },
     {
       "relation": "imports",
@@ -13385,9 +13443,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_getvisiblerange",
-      "confidence_score": 1.0
+      "target": "lib_calendar_getvisiblerange"
     },
     {
       "relation": "imports",
@@ -13397,9 +13455,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_isattendancecorrectionpendingevent",
-      "confidence_score": 1.0
+      "target": "lib_calendar_isattendancecorrectionpendingevent"
     },
     {
       "relation": "imports",
@@ -13409,9 +13467,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_isattendanceevent",
-      "confidence_score": 1.0
+      "target": "lib_calendar_isattendanceevent"
     },
     {
       "relation": "imports",
@@ -13421,9 +13479,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_iscustomevent",
-      "confidence_score": 1.0
+      "target": "lib_calendar_iscustomevent"
     },
     {
       "relation": "imports",
@@ -13433,9 +13491,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_isleaveevent",
-      "confidence_score": 1.0
+      "target": "lib_calendar_isleaveevent"
     },
     {
       "relation": "imports",
@@ -13445,9 +13503,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_isshiftevent",
-      "confidence_score": 1.0
+      "target": "lib_calendar_isshiftevent"
     },
     {
       "relation": "imports",
@@ -13457,9 +13515,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_isshiftrequestpendingevent",
-      "confidence_score": 1.0
+      "target": "lib_calendar_isshiftrequestpendingevent"
     },
     {
       "relation": "imports",
@@ -13469,9 +13527,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_leavecalendarevent",
-      "confidence_score": 1.0
+      "target": "lib_calendar_leavecalendarevent"
     },
     {
       "relation": "imports",
@@ -13481,9 +13539,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_leaverequestwithrole",
-      "confidence_score": 1.0
+      "target": "lib_calendar_leaverequestwithrole"
     },
     {
       "relation": "imports",
@@ -13493,9 +13551,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_localizer",
-      "confidence_score": 1.0
+      "target": "lib_calendar_localizer"
     },
     {
       "relation": "imports",
@@ -13505,9 +13563,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_resolvecolor",
-      "confidence_score": 1.0
+      "target": "lib_calendar_resolvecolor"
     },
     {
       "relation": "imports",
@@ -13517,9 +13575,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_shiftevent",
-      "confidence_score": 1.0
+      "target": "lib_calendar_shiftevent"
     },
     {
       "relation": "imports",
@@ -13529,9 +13587,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_shiftrequestpendingevent",
-      "confidence_score": 1.0
+      "target": "lib_calendar_shiftrequestpendingevent"
     },
     {
       "relation": "imports",
@@ -13541,9 +13599,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_toattendancecorrectionpendingevents",
-      "confidence_score": 1.0
+      "target": "lib_calendar_toattendancecorrectionpendingevents"
     },
     {
       "relation": "imports",
@@ -13553,9 +13611,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_toattendanceevents",
-      "confidence_score": 1.0
+      "target": "lib_calendar_toattendanceevents"
     },
     {
       "relation": "imports",
@@ -13565,9 +13623,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_tocalendarevents",
-      "confidence_score": 1.0
+      "target": "lib_calendar_tocalendarevents"
     },
     {
       "relation": "imports",
@@ -13577,9 +13635,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_tocustomevents",
-      "confidence_score": 1.0
+      "target": "lib_calendar_tocustomevents"
     },
     {
       "relation": "imports",
@@ -13589,9 +13647,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_toholidayevents",
-      "confidence_score": 1.0
+      "target": "lib_calendar_toholidayevents"
     },
     {
       "relation": "imports",
@@ -13601,9 +13659,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_toleaveevents",
-      "confidence_score": 1.0
+      "target": "lib_calendar_toleaveevents"
     },
     {
       "relation": "imports",
@@ -13613,9 +13671,9 @@
       "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_calendar_toshiftrequestpendingevents",
-      "confidence_score": 1.0
+      "target": "lib_calendar_toshiftrequestpendingevents"
     },
     {
       "relation": "imports_from",
@@ -13625,9 +13683,9 @@
       "source_location": "L50",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_constants",
-      "confidence_score": 1.0
+      "target": "lib_constants"
     },
     {
       "relation": "imports",
@@ -13637,9 +13695,9 @@
       "source_location": "L50",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_constants_calendar_max_hour",
-      "confidence_score": 1.0
+      "target": "lib_constants_calendar_max_hour"
     },
     {
       "relation": "imports",
@@ -13649,9 +13707,9 @@
       "source_location": "L50",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_constants_calendar_min_hour",
-      "confidence_score": 1.0
+      "target": "lib_constants_calendar_min_hour"
     },
     {
       "relation": "imports_from",
@@ -13661,9 +13719,9 @@
       "source_location": "L37",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_holidays",
-      "confidence_score": 1.0
+      "target": "lib_holidays"
     },
     {
       "relation": "imports",
@@ -13673,9 +13731,9 @@
       "source_location": "L37",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_holidays_vietnam_holidays",
-      "confidence_score": 1.0
+      "target": "lib_holidays_vietnam_holidays"
     },
     {
       "relation": "imports_from",
@@ -13685,9 +13743,9 @@
       "source_location": "L47",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_pending_approvals",
-      "confidence_score": 1.0
+      "target": "lib_pending_approvals"
     },
     {
       "relation": "imports",
@@ -13697,9 +13755,9 @@
       "source_location": "L47",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_pending_approvals_scopetoownorapprovable",
-      "confidence_score": 1.0
+      "target": "lib_pending_approvals_scopetoownorapprovable"
     },
     {
       "relation": "imports_from",
@@ -13709,9 +13767,9 @@
       "source_location": "L38",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_roles",
-      "confidence_score": 1.0
+      "target": "lib_roles"
     },
     {
       "relation": "imports",
@@ -13721,9 +13779,9 @@
       "source_location": "L38",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_roles_canapproveleavefor",
-      "confidence_score": 1.0
+      "target": "lib_roles_canapproveleavefor"
     },
     {
       "relation": "imports",
@@ -13733,9 +13791,9 @@
       "source_location": "L38",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_roles_canapproveshiftrequestfor",
-      "confidence_score": 1.0
+      "target": "lib_roles_canapproveshiftrequestfor"
     },
     {
       "relation": "imports",
@@ -13745,9 +13803,9 @@
       "source_location": "L38",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_roles_canapproveswaprequestfor",
-      "confidence_score": 1.0
+      "target": "lib_roles_canapproveswaprequestfor"
     },
     {
       "relation": "imports",
@@ -13757,9 +13815,9 @@
       "source_location": "L38",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_roles_cancreateshiftfor",
-      "confidence_score": 1.0
+      "target": "lib_roles_cancreateshiftfor"
     },
     {
       "relation": "imports",
@@ -13769,9 +13827,9 @@
       "source_location": "L38",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_roles_getcalendarfollowgroups",
-      "confidence_score": 1.0
+      "target": "lib_roles_getcalendarfollowgroups"
     },
     {
       "relation": "imports",
@@ -13781,9 +13839,9 @@
       "source_location": "L38",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_roles_isleaveapprover",
-      "confidence_score": 1.0
+      "target": "lib_roles_isleaveapprover"
     },
     {
       "relation": "imports",
@@ -13793,9 +13851,9 @@
       "source_location": "L38",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_roles_ismanagerrole",
-      "confidence_score": 1.0
+      "target": "lib_roles_ismanagerrole"
     },
     {
       "relation": "imports_from",
@@ -13805,9 +13863,9 @@
       "source_location": "L51",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_utils",
-      "confidence_score": 1.0
+      "target": "lib_utils"
     },
     {
       "relation": "imports",
@@ -13817,9 +13875,9 @@
       "source_location": "L51",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "lib_utils_cn",
-      "confidence_score": 1.0
+      "target": "lib_utils_cn"
     },
     {
       "relation": "imports_from",
@@ -13829,9 +13887,9 @@
       "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "types_index",
-      "confidence_score": 1.0
+      "target": "types_index"
     },
     {
       "relation": "imports",
@@ -13841,9 +13899,9 @@
       "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "types_index_attendancecorrectiondetailed",
-      "confidence_score": 1.0
+      "target": "types_index_attendancecorrectiondetailed"
     },
     {
       "relation": "imports",
@@ -13853,9 +13911,9 @@
       "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "types_index_branch",
-      "confidence_score": 1.0
+      "target": "types_index_branch"
     },
     {
       "relation": "imports",
@@ -13865,9 +13923,9 @@
       "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "types_index_customcalendar",
-      "confidence_score": 1.0
+      "target": "types_index_customcalendar"
     },
     {
       "relation": "imports",
@@ -13877,9 +13935,9 @@
       "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "types_index_customevent",
-      "confidence_score": 1.0
+      "target": "types_index_customevent"
     },
     {
       "relation": "imports",
@@ -13889,9 +13947,9 @@
       "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "types_index_profile",
-      "confidence_score": 1.0
+      "target": "types_index_profile"
     },
     {
       "relation": "imports",
@@ -13901,9 +13959,9 @@
       "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "types_index_role",
-      "confidence_score": 1.0
+      "target": "types_index_role"
     },
     {
       "relation": "imports",
@@ -13913,9 +13971,9 @@
       "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "types_index_shiftrequestdetailed",
-      "confidence_score": 1.0
+      "target": "types_index_shiftrequestdetailed"
     },
     {
       "relation": "imports",
@@ -13925,9 +13983,9 @@
       "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "types_index_shiftwithassignee",
-      "confidence_score": 1.0
+      "target": "types_index_shiftwithassignee"
     },
     {
       "relation": "imports",
@@ -13937,9 +13995,9 @@
       "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_calendar_shiftcalendar",
-      "target": "types_index_swaprequestdetailed",
-      "confidence_score": 1.0
+      "target": "types_index_swaprequestdetailed"
     },
     {
       "relation": "indirect_call",
@@ -37782,18 +37840,6 @@
       "target": "lib_supabase_proxy_updatesession"
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "proxy.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "proxy",
-      "target": "lib_supabase_proxy"
-    },
-    {
       "relation": "references",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -37804,30 +37850,6 @@
       "_origin": "ast",
       "source": "lib_supabase_proxy_updatesession",
       "target": "lib_supabase_proxy_public_paths"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "proxy.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "proxy",
-      "target": "lib_supabase_proxy_updatesession"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "proxy.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "proxy_proxy",
-      "target": "lib_supabase_proxy_updatesession"
     },
     {
       "relation": "contains",
@@ -39027,28 +39049,6 @@
       "confidence_score": 1.0,
       "source": "postcss_config",
       "target": "postcss_config_config"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "proxy.ts",
-      "source_location": "L8",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "proxy",
-      "target": "proxy_config"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "proxy.ts",
-      "source_location": "L4",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "proxy",
-      "target": "proxy_proxy"
     },
     {
       "relation": "contains",
@@ -43399,5 +43399,5 @@
       "source_file": "docs/superpowers/specs/2026-08-07-multi-branch-staff-cutover-design.md"
     }
   ],
-  "built_at_commit": "b3ef1aef6aface05663356b5ec0ec1fd822d69e8"
+  "built_at_commit": "b61e53628736558e854ea33ac1407ff56a26d975"
 }

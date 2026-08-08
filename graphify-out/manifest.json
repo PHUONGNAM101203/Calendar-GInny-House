@@ -670,9 +670,9 @@
     "semantic_hash": "239f3ebf717465dc636818a1a619398d"
   },
   "proxy.ts": {
-    "mtime": 1786009889.6334238,
-    "ast_hash": "2e381a469010676ca49e066a67d7af2b",
-    "semantic_hash": "2e381a469010676ca49e066a67d7af2b"
+    "mtime": 1786176448.8804436,
+    "ast_hash": "e85499663889ebb62eabf72c0e231f93",
+    "semantic_hash": ""
   },
   "public/manifest.json": {
     "mtime": 1786077556.798998,

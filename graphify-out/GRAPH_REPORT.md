@@ -1,7 +1,7 @@
 # Graph Report - Calendar-GInny-House  (2026-08-08)
 
 ## Corpus Check
-- 199 files · ~108,410 words
+- 199 files · ~108,551 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b3ef1aef`
+- Built from commit: `b61e5362`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -338,7 +338,7 @@ Nodes (55): AppShellLayout(), ProfileRoleRef, AttendanceHistory(), formatDuratio
   docs/superpowers/specs/2026-08-07-multi-branch-staff-cutover-design.md · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **189 isolated node(s):** `minTime`, `maxTime`, `ShiftCalendar`, `metadata`, `DAY_MOMENTS` (+184 more)
+- **189 isolated node(s):** `config`, `minTime`, `maxTime`, `ShiftCalendar`, `metadata` (+184 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **42 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -356,6 +356,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **What is the exact relationship between `app/(app)/manager/page.tsx — scoped fetch layer` and `StaffTable.tsx branch cell`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **Why does `cn()` connect `cn` to `dialog.tsx`, `ShiftCalendar.tsx`, `RegisterForm.tsx`, `index.ts`, `AppHeader.tsx`, `lib/auth.ts`, `ShiftFormDialog.tsx`, `ShiftRequestDialog.tsx`, `Route Loading Skeletons`, `button.tsx`?**
-  _High betweenness centrality (0.080) - this node is a cross-community bridge._
-- **Why does `Button()` connect `button.tsx` to `dialog.tsx`, `ShiftCalendar.tsx`, `CalendarSidebar.tsx`, `RegisterForm.tsx`, `cn`, `actions/attendance.ts`, `AppHeader.tsx`, `ShiftFormDialog.tsx`, `ShiftRequestDialog.tsx`, `shift-requests.ts`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+  _High betweenness centrality (0.067) - this node is a cross-community bridge._
+- **Why does `createClient()` connect `createClient` to `roles.ts`, `CalendarSidebar.tsx`, `RegisterForm.tsx`, `actions/attendance.ts`, `AppHeader.tsx`, `index.ts`, `lib/auth.ts`, `shift-requests.ts`, `shifts.ts`, `calendar/page.tsx`, `lib/push.ts`, `swaps.ts`?**
+  _High betweenness centrality (0.014) - this node is a cross-community bridge._
