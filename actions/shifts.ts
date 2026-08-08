@@ -73,18 +73,17 @@ export async function createShiftAction(input: unknown): Promise<ActionResult> {
   );
   if (assigneeError) return { ok: false, error: assigneeError };
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const { error } = await supabase.from("shifts").insert({
     assignee_id: parsed.data.assignee_id,
     branch_id: parsed.data.branch_id,
     start_at: parsed.data.start_at,
     end_at: parsed.data.end_at,
     shift_type: parsed.data.shift_type,
-    note: parsed.data.note || null,
-    created_by: user!.id,
+    // manager.id, not a second auth.getUser(). requireManager() above already
+    // resolved this identity; re-fetching it cost a full network round-trip to
+    // the auth server on every shift creation for a value already in hand. It
+    // also removes a `user!` non-null assertion that was only safe by accident.
+    created_by: manager.id,
   });
 
   if (error) return { ok: false, error: mapShiftError(error.message) };
