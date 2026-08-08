@@ -1,49 +1,122 @@
 "use client";
 
-import { Children, useState } from "react";
+import { Children, useMemo, useState } from "react";
 import { ChevronDownIcon } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { periodRange, type OverviewPeriod } from "@/lib/attendance";
 import { cn } from "@/lib/utils";
 
-/* Hiện vài mục đầu, phần còn lại nằm sau một nút bấm.
+/* Nhóm đơn: lọc theo kỳ + thu gọn phần dài.
 
-   Vì sao: các mục Nghỉ phép / Đổi ca / Giải trình hiện đổ ra toàn bộ đơn. Sáu
-   đơn thì vừa mắt; sáu mươi đơn thì trang thành một cuộn giấy và mục nằm dưới
-   cùng coi như không tồn tại. Quản lý cần *biết có bao nhiêu* và xử lý vài cái
-   trên đầu — không phải cuộn qua hết mới tới mục kế tiếp.
+   Vì sao thu gọn: các mục Nghỉ phép / Đổi ca / Giải trình đổ ra toàn bộ đơn.
+   Sáu đơn thì vừa mắt; sáu mươi đơn thì trang thành cuộn giấy và mục nằm dưới
+   coi như không tồn tại.
 
-   Các thẻ con do Server Component render rồi truyền xuống; ở đây chỉ cắt lát
-   danh sách đã dựng sẵn. Nghĩa là không phải chuyển cả trang sang client, và
-   dữ liệu vẫn được tải một lần trên server như cũ.
+   Số mục hiện sẵn khác nhau giữa desktop (4) và điện thoại (2), và việc đó làm
+   bằng CSS chứ không phải useIsMobile(). Lý do: hook đó trả `undefined` ở lần
+   vẽ đầu, nên chọn số bằng JS sẽ hiện 4 thẻ rồi thụt về 2 ngay sau hydrate —
+   đúng kiểu giật đã phải sửa ở lịch. CSS quyết định từ khung hình đầu tiên.
 
-   Không có ngưỡng nào bị giấu: khi còn mục ẩn, nút luôn nói rõ còn *bao nhiêu*.
-   Ẩn bớt mà không cho biết đã ẩn gì thì tệ hơn là để dài. */
+   Bộ lọc mặc định là "Tất cả", có chủ đích. Các mục này chứa đơn *chờ duyệt*;
+   mặc định lọc theo ngày sẽ giấu mất đơn tồn từ tuần trước, và một đơn nghỉ
+   phép bị bỏ quên vì giao diện tự ẩn nó là lỗi nặng hơn nhiều so với một trang
+   dài. Người dùng chủ động thu hẹp, hệ thống không tự thu hẹp hộ. */
+
+const PERIOD_LABELS: Record<"all" | OverviewPeriod, string> = {
+  all: "Tất cả",
+  day: "Hôm nay",
+  month: "Tháng này",
+  year: "Năm nay",
+};
+
 export default function CollapsibleGrid({
   children,
+  dates,
   initial = 4,
+  initialMobile = 2,
   className,
 }: {
   children: React.ReactNode;
-  /** Số mục hiện trước khi phải bấm mở rộng. */
+  /** created_at của từng thẻ, cùng thứ tự với children. Có mới hiện bộ lọc. */
+  dates?: string[];
+  /** Số thẻ hiện sẵn trên desktop. */
   initial?: number;
+  /** Số thẻ hiện sẵn trên điện thoại — màn nhỏ nên ngưỡng thấp hơn. */
+  initialMobile?: number;
   className?: string;
 }) {
   const items = Children.toArray(children);
   const [expanded, setExpanded] = useState(false);
-  const hiddenCount = items.length - initial;
-  const visible = expanded || hiddenCount <= 0 ? items : items.slice(0, initial);
+  const [period, setPeriod] = useState<"all" | OverviewPeriod>("all");
+
+  // Lọc theo created_at, cùng trường mà bảng "Tổng hợp đơn đã gửi" đang dùng —
+  // hai chỗ đếm cùng một thứ thì phải đếm theo cùng một mốc, nếu không con số
+  // ở bảng và số thẻ ở đây sẽ lệch nhau mà không ai giải thích được.
+  const filtered = useMemo(() => {
+    if (!dates || period === "all") return items;
+    const { start, end } = periodRange(period, new Date());
+    return items.filter((_, i) => {
+      const raw = dates[i];
+      if (!raw) return true;
+      const at = new Date(raw);
+      return at >= start && at <= end;
+    });
+  }, [items, dates, period]);
+
+  const hiddenDesktop = filtered.length - initial;
+  const hiddenMobile = filtered.length - initialMobile;
+  const visible = expanded ? filtered : filtered.slice(0, initial);
 
   return (
     <div className="space-y-3">
-      <div className={className}>{visible}</div>
+      {dates && (
+        <Tabs value={period} onValueChange={(v) => setPeriod(v as "all" | OverviewPeriod)}>
+          <TabsList>
+            {(["all", "day", "month", "year"] as const).map((p) => (
+              <TabsTrigger key={p} value={p}>
+                {PERIOD_LABELS[p]}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      )}
 
-      {hiddenCount > 0 && (
+      {filtered.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Không có đơn nào trong kỳ đã chọn.</p>
+      ) : (
+        <div className={className}>
+          {visible.map((child, i) => (
+            // Thẻ thứ 3-4 có mặt trong DOM nhưng ẩn ở màn hẹp: cùng một cây
+            // DOM cho cả hai kích thước, không nhân bản, không phụ thuộc JS.
+            <div key={i} className={cn(!expanded && i >= initialMobile && "max-sm:hidden")}>
+              {child}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {hiddenMobile > 0 && (
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
           aria-expanded={expanded}
-          className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent/40 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+          className={cn(
+            "flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent/40 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none",
+            // Ở desktop có thể đã hiện hết mà điện thoại thì chưa — khi đó nút
+            // chỉ tồn tại trên màn hẹp.
+            hiddenDesktop <= 0 && "sm:hidden"
+          )}
         >
-          {expanded ? "Thu gọn" : `Xem thêm ${hiddenCount} mục`}
+          {expanded ? (
+            "Thu gọn"
+          ) : (
+            <>
+              {/* Hai nhãn, hai con số — vì số thẻ đang ẩn khác nhau theo bề
+                  rộng. Nói sai số lượng còn tệ hơn không nói. */}
+              <span className="sm:hidden">Xem thêm {hiddenMobile} mục</span>
+              <span className="hidden sm:inline">Xem thêm {Math.max(hiddenDesktop, 0)} mục</span>
+            </>
+          )}
           <ChevronDownIcon
             className={cn(
               "size-4 transition-transform duration-[var(--dur-base)] ease-[var(--ease-out)] motion-reduce:transition-none",
