@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 
 /* Khung chung cho các trang "app trong app" (Chấm công, Xin nghỉ phép,
-   Xin đổi ca): eyebrow mono + tiêu đề Fraunces + mô tả, heading section
+   Xin đổi ca): eyebrow + tiêu đề Barlow ExtraBold + mô tả, heading section
    kiểu nhãn kỹ thuật, và empty-state đóng khung nét đứt thay cho một dòng
    chữ mồ côi. Server-safe — không "use client". */
 

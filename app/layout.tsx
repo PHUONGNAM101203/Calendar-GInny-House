@@ -1,23 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Be_Vietnam_Pro } from "next/font/google";
+import { Barlow } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
-// Only the weights actually rendered anywhere in the app are requested —
-// next/font lazily fetches per-weight static files, so trimming this list
-// (no italic, no unused 700, no variable-axis payload) is a real perf win,
-// not just tidiness. See DESIGN.md "Typography" for the full rationale.
-const fraunces = Fraunces({
-  variable: "--font-display",
+// Barlow is the single brand face — the guideline is explicit that no second
+// font may be mixed in, so display and body both resolve to this one family
+// and hierarchy is carried by weight alone (400 body → 900 display).
+//
+// The `vietnamese` subset is mandatory, not optional: without it every
+// precomposed diacritic (ệ ủ ằ ẩ) silently falls back to a system face. Barlow
+// ships latin/latin-ext/vietnamese, verified against next/font's own metadata.
+//
+// Weights are trimmed to the five the guideline actually uses (400 Regular,
+// 500 Lead, 600 SemiBold, 700 H3, 800 headings, 900 Display) — next/font
+// fetches one static file per weight, so requesting all nine would be dead payload.
+const barlow = Barlow({
+  variable: "--font-brand",
   subsets: ["vietnamese", "latin"],
-  weight: ["500", "600"],
-});
-
-const beVietnamPro = Be_Vietnam_Pro({
-  variable: "--font-body",
-  subsets: ["vietnamese", "latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
@@ -35,7 +36,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1e3a5f",
+  // Vivid Blue — the brand anchor. Drives the browser/PWA chrome colour, so a
+  // stale value here shows the old navy in the task switcher long after the UI
+  // has been rebranded.
+  themeColor: "#022B9D",
 };
 
 export default function RootLayout({
@@ -46,7 +50,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
-      className={`${fraunces.variable} ${beVietnamPro.variable} h-full antialiased`}
+      className={`${barlow.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       {/* suppressHydrationWarning: some browser extensions (ColorZilla's

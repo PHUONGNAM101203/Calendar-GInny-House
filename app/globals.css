@@ -8,8 +8,11 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-body);
-  --font-heading: var(--font-display);
+  /* One family, both roles — the brand guideline forbids a second face, so
+     hierarchy comes from weight (400 body → 900 display), never from a
+     display/body pairing. Change the mapping here, never per-component. */
+  --font-sans: var(--font-brand);
+  --font-heading: var(--font-brand);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -44,120 +47,203 @@
   --color-gold-foreground: var(--gold-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  /* The guideline names four rungs — 8 / 14 / 20 / 28 — so they are set
+     literally rather than derived by multiplier. The old calc() ladder could
+     not land on all four from a single --radius without drifting a pixel or
+     two off each one. 3xl/4xl keep climbing for the few oversized panels. */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-2xl: 36px;
+  --radius-3xl: 44px;
+  --radius-4xl: 52px;
 }
 
 /*
-  Ginny House brand palette — see DESIGN.md for the full rationale.
-  Hue 251 = "Ginny Ink" navy — sampled directly from public/LOGO-01.png
-  (#0F4373). Hue 78 = "Study Gold" accent.
-  Hue 165 = "Sage Teal" success. Neutrals are all tinted at the ink hue
-  instead of pure gray so the whole UI reads as one family.
+  Ginny House brand palette — brand-guideline.html v1.0 (Mina/CMO, 2026-07)
+  is the source of truth; DESIGN.md documents the rationale.
+
+  Values are the guideline's own hex, deliberately NOT converted to OKLCH:
+  every conversion introduces rounding drift, and the brand already ships a
+  hand-tuned 9-step ramp per hue, so there is nothing left to interpolate.
+
+  Anchor #022B9D "Vivid Blue" leads; #D90513 red is an accent only — the
+  guideline caps it at ~10% of any surface and forbids it as a large ground.
+  Ratio to hold across a page: 60 white / 25 blue / 10 red / 5 yellow.
+
+  The previous navy (#0F4373) is retired, not adjusted — §8 of the guideline
+  rejects it by name and forbids mixing two blues.
 */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.2 0.03 251);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.03 251);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.03 251);
-  --primary: oklch(0.38 0.1 251);
-  --primary-foreground: oklch(0.99 0.005 85);
-  --secondary: oklch(0.95 0.012 251);
-  --secondary-foreground: oklch(0.3 0.05 251);
-  --muted: oklch(0.955 0.008 251);
-  --muted-foreground: oklch(0.48 0.03 251);
-  --accent: oklch(0.94 0.016 251);
-  --accent-foreground: oklch(0.26 0.05 251);
-  --destructive: oklch(0.55 0.17 27);
-  --border: oklch(0.9 0.012 251);
-  --input: oklch(0.9 0.012 251);
-  --ring: oklch(0.55 0.08 251);
-  --gold: oklch(0.74 0.13 78);
-  --gold-foreground: oklch(0.24 0.05 251);
-  --success: oklch(0.55 0.08 165);
-  --success-foreground: oklch(0.98 0.005 85);
-  --chart-1: oklch(0.4 0.09 251);
-  --chart-2: oklch(0.74 0.13 78);
-  --chart-3: oklch(0.55 0.08 165);
-  --chart-4: oklch(0.55 0.09 320);
-  --chart-5: oklch(0.62 0.12 40);
-  --chart-6: oklch(0.58 0.1 200);
-  /* Extra hues purely for the follow-color palette (CalendarSidebar's
-     ColorMenu) — more variety than the 6 chart colors, same OKLCH family so
-     nothing clashes with the rest of the UI. */
-  --palette-rose: oklch(0.58 0.16 25);
-  --palette-violet: oklch(0.55 0.13 300);
-  --palette-basil: oklch(0.45 0.09 140);
-  --palette-indigo: oklch(0.5 0.12 230);
-  --palette-flamingo: oklch(0.68 0.12 350);
-  --palette-graphite: oklch(0.5 0.015 251);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.97 0.008 251);
-  --sidebar-foreground: oklch(0.2 0.03 251);
-  --sidebar-primary: oklch(0.38 0.1 251);
-  --sidebar-primary-foreground: oklch(0.99 0.005 85);
-  --sidebar-accent: oklch(0.94 0.016 251);
-  --sidebar-accent-foreground: oklch(0.26 0.05 251);
-  --sidebar-border: oklch(0.9 0.012 251);
-  --sidebar-ring: oklch(0.55 0.08 251);
+  /* Raw ramps — the guideline's three brand hues, 9 steps each. Semantic
+     tokens below reference these; components should use the semantic layer. */
+  --blue-100: #E7ECFA;
+  --blue-200: #C4D0F2;
+  --blue-300: #93A6E6;
+  --blue-400: #5C77D6;
+  --blue-500: #2E4CC0;
+  --blue-600: #123AAC;
+  --blue-700: #022B9D;
+  --blue-800: #04227B;
+  --blue-900: #05184F;
+  --red-100: #FBE0E1;
+  --red-200: #F5B3B6;
+  --red-300: #EE8286;
+  --red-400: #E64E54;
+  --red-500: #DF2129;
+  --red-600: #D90513;
+  --red-700: #B4040F;
+  --red-800: #83020B;
+  --red-900: #520106;
+  --yellow-100: #FEF3E1;
+  --yellow-200: #FDE1B8;
+  --yellow-300: #FBCE8C;
+  --yellow-400: #F9BC63;
+  --yellow-500: #F7AE47;
+  --yellow-600: #E9971F;
+  --yellow-700: #C07A12;
+  --yellow-800: #8F5B0D;
+  --yellow-900: #5E3B07;
+
+  --background: #FFFFFF;
+  --foreground: #0A1230;
+  --card: #FFFFFF;
+  --card-foreground: #0A1230;
+  --popover: #FFFFFF;
+  --popover-foreground: #0A1230;
+  --primary: var(--blue-700);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--blue-100);
+  --secondary-foreground: var(--blue-800);
+  --muted: #F4F6FB;
+  --muted-foreground: #5B6480;
+  --accent: var(--blue-100);
+  --accent-foreground: var(--blue-800);
+  --destructive: var(--red-600);
+  --border: #E6E9F2;
+  --input: #8B93AC;
+  --ring: var(--blue-500);
+  /* Kept as --gold for compatibility with existing Badge variants and status
+     maps, but the value is now yellow-500. Never use it as text on white:
+     the guideline measures that pairing at 1.9:1. Text needs --gold-foreground
+     (yellow-800), which clears 4.5:1 on the yellow-100 tint. */
+  --gold: var(--yellow-500);
+  --gold-foreground: var(--yellow-800);
+  --success: #167A3B;
+  --success-foreground: #FFFFFF;
+  --warning: #955700;
+  --warning-foreground: #FFFFFF;
+  /* Branch + per-person colours. Drawn from the three brand ramps only —
+     §8 rejects any hue outside the system, which retired the old teal/plum/
+     cyan set. Trade-off is real and deliberate: these five sit closer together
+     than the hues they replace, so two coworkers are harder to tell apart at a
+     glance. Steps are spread across lightness to claw back some separation. */
+  --chart-1: var(--blue-700);
+  --chart-2: var(--yellow-600);
+  --chart-3: var(--red-500);
+  --chart-4: var(--blue-400);
+  --chart-5: var(--yellow-800);
+  --chart-6: var(--blue-300);
+  /* Follow-colour picker (CalendarSidebar's ColorMenu). Names are kept so
+     saved user choices keep resolving, but the values moved into the brand
+     ramps — the old violet/flamingo/basil were purple, pink and green, all
+     named as out-of-system in §8. */
+  --palette-rose: var(--red-400);
+  --palette-violet: var(--blue-500);
+  --palette-basil: var(--yellow-800);
+  --palette-indigo: var(--blue-600);
+  --palette-flamingo: var(--red-300);
+  --palette-graphite: #5B6480;
+  /* Guideline ladder: 8 / 14 / 20 / 28 / pill. --radius is the md rung, which
+     is what shadcn primitives inherit by default. */
+  --radius: 14px;
+  --sidebar: #F4F6FB;
+  --sidebar-foreground: #0A1230;
+  --sidebar-primary: var(--blue-700);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: var(--blue-100);
+  --sidebar-accent-foreground: var(--blue-800);
+  --sidebar-border: #E6E9F2;
+  --sidebar-ring: var(--blue-500);
+  /* Motion — guideline caps every transition at 320ms. ease-pop is reserved
+     for buttons ("nảy trẻ trung"); everything else uses ease-out. The pop
+     curve overshoots on purpose, which is normally an AI tell, so it is
+     deliberately scoped rather than applied globally. */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
   /* A softer line than --border, used only for the calendar grid — the
      grid has 10-20x more line intersections on screen than a card or an
      input, so the same border weight that's fine elsewhere reads as
      "too bold" here (see hallmark audit, 2026-08). */
-  --calendar-grid: oklch(0.9 0.012 251 / 55%);
+  --calendar-grid: rgb(230 233 242 / 55%);
 }
 
+/*
+  Dark mode is a deliberate extension BEYOND the brand guideline, not part of
+  it. The guideline is light-only and §8 rejects a dark ground as the dominant
+  surface ("GH là brand trắng-sáng"), so nothing here is brand-sanctioned —
+  it exists because the app already shipped a theme toggle and removing it
+  would take a feature away from staff working evening shifts.
+
+  Rule followed throughout: pull values from the same three ramps rather than
+  inventing hues. Blue-700 is too dark to read on a dark ground, so --primary
+  steps up to blue-400; the two exceptions that could not come from a ramp are
+  noted inline.
+*/
 .dark {
-  --background: oklch(0.17 0.02 251);
-  --foreground: oklch(0.96 0.01 85);
-  --card: oklch(0.22 0.022 251);
-  --card-foreground: oklch(0.96 0.01 85);
-  --popover: oklch(0.22 0.022 251);
-  --popover-foreground: oklch(0.96 0.01 85);
-  --primary: oklch(0.68 0.1 251);
-  --primary-foreground: oklch(0.16 0.02 251);
-  --secondary: oklch(0.28 0.02 251);
-  --secondary-foreground: oklch(0.92 0.01 85);
-  --muted: oklch(0.26 0.02 251);
-  --muted-foreground: oklch(0.68 0.02 251);
-  --accent: oklch(0.3 0.03 251);
-  --accent-foreground: oklch(0.95 0.01 85);
-  --destructive: oklch(0.62 0.18 27);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.6 0.08 251);
-  --gold: oklch(0.78 0.13 78);
-  --gold-foreground: oklch(0.18 0.03 251);
-  --success: oklch(0.62 0.09 165);
-  --success-foreground: oklch(0.98 0 0);
-  --chart-1: oklch(0.68 0.1 251);
-  --chart-2: oklch(0.78 0.13 78);
-  --chart-3: oklch(0.62 0.09 165);
-  --chart-4: oklch(0.62 0.1 320);
-  --chart-5: oklch(0.66 0.13 40);
-  --chart-6: oklch(0.64 0.1 200);
-  --palette-rose: oklch(0.64 0.16 25);
-  --palette-violet: oklch(0.62 0.13 300);
-  --palette-basil: oklch(0.56 0.1 140);
-  --palette-indigo: oklch(0.6 0.12 230);
-  --palette-flamingo: oklch(0.74 0.12 350);
-  --palette-graphite: oklch(0.62 0.015 251);
-  --sidebar: oklch(0.2 0.022 251);
-  --sidebar-foreground: oklch(0.96 0.01 85);
-  --sidebar-primary: oklch(0.68 0.1 251);
-  --sidebar-primary-foreground: oklch(0.16 0.02 251);
-  --sidebar-accent: oklch(0.3 0.03 251);
-  --sidebar-accent-foreground: oklch(0.95 0.01 85);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.6 0.08 251);
-  --calendar-grid: oklch(1 0 0 / 7%);
+  --background: #0A1230;
+  --foreground: var(--blue-100);
+  --card: #131C3F;
+  --card-foreground: var(--blue-100);
+  --popover: #131C3F;
+  --popover-foreground: var(--blue-100);
+  --primary: var(--blue-400);
+  --primary-foreground: var(--blue-900);
+  --secondary: var(--blue-900);
+  --secondary-foreground: var(--blue-200);
+  --muted: #16204A;
+  --muted-foreground: var(--blue-300);
+  --accent: var(--blue-800);
+  --accent-foreground: var(--blue-100);
+  --destructive: var(--red-400);
+  --border: rgb(255 255 255 / 10%);
+  --input: rgb(255 255 255 / 15%);
+  --ring: var(--blue-400);
+  --gold: var(--yellow-400);
+  --gold-foreground: var(--yellow-900);
+  /* Not from a ramp: the guideline has no green scale, and #167A3B sinks to
+     roughly 2:1 against #0A1230. Lightened just far enough to clear 4.5:1. */
+  --success: #4FB477;
+  --success-foreground: #05230F;
+  --warning: var(--yellow-400);
+  --warning-foreground: var(--yellow-900);
+  --chart-1: var(--blue-400);
+  --chart-2: var(--yellow-500);
+  --chart-3: var(--red-400);
+  --chart-4: var(--blue-300);
+  --chart-5: var(--yellow-600);
+  --chart-6: var(--blue-200);
+  --palette-rose: var(--red-300);
+  --palette-violet: var(--blue-400);
+  --palette-basil: var(--yellow-600);
+  --palette-indigo: var(--blue-500);
+  --palette-flamingo: var(--red-200);
+  --palette-graphite: #8B93AC;
+  --sidebar: #0D1637;
+  --sidebar-foreground: var(--blue-100);
+  --sidebar-primary: var(--blue-400);
+  --sidebar-primary-foreground: var(--blue-900);
+  --sidebar-accent: var(--blue-800);
+  --sidebar-accent-foreground: var(--blue-100);
+  --sidebar-border: rgb(255 255 255 / 10%);
+  --sidebar-ring: var(--blue-400);
+  --calendar-grid: rgb(255 255 255 / 7%);
 }
 
 @layer base {
