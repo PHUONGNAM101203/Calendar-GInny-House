@@ -63,3 +63,8 @@ Thumbs.db
 .agents/
 .claude/
 .serena/
+
+# graphify knowledge graph — commit the artifacts, skip regenerable churn
+graphify-out/cache/
+graphify-out/cost.json
+graphify-out/20*/
