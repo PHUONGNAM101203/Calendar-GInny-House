@@ -50,8 +50,8 @@
     "semantic_hash": ""
   },
   "actions/shifts.ts": {
-    "mtime": 1786160591.6342876,
-    "ast_hash": "490378386b73a661e0fb22a86991cb71",
+    "mtime": 1786178580.5480287,
+    "ast_hash": "58919021f051079b9f6ecad8f24fc58e",
     "semantic_hash": ""
   },
   "actions/staff.ts": {
@@ -115,8 +115,8 @@
     "semantic_hash": "f9d8ca010174db8d5387f086db48be9a"
   },
   "app/(app)/manager/page.tsx": {
-    "mtime": 1786164718.0823462,
-    "ast_hash": "85d278884466d3862f0e05302da2be76",
+    "mtime": 1786178890.7980542,
+    "ast_hash": "603f0dbd2ba608a5b6b5d1cc2448436a",
     "semantic_hash": ""
   },
   "app/(app)/swaps/page.tsx": {
@@ -340,9 +340,9 @@
     "semantic_hash": ""
   },
   "components/manager/RequestsOverviewTable.tsx": {
-    "mtime": 1786100366.9116137,
-    "ast_hash": "39c957891204255c25bc596c7cfb7e11",
-    "semantic_hash": "39c957891204255c25bc596c7cfb7e11"
+    "mtime": 1786178072.8689477,
+    "ast_hash": "8118cc507dae5c95c804aac8c742ac09",
+    "semantic_hash": ""
   },
   "components/manager/StaffAttendanceDetailDialog.tsx": {
     "mtime": 1786164718.0861804,
@@ -350,9 +350,9 @@
     "semantic_hash": ""
   },
   "components/manager/StaffOverviewTable.tsx": {
-    "mtime": 1786100217.060701,
-    "ast_hash": "e6ed0172ee1d222c87fa29a93b5134f8",
-    "semantic_hash": "e6ed0172ee1d222c87fa29a93b5134f8"
+    "mtime": 1786177329.9348187,
+    "ast_hash": "113814f29c11fcd50195d3488e3ce33b",
+    "semantic_hash": ""
   },
   "components/manager/StaffRequestsDetailDialog.tsx": {
     "mtime": 1786100269.4693923,
@@ -360,9 +360,9 @@
     "semantic_hash": "0c066c857ad5512ce0d3566b7f11d2f1"
   },
   "components/manager/StaffTable.tsx": {
-    "mtime": 1786067679.1066637,
-    "ast_hash": "21dc73e2df9fa27fd1a40cecdd776c39",
-    "semantic_hash": "21dc73e2df9fa27fd1a40cecdd776c39"
+    "mtime": 1786178135.3478458,
+    "ast_hash": "a60a329626b8262a06716f85b65bda7c",
+    "semantic_hash": ""
   },
   "components/manager/TechnicalDashboard.tsx": {
     "mtime": 1786164690.5803668,
@@ -460,9 +460,9 @@
     "semantic_hash": "7bf55a2dca73337982c5250f1850248a"
   },
   "components/ui/popover.tsx": {
-    "mtime": 1786009889.6283185,
-    "ast_hash": "32bf79a82d9ed7f3256592f7c0ca4a62",
-    "semantic_hash": "32bf79a82d9ed7f3256592f7c0ca4a62"
+    "mtime": 1786176845.4038758,
+    "ast_hash": "a14d53fc3dad243a1d5e3aa476300f52",
+    "semantic_hash": ""
   },
   "components/ui/select.tsx": {
     "mtime": 1786009889.6284242,
@@ -590,9 +590,9 @@
     "semantic_hash": "9268cefa83d5901a36f6b1844d8a4d4f"
   },
   "lib/supabase/proxy.ts": {
-    "mtime": 1786009889.631261,
-    "ast_hash": "c0952e0985ba6bca4fc54a9dc43385f0",
-    "semantic_hash": "c0952e0985ba6bca4fc54a9dc43385f0"
+    "mtime": 1786178561.282052,
+    "ast_hash": "83c9ba59c16a27084dc445ae3bcd52b9",
+    "semantic_hash": ""
   },
   "lib/supabase/public.ts": {
     "mtime": 1786009889.6313446,
@@ -1017,6 +1017,16 @@
   "components/landing/TiltCard.tsx": {
     "mtime": 1786173268.092028,
     "ast_hash": "ae0714814fc8abbc17611e338e3b0d09",
+    "semantic_hash": ""
+  },
+  "components/manager/CollapsibleGrid.tsx": {
+    "mtime": 1786178818.7377796,
+    "ast_hash": "ada97773ec3e786e904b684414dd05d8",
+    "semantic_hash": ""
+  },
+  "components/manager/TableScroller.tsx": {
+    "mtime": 1786177184.7990174,
+    "ast_hash": "ec943732ba6df7f2897b5b24509c8acc",
     "semantic_hash": ""
   }
 }
