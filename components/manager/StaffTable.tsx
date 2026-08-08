@@ -28,8 +28,8 @@ export default function StaffTable({
 }) {
   return (
     <TableScroller visibleRows={10}>
-      <table className="w-full text-sm">
-        <thead className="bg-muted/50 text-left text-muted-foreground">
+      <table className="w-full text-sm max-sm:block">
+        <thead className="bg-muted/50 text-left text-muted-foreground max-sm:hidden">
           <tr>
             <th className="px-4 py-2 font-medium">Họ tên</th>
             <th className="px-4 py-2 font-medium">Điện thoại</th>
@@ -37,16 +37,22 @@ export default function StaffTable({
             <th className="px-4 py-2 font-medium">Cơ sở</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="max-sm:block">
           {staff.map((member) => (
-            <tr key={member.id} className="border-t">
-              <td className="px-4 py-2">
+            <tr key={member.id} className="border-t max-sm:block max-sm:space-y-2 max-sm:px-4 max-sm:py-3">
+              <td className="px-4 py-2 font-medium max-sm:block max-sm:px-0 max-sm:py-0">
                 {member.full_name}
                 {member.id === currentUserId && (
-                  <span className="ml-1 text-xs text-muted-foreground">(bạn)</span>
+                  <span className="ml-1 text-xs font-normal text-muted-foreground">(bạn)</span>
+                )}
+                {/* Số điện thoại chui xuống dưới tên khi cột riêng bị ẩn. */}
+                {member.phone && (
+                  <span className="block text-xs font-normal text-muted-foreground sm:hidden">
+                    {member.phone}
+                  </span>
                 )}
               </td>
-              <td className="px-4 py-2 text-muted-foreground">{member.phone || "—"}</td>
+              <td className="px-4 py-2 text-muted-foreground max-sm:hidden">{member.phone || "—"}</td>
               <RoleAndBranchCells member={member} branches={branches} />
             </tr>
           ))}
@@ -108,9 +114,9 @@ function RoleAndBranchCells({
 
   return (
     <>
-      <td className="px-4 py-2">
+      <td className="px-4 py-2 max-sm:block max-sm:px-0 max-sm:py-0">
         <Select value={role} onValueChange={handleRoleChange} disabled={isPending}>
-          <SelectTrigger size="sm" className="w-44">
+          <SelectTrigger size="sm" className="w-44 max-sm:w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -122,7 +128,7 @@ function RoleAndBranchCells({
           </SelectContent>
         </Select>
       </td>
-      <td className="px-4 py-2">
+      <td className="px-4 py-2 max-sm:block max-sm:px-0 max-sm:py-0">
         {isManagerRole(role) ? (
           <span className="text-xs text-muted-foreground">Toàn hệ thống</span>
         ) : (

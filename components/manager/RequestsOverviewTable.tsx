@@ -87,11 +87,11 @@ export default function RequestsOverviewTable({
           <thead className="bg-muted/50 text-left text-muted-foreground">
             <tr>
               <th className="border-b border-r px-3 py-2 font-medium">Nhân viên</th>
-              <th className="border-b border-r px-3 py-2 font-medium">Vai trò</th>
-              <th className="border-b border-r px-3 py-2 text-right font-medium">Nghỉ phép</th>
-              <th className="border-b border-r px-3 py-2 text-right font-medium">Đổi ca</th>
-              <th className="border-b border-r px-3 py-2 text-right font-medium">Đăng ký ca</th>
-              <th className="border-b border-r px-3 py-2 text-right font-medium">Giải trình công</th>
+              <th className="hidden border-b border-r px-3 py-2 font-medium sm:table-cell">Vai trò</th>
+              <th className="hidden border-b border-r px-3 py-2 text-right font-medium md:table-cell">Nghỉ phép</th>
+              <th className="hidden border-b border-r px-3 py-2 text-right font-medium md:table-cell">Đổi ca</th>
+              <th className="hidden border-b border-r px-3 py-2 text-right font-medium md:table-cell">Đăng ký ca</th>
+              <th className="hidden border-b border-r px-3 py-2 text-right font-medium md:table-cell">Giải trình công</th>
               <th className="border-b px-3 py-2 text-right font-medium">Tổng</th>
             </tr>
           </thead>
@@ -102,18 +102,46 @@ export default function RequestsOverviewTable({
                 className="cursor-pointer transition-colors hover:bg-accent/40"
                 onClick={() => setSelectedEmployee({ id: row.id, fullName: row.fullName })}
               >
-                <td className="border-b border-r px-3 py-2 font-medium">{row.fullName}</td>
-                <td className="border-b border-r px-3 py-2 text-muted-foreground">{ROLE_LABELS[row.role]}</td>
-                <td className="border-b border-r px-3 py-2 text-right tabular-nums">
+                <td className="border-b border-r px-3 py-2 font-medium">
+                  {row.fullName}
+                  <span className="block text-xs font-normal text-muted-foreground sm:hidden">
+                    {ROLE_LABELS[row.role]}
+                  </span>
+                  {/* Bốn cột đếm bị ẩn ở màn hẹp, nhưng phần lớn ô của chúng là
+                      "—". Nên thay vì nhồi 4 cột rỗng, chỉ hiện loại đơn nào
+                      thực sự có số. Chi tiết đầy đủ vẫn nằm trong dialog khi
+                      bấm vào dòng. */}
+                  {row.total > 0 && (
+                    <span className="mt-1 flex flex-wrap gap-1 md:hidden">
+                      {([
+                        ["Nghỉ phép", row.leaveCount],
+                        ["Đổi ca", row.swapCount],
+                        ["Đăng ký", row.shiftRequestCount],
+                        ["Giải trình", row.correctionCount],
+                      ] as const)
+                        .filter(([, n]) => n > 0)
+                        .map(([label, n]) => (
+                          <span
+                            key={label}
+                            className="inline-flex rounded-full bg-accent px-2 py-0.5 text-xs font-normal text-accent-foreground"
+                          >
+                            {label} {n}
+                          </span>
+                        ))}
+                    </span>
+                  )}
+                </td>
+                <td className="hidden border-b border-r px-3 py-2 text-muted-foreground sm:table-cell">{ROLE_LABELS[row.role]}</td>
+                <td className="hidden border-b border-r px-3 py-2 text-right tabular-nums md:table-cell">
                   {row.leaveCount || <span className="text-muted-foreground">—</span>}
                 </td>
-                <td className="border-b border-r px-3 py-2 text-right tabular-nums">
+                <td className="hidden border-b border-r px-3 py-2 text-right tabular-nums md:table-cell">
                   {row.swapCount || <span className="text-muted-foreground">—</span>}
                 </td>
-                <td className="border-b border-r px-3 py-2 text-right tabular-nums">
+                <td className="hidden border-b border-r px-3 py-2 text-right tabular-nums md:table-cell">
                   {row.shiftRequestCount || <span className="text-muted-foreground">—</span>}
                 </td>
-                <td className="border-b border-r px-3 py-2 text-right tabular-nums">
+                <td className="hidden border-b border-r px-3 py-2 text-right tabular-nums md:table-cell">
                   {row.correctionCount || <span className="text-muted-foreground">—</span>}
                 </td>
                 <td className="border-b px-3 py-2 text-right font-medium tabular-nums">{row.total}</td>
