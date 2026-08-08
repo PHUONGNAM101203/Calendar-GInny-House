@@ -1,16 +1,16 @@
 # Graph Report - Calendar-GInny-House  (2026-08-08)
 
 ## Corpus Check
-- 199 files · ~106,534 words
+- 199 files · ~108,410 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1087 nodes · 2603 edges · 108 communities (65 shown, 43 thin omitted)
+- 1087 nodes · 2604 edges · 107 communities (65 shown, 42 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 23 edges (avg confidence: 0.69)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0d8d808d`
+- Built from commit: `b3ef1aef`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -54,7 +54,6 @@
 - Auth Proxy Middleware
 - Group Scoped Visibility
 - Branch Membership Visibility
-- CalendarToolbar.tsx
 - Shift Type Migration
 - Explicit Shift Branch
 - Profile Branches Table
@@ -140,15 +139,15 @@
 - **Single branch_id → profile_branches membership cutover (data, RPC, RLS, UI)** — docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_profile_branches, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_is_branch_member, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_current_branch_id, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_profiles_branch_id, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_set_profile_branches, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_handle_new_user, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_cutover_sequencing [EXTRACTED 0.90]
 - **Multi-branch picker UI surface across register, staff table, and shift dialogs** — docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_multiselectbranches, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_registerform, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_stafftable, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_shiftformdialog, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_shiftrequestdialog, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_management_tier_exemption [EXTRACTED 0.85]
 
-## Communities (108 total, 43 thin omitted)
+## Communities (107 total, 42 thin omitted)
 
 ### Community 0 - "dialog.tsx"
 Cohesion: 0.12
 Nodes (27): ColorPickerDialog(), CustomEventDetailDialog(), CustomEventFormDialog(), endDateTouched(), formatRange(), formatTimeOfDay(), LeaveDetailDialog(), TYPE_ICON (+19 more)
 
 ### Community 1 - "ShiftCalendar.tsx"
-Cohesion: 0.09
-Nodes (40): CalendarMobileMenu(), CalendarSidebar(), PendingApprovalItem, maxTime, minTime, ShiftCalendar(), LEAVE_ICON, ShiftEventCell() (+32 more)
+Cohesion: 0.08
+Nodes (42): CalendarMobileMenu(), CalendarSidebar(), PendingApprovalItem, VIEW_LABELS, maxTime, minTime, ShiftCalendar(), LEAVE_ICON (+34 more)
 
 ### Community 2 - "Project Docs & Conventions"
 Cohesion: 0.05
@@ -227,8 +226,8 @@ Cohesion: 0.19
 Nodes (14): assertAssigneeAllowed(), createShiftAction(), deleteShiftAction(), mapShiftError(), updateShiftAction(), updateStaffBranchesAction(), updateStaffRoleAction(), RoleAndBranchCells() (+6 more)
 
 ### Community 21 - "calendar/page.tsx"
-Cohesion: 0.18
-Nodes (12): RegisterPage(), RegisterForm(), ShiftCalendar, getBranches, AttendanceWithProfileRole, getVisibleRange(), LeaveRequestWithRole, supabasePublic (+4 more)
+Cohesion: 0.19
+Nodes (13): RegisterPage(), RegisterForm(), ShiftCalendar, ShiftCalendarLoader(), getBranches, AttendanceWithProfileRole, CalendarView, LeaveRequestWithRole (+5 more)
 
 ### Community 22 - "lib/push.ts"
 Cohesion: 0.15
@@ -339,9 +338,9 @@ Nodes (55): AppShellLayout(), ProfileRoleRef, AttendanceHistory(), formatDuratio
   docs/superpowers/specs/2026-08-07-multi-branch-staff-cutover-design.md · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **189 isolated node(s):** `metadata`, `DAY_MOMENTS`, `BRANCHES`, `ProfileRoleRef`, `RelevantShift` (+184 more)
+- **189 isolated node(s):** `minTime`, `maxTime`, `ShiftCalendar`, `metadata`, `DAY_MOMENTS` (+184 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **43 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **42 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -357,6 +356,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **What is the exact relationship between `app/(app)/manager/page.tsx — scoped fetch layer` and `StaffTable.tsx branch cell`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **Why does `cn()` connect `cn` to `dialog.tsx`, `ShiftCalendar.tsx`, `RegisterForm.tsx`, `index.ts`, `AppHeader.tsx`, `lib/auth.ts`, `ShiftFormDialog.tsx`, `ShiftRequestDialog.tsx`, `Route Loading Skeletons`, `button.tsx`?**
-  _High betweenness centrality (0.072) - this node is a cross-community bridge._
-- **Why does `Button()` connect `button.tsx` to `dialog.tsx`, `CalendarSidebar.tsx`, `RegisterForm.tsx`, `cn`, `CalendarToolbar.tsx`, `actions/attendance.ts`, `AppHeader.tsx`, `ShiftFormDialog.tsx`, `ShiftRequestDialog.tsx`, `shift-requests.ts`?**
-  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+  _High betweenness centrality (0.080) - this node is a cross-community bridge._
+- **Why does `Button()` connect `button.tsx` to `dialog.tsx`, `ShiftCalendar.tsx`, `CalendarSidebar.tsx`, `RegisterForm.tsx`, `cn`, `actions/attendance.ts`, `AppHeader.tsx`, `ShiftFormDialog.tsx`, `ShiftRequestDialog.tsx`, `shift-requests.ts`?**
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
