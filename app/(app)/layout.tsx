@@ -54,7 +54,17 @@ export default async function AppShellLayout({
   });
 
   return (
-    <div className="flex flex-1 flex-col">
+    // min-h-0 below is load-bearing, not tidying. A flex item defaults to
+    // min-height:auto, meaning it refuses to shrink below its content — so
+    // without it this shell grows to fit a tall calendar, body overflows, and
+    // the whole page scrolls. That is what made the calendar's day/date header
+    // scroll away: nothing was wrong with the header, the internal scroll
+    // region simply never engaged, because .rbc-calendar's height:100% had no
+    // definite parent height to resolve against.
+    // <main> escapes the same trap via overflow-hidden, which already zeroes
+    // the automatic minimum size; this div has overflow:visible and needs it
+    // spelled out.
+    <div className="flex min-h-0 flex-1 flex-col">
       <AppHeader fullName={profile.full_name} role={profile.role} notifications={notifications} />
       {/* Manager-tier roles (ceo/coo/training_director/technical) never have
           any profile_branches rows by design — they run every cơ sở at once
