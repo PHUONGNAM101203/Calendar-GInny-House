@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { LeaveRequestWithRole, AttendanceWithProfileRole } from "@/lib/calendar";
+import type { CalendarView, LeaveRequestWithRole, AttendanceWithProfileRole } from "@/lib/calendar";
 import type {
   AttendanceCorrectionDetailed,
   Branch,
@@ -56,6 +56,7 @@ export default function ShiftCalendarLoader(props: {
   followedIds: string[];
   followColors: Record<string, string>;
   branchColors: Record<string, string>;
+  defaultView: CalendarView;
 }) {
   return <ShiftCalendar {...props} />;
 }

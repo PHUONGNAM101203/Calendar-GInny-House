@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { parse, isValid, format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
@@ -47,7 +48,24 @@ export default async function CalendarPage({
   // the server fetching a different date range than the client displays.
   const parsedDate = params.date ? parse(params.date, "yyyy-MM-dd", new Date()) : new Date();
   const date = isValid(parsedDate) ? parsedDate : new Date();
-  const view = (params.view as CalendarView) || "week";
+
+  // Phones default to the single-day view. Deciding that HERE rather than in a
+  // client effect is what removes the visible week→day jump: the effect could
+  // only run after hydration, so the browser had already painted a full week
+  // grid before navigating away from it.
+  //
+  // It also stops the phone paying for data it throws away — the server used
+  // to fetch a whole week's shifts, then the client immediately re-fetched a
+  // single day. On a 3G connection that was the slowest part of opening the
+  // calendar.
+  //
+  // UA sniffing is imprecise, and deliberately so here: the cost of guessing
+  // wrong is one tap on the view switcher, and an explicit ?view= in the URL
+  // always wins. Viewport width would be more accurate but is not knowable on
+  // the server, which is the whole point.
+  const userAgent = (await headers()).get("user-agent") ?? "";
+  const isMobileUa = /Android|iPhone|iPod|Windows Phone|webOS|BlackBerry/i.test(userAgent);
+  const view = (params.view as CalendarView) || (isMobileUa ? "day" : "week");
   const { start, end } = getVisibleRange(date, view);
 
   const supabase = await createClient();
@@ -145,6 +163,7 @@ export default async function CalendarPage({
 
   return (
     <ShiftCalendarLoader
+      defaultView={view}
       shifts={(shifts as ShiftWithAssignee[]) ?? []}
       pendingSwaps={(pendingSwaps as SwapRequestDetailed[]) ?? []}
       attendance={(attendance as AttendanceWithProfileRole[]) ?? []}

@@ -406,6 +406,29 @@
   font-size: 0.75rem;
   color: var(--muted-foreground);
 }
+/* Pin the day/date row while the time grid scrolls under it.
+
+   RBC's own design assumes .rbc-time-content is the scroll container, which
+   would keep the header in place for free. That assumption is fragile: it only
+   holds while every ancestor from <html> down hands the calendar a *definite*
+   height, and a single `min-h-*` or an un-flexed wrapper anywhere in that chain
+   silently moves the scroll up to an ancestor — taking the header with it and
+   leaving the blank band the day names used to occupy.
+
+   Sticky is the defensive fix: it pins the row to whichever element actually
+   ends up scrolling, so the header survives a future layout change that breaks
+   the height chain again. The opaque background matters — without it, event
+   chips scroll *through* the day names, which looks worse than losing them. */
+.rbc-time-view {
+  position: relative;
+}
+.rbc-time-header {
+  position: sticky;
+  top: 0;
+  /* Above the grid lines and the current-time indicator, below dialogs. */
+  z-index: 4;
+  background: var(--card);
+}
 /* Week/day view header cells host CalendarDayHeader's own two-line layout —
    let it own its spacing instead of stacking the generic padding on top.
    RBC's base .rbc-header is built for one line of text (overflow: hidden,

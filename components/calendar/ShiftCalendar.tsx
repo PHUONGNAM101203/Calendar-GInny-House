@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
 import { Calendar, type SlotInfo, type View } from "react-big-calendar";
 import {
   localizer,
@@ -32,6 +31,7 @@ import {
   type CalendarEvent,
   type LeaveRequestWithRole,
   type AttendanceWithProfileRole,
+  type CalendarView,
 } from "@/lib/calendar";
 import { VIETNAM_HOLIDAYS } from "@/lib/holidays";
 import {
@@ -96,6 +96,7 @@ export default function ShiftCalendar({
   followedIds,
   followColors,
   branchColors,
+  defaultView,
 }: {
   shifts: ShiftWithAssignee[];
   pendingSwaps: SwapRequestDetailed[];
@@ -115,22 +116,21 @@ export default function ShiftCalendar({
   followedIds: string[];
   followColors: Record<string, string>;
   branchColors: Record<string, string>;
+  /** Server-decided initial view — day on phones, week elsewhere. */
+  defaultView: CalendarView;
 }) {
-  const { date, view, navigate, isPending } = useCalendarNav();
-  const searchParams = useSearchParams();
+  // Squeezing the default 7-column week grid onto a phone is illegible, so
+  // phones open on the single-day view — the same thing Google Calendar's
+  // mobile app does. The decision is made on the server from the user-agent
+  // (see app/(app)/calendar/page.tsx) and arrives as defaultView.
+  //
+  // It used to be a client effect that navigated to "day" after hydration.
+  // That worked, but the browser had already painted the whole week grid by
+  // then, so every phone visit showed a week for a frame and then jumped —
+  // the jank reported on 2026-08-08. An effect cannot fix this: it runs after
+  // paint by definition. Only the server can get the first frame right.
+  const { date, view, navigate, isPending } = useCalendarNav(defaultView);
   const isMobile = useIsMobile();
-
-  // Squeezing the default 7-column week grid onto a phone screen is what
-  // the user flagged as illegible — default to the single-day view there
-  // instead, same pattern Google Calendar's mobile app uses. Only kicks in
-  // when the URL doesn't already carry an explicit ?view= (so it never
-  // fights a navigation the user just made, e.g. switching back to week).
-  useEffect(() => {
-    if (isMobile && !searchParams.has("view")) {
-      navigate(date, "day");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMobile]);
 
   const [showHolidays, setShowHolidays] = useState(true);
   const [hiddenCustomCalendarIds, setHiddenCustomCalendarIds] = useState<Set<string>>(new Set());

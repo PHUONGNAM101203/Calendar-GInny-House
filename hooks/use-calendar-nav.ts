@@ -7,7 +7,11 @@ import type { CalendarView } from "@/lib/calendar";
 
 const DATE_FORMAT = "yyyy-MM-dd";
 
-export function useCalendarNav() {
+/** @param defaultView what to show when the URL carries no explicit `?view=`.
+ *  The server picks this (day on phones, week otherwise) so the first paint is
+ *  already correct — passing it in is what lets the client agree with the
+ *  server instead of correcting it after hydration. */
+export function useCalendarNav(defaultView: CalendarView = "week") {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -22,7 +26,7 @@ export function useCalendarNav() {
     return isValid(parsed) ? parsed : new Date();
   }, [searchParams]);
 
-  const view = (searchParams.get("view") as CalendarView) || "week";
+  const view = (searchParams.get("view") as CalendarView) || defaultView;
 
   // Clicking a day in the mini-month should feel instant, not wait on a
   // server round-trip for the new date range's shifts. This optimistic date
