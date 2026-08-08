@@ -8,18 +8,46 @@ single source of truth for "what does on-brand look like here."
 
 ## Brand brief
 
-**Ginny House** is an English-language center. The app is an internal staff
-tool (shift scheduling + shift swaps across 3 branches), not a marketing
-site — so the design investment goes into a coherent, calm, trustworthy
-"back office" feel rather than a hero/landing-page treatment. The logo is a
-navy line-art mark combining a house/shield outline with a crossed
-book-ribbon glyph.
+**Ginny House** is an English-language center. The app is mainly an internal
+staff tool (shift scheduling + shift swaps across 3 branches), so most of the
+design investment goes into a coherent, calm, trustworthy "back office" feel.
+The one exception is `/`, a public landing page for logged-out visitors.
+
+Since 2026-08 the visual identity is governed by **`brand-guideline.html` v1.0**
+(Mina/CMO, 2026-07), which lives outside this repo. Where this document and
+the guideline disagree, **the guideline wins** — and this document is wrong and
+should be corrected.
+
+The guideline closes with a three-question **Brand Test** that any published
+surface has to pass. Worth keeping in view when building UI, not just posters:
+
+1. Recognisably Ginny House at a glance — white ground, Vivid Blue leading,
+   red only as a small accent, 60/25/10/5, Barlow.
+2. Kind and truthful — no fear-marketing, no invented promises or numbers.
+3. Warm and encouraging — never cold or transactional.
+
+Point 2 has teeth for product work too: **do not invent metrics** for a UI
+mock. A number-shaped hole is honest; a fabricated number is not.
 
 ## Logo
 
+> ⚠️ **Unresolved: the logo is still the retired navy.** Sampling
+> `public/brand/icon-navy.png` gives a dominant ink of `rgb(15, 67, 115)` /
+> `#0F4373` — the exact colour §8 of the guideline retires by name. So
+> `BrandMark` currently renders old-brand artwork beside new Vivid Blue UI, in
+> the header, the auth screen, the favicon and the landing page.
+>
+> This was **not** fixed unilaterally. The guideline has no logo section, so
+> whether the mark should be re-issued in `#022B9D` is a brand decision for the
+> CMO, not an implementation detail. Mechanically it is trivial — the same
+> recolour recipe used for the white variant (below) would do it — but the call
+> is not ours. **Ask before shipping brand collateral.**
+
 The **official** logo file lives at `public/LOGO-01.png` (full lockup: icon
-+ "Ginny House" wordmark). It's the source of truth — everything below is
-derived from it, not hand-drawn.
++ "Ginny House" wordmark). It is the source of the cropped assets below.
+
+Note it is no longer the source of the *palette*: `--primary` used to be
+sampled from this file, and now comes from the guideline instead.
 
 Three cropped assets were extracted from it (see the "Logo asset pipeline"
 note at the bottom of this file for how, in case it needs to be redone with
@@ -44,12 +72,12 @@ a newer export):
 `object-contain`, so aspect ratio is always preserved.
 
 Used at three scales:
-- **Header** (`components/layout/AppHeader.tsx`): 24px, navy, next to the "Ginny House" wordmark (set in Fraunces, not the logo's own lettering — see Typography).
+- **Header** (`components/layout/AppHeader.tsx`): 24px, next to the "Ginny House" wordmark (set in Barlow ExtraBold, not the logo's own lettering — see Typography).
 - **Auth screen** (`app/(auth)/layout.tsx`): 40px white mark above the wordmark; also used oversized (28rem / 24rem) at 6% opacity, twice, as a background watermark for texture.
 - **Favicon** (`app/icon.png`, Next's file-based favicon convention): the square navy crop.
 
 We do **not** use the logo's own wordmark lettering anywhere in the UI —
-headings are set in Fraunces (see Typography) so the type system stays
+headings are set in Barlow (see Typography) so the type system stays
 consistent across the whole app rather than mixing the logo's specific
 font with the UI's. If that's ever wanted for a specific marketing surface,
 crop the wordmark region of `LOGO-01.png` the same way the icon was cropped.
@@ -67,75 +95,164 @@ or re-exported file.
 
 ## Color
 
-The brand navy was **sampled directly from the logo file** (`public/LOGO-01.png`),
-not eyeballed: the dominant ink pixel color is `rgb(15, 67, 115)` / `#0F4373`,
-which converts to `oklch(0.377 0.098 251)`. All neutrals in the theme are
-tinted at that same hue (251) instead of pure gray, so surfaces, borders, and
-text all read as one family rather than "brand color + generic Bootstrap
-gray." Defined as OKLCH in `app/globals.css` (`:root` for light, `.dark` for
-dark mode).
+**Source of truth: `brand-guideline.html` v1.0** (Mina/CMO, 2026-07). The app
+no longer derives its palette from the logo — the guideline supersedes it.
 
-| Name | Role | Light (OKLCH) | Approx. hex | Usage |
-|---|---|---|---|---|
-| **Ginny Ink** | `--primary` | `oklch(0.38 0.1 251)` | `#0F4373` (exact, from logo) | Primary buttons, links, active nav, wordmark, header logo |
-| **Parchment** | `--background` | `oklch(0.985 0.006 85)` | `#FBFAF6` | App background (warm off-white, not pure white) |
-| **Paper** | `--card` / `--popover` | `oklch(1 0 0)` | `#FFFFFF` | Cards/dialogs float above the parchment background |
-| **Study Gold** | `--gold` | `oklch(0.74 0.13 78)` | `#C99A4A` | Manager role badge, pending-swap badge/outline, branch accent (CS2) |
-| **Sage Teal** | `--success` | `oklch(0.55 0.08 165)` | `#3E8577` | Accepted-swap badge, positive confirmations |
-| **Brick** | `--destructive` | `oklch(0.55 0.17 27)` | `#B34435` | Errors, destructive actions (delete shift, missing-branch banner) |
+> **Superseded 2026-08.** The previous system anchored on navy `#0F4373`,
+> sampled from `public/LOGO-01.png`, with all neutrals tinted at hue 251.
+> §8 of the guideline retires that navy **by name** ("Navy cũ #144372 — màu
+> nhận diện đời trước, đã thay bằng Vivid Blue #022B9D. Không trộn 2 xanh").
+> This was a replacement, not a tint adjustment.
 
-Chart/branch colors (`--chart-1..5`) are deliberately built from this same
-palette so the 3 branches read as "the brand" rather than arbitrary chart
-colors: **CS1 = Ginny Ink, CS2 = Study Gold, CS3 = Sage Teal**, with two more
-(muted plum, warm clay) held in reserve for a 4th/5th branch. This mapping
-lives in the `branches.color_token` seed data (`supabase/migrations/0001_init.sql`).
+Values are stored as the guideline's own **hex**, not converted to OKLCH. That
+is a deliberate reversal of the previous convention: the brand ships a
+hand-tuned 9-step ramp per hue, so there is nothing left to interpolate, and
+every conversion would only introduce rounding drift away from the spec.
 
-Dark mode isn't just an inverted gray scale either — background/card/border
-are all navy-tinted, and `--primary` shifts to a lighter, more saturated blue
-so it still pops against a dark surface (a straight-up darkened navy would
-lose contrast against the near-black background).
+### Ramps
 
-Two custom tokens were added beyond the shadcn defaults: `--gold` /
-`--gold-foreground` and `--success` / `--success-foreground`, both mapped
-into `@theme inline` in `globals.css` so they work as ordinary Tailwind
-utilities (`bg-gold`, `text-success-foreground`, etc.) and as new `Badge`
-variants (`components/ui/badge.tsx`): `gold` and `success`.
+Three ramps, 9 steps each, in `:root` — `--blue-100…900`, `--red-100…900`,
+`--yellow-100…900`. Components should use the semantic layer below, not the
+ramps directly; the ramps exist so semantic tokens have somewhere honest to
+point.
 
-If the color ever needs re-deriving from a fresh logo export, the exact
-recipe: sample the dominant ink pixel's sRGB, convert to OKLCH (linearize →
-OKLab → polar), and that's `--primary`. Everything else (neutrals, `--ring`,
-`--chart-1`, sidebar tokens) shares its hue.
+### Semantic layer
+
+| Name | Token | Light | Usage |
+|---|---|---|---|
+| **Vivid Blue** | `--primary` | `#022B9D` (blue-700) | Brand lead — links, active nav, your own shifts, CS1, wordmark |
+| **CTA Red** | `--destructive` | `#D90513` (red-600) | Primary call-to-action, errors, destructive actions |
+| — | `--destructive-strong` | `#B4040F` (red-700) | Red **text on a red tint** only; see contrast note below |
+| **Ink** | `--foreground` | `#0A1230` | Body text |
+| **Muted** | `--muted-foreground` | `#5B6480` | Secondary text |
+| **Surface** | `--background` / `--card` | `#FFFFFF` | Page and card ground |
+| **Surface alt** | `--muted` | `#F4F6FB` | Section bands, sidebar |
+| **Line** | `--border` | `#E6E9F2` | Hairlines |
+| **Highlight** | `--gold` | `#F7AE47` (yellow-500) | Pending states, CS2 — **background only** |
+| — | `--gold-foreground` | `#8F5B0D` (yellow-800) | Text on a yellow tint |
+| **Success** | `--success` | `#167A3B` | Approved states, positive confirmation |
+| **Warning** | `--warning` | `#955700` | Cautionary states |
+
+### Rules the guideline enforces (§8)
+
+- **Red is an accent, never a ground.** Capped near 10% of any surface. A
+  full-bleed red panel is explicitly rejected — it reads as tension, wrong for
+  a school. This is why the landing page's closing CTA panel is blue and only
+  its button is red, and why `--primary` was *not* wired to red even though
+  the guideline calls the primary button red: `--primary` also paints every
+  one of your own shifts on the calendar, and flipping it would blow the cap
+  on the densest screen in the app. The red CTA lives in the `cta` Button
+  variant instead.
+- **Yellow is seasoning, not a ground, and never text on white.** `#F7AE47`
+  on white measures 1.9:1. Yellow text must be `#C07A12` (yellow-700) or
+  darker.
+- **No hue outside the system.** No purple, pink, or neon green. This is what
+  retired the old teal/plum/cyan person-colour set.
+- **Ratio to hold:** 60 white / 25 blue / 10 red / 5 yellow.
+
+### Contrast
+
+The guideline ships its own WCAG 2.2 table (body ≥4.5:1, large/non-text ≥3:1).
+Measured for the tinted `Badge` variants against their own 10–15% tints:
+
+| Variant | Tint | Text | Ratio |
+|---|---|---|---|
+| `gold` | `#FEF3E3` | `#8F5B0D` | 5.21 ✓ |
+| `success` | `#E3EFE8` | `#167A3B` | 4.58 ✓ |
+| `destructive` | `#FBE6E7` | `#D90513` | **4.41 ✗** |
+
+That last one is why `--destructive-strong` exists: red-600 as text on its own
+tint fails the floor, so tinted surfaces step down to red-700 (5.93:1). Solid
+red buttons are unaffected — white on red-600 is fine.
+
+### Branch and per-person colours
+
+`--chart-1…6` feed both the 3 branch colours (`branches.color_token` seed in
+`supabase/migrations/0001_init.sql`) and the per-person calendar palette.
+Branches map cleanly: **CS1 = Vivid Blue, CS2 = Highlight yellow, CS3 = CTA red**
+(as a 6px bar only — well inside the red cap).
+
+**Known weakness, unresolved.** The per-person palette used to be five
+well-separated hues (teal, plum, amber, gold, cyan). §8 forbids hues outside
+the system, so it now draws from three ramps spread across lightness instead
+(`blue-700 / blue-400 / blue-300 / yellow-600 / yellow-800 / red-500`). These
+sit measurably closer together, and telling two coworkers apart at a glance is
+harder than it was. There is no fix that satisfies both the guideline and the
+old legibility — resolving it needs a brand decision (an approved pair of
+auxiliary hues), not a code change.
+
+### Dark mode
+
+**Dark mode is an extension beyond the guideline, not part of it.** The
+guideline is light-only and §8 rejects a dark dominant ground ("GH là brand
+trắng-sáng"). It is kept because the app already shipped a theme toggle and
+evening-shift staff use it. Values pull from the same three ramps, with
+`--primary` stepping up to blue-400 (blue-700 is unreadable on a dark ground).
+One value could not come from any ramp: dark-mode `--success` is a lightened
+`#4FB477`, because the guideline has no green scale and `#167A3B` sinks to
+about 2:1 against `#0A1230`. It is marked as derived at the point of use.
 
 ## Typography
 
-Three-role system, all three fonts confirmed to support the **`vietnamese`**
-Google Fonts subset (this mattered — the font this project shipped with
-before, Geist, only lists `latin`/`latin-ext`/`cyrillic` and would have
-silently dropped to a fallback system font for precomposed Vietnamese
-diacritics like `ệ ủ ằ ẩ`):
+**One family: [Barlow](https://fonts.google.com/specimen/Barlow).** The
+guideline is explicit — *"Một họ chữ duy nhất… Không trộn font thứ hai."*
+Hierarchy is carried entirely by weight, never by a second typeface.
 
-| Role | Font | CSS var | Where |
-|---|---|---|---|
-| **Display** | [Fraunces](https://fonts.google.com/specimen/Fraunces) (variable, opsz+SOFT axes) | `--font-display` → `--font-heading` | Page titles (`h1`), the "Ginny House" wordmark, every shadcn `CardTitle`/`DialogTitle`/`AlertDialogTitle` (they already reference `font-heading` in the primitives, so this cascades automatically) |
-| **Body / UI** | [Be Vietnam Pro](https://fonts.google.com/specimen/Be+Vietnam+Pro) | `--font-body` → `--font-sans` | Everything else: labels, buttons, table cells, nav |
-| **Data** | [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) | `--font-data` → `--font-mono` | Reserved for tabular/time data if a template needs it (shift time ranges, codes) |
+> **Superseded 2026-08.** The previous system paired Fraunces (display serif)
+> with Be Vietnam Pro (body) and reserved JetBrains Mono for data. All three
+> are gone.
 
-Fraunces is a warm humanist serif with real personality — it reads as
-"considered institution" (fitting a language school) without tipping into
-the generic AI-slop cream-background/serif-display cliché, because it's
-paired with a cool navy palette and a geometric sans, not terracotta.
-Be Vietnam Pro is a deliberate choice over Inter/Geist: as the name implies
-it was designed with Vietnamese typesetting in mind, and it's distinctive
-enough to not read as "the default AI web font."
+The **`vietnamese` subset is non-negotiable** and was verified against
+next/font's own metadata before the switch (`['latin','latin-ext','vietnamese']`).
+This is the same trap that disqualified Geist originally: without it, every
+precomposed diacritic (`ệ ủ ằ ẩ`) silently falls back to a system face.
 
-Font loading is in `app/layout.tsx` via `next/font/google`; the mapping
-from those loader `variable` names to the Tailwind-facing `--font-sans` /
-`--font-heading` / `--font-mono` tokens happens in `app/globals.css`'s
-`@theme inline` block — change the mapping there, not per-component.
+### Scale
+
+| Role | Size / weight | Notes |
+|---|---|---|
+| Display | 52px / 900 | ls −0.025em, lh 1.0 |
+| H1 | 38px / 800 | ls −0.015em, lh 1.05 |
+| H2 | 29px / 800 | lh 1.12 |
+| H3 | 22px / 700 | lh 1.25 |
+| Lead | 19px / 500 | lh 1.5 |
+| Body | 16px / 400 | lh 1.6 |
+| Label | 13px / 700 | ls +0.01em |
+| Caption | 12px / 600 | |
+| Overline | 11px / 800 | +0.2em, uppercase |
+
+Weights loaded: 400, 500, 600, 700, 800, 900. The guideline lists nine; the
+four unused light weights are omitted because next/font fetches one static
+file per weight and they would be dead payload.
+
+### There is no mono font — on purpose
+
+`--font-mono` is **not defined**, and no monospace family is loaded. Anything
+that previously reached for `font-mono` now uses one of two replacements
+depending on which job it was actually doing:
+
+- **Aligning columns of numbers** → `tabular-nums`. Barlow's tabular figures
+  line up without paying for a second font download. `RealtimeClock` set this
+  precedent deliberately.
+- **The "technical label" look** → Barlow at 800 with tracking and uppercase,
+  which is precisely the Overline role above.
+
+> **Fixed 2026-08.** For a period, `--font-mono` was referenced in 17 places
+> across 7 files while being defined nowhere — so those labels rendered in
+> whatever mono the OS supplied (SF Mono on macOS, Consolas on Windows,
+> Courier elsewhere), differing per device and belonging to no design system.
+> Do not reintroduce `font-mono` without also loading a mono family and
+> getting it approved: the guideline forbids a second face.
+
+Font loading is in `app/layout.tsx` via `next/font/google`; the mapping to the
+Tailwind-facing `--font-sans` / `--font-heading` tokens happens in
+`app/globals.css`'s `@theme inline` block, where **both now point at the same
+family**. Change the mapping there, never per-component.
 
 ## Layout & components
 
-- **Radius**: unchanged from the scaffold (`--radius: 0.625rem`, scaled via `--radius-sm..4xl`). Not a brand-defining lever here; revisit only if the calendar template asks for something sharper/softer.
+- **Radius**: the guideline's four rungs — **8 / 14 / 20 / 28px** (`--radius-sm/md/lg/xl`), plus a pill for fully-rounded controls. `--radius` is the md rung (14px), which is what shadcn primitives inherit. These are set **literally** rather than derived by multiplier: the old `calc(var(--radius) * n)` ladder could not land on all four rungs from a single base without drifting a pixel or two off each. `2xl`–`4xl` keep climbing for oversized panels.
+- **Motion**: `--dur-fast` 120ms · `--dur-base` 200ms · `--dur-slow` 320ms, with `--ease-out` `cubic-bezier(.22,.61,.36,1)` and `--ease-pop` `cubic-bezier(.34,1.56,.64,1)`. **Nothing exceeds 320ms** — that is a guideline rule, not a preference. `ease-pop` overshoots and is reserved for *buttons only*; content and colour transitions use `ease-out`. Every animation collapses under `prefers-reduced-motion: reduce`.
 - **Elevation**: cards on a colored/navy background (auth screen) get `shadow-2xl shadow-black/20` for real lift; cards on the parchment background rely on the existing `ring-1 ring-foreground/10` from the shadcn primitives, which is enough contrast there.
 - **Role badges**: `Badge variant="gold"` for Quản lý (manager), `variant="secondary"` for Nhân viên (employee) — see `AppHeader.tsx` and `StaffTable.tsx`.
 - **Status badges — soft-tint, not solid fill** (2026-08 pass): `gold` and `success` badge variants moved from a full-saturation background (`bg-gold`/`bg-success`) to a low-opacity tint (`bg-gold/15` light · `/20` dark, `bg-success/12` light · `/18` dark) with the accent as the text color instead of white-on-color. Same convention `destructive` already used (`bg-destructive/10 text-destructive`) — the fix made the other two match it instead of the other way around. Solid pill badges read as a dated Bootstrap-era pattern; the soft-tint + colored-text pairing is what current SaaS UI (GitHub, Linear, Vercel) uses for status pills, and it's calmer on a page with several badges in view at once. Applies everywhere `Badge` is used: role badges, swap/leave/shift-request status pills, notification dots.
@@ -371,19 +488,45 @@ afterwards via the new role dropdown, not a permanent mapping.
 
 ## Landing page (`/`, public)
 
-`/` is now a public marketing/orientation page (added to `PUBLIC_PATHS` in
-`lib/supabase/proxy.ts`; logged-in visitors still get redirected to
-`/calendar` by the same proxy rule, so the landing only ever shows to
-logged-out visitors). It reuses the app's exact token system — no new
-colors or fonts. Signature element: the hero "week board," a CSS-built
-mini schedule (not a screenshot) that speaks the product's real visual
-language — own shifts solid navy, coworkers as per-person tinted chips,
-a dashed-gold "Chờ đổi ca" chip, a teal holiday chip, and a red now-line.
-Features are presented as a real workday sequence ("Một ngày làm việc,"
-08:00 → 17:30) rather than a generic feature grid, and the branch cards
-use the CS1=navy / CS2=gold / CS3=teal mapping from `branches.color_token`.
-Large `bg-primary` panels (final CTA) switch to `dark:bg-card dark:border`
-— in dark mode `--primary` is a bright blue and a big slab of it glares.
+`/` is a public marketing/orientation page (added to `PUBLIC_PATHS` in
+`lib/supabase/proxy.ts`; logged-in visitors are redirected to `/calendar` by
+the same proxy rule, so it only ever shows to logged-out visitors). It reuses
+the app's exact token system — no new colours or fonts.
+
+Signature element: the hero **week board**, a CSS-built mini schedule (not a
+screenshot) speaking the product's real visual language — own shifts solid
+blue, coworkers as per-person tinted chips, a dashed-yellow "Chờ đổi ca" chip,
+a green holiday chip, and a red now-line. Features are a real workday sequence
+("Một ngày làm việc", 08:00 → 17:30) rather than a generic feature grid, and
+branch cards use the CS1/CS2/CS3 mapping from `branches.color_token`.
+
+### The 3D layer (2026-08)
+
+Depth is **interactive, not decorative** — the governing rule is that a 3D
+element the user cannot influence has not earned its cost, so nothing spins or
+floats on its own.
+
+- **`components/landing/TiltCard.tsx`** — the hero board tilts to follow the
+  pointer. Its clock-in card sits on a higher Z plane (`.tilt-lift-2` vs
+  `.tilt-lift-1`), so the two surfaces shift by different amounts as it moves.
+  That parallax is what reads as depth; a single skewed plane just looks
+  sheared. It writes CSS custom properties from a `requestAnimationFrame`
+  callback rather than calling `setState`, so React never re-renders during
+  pointer movement.
+- **Disarmed, not degraded**, on three counts: `prefers-reduced-motion`,
+  coarse pointers (a phone has no hover, so tilt-on-touch only reads as lag),
+  and any subtree lacking a `.scene-3d` ancestor.
+- **`.scene-3d`** sets `perspective` on the *section*, never per card — a row
+  of cards must share one vanishing point or each becomes its own little world
+  and the group stops reading as one space.
+- **`Reveal depth`** reuses the existing IntersectionObserver so the
+  reduced-motion and run-once behaviour is inherited, not duplicated.
+
+Large `bg-primary` panels (final CTA) switch to `dark:bg-card dark:border` — in
+dark mode `--primary` is a brighter blue and a big slab of it glares. That
+panel is **blue, not red**, and its button carries the red: §8 rejects red as a
+large ground, so the guideline's "red CTA" rule applies to the control, not the
+container.
 
 ## Manager dashboard — command band
 
@@ -402,6 +545,24 @@ takes an `id` and `scroll-mt-6`).
 
 ## Reuse checklist for future template/theme work
 
-1. Don't hand-pick new colors — pull from the table above (`--primary`, `--gold`, `--success`, `--chart-1..6`) so anything new matches the rest of the app.
-2. Headings get `font-heading` (Fraunces) the same way `CardTitle`/`DialogTitle`/`CalendarToolbar`'s range label already do; body/labels stay on the default `font-sans` (Be Vietnam Pro).
-3. If a future template ships its own CSS, translate its color variables to reference ours (`var(--primary)` etc.) the same way the `.rbc-*` overrides and `--event-color` indirection do, rather than hardcoding new hex values.
+1. **Never hand-pick a colour.** Pull from the semantic table above. If nothing
+   fits, add a token that points at a ramp step — do not inline a hex. A stray
+   value is how a system quietly becomes a freestyle.
+2. **No second font, ever.** Both `--font-sans` and `--font-heading` resolve to
+   Barlow; hierarchy comes from weight. If you find yourself reaching for
+   `font-mono`, see the Typography section — it does not exist here.
+3. **Check red before shipping.** Roughly ≤10% of any surface, and never as a
+   large ground. If a design needs a big coloured panel, it is blue.
+4. **Yellow is never text on white.** Use `--gold-foreground` (yellow-800) on a
+   yellow tint, or `#C07A12` and darker on white.
+5. **Nothing animates longer than 320ms**, and `ease-pop` is for buttons only.
+   Every animation must collapse under `prefers-reduced-motion`.
+6. **New tinted badge or status pill?** Measure it. The guideline sets 4.5:1
+   for body text, and one variant already failed that at 4.41:1 — the eye does
+   not catch this, only the arithmetic does.
+7. If a future template ships its own CSS, translate its colour variables to
+   reference ours (`var(--primary)` etc.) the same way the `.rbc-*` overrides
+   and the `--event-color` indirection do, rather than hardcoding new hex values.
+8. **Keep this file honest.** It was wrong for a while after the rebrand — every
+   section described a navy/Fraunces system that no longer existed. A design doc
+   that lies is worse than no design doc, because people trust it.
