@@ -137,15 +137,31 @@ export function canApproveLeaveFor(approverRole: Role, targetRole: Role): boolea
   return false;
 }
 
-// Everyone else — including training_director, despite being manager-tier
-// for shifts/swaps/leave RLS — submits a "Đăng ký ca làm" request instead
-// (see supabase/migrations/0010_shift_requests.sql) that only the CEO can
-// approve. Same 3 roles as CALENDAR_FOLLOW_ALL_ROLES today, kept as its own
-// set since the two are separate product decisions that happen to coincide.
-export const DIRECT_SHIFT_ROLES: ReadonlySet<Role> = new Set(["ceo", "coo", "technical"]);
+// Who can open the direct-create-shift UI at all (coarse gate — doesn't say
+// WHO they can create a shift for, see canCreateShiftFor below for that).
+// ceo/technical: unrestricted. coo/training_director/hr: scoped to their own
+// group (canCreateShiftFor enforces the actual scoping). Everyone else still
+// submits a "Đăng ký ca làm" request instead (0010_shift_requests.sql).
+export const DIRECT_SHIFT_ROLES: ReadonlySet<Role> = new Set([
+  "ceo",
+  "coo",
+  "training_director",
+  "hr",
+  "technical",
+]);
 
 export function canCreateShiftDirectly(role: Role): boolean {
   return DIRECT_SHIFT_ROLES.has(role);
+}
+
+// Per-assignee shift create/edit/delete scoping. ceo/technical: anyone.
+// coo/training_director/hr: only their own group's people. Mirrors
+// can_manage_shift_for() in 0043_shift_group_scoped_management.sql — keep
+// both in sync.
+export function canCreateShiftFor(viewerRole: Role, targetRole: Role): boolean {
+  if (viewerRole === "ceo" || viewerRole === "technical") return true;
+  const group = getViewableGroupRoles(viewerRole);
+  return group ? group.has(targetRole) : false;
 }
 
 // Only the CEO approves shift registrations.
@@ -153,13 +169,44 @@ export function isCeo(role: Role): boolean {
   return role === "ceo";
 }
 
-// Shift-request approval: CEO approves anyone; HR only their own group
-// (student_affairs/teaching_assistant). Mirrors can_approve_shift_request()
-// in 0019_hr_group_student_affairs_teaching_assistant.sql — keep in sync.
+// Shift-request approval: CEO approves anyone; coo/training_director/hr only
+// their own group. Mirrors can_approve_shift_request() in
+// 0044_shift_and_swap_approval_scoping.sql — keep in sync.
 export function canApproveShiftRequestFor(approverRole: Role, targetRole: Role): boolean {
   if (approverRole === "ceo") return true;
+  if (approverRole === "coo") return OPERATIONS_GROUP_ROLES.has(targetRole);
+  if (approverRole === "training_director") return TRAINING_GROUP_ROLES.has(targetRole);
   if (approverRole === "hr") return HR_GROUP_ROLES.has(targetRole);
   return false;
+}
+
+const SHIFT_REQUEST_APPROVER_ROLES: ReadonlySet<Role> = new Set([
+  "ceo",
+  "coo",
+  "training_director",
+  "hr",
+]);
+
+export function isShiftRequestApprover(role: Role): boolean {
+  return SHIFT_REQUEST_APPROVER_ROLES.has(role);
+}
+
+// Swap approval — ONLY applies to targeted swaps (target_id set); "open"
+// swaps stay pure peer-claim, no manager gate. ceo approves any; coo/
+// training_director/hr require BOTH the requester and the chosen target to
+// be in their own group (safer than requester-only — avoids a manager
+// reassigning a shift belonging to someone entirely outside their group).
+// technical never approves swaps (view-only everywhere, consistent with its
+// role elsewhere in this app). Mirrors can_approve_swap_request() in
+// 0044_shift_and_swap_approval_scoping.sql — keep both in sync.
+export function canApproveSwapRequestFor(
+  approverRole: Role,
+  requesterRole: Role,
+  targetRole: Role
+): boolean {
+  if (approverRole === "ceo") return true;
+  const group = getViewableGroupRoles(approverRole);
+  return group ? group.has(requesterRole) && group.has(targetRole) : false;
 }
 
 // Front-line roles a new user can self-select at signup (RegisterForm) —

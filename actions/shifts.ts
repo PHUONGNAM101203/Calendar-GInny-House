@@ -4,21 +4,27 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireManager } from "@/lib/auth";
 import { shiftSchema } from "@/lib/validations/shift";
-import { isManagerRole } from "@/lib/roles";
-import type { ActionResult } from "@/types";
+import { isManagerRole, canCreateShiftFor } from "@/lib/roles";
+import type { ActionResult, Role } from "@/types";
 
-// Defense in depth — ShiftFormDialog's picker already narrows options to
-// the assignee's branches, but a manager could still bypass the client. A
-// management-tier assignee has no profile_branches rows by design and is
-// exempt (they cover every branch), matching that convention everywhere
-// else in the app.
-async function assertBranchAllowed(
+// Defense in depth — ShiftFormDialog's picker already narrows assignee
+// options to the caller's group and branch, but a manager could still
+// bypass the client. Looks up the assignee's role once and checks both
+// group-scoping (canCreateShiftFor) and branch membership off that single
+// lookup. A management-tier assignee has no profile_branches rows by design
+// and is exempt from the branch check (they cover every branch), matching
+// that convention everywhere else in the app.
+async function assertAssigneeAllowed(
   supabase: Awaited<ReturnType<typeof createClient>>,
+  callerRole: Role,
   assigneeId: string,
   branchId: string
 ): Promise<string | null> {
   const { data: assignee } = await supabase.from("profiles").select("role").eq("id", assigneeId).single();
   if (!assignee) return "Không tìm thấy nhân viên này";
+  if (!canCreateShiftFor(callerRole, assignee.role)) {
+    return "Bạn không có quyền xếp ca cho nhân viên này";
+  }
   if (isManagerRole(assignee.role)) return null;
 
   const { data: isMember } = await supabase.rpc("is_branch_member", {
@@ -41,11 +47,17 @@ function mapShiftError(message: string): string {
   if (message.includes("Ca này đã có đăng ký quản sinh")) {
     return "Ca này đã có đăng ký quản sinh";
   }
+  // Safety net if assertAssigneeAllowed's app-level check gets bypassed by a
+  // race (assignee's role changed between form-open and submit) — the RLS
+  // policy (can_manage_shift_for, 0043) is the real boundary either way.
+  if (message.includes("row-level security policy") || message.includes("permission denied")) {
+    return "Bạn không có quyền xếp ca cho nhân viên này";
+  }
   return "Không thể lưu ca làm việc";
 }
 
 export async function createShiftAction(input: unknown): Promise<ActionResult> {
-  await requireManager();
+  const manager = await requireManager();
   const parsed = shiftSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" };
@@ -53,8 +65,13 @@ export async function createShiftAction(input: unknown): Promise<ActionResult> {
 
   const supabase = await createClient();
 
-  const branchError = await assertBranchAllowed(supabase, parsed.data.assignee_id, parsed.data.branch_id);
-  if (branchError) return { ok: false, error: branchError };
+  const assigneeError = await assertAssigneeAllowed(
+    supabase,
+    manager.role,
+    parsed.data.assignee_id,
+    parsed.data.branch_id
+  );
+  if (assigneeError) return { ok: false, error: assigneeError };
 
   const {
     data: { user },
@@ -81,7 +98,7 @@ export async function updateShiftAction(
   id: string,
   input: unknown
 ): Promise<ActionResult> {
-  await requireManager();
+  const manager = await requireManager();
   const parsed = shiftSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" };
@@ -89,8 +106,13 @@ export async function updateShiftAction(
 
   const supabase = await createClient();
 
-  const branchError = await assertBranchAllowed(supabase, parsed.data.assignee_id, parsed.data.branch_id);
-  if (branchError) return { ok: false, error: branchError };
+  const assigneeError = await assertAssigneeAllowed(
+    supabase,
+    manager.role,
+    parsed.data.assignee_id,
+    parsed.data.branch_id
+  );
+  if (assigneeError) return { ok: false, error: assigneeError };
 
   const { error } = await supabase
     .from("shifts")

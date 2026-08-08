@@ -1,6 +1,6 @@
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
-import { isManagerRole, isCeo } from "@/lib/roles";
+import { isManagerRole, canApproveShiftRequestFor } from "@/lib/roles";
 import type {
   AttendanceCorrectionDetailed,
   LeaveRequestDetailed,
@@ -35,7 +35,6 @@ export function buildNotifications({
   attendanceCorrections: AttendanceCorrectionDetailed[];
 }): AppNotification[] {
   const isManager = isManagerRole(profile.role);
-  const ceo = isCeo(profile.role);
   const recentCutoff = Date.now() - 3 * 24 * 60 * 60 * 1000;
   const items: AppNotification[] = [];
 
@@ -94,7 +93,7 @@ export function buildNotifications({
 
   for (const r of shiftRequests) {
     const isMine = r.profile_id === profile.id;
-    if (r.status === "pending" && ceo) {
+    if (r.status === "pending" && canApproveShiftRequestFor(profile.role, r.profile.role)) {
       items.push({
         id: `shift-request-${r.id}`,
         text: `${r.profile.full_name} đăng ký ca làm đang chờ bạn duyệt`,

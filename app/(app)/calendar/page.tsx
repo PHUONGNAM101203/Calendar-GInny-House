@@ -27,8 +27,8 @@ import type {
 // "Cần xét duyệt" sidebar section render names instead of raw ids.
 const SWAP_SELECT = `
   *,
-  requester:profiles!requester_id(id, full_name),
-  target:profiles!target_id(id, full_name),
+  requester:profiles!requester_id(id, full_name, role),
+  target:profiles!target_id(id, full_name, role),
   requester_shift:shifts!requester_shift_id(id, start_at, end_at),
   target_shift:shifts!target_shift_id(id, start_at, end_at)
 `;
@@ -69,7 +69,7 @@ export default async function CalendarPage({
   ] = await Promise.all([
     supabase
       .from("shifts")
-      .select("*, assignee:profiles!assignee_id(id, full_name, color)")
+      .select("*, assignee:profiles!assignee_id(id, full_name, color, role)")
       .gte("start_at", start.toISOString())
       .lte("start_at", end.toISOString())
       .order("start_at"),

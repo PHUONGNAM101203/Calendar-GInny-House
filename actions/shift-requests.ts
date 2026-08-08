@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
-import { isCeo } from "@/lib/roles";
+import { isShiftRequestApprover } from "@/lib/roles";
 import { shiftRequestSchema } from "@/lib/validations/shift-request";
 import { sendPushToShiftRequestApprovers, sendPushToProfile } from "@/lib/push";
 import type { ActionResult } from "@/types";
@@ -110,7 +110,7 @@ export async function respondToShiftRequestAction(
   approve: boolean
 ): Promise<ActionResult> {
   const profile = await requireProfile();
-  if (!isCeo(profile.role) && profile.role !== "hr") {
+  if (!isShiftRequestApprover(profile.role)) {
     return { ok: false, error: "Bạn không có quyền duyệt đăng ký ca này" };
   }
 

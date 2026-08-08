@@ -5,10 +5,11 @@ import { getBranches } from "@/lib/branches";
 import {
   getViewableGroupRoles,
   MANAGER_GROUP_META,
-  isCeo,
   isLeaveApprover,
   canApproveLeaveFor,
   canApproveShiftRequestFor,
+  isShiftRequestApprover,
+  canApproveSwapRequestFor,
   isManagerRole,
 } from "@/lib/roles";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,8 +33,8 @@ import type {
 
 const SELECT = `
   *,
-  requester:profiles!requester_id(id, full_name),
-  target:profiles!target_id(id, full_name),
+  requester:profiles!requester_id(id, full_name, role),
+  target:profiles!target_id(id, full_name, role),
   requester_shift:shifts!requester_shift_id(id, start_at, end_at),
   target_shift:shifts!target_shift_id(id, start_at, end_at)
 `;
@@ -155,7 +156,6 @@ export default async function ManagerPage({
   const shiftsTodayList = (shiftsTodayRows as Pick<{ assignee_id: string }, "assignee_id">[]) ?? [];
 
   const isTechnical = manager.role === "technical";
-  const managerIsCeo = isCeo(manager.role);
 
   // null => org-wide (ceo, technical); otherwise the exact set of roles
   // this viewer's dashboard is scoped to. Single source of truth for "my
@@ -218,11 +218,10 @@ export default async function ManagerPage({
           shiftsToday={scopedShiftsToday}
           pendingSwaps={scopedSwaps.filter((s) => s.status === "pending").length}
           pendingLeave={scopedLeaves.filter((l) => l.status === "pending").length}
-          // Only CEO/HR can ever approve a shift request (see canApproveShiftRequestFor
-          // in lib/roles.ts) — a COO/training_director group scope would otherwise
-          // show a queue count they can never click through to resolve.
           pendingShiftRequests={
-            manager.role === "hr" ? scopedShiftRequests.filter((r) => r.status === "pending").length : 0
+            isShiftRequestApprover(manager.role)
+              ? scopedShiftRequests.filter((r) => r.status === "pending").length
+              : 0
           }
           pendingAttendanceCorrections={scopedAttendanceCorrections.filter((r) => r.status === "pending").length}
           clockedInCount={scopedClockedIn.length}
@@ -266,7 +265,7 @@ export default async function ManagerPage({
         </Card>
       </Section>
 
-      {(managerIsCeo || manager.role === "hr") && (
+      {isShiftRequestApprover(manager.role) && (
         <Section id="shift-requests" title="Đăng ký ca" count={scopedShiftRequests.length}>
           {scopedShiftRequests.length === 0 ? (
             <p className="text-sm text-muted-foreground">Chưa có đăng ký ca làm nào.</p>
@@ -292,7 +291,17 @@ export default async function ManagerPage({
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
             {scopedSwaps.map((r) => (
-              <SwapRequestCard key={r.id} request={r} canRespond={false} canCancel={r.status === "pending"} />
+              <SwapRequestCard
+                key={r.id}
+                request={r}
+                canRespond={
+                  r.status === "pending" &&
+                  r.target_id !== null &&
+                  r.target !== null &&
+                  canApproveSwapRequestFor(manager.role, r.requester.role, r.target.role)
+                }
+                canCancel={r.status === "pending"}
+              />
             ))}
           </div>
         )}

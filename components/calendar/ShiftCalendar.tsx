@@ -40,6 +40,8 @@ import {
   isLeaveApprover,
   canApproveLeaveFor,
   canApproveShiftRequestFor,
+  canCreateShiftFor,
+  canApproveSwapRequestFor,
 } from "@/lib/roles";
 import { scopeToOwnOrApprovable } from "@/lib/pending-approvals";
 import { useCalendarNav } from "@/hooks/use-calendar-nav";
@@ -189,8 +191,8 @@ export default function ShiftCalendar({
   );
 
   const shiftEvents = useMemo(
-    () => toCalendarEvents(visibleShifts, currentUserId, pendingSwaps, colorFor),
-    [visibleShifts, currentUserId, pendingSwaps, colorFor]
+    () => toCalendarEvents(visibleShifts, currentUserId, currentUserRole, pendingSwaps, colorFor),
+    [visibleShifts, currentUserId, currentUserRole, pendingSwaps, colorFor]
   );
   const holidayEvents = useMemo(() => {
     if (!showHolidays) return [];
@@ -344,7 +346,11 @@ export default function ShiftCalendar({
     // non-requester) accept; it has no manager-override branch, so a
     // manager who happens to be that target/claimant needs the same
     // response dialog everyone else gets, not the shift-edit form.
-    if (canManageShifts && event.resource.pendingSwap === "none") {
+    if (
+      canManageShifts &&
+      event.resource.pendingSwap === "none" &&
+      canCreateShiftFor(currentUserRole, event.resource.shift.assignee.role)
+    ) {
       setFormState({ open: true, shift: event.resource.shift, range: null });
     } else {
       setDetailEvent(event);
@@ -373,13 +379,26 @@ export default function ShiftCalendar({
   // so their placeholder values here are never surfaced to the user.
   function openSwapDetail(request: SwapRequestDetailed) {
     const isMine = request.requester_id === currentUserId;
+    // A manager who is neither requester nor target can still approve a
+    // TARGETED swap on the requester's/target's behalf (see
+    // canApproveSwapRequestFor) — that state is "approvable", distinct from
+    // "open" (an unclaimed swap anyone can take), so ShiftDetailDialog shows
+    // the right copy/button for each.
+    const canApproveAsManager =
+      !isMine &&
+      request.target_id !== null &&
+      request.target !== null &&
+      request.target_id !== currentUserId &&
+      canApproveSwapRequestFor(currentUserRole, request.requester.role, request.target.role);
     const pendingSwap: ShiftEvent["resource"]["pendingSwap"] = isMine
       ? request.target_id
         ? "outgoing"
         : "open"
       : request.target_id === currentUserId
         ? "incoming"
-        : "open";
+        : canApproveAsManager
+          ? "approvable"
+          : "open";
     const shift: ShiftWithAssignee = {
       id: request.requester_shift.id,
       branch_id: request.branch_id,
@@ -389,7 +408,12 @@ export default function ShiftCalendar({
       note: null,
       created_by: null,
       shift_type: "morning",
-      assignee: { id: request.requester_id, full_name: request.requester.full_name, color: null },
+      assignee: {
+        id: request.requester_id,
+        full_name: request.requester.full_name,
+        color: null,
+        role: request.requester.role,
+      },
     };
     setDetailEvent({
       id: shift.id,
@@ -503,14 +527,24 @@ export default function ShiftCalendar({
   // ShiftRequestDialog only ever renders for the current viewer requesting
   // their OWN shift, so this is scoped to their branches, not the
   // assignee-varies logic ShiftFormDialog needs. Management-tier requesters
-  // (training_director, notably — manager-tier but not in
-  // DIRECT_SHIFT_ROLES, so they use this dialog too) still see every
-  // branch, matching their "all branches" status everywhere else.
+  // still see every branch, matching their "all branches" status everywhere
+  // else. training_director/coo/hr are now in DIRECT_SHIFT_ROLES too, but
+  // canCreateShiftFor never covers a viewer's OWN role (their group is their
+  // staff, not themselves) — so they still land here for their own shift.
   const requestableBranches = useMemo(() => {
     if (isManagerRole(currentUserRole)) return branches;
     const self = branchMembers.find((m) => m.id === currentUserId);
     return branches.filter((b) => self?.branch_ids.includes(b.id));
   }, [branches, branchMembers, currentUserId, currentUserRole]);
+
+  // ShiftFormDialog's assignee picker must only offer people this viewer is
+  // actually allowed to create/edit a shift for — branchMembers itself stays
+  // unfiltered (it also feeds the follow/legend sidebar, which needs the
+  // full RLS-visible set, not the narrower create-shift scope).
+  const creatableBranchMembers = useMemo(
+    () => branchMembers.filter((m) => canCreateShiftFor(currentUserRole, m.role)),
+    [branchMembers, currentUserRole]
+  );
 
   function handleQuickCreate() {
     const start = new Date();
@@ -548,9 +582,12 @@ export default function ShiftCalendar({
         currentUserId,
         (r) => r.requester_id,
         (r) =>
-          r.target_id === currentUserId || (r.target_id === null && r.requester_id !== currentUserId) || canFollowAll
+          r.target_id === currentUserId ||
+          (r.target_id === null && r.requester_id !== currentUserId) ||
+          (r.target_id !== null && r.target !== null && canApproveSwapRequestFor(currentUserRole, r.requester.role, r.target.role)) ||
+          canFollowAll
       ),
-    [pendingSwaps, currentUserId, canFollowAll]
+    [pendingSwaps, currentUserId, currentUserRole, canFollowAll]
   );
   const attendanceCorrectionsForApproval = useMemo(
     () =>
@@ -751,7 +788,7 @@ export default function ShiftCalendar({
           <ShiftFormDialog
             open={formState.open}
             onOpenChange={(open) => setFormState((s) => ({ ...s, open }))}
-            branchMembers={branchMembers}
+            branchMembers={creatableBranchMembers}
             branches={branches}
             shift={formState.shift}
             initialRange={formState.range}

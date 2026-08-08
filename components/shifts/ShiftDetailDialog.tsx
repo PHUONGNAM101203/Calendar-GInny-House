@@ -49,7 +49,7 @@ export default function ShiftDetailDialog({
       return;
     }
     if (accept) {
-      toast.success("Đã nhận ca thành công");
+      toast.success(pendingSwap === "approvable" ? "Đã duyệt yêu cầu đổi ca" : "Đã nhận ca thành công");
     } else {
       toast.warning("Đã từ chối yêu cầu");
     }
@@ -119,6 +119,11 @@ export default function ShiftDetailDialog({
               {shift.assignee.full_name} đang cần người nhận ca này.
             </p>
           )}
+          {!isMine && pendingSwap === "approvable" && (
+            <p className="text-sm text-muted-foreground">
+              {shift.assignee.full_name} có yêu cầu đổi ca đang chờ bạn duyệt.
+            </p>
+          )}
 
           <DialogFooter>
             {isMine && pendingSwap === "none" && (
@@ -143,6 +148,16 @@ export default function ShiftDetailDialog({
               <Button disabled={pending} onClick={() => handleRespond(true)}>
                 Nhận ca này
               </Button>
+            )}
+            {!isMine && pendingSwap === "approvable" && (
+              <>
+                <Button variant="outline" disabled={pending} onClick={() => handleRespond(false)}>
+                  Từ chối
+                </Button>
+                <Button disabled={pending} onClick={() => handleRespond(true)}>
+                  Duyệt yêu cầu
+                </Button>
+              </>
             )}
           </DialogFooter>
         </DialogContent>

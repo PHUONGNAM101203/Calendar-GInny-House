@@ -45,7 +45,7 @@ export type Shift = {
 };
 
 export type ShiftWithAssignee = Shift & {
-  assignee: Pick<Profile, "id" | "full_name" | "color">;
+  assignee: Pick<Profile, "id" | "full_name" | "color" | "role">;
 };
 
 export type ShiftRequestStatus = "pending" | "approved" | "rejected" | "cancelled";
@@ -83,8 +83,8 @@ export type SwapRequest = {
 };
 
 export type SwapRequestDetailed = SwapRequest & {
-  requester: Pick<Profile, "id" | "full_name">;
-  target: Pick<Profile, "id" | "full_name"> | null;
+  requester: Pick<Profile, "id" | "full_name" | "role">;
+  target: Pick<Profile, "id" | "full_name" | "role"> | null;
   requester_shift: Pick<Shift, "id" | "start_at" | "end_at">;
   target_shift: Pick<Shift, "id" | "start_at" | "end_at"> | null;
 };

@@ -65,7 +65,7 @@ export async function sendPushToProfiles(profileIds: string[], payload: PushPayl
 // *could* approve this kind of request, then keep only the ones the
 // existing predicate actually grants for this specific target role.
 const LEAVE_APPROVER_CANDIDATE_ROLES: Role[] = ["ceo", "coo", "training_director", "hr"];
-const SHIFT_REQUEST_APPROVER_CANDIDATE_ROLES: Role[] = ["ceo", "hr"];
+const SHIFT_REQUEST_APPROVER_CANDIDATE_ROLES: Role[] = ["ceo", "coo", "training_director", "hr"];
 
 export async function sendPushToLeaveApprovers(targetRole: Role, payload: PushPayload): Promise<void> {
   if (!configured) return;

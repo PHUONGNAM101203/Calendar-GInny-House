@@ -23,9 +23,10 @@ import type {
   Role,
   ShiftRequestDetailed,
   ShiftWithAssignee,
-  SwapRequest,
+  SwapRequestDetailed,
 } from "@/types";
 import type { Holiday } from "@/lib/holidays";
+import { canApproveSwapRequestFor } from "@/lib/roles";
 
 // Local widening of LeaveRequestDetailed's profile pick — the shared type
 // only carries id/full_name (see types/index.ts), but the calendar's
@@ -178,7 +179,7 @@ export type ShiftEvent = {
     kind: "shift";
     shift: ShiftWithAssignee;
     isMine: boolean;
-    pendingSwap: "none" | "outgoing" | "incoming" | "open";
+    pendingSwap: "none" | "outgoing" | "incoming" | "open" | "approvable";
     pendingSwapId: string | null;
     colorVar: string;
   };
@@ -536,7 +537,8 @@ export function toLeaveEvents(
 export function toCalendarEvents(
   shifts: ShiftWithAssignee[],
   currentUserId: string,
-  pendingSwaps: SwapRequest[],
+  currentUserRole: Role,
+  pendingSwaps: SwapRequestDetailed[],
   colorFor: (profileId: string) => string
 ): ShiftEvent[] {
   return shifts.map((shift) => {
@@ -549,13 +551,28 @@ export function toCalendarEvents(
       (s) => s.target_shift_id === shift.id && s.status === "pending"
     );
 
+    // A manager who is neither the requester nor the target of a TARGETED
+    // swap can still approve it on their behalf (see canApproveSwapRequestFor)
+    // — that's the "approvable" state, distinct from "open" (unclaimed,
+    // anyone can take) and from "outgoing"/"incoming" (the actual
+    // participant's own view). Never applies to an untargeted/open swap.
+    function approvableFor(swap: SwapRequestDetailed): boolean {
+      return (
+        !isMine &&
+        swap.target_id !== null &&
+        swap.target !== null &&
+        swap.target_id !== currentUserId &&
+        canApproveSwapRequestFor(currentUserRole, swap.requester.role, swap.target.role)
+      );
+    }
+
     let pendingSwap: ShiftEvent["resource"]["pendingSwap"] = "none";
     let pendingSwapId: string | null = null;
     if (outgoing) {
-      pendingSwap = outgoing.target_id ? "outgoing" : "open";
+      pendingSwap = approvableFor(outgoing) ? "approvable" : outgoing.target_id ? "outgoing" : "open";
       pendingSwapId = outgoing.id;
     } else if (incoming) {
-      pendingSwap = "incoming";
+      pendingSwap = approvableFor(incoming) ? "approvable" : "incoming";
       pendingSwapId = incoming.id;
     }
 
