@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Calendar, type SlotInfo, type View } from "react-big-calendar";
 import {
   localizer,
@@ -130,7 +131,23 @@ export default function ShiftCalendar({
   // the jank reported on 2026-08-08. An effect cannot fix this: it runs after
   // paint by definition. Only the server can get the first frame right.
   const { date, view, navigate, isPending } = useCalendarNav(defaultView);
+  const searchParams = useSearchParams();
   const isMobile = useIsMobile();
+
+  // Fallback for the case the server cannot see: a desktop browser resized
+  // below the mobile breakpoint. The user-agent says desktop, so defaultView
+  // came back as "week", but the viewport is now phone-sized.
+  //
+  // `view !== "day"` is what keeps this from re-introducing the jank it
+  // replaced — on a real phone the server already returned day, so this bails
+  // out before navigating. It only fires on an actual mismatch. An explicit
+  // ?view= in the URL still wins, so it never overrides a choice just made.
+  useEffect(() => {
+    if (isMobile && view !== "day" && !searchParams.has("view")) {
+      navigate(date, "day");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile]);
 
   const [showHolidays, setShowHolidays] = useState(true);
   const [hiddenCustomCalendarIds, setHiddenCustomCalendarIds] = useState<Set<string>>(new Set());
