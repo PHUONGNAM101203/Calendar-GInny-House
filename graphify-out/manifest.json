@@ -115,8 +115,8 @@
     "semantic_hash": "f9d8ca010174db8d5387f086db48be9a"
   },
   "app/(app)/manager/page.tsx": {
-    "mtime": 1786161126.3163438,
-    "ast_hash": "76078f4ad2bd5d82ad40993ffc140ad4",
+    "mtime": 1786164718.0823462,
+    "ast_hash": "85d278884466d3862f0e05302da2be76",
     "semantic_hash": ""
   },
   "app/(app)/swaps/page.tsx": {
@@ -150,9 +150,9 @@
     "semantic_hash": "be8c500269e2c714216b8442dd75212f"
   },
   "app/page.tsx": {
-    "mtime": 1786009889.622357,
-    "ast_hash": "f6b3f3c44aeb2d06eec19d4840dcca2a",
-    "semantic_hash": "f6b3f3c44aeb2d06eec19d4840dcca2a"
+    "mtime": 1786164718.0905077,
+    "ast_hash": "11bdf5d061f635ea99d1b42b76dff072",
+    "semantic_hash": ""
   },
   "components.json": {
     "mtime": 1786009889.622448,
@@ -180,9 +180,9 @@
     "semantic_hash": "ad0a5438ec8d44bb20380aa0f137752f"
   },
   "components/attendance/ClockWidget.tsx": {
-    "mtime": 1786026153.1915467,
-    "ast_hash": "9a4352385a3378ea6ed61f7c139f0ed5",
-    "semantic_hash": "9a4352385a3378ea6ed61f7c139f0ed5"
+    "mtime": 1786164783.469073,
+    "ast_hash": "0595c1e1b54adc4c734f7db06f3ba975",
+    "semantic_hash": ""
   },
   "components/auth/LoginForm.tsx": {
     "mtime": 1786014352.499611,
@@ -295,8 +295,8 @@
     "semantic_hash": "75ae58a254176396e726aac73e98a26b"
   },
   "components/layout/PageChrome.tsx": {
-    "mtime": 1786164259.5867255,
-    "ast_hash": "ac44494ebe3f0e7ad1a2e8f6e603d4b4",
+    "mtime": 1786164783.4643002,
+    "ast_hash": "7945f06ba2fb0b6b7c094e74c21d1309",
     "semantic_hash": ""
   },
   "components/layout/PushNotificationToggle.tsx": {
@@ -335,9 +335,9 @@
     "semantic_hash": "4a7f2e5b06d186d66774ff8582f60024"
   },
   "components/manager/ManagerDashboard.tsx": {
-    "mtime": 1786100417.6004605,
-    "ast_hash": "674823e1ebfa1d6cfa03018ed99f6481",
-    "semantic_hash": "674823e1ebfa1d6cfa03018ed99f6481"
+    "mtime": 1786164783.4740992,
+    "ast_hash": "6f57e1525cec363ead5dd3da0033bf77",
+    "semantic_hash": ""
   },
   "components/manager/RequestsOverviewTable.tsx": {
     "mtime": 1786100366.9116137,
@@ -345,9 +345,9 @@
     "semantic_hash": "39c957891204255c25bc596c7cfb7e11"
   },
   "components/manager/StaffAttendanceDetailDialog.tsx": {
-    "mtime": 1786100193.5318902,
-    "ast_hash": "fa9d5deb7573ae98a706bbb951d87dc0",
-    "semantic_hash": "fa9d5deb7573ae98a706bbb951d87dc0"
+    "mtime": 1786164718.0861804,
+    "ast_hash": "64711114e94d8c7f7cae2baced1c3b98",
+    "semantic_hash": ""
   },
   "components/manager/StaffOverviewTable.tsx": {
     "mtime": 1786100217.060701,
@@ -365,9 +365,9 @@
     "semantic_hash": "21dc73e2df9fa27fd1a40cecdd776c39"
   },
   "components/manager/TechnicalDashboard.tsx": {
-    "mtime": 1786100451.362083,
-    "ast_hash": "d70d229b7f11f4270be640cef8cb9e85",
-    "semantic_hash": "d70d229b7f11f4270be640cef8cb9e85"
+    "mtime": 1786164690.5803668,
+    "ast_hash": "88b1d655542efc0083de2fc057778a15",
+    "semantic_hash": ""
   },
   "components/shifts/ShiftDetailDialog.tsx": {
     "mtime": 1786160941.8490288,
