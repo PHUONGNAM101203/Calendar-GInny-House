@@ -58,7 +58,14 @@ export default function RootLayout({
           <body> before React hydrates — a real DOM mismatch, but caused by
           the visitor's own extension, not app code, and cosmetic (React
           doesn't try to "fix" a suppressed attribute either way). */}
-      <body className="flex min-h-full flex-col" suppressHydrationWarning>
+      {/* h-full (not min-h-full): descendants like the calendar rely on an
+          unbroken chain of *definite* heights down to `.rbc-time-header` +
+          `.rbc-time-content` (see ShiftCalendar.tsx's overflow-hidden
+          comment) so the internal time-grid scroll region engages instead
+          of the whole page scrolling — min-height never gives flex/overflow
+          descendants a definite size to constrain against, so that chain
+          silently never had a bounded ancestor to clip into. */}
+      <body className="flex h-full flex-col" suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
           <Toaster />
