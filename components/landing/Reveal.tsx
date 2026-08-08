@@ -11,10 +11,14 @@ export default function Reveal({
   children,
   delay = 0,
   className,
+  depth = false,
 }: {
   children: React.ReactNode;
   delay?: number;
   className?: string;
+  /** Rises toward the reader in 3D instead of sliding up. Needs a `.scene-3d`
+   *  ancestor to supply the perspective, otherwise it degrades to a plain fade. */
+  depth?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -39,7 +43,11 @@ export default function Reveal({
   }, []);
 
   return (
-    <div ref={ref} className={cn("reveal", className)} style={delay ? { transitionDelay: `${delay}ms` } : undefined}>
+    <div
+      ref={ref}
+      className={cn(depth ? "reveal-depth" : "reveal", className)}
+      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
+    >
       {children}
     </div>
   );

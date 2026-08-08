@@ -10,6 +10,14 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        /* The guideline's "Nút chính · CTA đỏ". Deliberately NOT wired to
+           --primary: red is capped at ~10% of any surface, and --primary also
+           paints your own shifts on the calendar, branch CS1, links and active
+           nav — flipping it red would blow that cap on the densest screen in
+           the app and collide with `destructive` semantics. So red stays a
+           marketing-surface CTA and blue keeps leading the product UI.
+           ease-pop is the one place the guideline asks for overshoot. */
+        cta: "bg-destructive text-white shadow-[0_6px_18px_rgb(217_5_19/0.28)] hover:bg-[var(--red-700)] active:bg-[var(--red-800)] active:translate-y-px transition-[background-color,transform] duration-[var(--dur-fast)] ease-[var(--ease-pop)] motion-reduce:transition-none motion-reduce:active:translate-y-0",
         outline:
           "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:
