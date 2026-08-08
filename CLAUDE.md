@@ -273,9 +273,8 @@ default shadcn scaffolding.
 <!-- GSD:skills-start source:skills/ -->
 ## Project Skills
 
-| Skill | Description | Path |
-|-------|-------------|------|
-| hallmark | "Anti-AI-slop design skill for greenfield pages, audits, redesigns, and design extraction from URLs or screenshots. Use when the user asks to build a new app or landing page, wants to redesign something, invokes Hallmark by name, or uses audit/redesign/study." | `.agents/skills/hallmark/SKILL.md` |
+_No project-scoped skills declared._ Skills such as `hallmark` are installed
+per-machine under `~/.claude/skills/` and are not vendored into this repo.
 <!-- GSD:skills-end -->
 
 <!-- GSD:workflow-start source:GSD defaults -->
