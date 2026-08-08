@@ -45,14 +45,14 @@
     "semantic_hash": "b39c616c44afdbbc1bf78ce86c9a0199"
   },
   "actions/shift-requests.ts": {
-    "mtime": 1786099174.7096398,
-    "ast_hash": "d342ff4394eeb313a6996359aff548fa",
-    "semantic_hash": "d342ff4394eeb313a6996359aff548fa"
+    "mtime": 1786161011.2666552,
+    "ast_hash": "46a929935143ac8a7fa65d05761e6d36",
+    "semantic_hash": ""
   },
   "actions/shifts.ts": {
-    "mtime": 1786070547.3401847,
-    "ast_hash": "7214e21a4c21c8d218b7fd7e4c89763f",
-    "semantic_hash": "7214e21a4c21c8d218b7fd7e4c89763f"
+    "mtime": 1786160591.6342876,
+    "ast_hash": "490378386b73a661e0fb22a86991cb71",
+    "semantic_hash": ""
   },
   "actions/staff.ts": {
     "mtime": 1786067616.9421973,
@@ -90,9 +90,9 @@
     "semantic_hash": "a3a8d0493b34ead8d823fa3156599d2c"
   },
   "app/(app)/calendar/page.tsx": {
-    "mtime": 1786073152.1170259,
-    "ast_hash": "5c4d5203c0283b169e0e8c66012a1e23",
-    "semantic_hash": "5c4d5203c0283b169e0e8c66012a1e23"
+    "mtime": 1786160662.1136923,
+    "ast_hash": "d989cbdc95803b68d4a985cc646025e0",
+    "semantic_hash": ""
   },
   "app/(app)/layout.tsx": {
     "mtime": 1786067756.5513546,
@@ -115,9 +115,9 @@
     "semantic_hash": "f9d8ca010174db8d5387f086db48be9a"
   },
   "app/(app)/manager/page.tsx": {
-    "mtime": 1786100510.8746624,
-    "ast_hash": "cf2fb2f80f17a9e97172851c2440ddb5",
-    "semantic_hash": "cf2fb2f80f17a9e97172851c2440ddb5"
+    "mtime": 1786161126.3163438,
+    "ast_hash": "76078f4ad2bd5d82ad40993ffc140ad4",
+    "semantic_hash": ""
   },
   "app/(app)/swaps/page.tsx": {
     "mtime": 1786009889.6212463,
@@ -255,9 +255,9 @@
     "semantic_hash": "24a5bb12cab3e77a2753210a75a9faf6"
   },
   "components/calendar/ShiftCalendar.tsx": {
-    "mtime": 1786075395.400536,
-    "ast_hash": "aaad9aa738f113888362eede3f217433",
-    "semantic_hash": "aaad9aa738f113888362eede3f217433"
+    "mtime": 1786160919.232792,
+    "ast_hash": "76c9ad00139c8cf7c17b1939c1b1b3a9",
+    "semantic_hash": ""
   },
   "components/calendar/ShiftCalendarLoader.tsx": {
     "mtime": 1786073171.7367837,
@@ -370,9 +370,9 @@
     "semantic_hash": "d70d229b7f11f4270be640cef8cb9e85"
   },
   "components/shifts/ShiftDetailDialog.tsx": {
-    "mtime": 1786071034.697829,
-    "ast_hash": "73c00b6017afa040f8609bfddcc83d18",
-    "semantic_hash": "73c00b6017afa040f8609bfddcc83d18"
+    "mtime": 1786160941.8490288,
+    "ast_hash": "0f985ec4076de15d307c1e1387e46e06",
+    "semantic_hash": ""
   },
   "components/shifts/ShiftFormDialog.tsx": {
     "mtime": 1786067875.3077252,
@@ -535,9 +535,9 @@
     "semantic_hash": "e9bb1774af5b504fca79a43c5c68a396"
   },
   "lib/calendar.ts": {
-    "mtime": 1786075318.4376402,
-    "ast_hash": "93e72a4b598c45be1d9051295290b8b9",
-    "semantic_hash": "93e72a4b598c45be1d9051295290b8b9"
+    "mtime": 1786160853.3110464,
+    "ast_hash": "4d2ac2ac490de74b3083f667ccd28cac",
+    "semantic_hash": ""
   },
   "lib/color.ts": {
     "mtime": 1786009889.6306195,
@@ -555,9 +555,9 @@
     "semantic_hash": "4212e305c9a686711b58f8c87818f53b"
   },
   "lib/notifications.ts": {
-    "mtime": 1786009889.6308553,
-    "ast_hash": "de39884c9229f7d0482eafdf399a3c45",
-    "semantic_hash": "de39884c9229f7d0482eafdf399a3c45"
+    "mtime": 1786161060.4290462,
+    "ast_hash": "bcac7591256af7394f9c6eefffc99a28",
+    "semantic_hash": ""
   },
   "lib/pending-approvals.ts": {
     "mtime": 1786071627.7808528,
@@ -565,9 +565,9 @@
     "semantic_hash": "302b424cbe3062e70bd5977f1465f934"
   },
   "lib/push.ts": {
-    "mtime": 1786077777.5960145,
-    "ast_hash": "7953361c86f67371df5e8675a3c082bd",
-    "semantic_hash": "7953361c86f67371df5e8675a3c082bd"
+    "mtime": 1786161020.012485,
+    "ast_hash": "16f3b7e184139a828a4044fbed86dd57",
+    "semantic_hash": ""
   },
   "lib/requests-overview.ts": {
     "mtime": 1786100245.7493446,
@@ -575,9 +575,9 @@
     "semantic_hash": "52e45107e8b14a3bf59b487d2544e179"
   },
   "lib/roles.ts": {
-    "mtime": 1786074216.4851954,
-    "ast_hash": "243d9dff75e5cbbc6570259a767cbc6c",
-    "semantic_hash": "243d9dff75e5cbbc6570259a767cbc6c"
+    "mtime": 1786160515.6198423,
+    "ast_hash": "5f47511d1be715e1b98b993431124bce",
+    "semantic_hash": ""
   },
   "lib/supabase/admin.ts": {
     "mtime": 1786009889.6310995,
@@ -683,11 +683,6 @@
     "mtime": 1786077574.2336144,
     "ast_hash": "30ed9ded42b94a7ef1ef8b6b01de30fa",
     "semantic_hash": "30ed9ded42b94a7ef1ef8b6b01de30fa"
-  },
-  "skills-lock.json": {
-    "mtime": 1786009889.634532,
-    "ast_hash": "e484f8dc68dc06e55b7f09f4925a6150",
-    "semantic_hash": "e484f8dc68dc06e55b7f09f4925a6150"
   },
   "supabase/migrations/0001_init.sql": {
     "mtime": 1786009889.635509,
@@ -910,9 +905,9 @@
     "semantic_hash": "02fc19ad21338c2ab820a70136310db4"
   },
   "types/index.ts": {
-    "mtime": 1786077506.817417,
-    "ast_hash": "e54c87be51500096c216d5301fdb11e3",
-    "semantic_hash": "e54c87be51500096c216d5301fdb11e3"
+    "mtime": 1786160676.5481193,
+    "ast_hash": "f71a2593d9b0f6575baf7a868c61c930",
+    "semantic_hash": ""
   },
   "AGENTS.md": {
     "mtime": 1786009889.618017,
@@ -920,9 +915,9 @@
     "semantic_hash": "9e09241799026ac05be315a2f0b50055"
   },
   "CLAUDE.md": {
-    "mtime": 1786009889.618161,
-    "ast_hash": "61708abbb92724867d1c98b10b08fab3",
-    "semantic_hash": "61708abbb92724867d1c98b10b08fab3"
+    "mtime": 1786159757.171173,
+    "ast_hash": "40288280b6dac6789f9df4ba32f417b5",
+    "semantic_hash": ""
   },
   "DESIGN.md": {
     "mtime": 1786009889.6183233,
@@ -998,5 +993,25 @@
     "mtime": 1786009889.6344478,
     "ast_hash": "1f4a8b4c5435a98755d59911f8753f1d",
     "semantic_hash": "1f4a8b4c5435a98755d59911f8753f1d"
+  },
+  "supabase/migrations/0043_shift_group_scoped_management.sql": {
+    "mtime": 1786160550.576145,
+    "ast_hash": "2a02e1a2a4bf7e19b387038b7f9c7a89",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/0044_shift_and_swap_approval_scoping.sql": {
+    "mtime": 1786161160.5207884,
+    "ast_hash": "ac797f28617839358f8df085a0f3756c",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/0045_fix_request_shift_swap_branch_check.sql": {
+    "mtime": 1786162787.2023156,
+    "ast_hash": "37b17f4352600a920f5f36de5995d565",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/0046_auto_checkout_2h_grace_period.sql": {
+    "mtime": 1786163704.120958,
+    "ast_hash": "0307b980ac6a6173f7db4edeec44e95d",
+    "semantic_hash": ""
   }
 }
