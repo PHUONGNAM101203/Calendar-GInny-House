@@ -61,7 +61,7 @@ function Section({
       <div className="mb-3 flex items-baseline justify-between">
         <h2 className="font-heading text-lg font-semibold tracking-tight">{title}</h2>
         {count !== undefined && (
-          <span className="font-mono text-xs text-muted-foreground">{count}</span>
+          <span className="text-xs tabular-nums text-muted-foreground">{count}</span>
         )}
       </div>
       {children}

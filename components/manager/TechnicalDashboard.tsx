@@ -37,7 +37,7 @@ function ChartCardHeader({ title, total }: { title: string; total?: string }) {
     <div className="mb-3 flex items-baseline justify-between gap-3">
       <h3 className="font-heading text-base font-semibold">{title}</h3>
       {total && (
-        <span className="font-mono text-sm font-medium tabular-nums text-muted-foreground">{total}</span>
+        <span className="text-sm font-medium tabular-nums text-muted-foreground">{total}</span>
       )}
     </div>
   );

@@ -91,7 +91,7 @@ export default function ClockWidget({ open, shifts }: { open: Attendance | null;
           với badge và băng điều hành */}
       <span className={`absolute inset-x-0 top-0 h-1 ${open ? "bg-success" : "bg-border"}`} />
       <CardContent className="flex flex-col items-center gap-5 py-8 text-center">
-        <p className="flex items-center gap-2 font-mono text-[11px] font-medium tracking-[0.16em] text-muted-foreground uppercase">
+        <p className="flex items-center gap-2 text-[11px] font-extrabold tracking-[0.16em] text-muted-foreground uppercase">
           {open && (
             <span className="relative flex size-2">
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-60 motion-reduce:animate-none" />

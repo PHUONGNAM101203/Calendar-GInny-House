@@ -73,7 +73,7 @@ function HeroBoard() {
     <div className="relative mx-auto w-full max-w-md lg:max-w-none">
       {/* Thẻ chấm công nhỏ phía sau — lớp thứ hai tạo chiều sâu thật thay vì blur trang trí */}
       <div className="absolute -top-12 right-10 z-0 hidden rotate-2 rounded-xl border bg-card p-3 shadow-lg sm:block">
-        <p className="font-mono text-[10px] tracking-wider text-muted-foreground uppercase">
+        <p className="text-[10px] font-extrabold tracking-wider text-muted-foreground uppercase">
           Chấm công
         </p>
         <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold">
@@ -85,7 +85,7 @@ function HeroBoard() {
       <div className="relative z-10 -rotate-1 rounded-2xl border bg-card p-4 shadow-2xl shadow-primary/15">
         <div className="mb-3 flex items-center justify-between">
           <p className="font-heading text-sm font-semibold">Tuần này · CS1</p>
-          <p className="font-mono text-[10px] tracking-wider text-muted-foreground uppercase">
+          <p className="text-[10px] font-extrabold tracking-wider text-muted-foreground uppercase">
             Th 8 · 2026
           </p>
         </div>
@@ -100,7 +100,7 @@ function HeroBoard() {
             <p
               key={d}
               className={cn(
-                "pb-1 text-center font-mono text-[10px] font-medium",
+                "pb-1 text-center text-[10px] font-medium",
                 i === 2 ? "text-primary" : "text-muted-foreground"
               )}
             >
@@ -170,7 +170,7 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 pt-10 pb-20 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:gap-8 lg:pt-16">
         <div className="animate-in fade-in slide-in-from-bottom-4 fill-mode-both duration-700 motion-reduce:animate-none">
-          <p className="font-mono text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
+          <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
             Nội bộ Ginny House · 3 cơ sở
           </p>
           <h1 className="mt-4 font-heading text-4xl leading-[1.08] font-semibold tracking-tight text-balance sm:text-5xl lg:text-[3.4rem]">
@@ -206,7 +206,7 @@ export default function LandingPage() {
       <section className="border-y bg-muted/40 [content-visibility:auto] [contain-intrinsic-size:auto_620px]">
         <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:py-20">
           <Reveal>
-            <p className="font-mono text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
+            <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
               Tính năng
             </p>
             <h2 className="mt-3 max-w-lg font-heading text-3xl font-semibold tracking-tight text-balance">
@@ -219,7 +219,7 @@ export default function LandingPage() {
               <li key={m.time} className="relative">
                 <Reveal delay={i * 90}>
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-sm font-semibold text-primary tabular-nums">
+                    <span className="text-sm font-semibold text-primary tabular-nums">
                       {m.time}
                     </span>
                     <span className="h-px flex-1 bg-border" />
@@ -251,7 +251,7 @@ export default function LandingPage() {
                 <div className="overflow-hidden rounded-xl border bg-card transition-transform duration-300 hover:-translate-y-1 motion-reduce:transition-none">
                   <span className={cn("block h-1.5", b.bar)} />
                   <div className="p-4">
-                    <p className="font-mono text-[11px] tracking-wider text-muted-foreground uppercase">
+                    <p className="text-[11px] font-extrabold tracking-wider text-muted-foreground uppercase">
                       Cơ sở
                     </p>
                     <p className="mt-1 font-heading text-2xl font-semibold">{b.code}</p>
@@ -298,7 +298,7 @@ export default function LandingPage() {
               Ginny House — ứng dụng vận hành nội bộ
             </span>
           </div>
-          <p className="font-mono text-[11px] tracking-wider text-muted-foreground uppercase">
+          <p className="text-[11px] font-extrabold tracking-wider text-muted-foreground uppercase">
             Asia/Ho_Chi_Minh · GMT+7
           </p>
         </div>

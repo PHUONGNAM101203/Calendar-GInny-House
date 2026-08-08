@@ -47,7 +47,7 @@ function BandStat({
 }) {
   return (
     <div className="min-w-0">
-      <p className="flex items-center gap-1.5 font-mono text-[10px] font-medium tracking-wider text-primary-foreground/60 uppercase dark:text-muted-foreground">
+      <p className="flex items-center gap-1.5 text-[10px] font-extrabold tracking-wider text-primary-foreground/60 uppercase dark:text-muted-foreground">
         {live && value > 0 && (
           <span className="relative flex size-1.5">
             <span className="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-60 motion-reduce:animate-none" />
@@ -183,7 +183,7 @@ export default function ManagerDashboard({
         />
         <div className="relative grid gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(180px,1fr)_auto] lg:items-end">
           <div>
-            <p className="font-mono text-[10px] font-medium tracking-[0.16em] text-primary-foreground/60 uppercase dark:text-muted-foreground">
+            <p className="text-[10px] font-extrabold tracking-[0.16em] text-primary-foreground/60 uppercase dark:text-muted-foreground">
               Bảng điều hành
             </p>
             <p
@@ -215,7 +215,7 @@ export default function ManagerDashboard({
           <CardContent>
             <div className="mb-1 flex items-baseline justify-between">
               <h3 className="font-heading text-base font-semibold">Giờ làm 7 ngày qua</h3>
-              <p className="font-mono text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Tổng <span className="font-semibold text-foreground">{totalWeekHours} giờ</span>
               </p>
             </div>

@@ -140,9 +140,9 @@
     "semantic_hash": "5ced64a115d67ab848e763754b3f9ba8"
   },
   "app/layout.tsx": {
-    "mtime": 1786077619.0214581,
-    "ast_hash": "4de04468274ddd077c79dc9a65761dac",
-    "semantic_hash": "4de04468274ddd077c79dc9a65761dac"
+    "mtime": 1786164122.0895746,
+    "ast_hash": "e1a1c8705d8491e632f06919458f23d6",
+    "semantic_hash": ""
   },
   "app/not-found.tsx": {
     "mtime": 1786009889.6222465,
@@ -295,9 +295,9 @@
     "semantic_hash": "75ae58a254176396e726aac73e98a26b"
   },
   "components/layout/PageChrome.tsx": {
-    "mtime": 1786009889.6254342,
-    "ast_hash": "99cb346eccd716fe5070f4e462365376",
-    "semantic_hash": "99cb346eccd716fe5070f4e462365376"
+    "mtime": 1786164259.5867255,
+    "ast_hash": "ac44494ebe3f0e7ad1a2e8f6e603d4b4",
+    "semantic_hash": ""
   },
   "components/layout/PushNotificationToggle.tsx": {
     "mtime": 1786077968.9261444,
@@ -415,9 +415,9 @@
     "semantic_hash": "b48244919ef33575fecf5509063b7310"
   },
   "components/ui/badge.tsx": {
-    "mtime": 1786009889.6276019,
-    "ast_hash": "1084dfcaf638094c89710f9b8ff489dc",
-    "semantic_hash": "1084dfcaf638094c89710f9b8ff489dc"
+    "mtime": 1786164356.7209585,
+    "ast_hash": "f402737d0b10b4ea3af51262c6449edc",
+    "semantic_hash": ""
   },
   "components/ui/button.tsx": {
     "mtime": 1786009889.6276867,

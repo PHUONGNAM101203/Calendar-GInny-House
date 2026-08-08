@@ -112,7 +112,7 @@ export default function StaffAttendanceDetailDialog({
                   <p className="font-medium capitalize">
                     {format(new Date(`${entry.date}T00:00:00`), "EEEE dd/MM", { locale: vi })}
                   </p>
-                  <p className="font-mono text-xs text-muted-foreground">{formatMinutes(entry.totalMinutes)}</p>
+                  <p className="text-xs tabular-nums text-muted-foreground">{formatMinutes(entry.totalMinutes)}</p>
                 </div>
                 <div className="mt-1 space-y-0.5">
                   {entry.sessions.map((s, i) => (
@@ -139,7 +139,7 @@ export default function StaffAttendanceDetailDialog({
                   className="flex w-full items-center justify-between rounded-md px-2.5 py-2 text-sm transition-colors hover:bg-accent"
                 >
                   <span>Tháng {entry.month}</span>
-                  <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                  <span className="text-xs tabular-nums text-muted-foreground">
                     {entry.totalMinutes > 0 ? formatMinutes(entry.totalMinutes) : "—"}
                   </span>
                 </button>
