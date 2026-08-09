@@ -27,6 +27,7 @@ import type {
 } from "@/types";
 import type { Holiday } from "@/lib/holidays";
 import { canApproveSwapRequestFor } from "@/lib/roles";
+import type { GroupPermissions } from "@/lib/permissions";
 
 // Local widening of LeaveRequestDetailed's profile pick — the shared type
 // only carries id/full_name (see types/index.ts), but the calendar's
@@ -538,6 +539,7 @@ export function toCalendarEvents(
   shifts: ShiftWithAssignee[],
   currentUserId: string,
   currentUserRole: Role,
+  permissions: GroupPermissions,
   pendingSwaps: SwapRequestDetailed[],
   colorFor: (profileId: string) => string
 ): ShiftEvent[] {
@@ -562,7 +564,7 @@ export function toCalendarEvents(
         swap.target_id !== null &&
         swap.target !== null &&
         swap.target_id !== currentUserId &&
-        canApproveSwapRequestFor(currentUserRole, swap.requester.role, swap.target.role)
+        canApproveSwapRequestFor(currentUserRole, swap.requester.role, swap.target.role, permissions)
       );
     }
 

@@ -6,6 +6,7 @@
 import webpush from "web-push";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { canApproveLeaveFor, canApproveShiftRequestFor } from "@/lib/roles";
+import { getGroupPermissions } from "@/lib/permissions";
 import type { Role } from "@/types";
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
@@ -69,17 +70,19 @@ const SHIFT_REQUEST_APPROVER_CANDIDATE_ROLES: Role[] = ["ceo", "coo", "training_
 
 export async function sendPushToLeaveApprovers(targetRole: Role, payload: PushPayload): Promise<void> {
   if (!configured) return;
+  const permissions = await getGroupPermissions();
   const { data } = await supabaseAdmin.from("profiles").select("id, role").in("role", LEAVE_APPROVER_CANDIDATE_ROLES);
-  const ids = (data ?? []).filter((p) => canApproveLeaveFor(p.role, targetRole)).map((p) => p.id);
+  const ids = (data ?? []).filter((p) => canApproveLeaveFor(p.role, targetRole, permissions)).map((p) => p.id);
   await sendPushToProfiles(ids, payload);
 }
 
 export async function sendPushToShiftRequestApprovers(targetRole: Role, payload: PushPayload): Promise<void> {
   if (!configured) return;
+  const permissions = await getGroupPermissions();
   const { data } = await supabaseAdmin
     .from("profiles")
     .select("id, role")
     .in("role", SHIFT_REQUEST_APPROVER_CANDIDATE_ROLES);
-  const ids = (data ?? []).filter((p) => canApproveShiftRequestFor(p.role, targetRole)).map((p) => p.id);
+  const ids = (data ?? []).filter((p) => canApproveShiftRequestFor(p.role, targetRole, permissions)).map((p) => p.id);
   await sendPushToProfiles(ids, payload);
 }
