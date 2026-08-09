@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { requireProfile } from "@/lib/auth";
+import { requireProfile, requireManager } from "@/lib/auth";
 import { isShiftRequestApprover } from "@/lib/roles";
 import { shiftRequestSchema } from "@/lib/validations/shift-request";
 import { sendPushToShiftRequestApprovers, sendPushToProfile } from "@/lib/push";
@@ -136,5 +136,26 @@ export async function respondToShiftRequestAction(
       })
     );
   }
+  return { ok: true, data: undefined };
+}
+
+// Manager-side hard delete — distinct from cancelShiftRequestAction above,
+// which is the requester's own self-service cancel. Only works while
+// pending; RLS policy shift_requests_delete_manager (0050) is the real
+// authorization boundary. count: "exact" so a denied delete surfaces as a
+// real error instead of a false "Đã xoá" toast.
+export async function deleteShiftRequestAction(id: string): Promise<ActionResult> {
+  await requireManager();
+  const supabase = await createClient();
+  const { error, count } = await supabase
+    .from("shift_requests")
+    .delete({ count: "exact" })
+    .eq("id", id)
+    .eq("status", "pending");
+
+  if (error) return { ok: false, error: "Không thể xoá đăng ký ca làm" };
+  if (!count) return { ok: false, error: "Bạn không có quyền xoá đơn này" };
+
+  revalidateShiftRequestPaths();
   return { ok: true, data: undefined };
 }

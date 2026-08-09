@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { requireProfile } from "@/lib/auth";
+import { requireProfile, requireManager } from "@/lib/auth";
 import { swapRequestSchema } from "@/lib/validations/swap";
 import { sendPushToProfile } from "@/lib/push";
 import type { ActionResult } from "@/types";
@@ -114,6 +114,30 @@ export async function cancelSwapRequestAction(requestId: string): Promise<Action
   });
 
   if (error) return { ok: false, error: mapSwapError(error.message) };
+
+  revalidateSwapPaths();
+  return { ok: true, data: undefined };
+}
+
+// Manager-side hard delete — distinct from cancelSwapRequestAction above,
+// which is the requester's own self-service cancel. Only works while
+// pending and only for requests with a specific target_id ("open" requests
+// stay peer-claim-only, matching canApproveSwapRequestFor's own
+// restriction). RLS policy shift_swap_requests_delete_manager (0050) is the
+// real authorization boundary. count: "exact" so a denied delete surfaces
+// as a real error instead of a false "Đã xoá" toast.
+export async function deleteSwapRequestAction(requestId: string): Promise<ActionResult> {
+  await requireManager();
+  const supabase = await createClient();
+  const { error, count } = await supabase
+    .from("shift_swap_requests")
+    .delete({ count: "exact" })
+    .eq("id", requestId)
+    .eq("status", "pending")
+    .not("target_id", "is", null);
+
+  if (error) return { ok: false, error: "Không thể xoá yêu cầu đổi ca" };
+  if (!count) return { ok: false, error: "Bạn không có quyền xoá đơn này" };
 
   revalidateSwapPaths();
   return { ok: true, data: undefined };

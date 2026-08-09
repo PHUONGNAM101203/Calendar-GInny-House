@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { requireProfile } from "@/lib/auth";
+import { requireProfile, requireManager } from "@/lib/auth";
 import { leaveRequestSchema } from "@/lib/validations/leave";
 import { sendPushToLeaveApprovers, sendPushToProfile } from "@/lib/push";
 import type { ActionResult } from "@/types";
@@ -104,6 +104,29 @@ export async function cancelLeaveRequestAction(requestId: string): Promise<Actio
   const { error } = await supabase.rpc("cancel_leave_request", { p_id: requestId });
 
   if (error) return { ok: false, error: mapLeaveError(error.message) };
+
+  revalidateLeavePaths();
+  return { ok: true, data: undefined };
+}
+
+// Manager-side hard delete — distinct from cancelLeaveRequestAction above,
+// which is the requester's own self-service cancel. This removes the row
+// entirely and only works while pending; the RLS policy
+// leave_requests_delete_manager (0050) is the real authorization boundary,
+// this is just the thin wrapper. count: "exact" so a denied delete (RLS
+// silently affecting 0 rows) surfaces as a real error instead of a false
+// "Đã xoá" toast.
+export async function deleteLeaveRequestAction(requestId: string): Promise<ActionResult> {
+  await requireManager();
+  const supabase = await createClient();
+  const { error, count } = await supabase
+    .from("leave_requests")
+    .delete({ count: "exact" })
+    .eq("id", requestId)
+    .eq("status", "pending");
+
+  if (error) return { ok: false, error: "Không thể xoá đơn nghỉ phép" };
+  if (!count) return { ok: false, error: "Bạn không có quyền xoá đơn này" };
 
   revalidateLeavePaths();
   return { ok: true, data: undefined };
