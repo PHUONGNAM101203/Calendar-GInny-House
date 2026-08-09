@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 import { isLeaveApprover, canApproveLeaveFor } from "@/lib/roles";
-import { getGroupPermissions } from "@/lib/permissions";
+import { getGroupPermissions } from "@/lib/permissions-server";
 import { PageHeader, SectionHeading, EmptyState } from "@/components/layout/PageChrome";
 import LeaveRequestDialog from "@/components/leave/LeaveRequestDialog";
 import LeaveRequestCard from "@/components/leave/LeaveRequestCard";

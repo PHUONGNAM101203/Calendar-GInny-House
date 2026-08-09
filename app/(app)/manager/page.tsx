@@ -11,7 +11,8 @@ import {
   canApproveSwapRequestFor,
   isManagerRole,
 } from "@/lib/roles";
-import { getGroupPermissions, getGrantedTargetRolesUnion, getGrantedTargetRoles } from "@/lib/permissions";
+import { getGrantedTargetRolesUnion, getGrantedTargetRoles } from "@/lib/permissions";
+import { getGroupPermissions } from "@/lib/permissions-server";
 import { Card, CardContent } from "@/components/ui/card";
 import ManagerDashboard from "@/components/manager/ManagerDashboard";
 import TechnicalDashboard from "@/components/manager/TechnicalDashboard";

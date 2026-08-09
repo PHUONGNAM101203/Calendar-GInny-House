@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireManager } from "@/lib/auth";
 import { shiftSchema } from "@/lib/validations/shift";
 import { isManagerRole, canCreateShiftFor } from "@/lib/roles";
-import { getGroupPermissions } from "@/lib/permissions";
+import { getGroupPermissions } from "@/lib/permissions-server";
 import type { ActionResult, Role } from "@/types";
 
 // Defense in depth — ShiftFormDialog's picker already narrows assignee

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 import { canManageAttendanceFor } from "@/lib/roles";
-import { getGroupPermissions } from "@/lib/permissions";
+import { getGroupPermissions } from "@/lib/permissions-server";
 import type { ActionResult, Attendance, Role } from "@/types";
 
 function mapAttendanceError(message: string): string {

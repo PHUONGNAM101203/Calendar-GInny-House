@@ -1,4 +1,13 @@
-import { supabaseAdmin } from "@/lib/supabase/admin";
+// This file must stay import-free of anything server-only (supabaseAdmin,
+// next/headers, etc.) — lib/roles.ts imports from it, and lib/roles.ts is
+// imported by client components (ShiftCalendar.tsx and friends). A
+// server-only import here gets bundled into the browser and crashes on
+// load the moment it touches an env var that's never sent to the client
+// (this exact bug shipped once — service-role key construction ran in the
+// browser, threw "supabaseKey is required," and blanked the whole app).
+// The server-only counterpart (getGroupPermissions) lives in
+// lib/permissions-server.ts instead, imported only from Server Components/
+// Actions/server-only libs — never from here, never from lib/roles.ts.
 import type { Role } from "@/types";
 
 export type GroupPermissionType =
@@ -42,7 +51,7 @@ export const GROUP_TARGET_ROLES = [
   "hr",
 ] as const satisfies readonly Role[];
 
-function permKey(managerRole: Role, targetRole: Role, permission: GroupPermissionType): string {
+export function permKey(managerRole: Role, targetRole: Role, permission: GroupPermissionType): string {
   return `${managerRole}:${targetRole}:${permission}`;
 }
 
@@ -50,19 +59,6 @@ function permKey(managerRole: Role, targetRole: Role, permission: GroupPermissio
 // means not granted. Fetched once per request (table has a few dozen rows;
 // no caching layer needed, never stale).
 export type GroupPermissions = ReadonlySet<string>;
-
-// Uses supabaseAdmin (service role, bypasses RLS) because group_permissions
-// is readable only by `technical` (see 0047's RLS policy), but every
-// authenticated request — regardless of the viewer's own role — needs to
-// resolve whether IT has a given permission. Same pattern lib/push.ts
-// already uses for cross-account lookups; never imported into a client
-// component.
-export async function getGroupPermissions(): Promise<GroupPermissions> {
-  const { data } = await supabaseAdmin.from("group_permissions").select("manager_role, target_role, permission");
-  return new Set(
-    (data ?? []).map((r) => permKey(r.manager_role as Role, r.target_role as Role, r.permission as GroupPermissionType))
-  );
-}
 
 export function hasGroupPermission(
   permissions: GroupPermissions,

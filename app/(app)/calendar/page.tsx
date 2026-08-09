@@ -9,7 +9,7 @@ import {
   type AttendanceWithProfileRole,
 } from "@/lib/calendar";
 import { canCreateShiftDirectly, canSeeAllCalendars } from "@/lib/roles";
-import { getGroupPermissions } from "@/lib/permissions";
+import { getGroupPermissions } from "@/lib/permissions-server";
 import { getBranches } from "@/lib/branches";
 import ShiftCalendarLoader from "@/components/calendar/ShiftCalendarLoader";
 import type {

@@ -2,7 +2,7 @@ import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { isManagerRole } from "@/lib/roles";
 import { buildNotifications } from "@/lib/notifications";
-import { getGroupPermissions } from "@/lib/permissions";
+import { getGroupPermissions } from "@/lib/permissions-server";
 import AppHeader from "@/components/layout/AppHeader";
 import type {
   AttendanceCorrectionDetailed,

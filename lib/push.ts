@@ -6,7 +6,7 @@
 import webpush from "web-push";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { canApproveLeaveFor, canApproveShiftRequestFor } from "@/lib/roles";
-import { getGroupPermissions } from "@/lib/permissions";
+import { getGroupPermissions } from "@/lib/permissions-server";
 import type { Role } from "@/types";
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
