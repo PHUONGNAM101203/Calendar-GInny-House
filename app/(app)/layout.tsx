@@ -2,6 +2,7 @@ import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { isManagerRole } from "@/lib/roles";
 import { buildNotifications } from "@/lib/notifications";
+import { getGroupPermissions } from "@/lib/permissions";
 import AppHeader from "@/components/layout/AppHeader";
 import type {
   AttendanceCorrectionDetailed,
@@ -45,12 +46,14 @@ export default async function AppShellLayout({
         .limit(15),
     ]);
 
+  const permissions = await getGroupPermissions();
   const notifications = buildNotifications({
     profile,
     swaps: (swaps as SwapRequestDetailed[]) ?? [],
     leaves: (leaves as LeaveRequestDetailed[]) ?? [],
     shiftRequests: (shiftRequests as ShiftRequestDetailed[]) ?? [],
     attendanceCorrections: (attendanceCorrections as AttendanceCorrectionDetailed[]) ?? [],
+    permissions,
   });
 
   return (

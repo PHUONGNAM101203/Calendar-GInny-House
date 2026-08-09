@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 import { isLeaveApprover, canApproveLeaveFor } from "@/lib/roles";
+import { getGroupPermissions } from "@/lib/permissions";
 import { PageHeader, SectionHeading, EmptyState } from "@/components/layout/PageChrome";
 import LeaveRequestDialog from "@/components/leave/LeaveRequestDialog";
 import LeaveRequestCard from "@/components/leave/LeaveRequestCard";
@@ -10,6 +11,7 @@ export default async function LeavePage() {
   const profile = await requireProfile();
   const isApprover = isLeaveApprover(profile.role);
   const supabase = await createClient();
+  const permissions = await getGroupPermissions();
 
   // RLS scopes this per can_view_profile() (0013): own rows always, plus
   // whatever the viewer's role can see — everyone for ceo/technical, just
@@ -21,18 +23,24 @@ export default async function LeavePage() {
 
   const requests = (data as (LeaveRequestDetailed & { profile: Pick<Profile, "id" | "full_name" | "role"> })[]) ?? [];
   const canRespondTo = (r: (typeof requests)[number]) =>
-    isApprover && canApproveLeaveFor(profile.role, r.profile.role);
+    isApprover && canApproveLeaveFor(profile.role, r.profile.role, permissions);
   // RLS visibility (can_view_profile_calendar) is now a superset of who an
   // approver can actually act on (can_view_profile, via canApproveLeaveFor)
   // — e.g. training_director can see but not approve teaching_assistant's
   // leave. Filter these two sections down to rows the viewer can act on,
   // so nothing shows up under "Chờ bạn duyệt" with no working buttons.
   const pending = requests.filter(
-    (r) => r.status === "pending" && r.profile_id !== profile.id && (!isApprover || canApproveLeaveFor(profile.role, r.profile.role))
+    (r) =>
+      r.status === "pending" &&
+      r.profile_id !== profile.id &&
+      (!isApprover || canApproveLeaveFor(profile.role, r.profile.role, permissions))
   );
   const mine = requests.filter((r) => r.profile_id === profile.id);
   const history = requests.filter(
-    (r) => r.status !== "pending" && r.profile_id !== profile.id && (!isApprover || canApproveLeaveFor(profile.role, r.profile.role))
+    (r) =>
+      r.status !== "pending" &&
+      r.profile_id !== profile.id &&
+      (!isApprover || canApproveLeaveFor(profile.role, r.profile.role, permissions))
   );
 
   return (

@@ -9,6 +9,7 @@ import {
   type AttendanceWithProfileRole,
 } from "@/lib/calendar";
 import { canCreateShiftDirectly, canSeeAllCalendars } from "@/lib/roles";
+import { getGroupPermissions } from "@/lib/permissions";
 import { getBranches } from "@/lib/branches";
 import ShiftCalendarLoader from "@/components/calendar/ShiftCalendarLoader";
 import type {
@@ -69,6 +70,7 @@ export default async function CalendarPage({
   const { start, end } = getVisibleRange(date, view);
 
   const supabase = await createClient();
+  const permissions = await getGroupPermissions();
   const canFollowAll = canSeeAllCalendars(profile.role);
 
   const [
@@ -184,6 +186,7 @@ export default async function CalendarPage({
       followedIds={followRows.filter((f) => f.followed).map((f) => f.followee_id)}
       followColors={followColors}
       branchColors={branchColors}
+      permissions={permissions}
     />
   );
 }

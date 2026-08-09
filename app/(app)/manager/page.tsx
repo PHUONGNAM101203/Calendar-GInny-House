@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { requireManager } from "@/lib/auth";
 import { getBranches } from "@/lib/branches";
 import {
-  getViewableGroupRoles,
   MANAGER_GROUP_META,
   isLeaveApprover,
   canApproveLeaveFor,
@@ -12,6 +11,7 @@ import {
   canApproveSwapRequestFor,
   isManagerRole,
 } from "@/lib/roles";
+import { getGroupPermissions, getGrantedTargetRolesUnion, getGrantedTargetRoles } from "@/lib/permissions";
 import { Card, CardContent } from "@/components/ui/card";
 import ManagerDashboard from "@/components/manager/ManagerDashboard";
 import TechnicalDashboard from "@/components/manager/TechnicalDashboard";
@@ -77,6 +77,7 @@ export default async function ManagerPage({
 }) {
   const manager = await requireManager();
   const supabase = await createClient();
+  const permissions = await getGroupPermissions();
   const params = await searchParams;
   const todayStart = startOfDay(new Date()).toISOString();
   const todayEnd = endOfDay(new Date()).toISOString();
@@ -158,35 +159,44 @@ export default async function ManagerPage({
 
   const isTechnical = manager.role === "technical";
 
-  // null => org-wide (ceo, technical); otherwise the exact set of roles
-  // this viewer's dashboard is scoped to. Single source of truth for "my
-  // group" on this page — see
-  // docs/superpowers/specs/2026-08-06-manager-dashboard-group-scope-design.md §4.2
-  // for why the page re-filters on top of RLS instead of trusting RLS alone.
-  const groupRoles = getViewableGroupRoles(manager.role);
-  const groupMeta = groupRoles ? MANAGER_GROUP_META[manager.role] : undefined;
+  // Each dashboard section is scoped by ITS OWN permission type now that
+  // group grants are independent per (manager, target, permission) — see
+  // docs/superpowers/specs/2026-08-09-dynamic-group-permissions-design.md.
+  // There's no single "my group" set anymore; the staff roster uses the
+  // union of all 6 types (broadest "who do I manage in any capacity"),
+  // while each request-list section uses the specific permission type
+  // that actually governs it.
+  const isGroupManager = manager.role === "coo" || manager.role === "training_director" || manager.role === "hr";
+  const groupMeta = isGroupManager ? MANAGER_GROUP_META[manager.role] : undefined;
 
-  const scopedStaff = groupRoles ? staffList.filter((s) => groupRoles.has(s.role)) : staffList;
+  const rosterRoles = isGroupManager ? getGrantedTargetRolesUnion(permissions, manager.role) : null;
+  const calendarRoles = isGroupManager ? getGrantedTargetRoles(permissions, manager.role, "view_calendar") : null;
+  const leaveRoles = isGroupManager ? getGrantedTargetRoles(permissions, manager.role, "approve_leave") : null;
+  const shiftRequestRoles = isGroupManager
+    ? getGrantedTargetRoles(permissions, manager.role, "approve_shift_request")
+    : null;
+
+  const scopedStaff = rosterRoles ? staffList.filter((s) => rosterRoles.has(s.role)) : staffList;
   const scopedStaffIds = new Set(scopedStaff.map((s) => s.id));
-  const scopedClockedIn = groupRoles
-    ? clockedInList.filter((a) => groupRoles.has(a.profile.role))
+  const scopedClockedIn = calendarRoles
+    ? clockedInList.filter((a) => calendarRoles.has(a.profile.role))
     : clockedInList;
-  const scopedAttendance = groupRoles
+  const scopedAttendance = calendarRoles
     ? attendanceList.filter((a) => scopedStaffIds.has(a.profile_id))
     : attendanceList;
-  const scopedLeaves = groupRoles ? leavesList.filter((l) => groupRoles.has(l.profile.role)) : leavesList;
-  const scopedSwaps = groupRoles
+  const scopedLeaves = leaveRoles ? leavesList.filter((l) => leaveRoles.has(l.profile.role)) : leavesList;
+  const scopedSwaps = rosterRoles
     ? swapsList.filter(
         (s) => scopedStaffIds.has(s.requester_id) || (!!s.target_id && scopedStaffIds.has(s.target_id))
       )
     : swapsList;
-  const scopedShiftRequests = groupRoles
-    ? shiftRequestsList.filter((r) => groupRoles.has(r.profile.role))
+  const scopedShiftRequests = shiftRequestRoles
+    ? shiftRequestsList.filter((r) => shiftRequestRoles.has(r.profile.role))
     : shiftRequestsList;
-  const scopedAttendanceCorrections = groupRoles
-    ? attendanceCorrectionsList.filter((r) => groupRoles.has(r.profile.role))
+  const scopedAttendanceCorrections = leaveRoles
+    ? attendanceCorrectionsList.filter((r) => leaveRoles.has(r.profile.role))
     : attendanceCorrectionsList;
-  const scopedShiftsToday = groupRoles
+  const scopedShiftsToday = rosterRoles
     ? shiftsTodayList.filter((s) => scopedStaffIds.has(s.assignee_id)).length
     : shiftsTodayList.length;
 
@@ -211,8 +221,9 @@ export default async function ManagerPage({
           swapRequests={swapsList}
           shiftRequests={shiftRequestsList}
           attendanceCorrections={attendanceCorrectionsList}
+          groupPermissions={permissions}
         />
-      ) : groupRoles ? (
+      ) : isGroupManager ? (
         <ManagerDashboard
           totalStaff={scopedStaff.length}
           unassignedStaff={scopedStaff.filter((s) => s.branch_ids.length === 0).length}
@@ -276,7 +287,7 @@ export default async function ManagerPage({
                 <ShiftRequestCard
                   key={r.id}
                   request={r}
-                  canRespond={r.status === "pending" && canApproveShiftRequestFor(manager.role, r.profile.role)}
+                  canRespond={r.status === "pending" && canApproveShiftRequestFor(manager.role, r.profile.role, permissions)}
                   canCancel={r.status === "pending"}
                   showName
                 />
@@ -299,7 +310,7 @@ export default async function ManagerPage({
                   r.status === "pending" &&
                   r.target_id !== null &&
                   r.target !== null &&
-                  canApproveSwapRequestFor(manager.role, r.requester.role, r.target.role)
+                  canApproveSwapRequestFor(manager.role, r.requester.role, r.target.role, permissions)
                 }
                 canCancel={r.status === "pending"}
               />
@@ -320,7 +331,7 @@ export default async function ManagerPage({
                 canRespond={
                   r.status === "pending" &&
                   isLeaveApprover(manager.role) &&
-                  canApproveLeaveFor(manager.role, r.profile.role)
+                  canApproveLeaveFor(manager.role, r.profile.role, permissions)
                 }
                 canCancel={r.status === "pending"}
                 showName
@@ -342,7 +353,7 @@ export default async function ManagerPage({
                 canRespond={
                   r.status === "pending" &&
                   isLeaveApprover(manager.role) &&
-                  canApproveLeaveFor(manager.role, r.profile.role)
+                  canApproveLeaveFor(manager.role, r.profile.role, permissions)
                 }
                 canCancel={r.status === "pending"}
                 showName
