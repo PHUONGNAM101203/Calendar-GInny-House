@@ -5,7 +5,8 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { canAccessManagerPage } from "@/lib/roles";
 import type { Profile, Role } from "@/types";
 
-const PROFILE_COLUMNS = "id, full_name, phone, role, color, profile_branches(branch_id)";
+const PROFILE_COLUMNS =
+  "id, full_name, phone, role, color, notifications_seen_at, profile_branches(branch_id)";
 
 type ProfileRow = {
   id: string;
@@ -13,6 +14,7 @@ type ProfileRow = {
   phone: string | null;
   role: Role;
   color: string | null;
+  notifications_seen_at: string | null;
   profile_branches: { branch_id: string }[] | null;
 };
 
@@ -23,6 +25,7 @@ function toProfile(row: ProfileRow): Omit<Profile, "email"> {
     phone: row.phone,
     role: row.role,
     color: row.color,
+    notifications_seen_at: row.notifications_seen_at,
     branch_ids: (row.profile_branches ?? []).map((pb) => pb.branch_id),
   };
 }

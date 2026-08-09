@@ -18,10 +18,12 @@ export default function AppHeader({
   fullName,
   role,
   notifications,
+  notificationsSeenAt,
 }: {
   fullName: string;
   role: Role;
   notifications: AppNotification[];
+  notificationsSeenAt: string | null;
 }) {
   const pathname = usePathname();
   const onCalendar = pathname === "/calendar";
@@ -55,7 +57,7 @@ export default function AppHeader({
         </div>
 
         <ThemeToggle />
-        <NotificationsBell notifications={notifications} />
+        <NotificationsBell notifications={notifications} lastSeenAt={notificationsSeenAt} />
 
         <UserMenu fullName={fullName} role={role} />
       </div>

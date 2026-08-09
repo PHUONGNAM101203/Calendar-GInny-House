@@ -29,6 +29,8 @@ export type Profile = {
   role: Role;
   branch_ids: string[];
   color: string | null;
+  /** When this person last opened the notification bell; null = never. */
+  notifications_seen_at: string | null;
 };
 
 export type ShiftType = "morning" | "afternoon" | "evening" | "remote";

@@ -65,14 +65,37 @@ export async function sendPushToProfiles(profileIds: string[], payload: PushPayl
 // canApproveShiftRequestFor in lib/roles.ts — fetch everyone in a role that
 // *could* approve this kind of request, then keep only the ones the
 // existing predicate actually grants for this specific target role.
-const LEAVE_APPROVER_CANDIDATE_ROLES: Role[] = ["ceo", "coo", "training_director", "hr"];
-const SHIFT_REQUEST_APPROVER_CANDIDATE_ROLES: Role[] = ["ceo", "coo", "training_director", "hr"];
+const LEAVE_APPROVER_CANDIDATE_ROLES: Role[] = ["ceo", "coo", "training_director", "hr", "technical"];
+const SHIFT_REQUEST_APPROVER_CANDIDATE_ROLES: Role[] = [
+  "ceo",
+  "coo",
+  "training_director",
+  "hr",
+  "technical",
+];
+
+// technical approves nothing (canApprove*For is false for it by design —
+// it's the read-only oversight role), but it DOES see every one of these
+// requests in the in-app notification bell, because buildNotifications()
+// gates on isManagerRole(), which includes technical.
+//
+// Push was gated on the approval predicates instead, so technical got a
+// badge in the header and never a single push — someone with push switched
+// on, watching notifications appear in-app, wondering why their phone
+// stayed silent. Treating it as an observer here realigns push with what
+// the bell already shows. This grants no authority: every actual
+// permission check still runs through canApprove*For / the SQL predicates.
+function isPushObserver(role: Role): boolean {
+  return role === "technical";
+}
 
 export async function sendPushToLeaveApprovers(targetRole: Role, payload: PushPayload): Promise<void> {
   if (!configured) return;
   const permissions = await getGroupPermissions();
   const { data } = await supabaseAdmin.from("profiles").select("id, role").in("role", LEAVE_APPROVER_CANDIDATE_ROLES);
-  const ids = (data ?? []).filter((p) => canApproveLeaveFor(p.role, targetRole, permissions)).map((p) => p.id);
+  const ids = (data ?? [])
+    .filter((p) => isPushObserver(p.role) || canApproveLeaveFor(p.role, targetRole, permissions))
+    .map((p) => p.id);
   await sendPushToProfiles(ids, payload);
 }
 
@@ -83,6 +106,8 @@ export async function sendPushToShiftRequestApprovers(targetRole: Role, payload:
     .from("profiles")
     .select("id, role")
     .in("role", SHIFT_REQUEST_APPROVER_CANDIDATE_ROLES);
-  const ids = (data ?? []).filter((p) => canApproveShiftRequestFor(p.role, targetRole, permissions)).map((p) => p.id);
+  const ids = (data ?? [])
+    .filter((p) => isPushObserver(p.role) || canApproveShiftRequestFor(p.role, targetRole, permissions))
+    .map((p) => p.id);
   await sendPushToProfiles(ids, payload);
 }

@@ -14,33 +14,42 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { formatNotificationTime, type AppNotification } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
+import { markNotificationsSeenAction } from "@/actions/notifications";
 import PushNotificationToggle from "@/components/layout/PushNotificationToggle";
-
-const LAST_SEEN_KEY = "ginny:notifications:lastSeenAt";
-
-function readLastSeen(): string {
-  if (typeof window === "undefined") return "";
-  return localStorage.getItem(LAST_SEEN_KEY) ?? "";
-}
 
 export default function NotificationsBell({
   notifications,
+  lastSeenAt,
 }: {
   notifications: AppNotification[];
+  /**
+   * Server-provided `profiles.notifications_seen_at`. This used to live in
+   * localStorage, which meant reading the bell on a laptop left the phone
+   * still badged — it now follows the person across devices.
+   */
+  lastSeenAt: string | null;
 }) {
   // The badge counts what's *new since you last opened the bell*, not
   // "still needs action" — a pending item you've already seen shouldn't
   // keep nagging the badge every time you glance at the header, but it
   // still shows its gold dot inside the list until it's resolved.
-  const [lastSeenAt, setLastSeenAt] = useState(readLastSeen);
-  const lastSeenMs = lastSeenAt ? new Date(lastSeenAt).getTime() : 0;
+  //
+  // Local override so the badge clears the instant the bell opens; the
+  // server write happens in the background and the prop catches up on the
+  // next load. Seeded from the prop rather than copied into state, so a
+  // newer server value is never shadowed by a stale local one.
+  const [seenOverride, setSeenOverride] = useState<string | null>(null);
+  const effectiveSeenAt = seenOverride ?? lastSeenAt;
+  const lastSeenMs = effectiveSeenAt ? new Date(effectiveSeenAt).getTime() : 0;
   const unseenCount = notifications.filter((n) => new Date(n.at).getTime() > lastSeenMs).length;
 
   function handleOpenChange(open: boolean) {
     if (!open) return;
-    const now = new Date().toISOString();
-    localStorage.setItem(LAST_SEEN_KEY, now);
-    setLastSeenAt(now);
+    // Nothing new to acknowledge — skip the write entirely rather than
+    // touching the row on every idle glance at the bell.
+    if (unseenCount === 0) return;
+    setSeenOverride(new Date().toISOString());
+    void markNotificationsSeenAction();
   }
 
   return (

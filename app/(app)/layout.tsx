@@ -68,7 +68,12 @@ export default async function AppShellLayout({
     // the automatic minimum size; this div has overflow:visible and needs it
     // spelled out.
     <div className="flex min-h-0 flex-1 flex-col">
-      <AppHeader fullName={profile.full_name} role={profile.role} notifications={notifications} />
+      <AppHeader
+        fullName={profile.full_name}
+        role={profile.role}
+        notifications={notifications}
+        notificationsSeenAt={profile.notifications_seen_at}
+      />
       {/* Manager-tier roles (ceo/coo/training_director/technical) never have
           any profile_branches rows by design — they run every cơ sở at once
           (see isManagerRole in lib/roles.ts). Only front-line roles with
