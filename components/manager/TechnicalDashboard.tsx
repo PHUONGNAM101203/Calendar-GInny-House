@@ -18,8 +18,10 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import StaffOverviewTable from "@/components/manager/StaffOverviewTable";
 import RequestsOverviewTable from "@/components/manager/RequestsOverviewTable";
+import GroupPermissionsEditor from "@/components/manager/GroupPermissionsEditor";
 import { aggregateStaffByRole, aggregateHoursByDay } from "@/lib/attendance";
 import { ROLE_LABELS } from "@/lib/roles";
+import type { GroupPermissions } from "@/lib/permissions";
 import type {
   Attendance,
   AttendanceCorrectionDetailed,
@@ -64,6 +66,7 @@ export default function TechnicalDashboard({
   swapRequests,
   shiftRequests,
   attendanceCorrections,
+  groupPermissions,
 }: {
   staff: Pick<Profile, "id" | "full_name" | "role">[];
   attendance: Attendance[];
@@ -71,6 +74,7 @@ export default function TechnicalDashboard({
   swapRequests: SwapRequestDetailed[];
   shiftRequests: ShiftRequestDetailed[];
   attendanceCorrections: AttendanceCorrectionDetailed[];
+  groupPermissions: GroupPermissions;
 }) {
   const roleCounts = aggregateStaffByRole(staff);
   const hoursByDay = aggregateHoursByDay(attendance);
@@ -82,6 +86,11 @@ export default function TechnicalDashboard({
 
   return (
     <div className="space-y-6">
+      <div>
+        <h2 className="mb-3 font-heading text-lg font-semibold">Phân quyền theo nhóm</h2>
+        <GroupPermissionsEditor permissions={groupPermissions} />
+      </div>
+
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="transition-shadow hover:shadow-md">
           <CardContent>

@@ -9,14 +9,14 @@ export type GroupPermissionType =
   | "manage_attendance"
   | "view_calendar";
 
-export const GROUP_PERMISSION_TYPES: readonly GroupPermissionType[] = [
+export const GROUP_PERMISSION_TYPES = [
   "create_shift",
   "approve_shift_request",
   "approve_swap",
   "approve_leave",
   "manage_attendance",
   "view_calendar",
-];
+] as const satisfies readonly GroupPermissionType[];
 
 export const GROUP_PERMISSION_LABELS: Record<GroupPermissionType, string> = {
   create_shift: "Tạo ca",
@@ -31,8 +31,8 @@ export const GROUP_PERMISSION_LABELS: Record<GroupPermissionType, string> = {
 // ever be a target — mirrors the CHECK constraints on group_permissions
 // (0047_group_permissions.sql). UI iterates these instead of hardcoding
 // its own lists a 3rd time.
-export const GROUP_MANAGER_ROLES: readonly Role[] = ["coo", "training_director", "hr"];
-export const GROUP_TARGET_ROLES: readonly Role[] = [
+export const GROUP_MANAGER_ROLES = ["coo", "training_director", "hr"] as const satisfies readonly Role[];
+export const GROUP_TARGET_ROLES = [
   "teacher",
   "collaborator",
   "student_affairs",
@@ -40,7 +40,7 @@ export const GROUP_TARGET_ROLES: readonly Role[] = [
   "operations_staff",
   "customer_care",
   "hr",
-];
+] as const satisfies readonly Role[];
 
 function permKey(managerRole: Role, targetRole: Role, permission: GroupPermissionType): string {
   return `${managerRole}:${targetRole}:${permission}`;
