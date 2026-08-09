@@ -1,3 +1,4 @@
+import { hasGroupPermission, getGrantedTargetRoles, type GroupPermissions } from "@/lib/permissions";
 import type { Role } from "@/types";
 
 // Order here is the organizational hierarchy, highest first — reused
@@ -57,37 +58,6 @@ export function isManagerRole(role: Role): boolean {
   return MANAGER_ROLES.has(role);
 }
 
-// The "vận hành" group the COO gets a dedicated filtered view over (see
-// ManagerPage's "Nhóm vận hành" tab) — front-line roles only, none of these
-// are manager-tier.
-export const OPERATIONS_GROUP_ROLES: ReadonlySet<Role> = new Set([
-  "hr",
-  "customer_care",
-  "operations_staff",
-]);
-
-export function isOperationsGroupRole(role: Role): boolean {
-  return OPERATIONS_GROUP_ROLES.has(role);
-}
-
-// The "đào tạo" group — Giám Đốc Đào Tạo's counterpart to OPERATIONS_GROUP_ROLES.
-export const TRAINING_GROUP_ROLES: ReadonlySet<Role> = new Set(["teacher", "collaborator"]);
-
-export function isTrainingGroupRole(role: Role): boolean {
-  return TRAINING_GROUP_ROLES.has(role);
-}
-
-// The "quản sinh / trợ giảng" group — HR's own group to approve/view,
-// split out from TRAINING_GROUP_ROLES (2026-08). Note HR is itself a
-// member of OPERATIONS_GROUP_ROLES (their own leave is COO-approved) while
-// also being the approver for this separate group — a role can be both a
-// group's subject and another group's approver.
-export const HR_GROUP_ROLES: ReadonlySet<Role> = new Set(["student_affairs", "teaching_assistant"]);
-
-export function isHrGroupRole(role: Role): boolean {
-  return HR_GROUP_ROLES.has(role);
-}
-
 // Who can see/follow whose calendar (2026-08 pass): three tiers, not one
 // flat "sees everyone" set —
 //   "all"   — ceo, technical: every role, org-wide.
@@ -108,33 +78,25 @@ export function canSeeAllCalendars(role: Role): boolean {
   return getCalendarScope(role) !== "none";
 }
 
-// The specific set of roles a "group"-scope viewer can see/follow. Null for
-// "all"-scope viewers (no filtering needed) and "none"-scope viewers (no
-// follow feature to begin with).
-export function getViewableGroupRoles(role: Role): ReadonlySet<Role> | null {
-  if (role === "coo") return OPERATIONS_GROUP_ROLES;
-  if (role === "training_director") return TRAINING_GROUP_ROLES;
-  if (role === "hr") return HR_GROUP_ROLES;
-  return null;
-}
-
-// Leave-request approval — ceo approves anyone; coo/training_director only
-// their own group's people; everyone else (including technical, which only
-// gets the read-only analytics dashboard) approves no one. Mirrors
-// is_leave_approver()/respond_to_leave_request() in
-// 0013_group_scoped_visibility.sql — keep in sync.
+// Leave-request approval — ceo approves anyone; coo/training_director/hr
+// only their own group's people (dynamically, via group_permissions — see
+// lib/permissions.ts); everyone else (including technical, which only
+// gets the read-only analytics dashboard) approves no one. Also governs
+// giải trình công (attendance correction) approval — respond_to_leave_
+// request() and respond_to_attendance_correction() share the same
+// can_view_profile() SQL check, so this one predicate covers both request
+// kinds on purpose. Mirrors can_view_profile() in
+// 0048_group_permissions_sql_functions.sql (permission literal
+// 'approve_leave') — keep in sync.
 const LEAVE_APPROVER_ROLES: ReadonlySet<Role> = new Set(["ceo", "coo", "training_director", "hr"]);
 
 export function isLeaveApprover(role: Role): boolean {
   return LEAVE_APPROVER_ROLES.has(role);
 }
 
-export function canApproveLeaveFor(approverRole: Role, targetRole: Role): boolean {
+export function canApproveLeaveFor(approverRole: Role, targetRole: Role, permissions: GroupPermissions): boolean {
   if (approverRole === "ceo") return true;
-  if (approverRole === "coo") return OPERATIONS_GROUP_ROLES.has(targetRole);
-  if (approverRole === "training_director") return TRAINING_GROUP_ROLES.has(targetRole);
-  if (approverRole === "hr") return HR_GROUP_ROLES.has(targetRole);
-  return false;
+  return hasGroupPermission(permissions, approverRole, targetRole, "approve_leave");
 }
 
 // Who can open the direct-create-shift UI at all (coarse gate — doesn't say
@@ -155,13 +117,13 @@ export function canCreateShiftDirectly(role: Role): boolean {
 }
 
 // Per-assignee shift create/edit/delete scoping. ceo/technical: anyone.
-// coo/training_director/hr: only their own group's people. Mirrors
-// can_manage_shift_for() in 0043_shift_group_scoped_management.sql — keep
-// both in sync.
-export function canCreateShiftFor(viewerRole: Role, targetRole: Role): boolean {
+// coo/training_director/hr: only their own group's people (dynamically,
+// via group_permissions). Mirrors can_manage_shift_for() in
+// 0048_group_permissions_sql_functions.sql (permission literal
+// 'create_shift') — keep both in sync.
+export function canCreateShiftFor(viewerRole: Role, targetRole: Role, permissions: GroupPermissions): boolean {
   if (viewerRole === "ceo" || viewerRole === "technical") return true;
-  const group = getViewableGroupRoles(viewerRole);
-  return group ? group.has(targetRole) : false;
+  return hasGroupPermission(permissions, viewerRole, targetRole, "create_shift");
 }
 
 // Only the CEO approves shift registrations.
@@ -170,14 +132,12 @@ export function isCeo(role: Role): boolean {
 }
 
 // Shift-request approval: CEO approves anyone; coo/training_director/hr only
-// their own group. Mirrors can_approve_shift_request() in
-// 0044_shift_and_swap_approval_scoping.sql — keep in sync.
-export function canApproveShiftRequestFor(approverRole: Role, targetRole: Role): boolean {
+// their own group (dynamically, via group_permissions). Mirrors
+// can_approve_shift_request() in 0048_group_permissions_sql_functions.sql
+// (permission literal 'approve_shift_request') — keep in sync.
+export function canApproveShiftRequestFor(approverRole: Role, targetRole: Role, permissions: GroupPermissions): boolean {
   if (approverRole === "ceo") return true;
-  if (approverRole === "coo") return OPERATIONS_GROUP_ROLES.has(targetRole);
-  if (approverRole === "training_director") return TRAINING_GROUP_ROLES.has(targetRole);
-  if (approverRole === "hr") return HR_GROUP_ROLES.has(targetRole);
-  return false;
+  return hasGroupPermission(permissions, approverRole, targetRole, "approve_shift_request");
 }
 
 const SHIFT_REQUEST_APPROVER_ROLES: ReadonlySet<Role> = new Set([
@@ -195,18 +155,23 @@ export function isShiftRequestApprover(role: Role): boolean {
 // swaps stay pure peer-claim, no manager gate. ceo approves any; coo/
 // training_director/hr require BOTH the requester and the chosen target to
 // be in their own group (safer than requester-only — avoids a manager
-// reassigning a shift belonging to someone entirely outside their group).
-// technical never approves swaps (view-only everywhere, consistent with its
-// role elsewhere in this app). Mirrors can_approve_swap_request() in
-// 0044_shift_and_swap_approval_scoping.sql — keep both in sync.
+// reassigning a shift belonging to someone entirely outside their group),
+// checked dynamically via group_permissions. technical never approves
+// swaps (view-only everywhere, consistent with its role elsewhere in this
+// app). Mirrors can_approve_swap_request() in
+// 0048_group_permissions_sql_functions.sql (permission literal
+// 'approve_swap') — keep both in sync.
 export function canApproveSwapRequestFor(
   approverRole: Role,
   requesterRole: Role,
-  targetRole: Role
+  targetRole: Role,
+  permissions: GroupPermissions
 ): boolean {
   if (approverRole === "ceo") return true;
-  const group = getViewableGroupRoles(approverRole);
-  return group ? group.has(requesterRole) && group.has(targetRole) : false;
+  return (
+    hasGroupPermission(permissions, approverRole, requesterRole, "approve_swap") &&
+    hasGroupPermission(permissions, approverRole, targetRole, "approve_swap")
+  );
 }
 
 // Front-line roles a new user can self-select at signup (RegisterForm) —
@@ -228,22 +193,24 @@ export const SELF_SIGNUP_ROLES = [
 
 export type SelfSignupRole = (typeof SELF_SIGNUP_ROLES)[number];
 
-// Calendar-follow-sidebar grouping (2026-08) — deliberately SEPARATE from
-// OPERATIONS_GROUP_ROLES/TRAINING_GROUP_ROLES/HR_GROUP_ROLES above, which
-// drive leave/shift-request approval and must not change. The calendar
-// groups diverge on purpose: "Đào tạo" here is {teacher} only (not
-// {teacher, collaborator} — CTV gets its own group for ceo/technical and
-// is dropped entirely from training_director's calendar view), and
-// training_director additionally gets a Trợ giảng-only group for VIEWING
-// teaching_assistant's calendar — see 0029_calendar_visibility_training_
-// director_teaching_assistant.sql for the matching RLS widening. HR
-// remains the sole approver for teaching_assistant either way.
+// Calendar-follow-sidebar grouping (2026-08). The ceo/technical branch
+// below is a pure display taxonomy for an already-unrestricted viewer —
+// not an access boundary — so it keeps its own fixed tile groupings
+// (intentionally diverging from the dynamic group_permissions data, e.g.
+// splitting "Đào tạo"/CTV/Trợ giảng into separate tiles) rather than
+// reading from group_permissions. The coo/training_director/hr branches
+// ARE an access boundary and read live from group_permissions
+// (permission 'view_calendar') — a role only appears once granted, and
+// each manager's grants collapse into one flat list (no more sub-
+// grouping by target role — that finer clustering was cosmetic, not a
+// permission difference; see the plan's Out of Scope note).
 export type CalendarFollowGroup = { key: string; label: string; roles: ReadonlySet<Role> };
 
 const CALENDAR_TEACHER_ONLY: ReadonlySet<Role> = new Set(["teacher"]);
 const CALENDAR_COLLABORATOR_ONLY: ReadonlySet<Role> = new Set(["collaborator"]);
 const CALENDAR_TEACHING_ASSISTANT_ONLY: ReadonlySet<Role> = new Set(["teaching_assistant"]);
 const CALENDAR_STUDENT_AFFAIRS_ONLY: ReadonlySet<Role> = new Set(["student_affairs"]);
+const CALENDAR_OPERATIONS_ONLY: ReadonlySet<Role> = new Set(["hr", "customer_care", "operations_staff"]);
 const CALENDAR_MANAGEMENT_ROLES: ReadonlySet<Role> = new Set([
   "ceo",
   "coo",
@@ -254,42 +221,36 @@ const CALENDAR_MANAGEMENT_ROLES: ReadonlySet<Role> = new Set([
 
 // null => this viewer keeps the flat, non-interactive legend (canFollowAll
 // is already false for every role that returns null here).
-export function getCalendarFollowGroups(role: Role): CalendarFollowGroup[] | null {
+export function getCalendarFollowGroups(role: Role, permissions: GroupPermissions): CalendarFollowGroup[] | null {
   if (role === "ceo" || role === "technical") {
     return [
       { key: "management", label: "Quản lý", roles: CALENDAR_MANAGEMENT_ROLES },
-      { key: "operations", label: "Vận hành", roles: OPERATIONS_GROUP_ROLES },
+      { key: "operations", label: "Vận hành", roles: CALENDAR_OPERATIONS_ONLY },
       { key: "training", label: "Đào tạo", roles: CALENDAR_TEACHER_ONLY },
       { key: "student_affairs", label: "Quản sinh", roles: CALENDAR_STUDENT_AFFAIRS_ONLY },
       { key: "teaching_assistant", label: "Trợ giảng", roles: CALENDAR_TEACHING_ASSISTANT_ONLY },
       { key: "collaborators", label: "CTV", roles: CALENDAR_COLLABORATOR_ONLY },
     ];
   }
-  if (role === "coo") {
-    return [{ key: "operations", label: "Nhóm vận hành", roles: OPERATIONS_GROUP_ROLES }];
-  }
-  if (role === "hr") {
-    return [{ key: "hr_group", label: "Nhóm trợ giảng + quản sinh", roles: HR_GROUP_ROLES }];
-  }
-  if (role === "training_director") {
-    return [
-      { key: "training", label: "Đào tạo", roles: CALENDAR_TEACHER_ONLY },
-      { key: "teaching_assistant", label: "Trợ giảng", roles: CALENDAR_TEACHING_ASSISTANT_ONLY },
-    ];
+  if (role === "coo" || role === "training_director" || role === "hr") {
+    const granted = getGrantedTargetRoles(permissions, role, "view_calendar");
+    if (granted.size === 0) return null;
+    const label = MANAGER_GROUP_META[role]?.label ?? "Nhóm của bạn";
+    return [{ key: "granted", label, roles: granted }];
   }
   return null;
 }
 
 // Attendance edit/delete: ceo/technical manage everyone's records (incl.
 // old ones, to clean up erroneous check-ins); coo/training_director/hr only
-// their own group's people. Deliberately NOT reusing isLeaveApprover — this
-// is a net-new capability for technical, which approves no leave today.
-// Mirrors can_manage_attendance_for() in
-// 0038_attendance_manage_permissions.sql — keep both in sync.
-export function canManageAttendanceFor(viewerRole: Role, targetRole: Role): boolean {
+// their own group's people (dynamically, via group_permissions).
+// Deliberately NOT reusing isLeaveApprover — this is a net-new capability
+// for technical, which approves no leave today. Mirrors
+// can_manage_attendance_for() in 0048_group_permissions_sql_functions.sql
+// (permission literal 'manage_attendance') — keep both in sync.
+export function canManageAttendanceFor(viewerRole: Role, targetRole: Role, permissions: GroupPermissions): boolean {
   if (viewerRole === "ceo" || viewerRole === "technical") return true;
-  const group = getViewableGroupRoles(viewerRole);
-  return group ? group.has(targetRole) : false;
+  return hasGroupPermission(permissions, viewerRole, targetRole, "manage_attendance");
 }
 
 // Who can open the /manager page at all: manager-tier roles, plus HR for
