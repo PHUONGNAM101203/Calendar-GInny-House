@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireManager } from "@/lib/auth";
 import { shiftSchema } from "@/lib/validations/shift";
 import { isManagerRole, canCreateShiftFor } from "@/lib/roles";
+import { getGroupPermissions } from "@/lib/permissions";
 import type { ActionResult, Role } from "@/types";
 
 // Defense in depth — ShiftFormDialog's picker already narrows assignee
@@ -22,7 +23,8 @@ async function assertAssigneeAllowed(
 ): Promise<string | null> {
   const { data: assignee } = await supabase.from("profiles").select("role").eq("id", assigneeId).single();
   if (!assignee) return "Không tìm thấy nhân viên này";
-  if (!canCreateShiftFor(callerRole, assignee.role)) {
+  const permissions = await getGroupPermissions();
+  if (!canCreateShiftFor(callerRole, assignee.role, permissions)) {
     return "Bạn không có quyền xếp ca cho nhân viên này";
   }
   if (isManagerRole(assignee.role)) return null;

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 import { canManageAttendanceFor } from "@/lib/roles";
+import { getGroupPermissions } from "@/lib/permissions";
 import type { ActionResult, Attendance, Role } from "@/types";
 
 function mapAttendanceError(message: string): string {
@@ -53,7 +54,8 @@ async function canCurrentUserManageAttendanceRow(
     .single();
   if (!target) return false;
 
-  return canManageAttendanceFor(viewerRole, target.role);
+  const permissions = await getGroupPermissions();
+  return canManageAttendanceFor(viewerRole, target.role, permissions);
 }
 
 export async function updateAttendanceAction(
