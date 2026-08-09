@@ -72,6 +72,7 @@ import type {
   ShiftWithAssignee,
   SwapRequestDetailed,
 } from "@/types";
+import type { GroupPermissions } from "@/lib/permissions";
 
 const minTime = new Date();
 minTime.setHours(CALENDAR_MIN_HOUR, 0, 0, 0);
@@ -98,6 +99,7 @@ export default function ShiftCalendar({
   followColors,
   branchColors,
   defaultView,
+  permissions,
 }: {
   shifts: ShiftWithAssignee[];
   pendingSwaps: SwapRequestDetailed[];
@@ -119,6 +121,7 @@ export default function ShiftCalendar({
   branchColors: Record<string, string>;
   /** Server-decided initial view — day on phones, week elsewhere. */
   defaultView: CalendarView;
+  permissions: GroupPermissions;
 }) {
   // Squeezing the default 7-column week grid onto a phone is illegible, so
   // phones open on the single-day view — the same thing Google Calendar's
@@ -208,8 +211,8 @@ export default function ShiftCalendar({
   );
 
   const shiftEvents = useMemo(
-    () => toCalendarEvents(visibleShifts, currentUserId, currentUserRole, pendingSwaps, colorFor),
-    [visibleShifts, currentUserId, currentUserRole, pendingSwaps, colorFor]
+    () => toCalendarEvents(visibleShifts, currentUserId, currentUserRole, permissions, pendingSwaps, colorFor),
+    [visibleShifts, currentUserId, currentUserRole, permissions, pendingSwaps, colorFor]
   );
   const holidayEvents = useMemo(() => {
     if (!showHolidays) return [];
@@ -366,7 +369,7 @@ export default function ShiftCalendar({
     if (
       canManageShifts &&
       event.resource.pendingSwap === "none" &&
-      canCreateShiftFor(currentUserRole, event.resource.shift.assignee.role)
+      canCreateShiftFor(currentUserRole, event.resource.shift.assignee.role, permissions)
     ) {
       setFormState({ open: true, shift: event.resource.shift, range: null });
     } else {
@@ -406,7 +409,7 @@ export default function ShiftCalendar({
       request.target_id !== null &&
       request.target !== null &&
       request.target_id !== currentUserId &&
-      canApproveSwapRequestFor(currentUserRole, request.requester.role, request.target.role);
+      canApproveSwapRequestFor(currentUserRole, request.requester.role, request.target.role, permissions);
     const pendingSwap: ShiftEvent["resource"]["pendingSwap"] = isMine
       ? request.target_id
         ? "outgoing"
@@ -523,7 +526,7 @@ export default function ShiftCalendar({
   // into ShiftFormDialog for the shift-assignee picker, which must keep
   // seeing everyone RLS allows, not just this viewer's calendar groups.
   const followGroups = useMemo(() => {
-    const defs = getCalendarFollowGroups(currentUserRole);
+    const defs = getCalendarFollowGroups(currentUserRole, permissions);
     if (!defs) return null;
     const followedSet = new Set(followedIds);
     return defs.map((def) => ({
@@ -539,7 +542,7 @@ export default function ShiftCalendar({
         }))
         .sort((a, b) => a.name.localeCompare(b.name, "vi")),
     }));
-  }, [branchMembers, currentUserId, currentUserRole, followedIds, followColors]);
+  }, [branchMembers, currentUserId, currentUserRole, followedIds, followColors, permissions]);
 
   // ShiftRequestDialog only ever renders for the current viewer requesting
   // their OWN shift, so this is scoped to their branches, not the
@@ -559,8 +562,8 @@ export default function ShiftCalendar({
   // unfiltered (it also feeds the follow/legend sidebar, which needs the
   // full RLS-visible set, not the narrower create-shift scope).
   const creatableBranchMembers = useMemo(
-    () => branchMembers.filter((m) => canCreateShiftFor(currentUserRole, m.role)),
-    [branchMembers, currentUserRole]
+    () => branchMembers.filter((m) => canCreateShiftFor(currentUserRole, m.role, permissions)),
+    [branchMembers, currentUserRole, permissions]
   );
 
   function handleQuickCreate() {
@@ -588,9 +591,11 @@ export default function ShiftCalendar({
         leaveRequests.filter((r) => r.status === "pending"),
         currentUserId,
         (r) => r.profile_id,
-        (r) => (isLeaveApprover(currentUserRole) && canApproveLeaveFor(currentUserRole, r.profile.role)) || canFollowAll
+        (r) =>
+          (isLeaveApprover(currentUserRole) && canApproveLeaveFor(currentUserRole, r.profile.role, permissions)) ||
+          canFollowAll
       ),
-    [leaveRequests, currentUserId, currentUserRole, canFollowAll]
+    [leaveRequests, currentUserId, currentUserRole, canFollowAll, permissions]
   );
   const pendingSwapsForApproval = useMemo(
     () =>
@@ -601,10 +606,12 @@ export default function ShiftCalendar({
         (r) =>
           r.target_id === currentUserId ||
           (r.target_id === null && r.requester_id !== currentUserId) ||
-          (r.target_id !== null && r.target !== null && canApproveSwapRequestFor(currentUserRole, r.requester.role, r.target.role)) ||
+          (r.target_id !== null &&
+            r.target !== null &&
+            canApproveSwapRequestFor(currentUserRole, r.requester.role, r.target.role, permissions)) ||
           canFollowAll
       ),
-    [pendingSwaps, currentUserId, currentUserRole, canFollowAll]
+    [pendingSwaps, currentUserId, currentUserRole, canFollowAll, permissions]
   );
   const attendanceCorrectionsForApproval = useMemo(
     () =>
@@ -612,9 +619,11 @@ export default function ShiftCalendar({
         attendanceCorrections,
         currentUserId,
         (r) => r.profile_id,
-        (r) => (isLeaveApprover(currentUserRole) && canApproveLeaveFor(currentUserRole, r.profile.role)) || canFollowAll
+        (r) =>
+          (isLeaveApprover(currentUserRole) && canApproveLeaveFor(currentUserRole, r.profile.role, permissions)) ||
+          canFollowAll
       ),
-    [attendanceCorrections, currentUserId, currentUserRole, canFollowAll]
+    [attendanceCorrections, currentUserId, currentUserRole, canFollowAll, permissions]
   );
   const pendingApprovals: PendingApprovalItem[] = useMemo(() => {
     const items: PendingApprovalItem[] = [
@@ -827,6 +836,7 @@ export default function ShiftCalendar({
             onOpenChange={(open) => !open && setAttendanceDetail(null)}
             event={attendanceDetail}
             currentUserRole={currentUserRole}
+            permissions={permissions}
           />
         )}
 
@@ -838,7 +848,7 @@ export default function ShiftCalendar({
             canRespond={
               leaveDetail.resource.request.status === "pending" &&
               isLeaveApprover(currentUserRole) &&
-              canApproveLeaveFor(currentUserRole, leaveDetail.resource.request.profile.role)
+              canApproveLeaveFor(currentUserRole, leaveDetail.resource.request.profile.role, permissions)
             }
           />
         )}
@@ -850,7 +860,8 @@ export default function ShiftCalendar({
             event={shiftRequestDetail}
             canRespond={canApproveShiftRequestFor(
               currentUserRole,
-              shiftRequestDetail.resource.request.profile.role
+              shiftRequestDetail.resource.request.profile.role,
+              permissions
             )}
             canCancel={shiftRequestDetail.resource.request.profile_id === currentUserId}
           />

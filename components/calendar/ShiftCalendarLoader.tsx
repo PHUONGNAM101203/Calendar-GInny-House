@@ -14,6 +14,7 @@ import type {
   ShiftWithAssignee,
   SwapRequestDetailed,
 } from "@/types";
+import type { GroupPermissions } from "@/lib/permissions";
 
 // react-big-calendar touches the DOM (measuring rows/columns, scroll sync)
 // and has no reason to render on the server — forcing it through SSR was
@@ -57,6 +58,7 @@ export default function ShiftCalendarLoader(props: {
   followColors: Record<string, string>;
   branchColors: Record<string, string>;
   defaultView: CalendarView;
+  permissions: GroupPermissions;
 }) {
   return <ShiftCalendar {...props} />;
 }

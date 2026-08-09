@@ -31,6 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { ATTENDANCE_CORRECTION_ISSUE_LABELS } from "@/lib/constants";
 import { isLeaveApprover, canApproveLeaveFor, canManageAttendanceFor } from "@/lib/roles";
 import { resolveColor, type AttendanceCalendarEvent, type AttendanceSession } from "@/lib/calendar";
+import type { GroupPermissions } from "@/lib/permissions";
 import type { Role } from "@/types";
 
 const TIME_FORMAT = "HH:mm";
@@ -62,11 +63,13 @@ export default function AttendanceDetailDialog({
   onOpenChange,
   event,
   currentUserRole,
+  permissions,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   event: AttendanceCalendarEvent;
   currentUserRole: Role;
+  permissions: GroupPermissions;
 }) {
   const [respondingId, setRespondingId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -76,7 +79,7 @@ export default function AttendanceDetailDialog({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const { profileName, profileRole, colorVar, totalMinutes, isOpen, sessions } = event.resource;
 
-  const canManage = canManageAttendanceFor(currentUserRole, profileRole);
+  const canManage = canManageAttendanceFor(currentUserRole, profileRole, permissions);
 
   async function handleRespond(correctionId: string, approve: boolean) {
     setRespondingId(correctionId);
@@ -162,7 +165,7 @@ export default function AttendanceDetailDialog({
             const canRespond =
               correction !== null &&
               isLeaveApprover(currentUserRole) &&
-              canApproveLeaveFor(currentUserRole, correction.profile.role);
+              canApproveLeaveFor(currentUserRole, correction.profile.role, permissions);
             const canManageSession = canManage && Boolean(s.id);
             return (
               <li key={i} className="rounded-md border bg-muted/40 p-2.5 text-sm">
