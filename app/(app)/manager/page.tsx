@@ -17,6 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import ManagerDashboard from "@/components/manager/ManagerDashboard";
 import TechnicalDashboard from "@/components/manager/TechnicalDashboard";
 import StaffTable from "@/components/manager/StaffTable";
+import ShiftsOverviewTable, { type ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
 import DateRangeFilter from "@/components/manager/DateRangeFilter";
 import SwapRequestCard from "@/components/swaps/SwapRequestCard";
 import LeaveRequestCard from "@/components/leave/LeaveRequestCard";
@@ -40,6 +41,13 @@ const SELECT = `
   requester_shift:shifts!requester_shift_id(id, start_at, end_at),
   target_shift:shifts!target_shift_id(id, start_at, end_at)
 `;
+
+// Matches the SELECT convention above — see the `as unknown as
+// ShiftOverviewRow[]` cast further down for why: without generated DB
+// types, supabase-js can't know assignee_id/branch_id are to-one relations
+// and defaults the embedded join shape to arrays.
+const SHIFTS_OVERVIEW_SELECT =
+  "id, start_at, end_at, shift_type, assignee:profiles!assignee_id(id, full_name, role), branch:branches!branch_id(id, name)";
 
 type ProfileRoleRef = Pick<Profile, "id" | "full_name" | "role">;
 
@@ -104,6 +112,7 @@ export default async function ManagerPage({
     { data: yearAttendance },
     { data: shiftRequests },
     { data: attendanceCorrections },
+    { data: shiftsOverview },
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -138,6 +147,14 @@ export default async function ManagerPage({
       .from("attendance_corrections")
       .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at)")
       .order("created_at", { ascending: false }),
+    // Feeds the new "Ca làm việc" section (Xoá ca) — capped to the last
+    // 500 to keep the payload bounded; the period tabs in the table filter
+    // client-side from this set the same way RequestsOverviewTable does.
+    supabase
+      .from("shifts")
+      .select(SHIFTS_OVERVIEW_SELECT)
+      .order("start_at", { ascending: false })
+      .limit(500),
   ]);
 
   type StaffQueryRow = Pick<Profile, "id" | "full_name" | "phone" | "role" | "deactivated_at"> & {
@@ -158,6 +175,11 @@ export default async function ManagerPage({
   const shiftRequestsList = (shiftRequests as ShiftRequestDetailed[]) ?? [];
   const attendanceCorrectionsList = (attendanceCorrections as AttendanceCorrectionDetailed[]) ?? [];
   const shiftsTodayList = (shiftsTodayRows as Pick<{ assignee_id: string }, "assignee_id">[]) ?? [];
+  // supabase-js can't infer assignee_id/branch_id as to-one relations
+  // without generated DB types, so it defaults the embedded join shape to
+  // arrays — cast through unknown since the runtime shape (verified via the
+  // query above) is genuinely one assignee/branch per shift row.
+  const shiftsOverviewList = (shiftsOverview as unknown as ShiftOverviewRow[]) ?? [];
 
   const isTechnical = manager.role === "technical";
 
@@ -201,6 +223,9 @@ export default async function ManagerPage({
   const scopedShiftsToday = rosterRoles
     ? shiftsTodayList.filter((s) => scopedStaffIds.has(s.assignee_id)).length
     : shiftsTodayList.length;
+  const scopedShiftsOverview = rosterRoles
+    ? shiftsOverviewList.filter((s) => scopedStaffIds.has(s.assignee.id))
+    : shiftsOverviewList;
 
   return (
     <div className="mx-auto w-full max-w-6xl flex-1 space-y-8 overflow-y-auto p-4 sm:p-6">
@@ -282,6 +307,14 @@ export default async function ManagerPage({
             />
           </CardContent>
         </Card>
+      </Section>
+
+      <Section id="shifts" title="Ca làm việc" count={scopedShiftsOverview.length}>
+        <ShiftsOverviewTable
+          shifts={scopedShiftsOverview}
+          currentUserRole={manager.role}
+          permissions={permissions}
+        />
       </Section>
 
       {isShiftRequestApprover(manager.role) && (
