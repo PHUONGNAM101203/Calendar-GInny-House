@@ -18,7 +18,8 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import StaffOverviewTable from "@/components/manager/StaffOverviewTable";
 import RequestsOverviewTable from "@/components/manager/RequestsOverviewTable";
-import GroupPermissionsEditor from "@/components/manager/GroupPermissionsEditor";
+import GroupPermissionsEditor, { type ManagerHolders } from "@/components/manager/GroupPermissionsEditor";
+import { GROUP_MANAGER_ROLES } from "@/lib/permissions";
 import { aggregateStaffByRole, aggregateHoursByDay } from "@/lib/attendance";
 import { ROLE_LABELS } from "@/lib/roles";
 import type { GroupPermissions } from "@/lib/permissions";
@@ -84,11 +85,24 @@ export default function TechnicalDashboard({
     [hoursByDay]
   );
 
+  // Who actually holds each manager role right now — the permissions editor
+  // titles its cards with the person's name rather than an abstract group
+  // label. Kept as an array per role because nothing stops two people sharing
+  // one role, and silently showing only the first would hide that.
+  const managerHolders: ManagerHolders = useMemo(() => {
+    const byRole: ManagerHolders = {};
+    for (const role of GROUP_MANAGER_ROLES) {
+      const names = staff.filter((s) => s.role === role).map((s) => s.full_name);
+      if (names.length > 0) byRole[role] = names;
+    }
+    return byRole;
+  }, [staff]);
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className="mb-3 font-heading text-lg font-semibold">Phân quyền theo nhóm</h2>
-        <GroupPermissionsEditor permissions={groupPermissions} />
+        <GroupPermissionsEditor permissions={groupPermissions} managerHolders={managerHolders} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
