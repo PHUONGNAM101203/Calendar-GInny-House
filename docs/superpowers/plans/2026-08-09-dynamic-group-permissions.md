@@ -55,8 +55,8 @@
 -- manager's group authority changes. See
 -- docs/superpowers/specs/2026-08-09-dynamic-group-permissions-design.md.
 create table public.group_permissions (
-  manager_role public.user_role not null,
-  target_role  public.user_role not null,
+  manager_role public.staff_role not null,
+  target_role  public.staff_role not null,
   permission   text not null,
   created_at   timestamptz not null default now(),
   constraint group_permissions_permission_valid check (permission in (
