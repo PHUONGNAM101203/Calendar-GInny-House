@@ -87,12 +87,12 @@ export async function requireProfile() {
   if (!profile) redirect("/login");
   // Deactivation is reversible and enforced here rather than in RLS — this
   // is the one gate every authenticated request passes through, including
-  // the request that reads the profile row itself.
-  if (profile.deactivated_at) {
-    const supabase = await createClient();
-    await supabase.auth.signOut();
-    redirect("/login");
-  }
+  // the request that reads the profile row itself. Redirects to a Route
+  // Handler rather than signing out directly — this function runs during
+  // Server Component render, where Next.js can't write response cookies,
+  // so a signOut() call here would silently fail to clear the session (see
+  // app/auth/deactivated/route.ts for the full explanation).
+  if (profile.deactivated_at) redirect("/auth/deactivated");
   return profile;
 }
 
