@@ -94,6 +94,7 @@ export default function AttendanceDetailDialog({
     } else {
       toast.warning("Đã từ chối đơn giải trình công");
     }
+    onOpenChange(false);
   }
 
   function startEdit(session: AttendanceSession) {
