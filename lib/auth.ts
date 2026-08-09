@@ -6,7 +6,7 @@ import { canAccessManagerPage } from "@/lib/roles";
 import type { Profile, Role } from "@/types";
 
 const PROFILE_COLUMNS =
-  "id, full_name, phone, role, color, notifications_seen_at, profile_branches(branch_id)";
+  "id, full_name, phone, role, color, notifications_seen_at, deactivated_at, profile_branches(branch_id)";
 
 type ProfileRow = {
   id: string;
@@ -15,6 +15,7 @@ type ProfileRow = {
   role: Role;
   color: string | null;
   notifications_seen_at: string | null;
+  deactivated_at: string | null;
   profile_branches: { branch_id: string }[] | null;
 };
 
@@ -26,6 +27,7 @@ function toProfile(row: ProfileRow): Omit<Profile, "email"> {
     role: row.role,
     color: row.color,
     notifications_seen_at: row.notifications_seen_at,
+    deactivated_at: row.deactivated_at,
     branch_ids: (row.profile_branches ?? []).map((pb) => pb.branch_id),
   };
 }
@@ -83,6 +85,14 @@ export const getSessionProfile = cache(async () => {
 export async function requireProfile() {
   const profile = await getSessionProfile();
   if (!profile) redirect("/login");
+  // Deactivation is reversible and enforced here rather than in RLS — this
+  // is the one gate every authenticated request passes through, including
+  // the request that reads the profile row itself.
+  if (profile.deactivated_at) {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+    redirect("/login");
+  }
   return profile;
 }
 

@@ -52,3 +52,32 @@ export async function updateStaffRoleAction(
   revalidatePath("/calendar");
   return { ok: true, data: undefined };
 }
+
+// Soft-delete only — reversible, keeps every shift/request/attendance row
+// intact for history. Login is blocked in requireProfile() (lib/auth.ts),
+// not here. Restricted to technical, unlike updateStaffRoleAction/
+// updateStaffBranchesAction above which any manager-tier role can call —
+// deactivation is a much larger blast radius than a role/branch edit.
+export async function deactivateStaffAction(
+  profileId: string,
+  deactivate: boolean
+): Promise<ActionResult> {
+  const manager = await requireManager();
+  if (manager.role !== "technical") {
+    return { ok: false, error: "Chỉ Kỹ thuật mới có quyền vô hiệu hoá tài khoản" };
+  }
+  if (profileId === manager.id) {
+    return { ok: false, error: "Không thể tự vô hiệu hoá tài khoản của chính mình" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("profiles")
+    .update({ deactivated_at: deactivate ? new Date().toISOString() : null })
+    .eq("id", profileId);
+
+  if (error) return { ok: false, error: "Không thể cập nhật trạng thái tài khoản" };
+
+  revalidatePath("/manager");
+  return { ok: true, data: undefined };
+}
