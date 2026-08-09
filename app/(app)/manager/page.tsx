@@ -107,7 +107,7 @@ export default async function ManagerPage({
   ] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, full_name, phone, role, profile_branches(branch_id)")
+      .select("id, full_name, phone, role, deactivated_at, profile_branches(branch_id)")
       .order("full_name"),
     supabase.from("shift_swap_requests").select(SELECT).order("created_at", { ascending: false }),
     getBranches(),
@@ -140,7 +140,7 @@ export default async function ManagerPage({
       .order("created_at", { ascending: false }),
   ]);
 
-  type StaffQueryRow = Pick<Profile, "id" | "full_name" | "phone" | "role"> & {
+  type StaffQueryRow = Pick<Profile, "id" | "full_name" | "phone" | "role" | "deactivated_at"> & {
     profile_branches: { branch_id: string }[];
   };
   const staffList = ((staff as StaffQueryRow[] | null) ?? []).map((s) => ({
@@ -148,6 +148,7 @@ export default async function ManagerPage({
     full_name: s.full_name,
     phone: s.phone,
     role: s.role,
+    deactivated_at: s.deactivated_at,
     branch_ids: s.profile_branches.map((pb) => pb.branch_id),
   }));
   const swapsList = (swaps as SwapRequestDetailed[]) ?? [];
@@ -273,7 +274,12 @@ export default async function ManagerPage({
         {groupMeta && <p className="mb-4 text-sm text-muted-foreground">{groupMeta.description}</p>}
         <Card>
           <CardContent>
-            <StaffTable staff={scopedStaff} branches={branches} currentUserId={manager.id} />
+            <StaffTable
+              staff={scopedStaff}
+              branches={branches}
+              currentUserId={manager.id}
+              currentUserRole={manager.role}
+            />
           </CardContent>
         </Card>
       </Section>
