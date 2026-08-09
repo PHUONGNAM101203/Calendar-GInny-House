@@ -39,6 +39,7 @@ export default async function AttendanceExplainPage() {
                 request={r}
                 canRespond={false}
                 canCancel={r.status === "pending"}
+                canDelete={false}
                 showName={false}
               />
             ))}

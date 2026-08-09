@@ -4,10 +4,26 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { cancelShiftRequestAction, respondToShiftRequestAction } from "@/actions/shift-requests";
+import { TrashIcon } from "lucide-react";
+import {
+  cancelShiftRequestAction,
+  respondToShiftRequestAction,
+  deleteShiftRequestAction,
+} from "@/actions/shift-requests";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { SHIFT_REQUEST_STATUS_LABELS, SHIFT_TYPE_LABELS } from "@/lib/constants";
 import type { ShiftRequestDetailed } from "@/types";
 
@@ -21,14 +37,17 @@ export default function ShiftRequestCard({
   request,
   canRespond,
   canCancel,
+  canDelete,
   showName,
 }: {
   request: ShiftRequestDetailed;
   canRespond: boolean;
   canCancel: boolean;
+  canDelete: boolean;
   showName: boolean;
 }) {
   const [pending, setPending] = useState(false);
+  const [deleted, setDeleted] = useState(false);
 
   async function handleRespond(approve: boolean) {
     setPending(true);
@@ -55,6 +74,20 @@ export default function ShiftRequestCard({
     }
     toast.success("Đã huỷ đăng ký ca làm");
   }
+
+  async function handleDelete() {
+    setPending(true);
+    const result = await deleteShiftRequestAction(request.id);
+    setPending(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success("Đã xoá đăng ký ca làm");
+    setDeleted(true);
+  }
+
+  if (deleted) return null;
 
   const statusVariant =
     request.status === "approved" ? "success" : request.status === "pending" ? "gold" : "outline";
@@ -90,6 +123,29 @@ export default function ShiftRequestCard({
             <Button size="sm" variant="outline" disabled={pending} onClick={handleCancel}>
               Huỷ
             </Button>
+          )}
+          {canDelete && request.status === "pending" && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="icon-sm" variant="ghost" aria-label="Xoá đơn" disabled={pending}>
+                  <TrashIcon className="size-3.5" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Xoá đăng ký ca làm?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Đơn sẽ bị xoá hẳn khỏi hệ thống, khác với từ chối — không thể hoàn tác.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Huỷ</AlertDialogCancel>
+                  <AlertDialogAction variant="destructive" onClick={handleDelete}>
+                    Xoá
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </div>
       </CardContent>

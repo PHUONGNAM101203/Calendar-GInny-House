@@ -52,7 +52,7 @@ export default async function SwapRequestsPage() {
         ) : (
           <div className="space-y-3">
             {awaitingMe.map((r) => (
-              <SwapRequestCard key={r.id} request={r} canRespond canCancel={false} />
+              <SwapRequestCard key={r.id} request={r} canRespond canCancel={false} canDelete={false} />
             ))}
           </div>
         )}
@@ -65,7 +65,7 @@ export default async function SwapRequestsPage() {
         ) : (
           <div className="space-y-3">
             {mine.map((r) => (
-              <SwapRequestCard key={r.id} request={r} canRespond={false} canCancel />
+              <SwapRequestCard key={r.id} request={r} canRespond={false} canCancel canDelete={false} />
             ))}
           </div>
         )}
@@ -78,7 +78,7 @@ export default async function SwapRequestsPage() {
         ) : (
           <div className="space-y-3">
             {history.map((r) => (
-              <SwapRequestCard key={r.id} request={r} canRespond={false} canCancel={false} />
+              <SwapRequestCard key={r.id} request={r} canRespond={false} canCancel={false} canDelete={false} />
             ))}
           </div>
         )}

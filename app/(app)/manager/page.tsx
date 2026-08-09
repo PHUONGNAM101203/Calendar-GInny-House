@@ -329,6 +329,7 @@ export default async function ManagerPage({
                   request={r}
                   canRespond={r.status === "pending" && canApproveShiftRequestFor(manager.role, r.profile.role, permissions)}
                   canCancel={r.status === "pending"}
+                  canDelete={r.status === "pending" && canApproveShiftRequestFor(manager.role, r.profile.role, permissions)}
                   showName
                 />
               ))}
@@ -353,6 +354,12 @@ export default async function ManagerPage({
                   canApproveSwapRequestFor(manager.role, r.requester.role, r.target.role, permissions)
                 }
                 canCancel={r.status === "pending"}
+                canDelete={
+                  r.status === "pending" &&
+                  r.target_id !== null &&
+                  r.target !== null &&
+                  canApproveSwapRequestFor(manager.role, r.requester.role, r.target.role, permissions)
+                }
               />
             ))}
           </CollapsibleGrid>
@@ -374,6 +381,11 @@ export default async function ManagerPage({
                   canApproveLeaveFor(manager.role, r.profile.role, permissions)
                 }
                 canCancel={r.status === "pending"}
+                canDelete={
+                  r.status === "pending" &&
+                  isLeaveApprover(manager.role) &&
+                  canApproveLeaveFor(manager.role, r.profile.role, permissions)
+                }
                 showName
               />
             ))}
@@ -396,6 +408,11 @@ export default async function ManagerPage({
                   canApproveLeaveFor(manager.role, r.profile.role, permissions)
                 }
                 canCancel={r.status === "pending"}
+                canDelete={
+                  r.status === "pending" &&
+                  isLeaveApprover(manager.role) &&
+                  canApproveLeaveFor(manager.role, r.profile.role, permissions)
+                }
                 showName
               />
             ))}

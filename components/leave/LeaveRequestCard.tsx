@@ -4,11 +4,22 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { format, parse } from "date-fns";
 import { vi } from "date-fns/locale";
-import { CalendarOffIcon, SunriseIcon, SunsetIcon, ClockIcon } from "lucide-react";
-import { cancelLeaveRequestAction, respondToLeaveRequestAction } from "@/actions/leave";
+import { CalendarOffIcon, SunriseIcon, SunsetIcon, ClockIcon, TrashIcon } from "lucide-react";
+import { cancelLeaveRequestAction, respondToLeaveRequestAction, deleteLeaveRequestAction } from "@/actions/leave";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { LEAVE_STATUS_LABELS, LEAVE_REQUEST_TYPE_LABELS } from "@/lib/constants";
 import type { LeaveRequestDetailed } from "@/types";
 
@@ -47,14 +58,17 @@ export default function LeaveRequestCard({
   request,
   canRespond,
   canCancel,
+  canDelete,
   showName,
 }: {
   request: LeaveRequestDetailed;
   canRespond: boolean;
   canCancel: boolean;
+  canDelete: boolean;
   showName: boolean;
 }) {
   const [pending, setPending] = useState(false);
+  const [deleted, setDeleted] = useState(false);
 
   async function handleRespond(approve: boolean) {
     setPending(true);
@@ -81,6 +95,20 @@ export default function LeaveRequestCard({
     }
     toast.success("Đã huỷ đơn nghỉ phép");
   }
+
+  async function handleDelete() {
+    setPending(true);
+    const result = await deleteLeaveRequestAction(request.id);
+    setPending(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success("Đã xoá đơn nghỉ phép");
+    setDeleted(true);
+  }
+
+  if (deleted) return null;
 
   const statusVariant =
     request.status === "approved" ? "success" : request.status === "pending" ? "gold" : "outline";
@@ -126,6 +154,29 @@ export default function LeaveRequestCard({
             <Button size="sm" variant="outline" disabled={pending} onClick={handleCancel}>
               Huỷ
             </Button>
+          )}
+          {canDelete && request.status === "pending" && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="icon-sm" variant="ghost" aria-label="Xoá đơn" disabled={pending}>
+                  <TrashIcon className="size-3.5" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Xoá đơn nghỉ phép?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Đơn sẽ bị xoá hẳn khỏi hệ thống, khác với từ chối — không thể hoàn tác.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Huỷ</AlertDialogCancel>
+                  <AlertDialogAction variant="destructive" onClick={handleDelete}>
+                    Xoá
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </div>
       </CardContent>

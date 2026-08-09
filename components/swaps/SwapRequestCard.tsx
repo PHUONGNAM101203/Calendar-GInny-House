@@ -4,13 +4,26 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
+import { TrashIcon } from "lucide-react";
 import {
   cancelSwapRequestAction,
   respondToSwapRequestAction,
+  deleteSwapRequestAction,
 } from "@/actions/swaps";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { SWAP_STATUS_LABELS } from "@/lib/constants";
 import type { SwapRequestDetailed } from "@/types";
 
@@ -27,12 +40,15 @@ export default function SwapRequestCard({
   request,
   canRespond,
   canCancel,
+  canDelete,
 }: {
   request: SwapRequestDetailed;
   canRespond: boolean;
   canCancel: boolean;
+  canDelete: boolean;
 }) {
   const [pending, setPending] = useState(false);
+  const [deleted, setDeleted] = useState(false);
 
   async function handleRespond(accept: boolean) {
     setPending(true);
@@ -59,6 +75,20 @@ export default function SwapRequestCard({
     }
     toast.success("Đã huỷ yêu cầu");
   }
+
+  async function handleDelete() {
+    setPending(true);
+    const result = await deleteSwapRequestAction(request.id);
+    setPending(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success("Đã xoá yêu cầu đổi ca");
+    setDeleted(true);
+  }
+
+  if (deleted) return null;
 
   const statusVariant =
     request.status === "accepted"
@@ -104,6 +134,29 @@ export default function SwapRequestCard({
             <Button size="sm" variant="outline" disabled={pending} onClick={handleCancel}>
               Huỷ
             </Button>
+          )}
+          {canDelete && request.status === "pending" && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="icon-sm" variant="ghost" aria-label="Xoá yêu cầu" disabled={pending}>
+                  <TrashIcon className="size-3.5" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Xoá yêu cầu đổi ca?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Yêu cầu sẽ bị xoá hẳn khỏi hệ thống, khác với từ chối — không thể hoàn tác.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Huỷ</AlertDialogCancel>
+                  <AlertDialogAction variant="destructive" onClick={handleDelete}>
+                    Xoá
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </div>
       </CardContent>

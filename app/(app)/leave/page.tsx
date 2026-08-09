@@ -60,7 +60,14 @@ export default async function LeavePage() {
           ) : (
             <div className="space-y-3">
               {pending.map((r) => (
-                <LeaveRequestCard key={r.id} request={r} canRespond={canRespondTo(r)} canCancel={false} showName />
+                <LeaveRequestCard
+                  key={r.id}
+                  request={r}
+                  canRespond={canRespondTo(r)}
+                  canCancel={false}
+                  canDelete={false}
+                  showName
+                />
               ))}
             </div>
           )}
@@ -79,6 +86,7 @@ export default async function LeavePage() {
                 request={r}
                 canRespond={false}
                 canCancel={r.status === "pending"}
+                canDelete={false}
                 showName={false}
               />
             ))}
@@ -94,7 +102,14 @@ export default async function LeavePage() {
           ) : (
             <div className="space-y-3">
               {history.map((r) => (
-                <LeaveRequestCard key={r.id} request={r} canRespond={false} canCancel={false} showName />
+                <LeaveRequestCard
+                  key={r.id}
+                  request={r}
+                  canRespond={false}
+                  canCancel={false}
+                  canDelete={false}
+                  showName
+                />
               ))}
             </div>
           )}

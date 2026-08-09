@@ -51,7 +51,16 @@ export default function StaffRequestsDetailDialog({
       entries.push({
         key: `leave-${r.id}`,
         createdAt: r.created_at,
-        node: <LeaveRequestCard key={r.id} request={r} canRespond={false} canCancel={false} showName={false} />,
+        node: (
+          <LeaveRequestCard
+            key={r.id}
+            request={r}
+            canRespond={false}
+            canCancel={false}
+            canDelete={false}
+            showName={false}
+          />
+        ),
       });
     }
     for (const r of swapRequests) {
@@ -59,7 +68,9 @@ export default function StaffRequestsDetailDialog({
       entries.push({
         key: `swap-${r.id}`,
         createdAt: r.created_at,
-        node: <SwapRequestCard key={r.id} request={r} canRespond={false} canCancel={false} />,
+        node: (
+          <SwapRequestCard key={r.id} request={r} canRespond={false} canCancel={false} canDelete={false} />
+        ),
       });
     }
     for (const r of shiftRequests) {
@@ -67,7 +78,16 @@ export default function StaffRequestsDetailDialog({
       entries.push({
         key: `shift-${r.id}`,
         createdAt: r.created_at,
-        node: <ShiftRequestCard key={r.id} request={r} canRespond={false} canCancel={false} showName={false} />,
+        node: (
+          <ShiftRequestCard
+            key={r.id}
+            request={r}
+            canRespond={false}
+            canCancel={false}
+            canDelete={false}
+            showName={false}
+          />
+        ),
       });
     }
     for (const r of attendanceCorrections) {
@@ -76,7 +96,14 @@ export default function StaffRequestsDetailDialog({
         key: `correction-${r.id}`,
         createdAt: r.created_at,
         node: (
-          <AttendanceCorrectionCard key={r.id} request={r} canRespond={false} canCancel={false} showName={false} />
+          <AttendanceCorrectionCard
+            key={r.id}
+            request={r}
+            canRespond={false}
+            canCancel={false}
+            canDelete={false}
+            showName={false}
+          />
         ),
       });
     }
