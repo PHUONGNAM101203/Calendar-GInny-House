@@ -18,7 +18,11 @@ import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const WEEKDAY_LABELS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+// Monday-first, matching startOfWeek/endOfWeek below — the vi locale's
+// weekStartsOn is 1 (Monday), so the day grid itself is Monday-first. These
+// labels used to be Sunday-first (CN, T2...T7), which put every date one
+// column left of its real weekday (e.g. a Monday rendered under "CN").
+const WEEKDAY_LABELS = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
 
 // The same month-grid used in the calendar sidebar — extracted so any date
 // field elsewhere in the app (leave requests, etc.) can pop up the exact
