@@ -5,7 +5,7 @@
 // actual request/response flow the user is waiting on.
 import webpush from "web-push";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { canApproveLeaveFor, canApproveShiftRequestFor } from "@/lib/roles";
+import { canApproveLeaveFor, canApproveShiftRequestFor, isManagerRole } from "@/lib/roles";
 import { getGroupPermissions } from "@/lib/permissions-server";
 import type { Role } from "@/types";
 
@@ -74,19 +74,21 @@ const SHIFT_REQUEST_APPROVER_CANDIDATE_ROLES: Role[] = [
   "technical",
 ];
 
-// technical approves nothing (canApprove*For is false for it by design —
-// it's the read-only oversight role), but it DOES see every one of these
-// requests in the in-app notification bell, because buildNotifications()
-// gates on isManagerRole(), which includes technical.
+// Push mirrors the in-app notification bell, rather than the approval
+// predicates it used to gate on.
 //
-// Push was gated on the approval predicates instead, so technical got a
-// badge in the header and never a single push — someone with push switched
-// on, watching notifications appear in-app, wondering why their phone
-// stayed silent. Treating it as an observer here realigns push with what
-// the bell already shows. This grants no authority: every actual
-// permission check still runs through canApprove*For / the SQL predicates.
-function isPushObserver(role: Role): boolean {
-  return role === "technical";
+// The bell shows a pending request to every oversight role
+// (buildNotifications() gates on isManagerRole(), which includes technical),
+// but push only went to whoever could actually *approve* it. So people
+// watched notifications pile up in the header with their phone silent —
+// worst for technical, which approves nothing by design and therefore
+// received zero pushes ever.
+//
+// Anyone in an oversight role now gets the push. This grants no authority:
+// every real permission check still runs through canApprove*For and the SQL
+// predicates, so seeing a request and being able to act on it stay separate.
+function isPushOversightRole(role: Role): boolean {
+  return isManagerRole(role) || role === "hr" || role === "technical";
 }
 
 export async function sendPushToLeaveApprovers(targetRole: Role, payload: PushPayload): Promise<void> {
@@ -94,7 +96,7 @@ export async function sendPushToLeaveApprovers(targetRole: Role, payload: PushPa
   const permissions = await getGroupPermissions();
   const { data } = await supabaseAdmin.from("profiles").select("id, role").in("role", LEAVE_APPROVER_CANDIDATE_ROLES);
   const ids = (data ?? [])
-    .filter((p) => isPushObserver(p.role) || canApproveLeaveFor(p.role, targetRole, permissions))
+    .filter((p) => isPushOversightRole(p.role) || canApproveLeaveFor(p.role, targetRole, permissions))
     .map((p) => p.id);
   await sendPushToProfiles(ids, payload);
 }
@@ -107,7 +109,7 @@ export async function sendPushToShiftRequestApprovers(targetRole: Role, payload:
     .select("id, role")
     .in("role", SHIFT_REQUEST_APPROVER_CANDIDATE_ROLES);
   const ids = (data ?? [])
-    .filter((p) => isPushObserver(p.role) || canApproveShiftRequestFor(p.role, targetRole, permissions))
+    .filter((p) => isPushOversightRole(p.role) || canApproveShiftRequestFor(p.role, targetRole, permissions))
     .map((p) => p.id);
   await sendPushToProfiles(ids, payload);
 }
