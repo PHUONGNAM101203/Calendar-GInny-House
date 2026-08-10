@@ -29,12 +29,32 @@ export function TimePickerField({
 }) {
   const [open, setOpen] = useState(false);
   const activeRef = useRef<HTMLButtonElement>(null);
+  const touchStartY = useRef(0);
 
   useEffect(() => {
     if (open) {
       requestAnimationFrame(() => activeRef.current?.scrollIntoView({ block: "center" }));
     }
   }, [open]);
+
+  // This popover portals outside the parent Dialog's DOM subtree, so Radix's
+  // modal scroll lock (react-remove-scroll) treats wheel/touch scrolling
+  // here as happening "outside the dialog" and blocks it document-wide —
+  // only dragging the scrollbar thumb survives that block. Scroll the list
+  // manually instead of relying on native wheel/touch scroll.
+  function handleWheel(e: React.WheelEvent<HTMLDivElement>) {
+    e.currentTarget.scrollTop += e.deltaY;
+  }
+
+  function handleTouchStart(e: React.TouchEvent<HTMLDivElement>) {
+    touchStartY.current = e.touches[0].clientY;
+  }
+
+  function handleTouchMove(e: React.TouchEvent<HTMLDivElement>) {
+    const currentY = e.touches[0].clientY;
+    e.currentTarget.scrollTop += touchStartY.current - currentY;
+    touchStartY.current = currentY;
+  }
 
   return (
     <div className="space-y-1.5">
@@ -53,7 +73,13 @@ export function TimePickerField({
             {formatTimeLabel(value)}
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="start" className="max-h-64 w-40 overflow-y-auto p-1">
+        <PopoverContent
+          align="start"
+          className="max-h-64 w-40 overflow-y-auto p-1"
+          onWheel={handleWheel}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+        >
           <div className="flex flex-col">
             {TIME_OPTIONS.map((t) => {
               const active = t === value;
