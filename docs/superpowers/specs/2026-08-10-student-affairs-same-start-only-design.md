@@ -50,12 +50,58 @@ where coalesce(s.duty_role, p.role) = 'student_affairs'
 Nhánh `shift_requests` (đơn đang chờ duyệt) đổi y hệt, dùng `r.duty_role`,
 `r.profile_id`, `r.start_at`, giữ nguyên `r.status = 'pending'`.
 
-**`p_end_at` giữ lại dù không còn được dùng.** Bỏ tham số bắt buộc phải
-`DROP FUNCTION` rồi tạo lại, kéo theo phải chép lại toàn bộ thân
-`request_shift` thêm một lần nữa — mà hàm đó đã có tiền sử lỗi tái phát đúng
-vì bị chép tay qua nhiều migration (ghi chú trong `0027_fix_shift_request_
-status_cast.sql` mô tả chính xác kiểu lỗi này). Đánh đổi: một tham số thừa,
-được ghi comment rõ ràng ngay tại chỗ định nghĩa.
+**Chữ ký hàm đổi** (`DROP` rồi tạo lại): bỏ `p_end_at` vì luật mới không còn
+nhìn giờ kết thúc, và thêm `p_exclude_profile_id` (xem lỗi (b) bên dưới).
+Không thể dùng `create or replace` để đổi số tham số — Postgres định danh hàm
+theo tên + kiểu tham số, nên làm vậy chỉ tạo thêm một overload và để lại bản
+cũ vẫn chạy luật cũ. Cả 2 nơi gọi đều được viết lại trong cùng migration, và
+đã rà soát không còn nơi nào khác gọi hàm này.
+
+### Hai lỗi của luật cũ, phát hiện khi rà soát — sửa luôn trong migration này
+
+Cả hai đều nằm trong chính đoạn code đang được viết lại, và đều đã được **kiểm
+chứng thực tế trên database production** trước khi sửa.
+
+**(a) Đơn đăng ký ca của quản sinh KHÔNG BAO GIỜ duyệt được.**
+`respond_to_shift_request()` insert vào `shifts` **trước**, rồi mới đổi status
+đơn sang `approved`. Nên lúc trigger chạy, đơn nguồn vẫn còn `pending` và tự
+khớp với chính nó trong nhánh kiểm `shift_requests` → luôn báo trùng suất.
+Lỗi này có từ `0037`, không phải do thay đổi lần này sinh ra, nhưng luật mới
+làm nó thành chắc chắn xảy ra thay vì tình cờ. Sửa bằng tham số mới
+`p_exclude_profile_id`: trigger truyền `new.assignee_id`, `request_shift`
+truyền `v_uid` — loại trừ chính người đang được xét. Cách này cũng đúng với
+câu thông báo, vốn nói "đã có quản sinh **khác**", chứ không phải "có bất kỳ
+dòng nào".
+
+**(b) `request_shift()` tin tưởng `p_duty_role` thô do client gửi.**
+Hàm là `security definer` và cấp cho mọi tài khoản đã đăng nhập. Trigger
+`shift_requests_validate_duty_role` chỉ dọn giá trị sai ở bước `INSERT`, tức
+là **sau** khi cổng chặn đã chạy. Nếu cổng chặn đọc giá trị thô: một quản sinh
+chỉ cần gửi `p_duty_role='teacher'` là `coalesce` ra `'teacher'`, thoát hoàn
+toàn luật trùng suất, rồi trigger dọn về `null` và dòng lưu xuống vẫn là một
+đơn quản sinh. Chiều ngược lại cũng sai — một giáo viên gửi
+`p_duty_role='student_affairs'` sẽ bị chặn oan. Sửa bằng cách tự dọn
+`p_duty_role` vào biến `v_duty` theo đúng luật của trigger **trước** khi kiểm
+tra, rồi ghi chính `v_duty` xuống, để cổng chặn và giá trị được lưu luôn khớp
+nhau.
+
+Kèm theo, thêm một lớp chặn ở tầng Server Action (`assertAssigneeAllowed`
+trong `actions/shifts.ts` và `requestShiftAction` trong
+`actions/shift-requests.ts`): nhiệm vụ ca phải là 1 trong 2 vai trò của chính
+người đó, nếu không thì báo lỗi rõ ràng thay vì âm thầm bỏ giá trị. Zod chỉ
+chặn được giá trị ngoài 3 nhiệm vụ hợp lệ, nó không biết người được xếp là ai.
+
+### Vá thêm: lỗ ba trị NULL trong 2 trigger `duty_role` của `0052`
+
+`0052` viết `new.duty_role not in (v_role, v_secondary)`. Với người **chỉ có 1
+vai trò**, `v_secondary` là `NULL`, nên biểu thức rút gọn thành
+`TRUE and NULL` = `NULL` — không phải `TRUE` — nên nhánh tự dọn không bao giờ
+chạy, và một `duty_role` sai hoàn toàn vẫn được ghi vào DB. Hệ quả nặng nhất
+là lệch phân quyền: một giáo viên thuần mang `duty_role='student_affairs'` sẽ
+khiến các đơn gắn với ca đó định tuyến sang HR thay vì GĐ đào tạo. Sửa bằng
+`is distinct from` (an toàn với `NULL`) trong cả `validate_shift_duty_role` và
+`validate_shift_request_duty_role`. Đã kiểm tra: hiện chưa có dòng nào có
+`duty_role` khác `NULL`, nên không cần dọn dữ liệu cũ.
 
 #### 2. `enforce_student_affairs_single_slot()` — cổng chặn hiểu nhiệm vụ ca
 
@@ -143,6 +189,12 @@ thật trên nhánh dev đã từng gây dương tính giả khi kiểm thử t�
       trigger) và nhân viên tự đăng ký (`request_shift` RPC).
 - [ ] **Hồi quy vai trò khác**: giáo viên/trợ giảng xếp ca chồng giờ tuỳ ý,
       hoàn toàn không bị luật này đụng tới.
+- [ ] **Lỗi (a) đã sửa**: quản sinh gửi đơn đăng ký ca → quản lý duyệt được.
+- [ ] **Lỗi (b) đã sửa**: quản sinh gửi `duty_role='teacher'` vào một suất đã
+      có quản sinh khác → vẫn bị chặn; giáo viên gửi
+      `duty_role='student_affairs'` → không bị chặn oan.
+- [ ] **Lỗ NULL đã vá**: `duty_role` sai trên người 1 vai trò → tự dọn về
+      `null`; người kiêm nhiệm gửi `duty_role` lạ → bị chặn, đòi chọn lại.
 - [ ] `npx tsc --noEmit` + `npm run lint` + `npm run build` sạch; dọn tài
       khoản test.
 

@@ -35,6 +35,13 @@ async function assertAssigneeAllowed(
   if (assignee.secondary_role && !dutyRole) {
     return "Vui lòng chọn nhiệm vụ trong ca cho nhân viên kiêm nhiệm này";
   }
+  // Nhiệm vụ ca phải là 1 trong 2 vai trò của chính người được xếp — zod chỉ
+  // chặn được giá trị ngoài 3 nhiệm vụ hợp lệ, không biết người được xếp là
+  // ai. Trigger validate_shift_duty_role tự dọn lần nữa ở tầng DB; ở đây là để
+  // báo lỗi rõ ràng thay vì âm thầm bỏ giá trị.
+  if (dutyRole && dutyRole !== assignee.role && dutyRole !== assignee.secondary_role) {
+    return "Nhiệm vụ trong ca không hợp lệ với vai trò của nhân viên này";
+  }
   if (isManagerRole(assignee.role)) return null;
 
   const { data: isMember } = await supabase.rpc("is_branch_member", {

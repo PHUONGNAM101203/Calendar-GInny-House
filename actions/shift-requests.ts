@@ -73,6 +73,18 @@ export async function requestShiftAction(input: unknown): Promise<ActionResult> 
   if (profile.secondary_role && !parsed.data.duty_role) {
     return { ok: false, error: "Vui lòng chọn nhiệm vụ trong ca cho nhân viên kiêm nhiệm này" };
   }
+  // Nhiệm vụ ca phải là 1 trong 2 vai trò của chính người gửi. Zod chỉ chặn
+  // được giá trị ngoài 3 nhiệm vụ hợp lệ, không biết người gửi là ai — thiếu
+  // kiểm tra này thì một quản sinh gửi duty_role='teacher' sẽ lách được luật
+  // trùng suất quản sinh. request_shift() cũng tự dọn lần nữa ở tầng DB; ở đây
+  // là để báo lỗi rõ ràng thay vì âm thầm bỏ giá trị.
+  if (
+    parsed.data.duty_role &&
+    parsed.data.duty_role !== profile.role &&
+    parsed.data.duty_role !== profile.secondary_role
+  ) {
+    return { ok: false, error: "Nhiệm vụ trong ca không hợp lệ với vai trò của bạn" };
+  }
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("request_shift", {
