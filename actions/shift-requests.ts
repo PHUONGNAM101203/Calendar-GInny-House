@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile, requireManager } from "@/lib/auth";
-import { isShiftRequestApprover } from "@/lib/roles";
+import { isShiftRequestApprover, effectiveRole } from "@/lib/roles";
 import { shiftRequestSchema } from "@/lib/validations/shift-request";
 import { sendPushToShiftRequestApprovers, sendPushToProfile } from "@/lib/push";
 import type { ActionResult } from "@/types";
@@ -18,6 +18,9 @@ function mapShiftRequestError(message: string): string {
   }
   if (message.includes("Ca này đã có đăng ký quản sinh")) {
     return "Ca này đã có đăng ký quản sinh";
+  }
+  if (message.includes("Vui lòng chọn nhiệm vụ trong ca")) {
+    return "Vui lòng chọn nhiệm vụ trong ca cho nhân viên kiêm nhiệm này";
   }
   return "Không thể gửi đăng ký ca làm";
 }
@@ -38,6 +41,7 @@ const SHIFT_RPC_MESSAGES = [
   "Giờ kết thúc phải sau giờ bắt đầu",
   "Vui lòng chọn cơ sở",
   "Ca này đã có đăng ký quản sinh",
+  "Vui lòng chọn nhiệm vụ trong ca cho nhân viên kiêm nhiệm này",
 ];
 
 function mapShiftRpcError(message: string, fallback: string): string {
@@ -66,6 +70,9 @@ export async function requestShiftAction(input: unknown): Promise<ActionResult> 
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" };
   }
+  if (profile.secondary_role && !parsed.data.duty_role) {
+    return { ok: false, error: "Vui lòng chọn nhiệm vụ trong ca cho nhân viên kiêm nhiệm này" };
+  }
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("request_shift", {
@@ -74,6 +81,7 @@ export async function requestShiftAction(input: unknown): Promise<ActionResult> 
     p_branch_id: parsed.data.branch_id,
     p_note: parsed.data.note || null,
     p_shift_type: parsed.data.shift_type,
+    p_duty_role: parsed.data.duty_role ?? null,
   });
 
   if (error) return { ok: false, error: mapShiftRequestError(error.message) };
@@ -82,7 +90,7 @@ export async function requestShiftAction(input: unknown): Promise<ActionResult> 
   // See actions/leave.ts's requestLeaveAction for why this is wrapped in
   // after() rather than fire-and-forget.
   after(() =>
-    sendPushToShiftRequestApprovers(profile.role, {
+    sendPushToShiftRequestApprovers(effectiveRole(parsed.data.duty_role ?? null, profile.role), {
       title: "Đăng ký ca làm mới",
       body: `${profile.full_name} vừa gửi đăng ký ca làm`,
       url: "/manager",
