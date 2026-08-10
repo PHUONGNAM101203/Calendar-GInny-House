@@ -114,7 +114,7 @@ export default function ShiftCalendar({
   currentUserName: string;
   currentUserRole: Role;
   canManageShifts: boolean;
-  branchMembers: Pick<Profile, "id" | "full_name" | "role" | "branch_ids">[];
+  branchMembers: Pick<Profile, "id" | "full_name" | "role" | "secondary_role" | "branch_ids">[];
   canFollowAll: boolean;
   followedIds: string[];
   followColors: Record<string, string>;
@@ -533,7 +533,11 @@ export default function ShiftCalendar({
       key: def.key,
       label: def.label,
       people: branchMembers
-        .filter((m) => m.id !== currentUserId && def.roles.has(m.role))
+        .filter(
+          (m) =>
+            m.id !== currentUserId &&
+            (def.roles.has(m.role) || (m.secondary_role !== null && def.roles.has(m.secondary_role)))
+        )
         .map((m) => ({
           id: m.id,
           name: m.full_name,

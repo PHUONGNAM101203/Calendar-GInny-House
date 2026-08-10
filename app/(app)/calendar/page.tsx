@@ -98,7 +98,10 @@ export default async function CalendarPage({
     // pendingSwap indicator, joined so both that indicator's dialog and the
     // sidebar can show requester/target names.
     supabase.from("shift_swap_requests").select(SWAP_SELECT).eq("status", "pending"),
-    supabase.from("profiles").select("id, full_name, role, profile_branches(branch_id)").order("full_name"),
+    supabase
+      .from("profiles")
+      .select("id, full_name, role, secondary_role, profile_branches(branch_id)")
+      .order("full_name"),
     canFollowAll
       ? supabase.from("calendar_follows").select("followee_id, color, followed").eq("follower_id", profile.id)
       : Promise.resolve({ data: [] }),
@@ -180,8 +183,18 @@ export default async function CalendarPage({
       currentUserRole={profile.role}
       canManageShifts={canCreateShiftDirectly(profile.role)}
       branchMembers={(
-        (branchMembers as (Pick<Profile, "id" | "full_name" | "role"> & { profile_branches: { branch_id: string }[] })[] | null) ?? []
-      ).map((m) => ({ id: m.id, full_name: m.full_name, role: m.role, branch_ids: m.profile_branches.map((pb) => pb.branch_id) }))}
+        (branchMembers as
+          | (Pick<Profile, "id" | "full_name" | "role" | "secondary_role"> & {
+              profile_branches: { branch_id: string }[];
+            })[]
+          | null) ?? []
+      ).map((m) => ({
+        id: m.id,
+        full_name: m.full_name,
+        role: m.role,
+        secondary_role: m.secondary_role,
+        branch_ids: m.profile_branches.map((pb) => pb.branch_id),
+      }))}
       canFollowAll={canFollowAll}
       followedIds={followRows.filter((f) => f.followed).map((f) => f.followee_id)}
       followColors={followColors}
