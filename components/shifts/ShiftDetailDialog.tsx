@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import SwapRequestDialog from "@/components/swaps/SwapRequestDialog";
 import { resolveColor } from "@/lib/calendar";
+import { ROLE_LABELS } from "@/lib/roles";
 import type { ShiftEvent } from "@/lib/calendar";
 import type { ShiftWithAssignee } from "@/types";
 
@@ -96,6 +97,10 @@ export default function ShiftDetailDialog({
               {format(new Date(shift.end_at), "h:mm a")}
             </p>
           </DialogHeader>
+
+          {shift.duty_role && (
+            <p className="text-sm text-muted-foreground">Nhiệm vụ: {ROLE_LABELS[shift.duty_role]}</p>
+          )}
 
           {shift.note && <p className="text-sm text-muted-foreground">{shift.note}</p>}
 

@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import TableScroller from "@/components/manager/TableScroller";
 import { deleteShiftAction } from "@/actions/shifts";
-import { canCreateShiftFor } from "@/lib/roles";
+import { canCreateShiftFor, ROLE_LABELS } from "@/lib/roles";
 import { periodRange, type OverviewPeriod } from "@/lib/attendance";
 import { SHIFT_TYPE_LABELS } from "@/lib/constants";
 import type { GroupPermissions } from "@/lib/permissions";
@@ -149,6 +149,7 @@ function ShiftRow({ shift, canDelete }: { shift: ShiftOverviewRow; canDelete: bo
     <tr className="border-t max-sm:block max-sm:space-y-1 max-sm:px-3 max-sm:py-2.5">
       <td className="border-b border-r px-3 py-2 font-medium max-sm:block max-sm:border-none max-sm:px-0 max-sm:py-0">
         {shift.assignee.full_name}
+        {shift.duty_role && <span className="text-muted-foreground"> · {ROLE_LABELS[shift.duty_role]}</span>}
       </td>
       <td className="border-b border-r px-3 py-2 max-sm:block max-sm:border-none max-sm:px-0 max-sm:py-0 max-sm:text-xs max-sm:text-muted-foreground">
         {format(new Date(shift.start_at), "EEEE dd/MM/yyyy", { locale: vi })}
