@@ -1,6 +1,6 @@
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
-import { isManagerRole, canApproveShiftRequestFor } from "@/lib/roles";
+import { isManagerRole, canApproveShiftRequestFor, effectiveRole } from "@/lib/roles";
 import type { GroupPermissions } from "@/lib/permissions";
 import type {
   AttendanceCorrectionDetailed,
@@ -96,7 +96,7 @@ export function buildNotifications({
 
   for (const r of shiftRequests) {
     const isMine = r.profile_id === profile.id;
-    if (r.status === "pending" && canApproveShiftRequestFor(profile.role, r.profile.role, permissions)) {
+    if (r.status === "pending" && canApproveShiftRequestFor(profile.role, effectiveRole(r.duty_role, r.profile.role), permissions)) {
       items.push({
         id: `shift-request-${r.id}`,
         text: `${r.profile.full_name} đăng ký ca làm đang chờ bạn duyệt`,

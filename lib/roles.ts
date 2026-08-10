@@ -58,6 +58,15 @@ export function getRoleLabel(profile: { role: Role; secondary_role: Role | null 
   return `${ROLE_LABELS[profile.role]} · ${ROLE_LABELS[profile.secondary_role]}`;
 }
 
+// Ca có nhiệm vụ riêng (người kiêm nhiệm) thì tính quyền duyệt theo nhiệm vụ
+// đó; ca thường (hoặc chưa chọn) rơi về vai trò chính — y hệt hành vi trước
+// khi có duty_role. Chỉ dùng ở 3 luồng gắn với 1 ca cụ thể: đăng ký ca, đổi
+// ca, giải trình công. Đơn nghỉ phép không có shift liên quan, không dùng
+// hàm này.
+export function effectiveRole(dutyRole: Role | null, primaryRole: Role): Role {
+  return dutyRole ?? primaryRole;
+}
+
 // Mirrors is_manager() in supabase/migrations/0005_role_hierarchy.sql —
 // keep both in sync if the manager-tier set ever changes. These 4 roles run
 // every cơ sở at once, so they never pick a branch for themselves (see

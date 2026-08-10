@@ -31,8 +31,8 @@ const SWAP_SELECT = `
   *,
   requester:profiles!requester_id(id, full_name, role),
   target:profiles!target_id(id, full_name, role),
-  requester_shift:shifts!requester_shift_id(id, start_at, end_at),
-  target_shift:shifts!target_shift_id(id, start_at, end_at)
+  requester_shift:shifts!requester_shift_id(id, start_at, end_at, duty_role),
+  target_shift:shifts!target_shift_id(id, start_at, end_at, duty_role)
 `;
 
 export default async function CalendarPage({
@@ -147,7 +147,7 @@ export default async function CalendarPage({
     // client-side for the sidebar/dialog approve buttons.
     supabase
       .from("attendance_corrections")
-      .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at)")
+      .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at, duty_role)")
       .eq("status", "pending")
       .order("created_at", { ascending: false }),
   ]);

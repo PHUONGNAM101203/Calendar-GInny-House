@@ -26,7 +26,7 @@ import type {
   SwapRequestDetailed,
 } from "@/types";
 import type { Holiday } from "@/lib/holidays";
-import { canApproveSwapRequestFor } from "@/lib/roles";
+import { canApproveSwapRequestFor, effectiveRole, ROLE_LABELS } from "@/lib/roles";
 import type { GroupPermissions } from "@/lib/permissions";
 
 // Local widening of LeaveRequestDetailed's profile pick — the shared type
@@ -564,7 +564,12 @@ export function toCalendarEvents(
         swap.target_id !== null &&
         swap.target !== null &&
         swap.target_id !== currentUserId &&
-        canApproveSwapRequestFor(currentUserRole, swap.requester.role, swap.target.role, permissions)
+        canApproveSwapRequestFor(
+          currentUserRole,
+          effectiveRole(swap.requester_shift.duty_role, swap.requester.role),
+          effectiveRole(swap.target_shift?.duty_role ?? null, swap.target.role),
+          permissions
+        )
       );
     }
 
@@ -580,7 +585,9 @@ export function toCalendarEvents(
 
     return {
       id: shift.id,
-      title: shift.assignee.full_name,
+      title: shift.duty_role
+        ? `${shift.assignee.full_name} · ${ROLE_LABELS[shift.duty_role]}`
+        : shift.assignee.full_name,
       start: new Date(shift.start_at),
       end: new Date(shift.end_at),
       resource: {

@@ -43,6 +43,7 @@ import {
   canApproveShiftRequestFor,
   canCreateShiftFor,
   canApproveSwapRequestFor,
+  effectiveRole,
 } from "@/lib/roles";
 import { scopeToOwnOrApprovable } from "@/lib/pending-approvals";
 import { useCalendarNav } from "@/hooks/use-calendar-nav";
@@ -409,7 +410,12 @@ export default function ShiftCalendar({
       request.target_id !== null &&
       request.target !== null &&
       request.target_id !== currentUserId &&
-      canApproveSwapRequestFor(currentUserRole, request.requester.role, request.target.role, permissions);
+      canApproveSwapRequestFor(
+        currentUserRole,
+        effectiveRole(request.requester_shift.duty_role, request.requester.role),
+        effectiveRole(request.target_shift?.duty_role ?? null, request.target.role),
+        permissions
+      );
     const pendingSwap: ShiftEvent["resource"]["pendingSwap"] = isMine
       ? request.target_id
         ? "outgoing"
@@ -428,6 +434,7 @@ export default function ShiftCalendar({
       note: null,
       created_by: null,
       shift_type: "morning",
+      duty_role: request.requester_shift.duty_role,
       assignee: {
         id: request.requester_id,
         full_name: request.requester.full_name,
@@ -612,7 +619,12 @@ export default function ShiftCalendar({
           (r.target_id === null && r.requester_id !== currentUserId) ||
           (r.target_id !== null &&
             r.target !== null &&
-            canApproveSwapRequestFor(currentUserRole, r.requester.role, r.target.role, permissions)) ||
+            canApproveSwapRequestFor(
+              currentUserRole,
+              effectiveRole(r.requester_shift.duty_role, r.requester.role),
+              effectiveRole(r.target_shift?.duty_role ?? null, r.target.role),
+              permissions
+            )) ||
           canFollowAll
       ),
     [pendingSwaps, currentUserId, currentUserRole, canFollowAll, permissions]
@@ -624,7 +636,8 @@ export default function ShiftCalendar({
         currentUserId,
         (r) => r.profile_id,
         (r) =>
-          (isLeaveApprover(currentUserRole) && canApproveLeaveFor(currentUserRole, r.profile.role, permissions)) ||
+          (isLeaveApprover(currentUserRole) &&
+            canApproveLeaveFor(currentUserRole, effectiveRole(r.shift.duty_role, r.profile.role), permissions)) ||
           canFollowAll
       ),
     [attendanceCorrections, currentUserId, currentUserRole, canFollowAll, permissions]
@@ -864,7 +877,7 @@ export default function ShiftCalendar({
             event={shiftRequestDetail}
             canRespond={canApproveShiftRequestFor(
               currentUserRole,
-              shiftRequestDetail.resource.request.profile.role,
+              effectiveRole(shiftRequestDetail.resource.request.duty_role, shiftRequestDetail.resource.request.profile.role),
               permissions
             )}
             canCancel={shiftRequestDetail.resource.request.profile_id === currentUserId}

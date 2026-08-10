@@ -33,6 +33,7 @@ export type ShiftOverviewRow = {
   start_at: string;
   end_at: string;
   shift_type: keyof typeof SHIFT_TYPE_LABELS;
+  duty_role: Role | null;
   assignee: { id: string; full_name: string; role: Role };
   branch: { id: string; name: string } | null;
 };

@@ -10,6 +10,7 @@ import {
   isShiftRequestApprover,
   canApproveSwapRequestFor,
   isManagerRole,
+  effectiveRole,
 } from "@/lib/roles";
 import { getGrantedTargetRolesUnion, getGrantedTargetRoles } from "@/lib/permissions";
 import { getGroupPermissions } from "@/lib/permissions-server";
@@ -38,8 +39,8 @@ const SELECT = `
   *,
   requester:profiles!requester_id(id, full_name, role),
   target:profiles!target_id(id, full_name, role),
-  requester_shift:shifts!requester_shift_id(id, start_at, end_at),
-  target_shift:shifts!target_shift_id(id, start_at, end_at)
+  requester_shift:shifts!requester_shift_id(id, start_at, end_at, duty_role),
+  target_shift:shifts!target_shift_id(id, start_at, end_at, duty_role)
 `;
 
 // Matches the SELECT convention above — see the `as unknown as
@@ -47,7 +48,7 @@ const SELECT = `
 // types, supabase-js can't know assignee_id/branch_id are to-one relations
 // and defaults the embedded join shape to arrays.
 const SHIFTS_OVERVIEW_SELECT =
-  "id, start_at, end_at, shift_type, assignee:profiles!assignee_id(id, full_name, role), branch:branches!branch_id(id, name)";
+  "id, start_at, end_at, shift_type, duty_role, assignee:profiles!assignee_id(id, full_name, role), branch:branches!branch_id(id, name)";
 
 type ProfileRoleRef = Pick<Profile, "id" | "full_name" | "role">;
 
@@ -145,7 +146,7 @@ export default async function ManagerPage({
       .order("created_at", { ascending: false }),
     supabase
       .from("attendance_corrections")
-      .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at)")
+      .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at, duty_role)")
       .order("created_at", { ascending: false }),
     // Feeds the new "Ca làm việc" section (Xoá ca) — capped to the last
     // 500 to keep the payload bounded; the period tabs in the table filter
@@ -331,9 +332,9 @@ export default async function ManagerPage({
                 <ShiftRequestCard
                   key={r.id}
                   request={r}
-                  canRespond={r.status === "pending" && canApproveShiftRequestFor(manager.role, r.profile.role, permissions)}
+                  canRespond={r.status === "pending" && canApproveShiftRequestFor(manager.role, effectiveRole(r.duty_role, r.profile.role), permissions)}
                   canCancel={r.status === "pending"}
-                  canDelete={r.status === "pending" && canApproveShiftRequestFor(manager.role, r.profile.role, permissions)}
+                  canDelete={r.status === "pending" && canApproveShiftRequestFor(manager.role, effectiveRole(r.duty_role, r.profile.role), permissions)}
                   showName
                 />
               ))}
@@ -355,14 +356,24 @@ export default async function ManagerPage({
                   r.status === "pending" &&
                   r.target_id !== null &&
                   r.target !== null &&
-                  canApproveSwapRequestFor(manager.role, r.requester.role, r.target.role, permissions)
+                  canApproveSwapRequestFor(
+                    manager.role,
+                    effectiveRole(r.requester_shift.duty_role, r.requester.role),
+                    effectiveRole(r.target_shift?.duty_role ?? null, r.target.role),
+                    permissions
+                  )
                 }
                 canCancel={r.status === "pending"}
                 canDelete={
                   r.status === "pending" &&
                   r.target_id !== null &&
                   r.target !== null &&
-                  canApproveSwapRequestFor(manager.role, r.requester.role, r.target.role, permissions)
+                  canApproveSwapRequestFor(
+                    manager.role,
+                    effectiveRole(r.requester_shift.duty_role, r.requester.role),
+                    effectiveRole(r.target_shift?.duty_role ?? null, r.target.role),
+                    permissions
+                  )
                 }
               />
             ))}
@@ -409,13 +420,13 @@ export default async function ManagerPage({
                 canRespond={
                   r.status === "pending" &&
                   isLeaveApprover(manager.role) &&
-                  canApproveLeaveFor(manager.role, r.profile.role, permissions)
+                  canApproveLeaveFor(manager.role, effectiveRole(r.shift.duty_role, r.profile.role), permissions)
                 }
                 canCancel={r.status === "pending"}
                 canDelete={
                   r.status === "pending" &&
                   isLeaveApprover(manager.role) &&
-                  canApproveLeaveFor(manager.role, r.profile.role, permissions)
+                  canApproveLeaveFor(manager.role, effectiveRole(r.shift.duty_role, r.profile.role), permissions)
                 }
                 showName
               />
