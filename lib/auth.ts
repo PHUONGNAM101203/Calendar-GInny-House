@@ -6,13 +6,14 @@ import { canAccessManagerPage } from "@/lib/roles";
 import type { Profile, Role } from "@/types";
 
 const PROFILE_COLUMNS =
-  "id, full_name, phone, role, color, notifications_seen_at, deactivated_at, profile_branches(branch_id)";
+  "id, full_name, phone, role, secondary_role, color, notifications_seen_at, deactivated_at, profile_branches(branch_id)";
 
 type ProfileRow = {
   id: string;
   full_name: string;
   phone: string | null;
   role: Role;
+  secondary_role: Role | null;
   color: string | null;
   notifications_seen_at: string | null;
   deactivated_at: string | null;
@@ -25,6 +26,7 @@ function toProfile(row: ProfileRow): Omit<Profile, "email"> {
     full_name: row.full_name,
     phone: row.phone,
     role: row.role,
+    secondary_role: row.secondary_role,
     color: row.color,
     notifications_seen_at: row.notifications_seen_at,
     deactivated_at: row.deactivated_at,

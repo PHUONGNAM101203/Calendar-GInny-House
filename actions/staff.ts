@@ -53,6 +53,45 @@ export async function updateStaffRoleAction(
   return { ok: true, data: undefined };
 }
 
+// Display/grouping only — never authorization (see lib/roles.ts's
+// getRoleLabel comment). The CHECK constraint in migration 0051 is the
+// real validation authority; mapStaffSecondaryRoleError translates its
+// violation into the one Vietnamese message a manager could actually hit
+// through this UI (the checkbox only ever appears for eligible roles, so
+// this is a race-condition backstop, not the primary gate).
+function mapStaffSecondaryRoleError(message: string): string {
+  if (message.includes("profiles_secondary_role_valid_pair")) {
+    return "Chỉ Giáo viên hoặc Quản sinh mới có thể kiêm nhiệm Trợ giảng";
+  }
+  return "Không thể cập nhật vai trò kiêm nhiệm";
+}
+
+export async function updateStaffSecondaryRoleAction(
+  profileId: string,
+  secondaryRole: "teaching_assistant" | null
+): Promise<ActionResult> {
+  await requireManager();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ secondary_role: secondaryRole })
+    .eq("id", profileId)
+    .select("id, secondary_role")
+    .maybeSingle();
+
+  if (error) return { ok: false, error: mapStaffSecondaryRoleError(error.message) };
+  if (!data || data.secondary_role !== secondaryRole) {
+    return {
+      ok: false,
+      error: "Không có quyền cập nhật vai trò kiêm nhiệm — hãy chắc chắn đã chạy đủ các migration mới nhất",
+    };
+  }
+
+  revalidatePath("/manager");
+  revalidatePath("/calendar");
+  return { ok: true, data: undefined };
+}
+
 // Soft-delete only — reversible, keeps every shift/request/attendance row
 // intact for history. Login is blocked in requireProfile() (lib/auth.ts),
 // not here. Restricted to technical, unlike updateStaffRoleAction/

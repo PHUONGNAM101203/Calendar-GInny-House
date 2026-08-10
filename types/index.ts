@@ -27,6 +27,10 @@ export type Profile = {
   full_name: string;
   phone: string | null;
   role: Role;
+  /** "Kiêm nhiệm" — display/grouping only, never authorization. Restricted
+   * by a DB CHECK constraint to teaching_assistant, and only when `role`
+   * is teacher or student_affairs. See supabase/migrations/0051. */
+  secondary_role: Role | null;
   branch_ids: string[];
   color: string | null;
   /** When this person last opened the notification bell; null = never. */

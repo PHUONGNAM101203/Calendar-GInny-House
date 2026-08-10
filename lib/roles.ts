@@ -43,6 +43,21 @@ export const MANAGER_GROUP_META: Partial<Record<Role, { label: string; descripti
   hr: { label: "Nhóm quản sinh", description: "Quản sinh và Trợ giảng" },
 };
 
+// Which primary roles may hold teaching_assistant as a secondary ("kiêm
+// nhiệm") role. Mirrors the profiles_secondary_role_valid_pair CHECK
+// constraint in supabase/migrations/0051_staff_secondary_role.sql — keep
+// both in sync.
+export const SECONDARY_ROLE_ELIGIBLE_ROLES: ReadonlySet<Role> = new Set(["teacher", "student_affairs"]);
+
+// Display-only combined label, e.g. "Giáo viên · Trợ giảng" — never used
+// for authorization. Approval authority stays keyed to profiles.role
+// (primary) alone; secondary_role has no effect on any can*For predicate
+// in this file.
+export function getRoleLabel(profile: { role: Role; secondary_role: Role | null }): string {
+  if (!profile.secondary_role) return ROLE_LABELS[profile.role];
+  return `${ROLE_LABELS[profile.role]} · ${ROLE_LABELS[profile.secondary_role]}`;
+}
+
 // Mirrors is_manager() in supabase/migrations/0005_role_hierarchy.sql —
 // keep both in sync if the manager-tier set ever changes. These 4 roles run
 // every cơ sở at once, so they never pick a branch for themselves (see
