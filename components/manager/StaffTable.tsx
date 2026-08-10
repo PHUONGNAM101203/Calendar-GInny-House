@@ -23,12 +23,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { updateStaffBranchesAction, updateStaffRoleAction, deactivateStaffAction } from "@/actions/staff";
-import { ROLE_HIERARCHY, ROLE_LABELS, isManagerRole } from "@/lib/roles";
+import {
+  updateStaffBranchesAction,
+  updateStaffRoleAction,
+  updateStaffSecondaryRoleAction,
+  deactivateStaffAction,
+} from "@/actions/staff";
+import { ROLE_HIERARCHY, ROLE_LABELS, SECONDARY_ROLE_ELIGIBLE_ROLES, isManagerRole } from "@/lib/roles";
 import type { Branch, Profile, Role } from "@/types";
 import TableScroller from "@/components/manager/TableScroller";
 
-type StaffRow = Pick<Profile, "id" | "full_name" | "phone" | "role" | "branch_ids" | "deactivated_at">;
+type StaffRow = Pick<
+  Profile,
+  "id" | "full_name" | "phone" | "role" | "secondary_role" | "branch_ids" | "deactivated_at"
+>;
 
 export default function StaffTable({
   staff,
@@ -160,6 +168,7 @@ function RoleAndBranchCells({
   branches: Branch[];
 }) {
   const [role, setRole] = useState<Role>(member.role);
+  const [secondaryRole, setSecondaryRole] = useState<Role | null>(member.secondary_role);
   const [branchIds, setBranchIds] = useState<string[]>(member.branch_ids);
   const [isPending, startTransition] = useTransition();
 
@@ -167,6 +176,9 @@ function RoleAndBranchCells({
     const previousRole = role;
     const next = value as Role;
     setRole(next);
+    // Optimistic mirror of the DB auto-clear trigger (0051) — avoids a
+    // checked box lingering for a pairing that's about to become invalid.
+    if (secondaryRole && !SECONDARY_ROLE_ELIGIBLE_ROLES.has(next)) setSecondaryRole(null);
     startTransition(async () => {
       const result = await updateStaffRoleAction(member.id, next);
       if (!result.ok) {
@@ -180,6 +192,21 @@ function RoleAndBranchCells({
         const branchResult = await updateStaffBranchesAction(member.id, []);
         if (branchResult.ok) setBranchIds([]);
       }
+    });
+  }
+
+  function handleSecondaryRoleChange(checked: boolean) {
+    const previous = secondaryRole;
+    const next = checked ? ("teaching_assistant" as const) : null;
+    setSecondaryRole(next);
+    startTransition(async () => {
+      const result = await updateStaffSecondaryRoleAction(member.id, next);
+      if (!result.ok) {
+        setSecondaryRole(previous);
+        toast.error(result.error);
+        return;
+      }
+      toast.success(checked ? "Đã thêm vai trò kiêm nhiệm" : "Đã bỏ vai trò kiêm nhiệm");
     });
   }
 
@@ -212,6 +239,18 @@ function RoleAndBranchCells({
             ))}
           </SelectContent>
         </Select>
+        {SECONDARY_ROLE_ELIGIBLE_ROLES.has(role) && (
+          <label className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <input
+              type="checkbox"
+              className="h-3.5 w-3.5 rounded border-input"
+              checked={secondaryRole === "teaching_assistant"}
+              disabled={isPending}
+              onChange={(e) => handleSecondaryRoleChange(e.target.checked)}
+            />
+            Kiêm Trợ giảng
+          </label>
+        )}
       </td>
       <td className="px-4 py-2 max-sm:block max-sm:px-0 max-sm:py-0">
         {isManagerRole(role) ? (
