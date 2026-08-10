@@ -9,9 +9,11 @@ import { format, parse, startOfDay } from "date-fns";
 import { ClockIcon } from "lucide-react";
 import { createShiftAction, deleteShiftAction, updateShiftAction } from "@/actions/shifts";
 import { SHIFT_TYPE_LABELS, detectShiftType } from "@/lib/constants";
-import { SHIFT_TYPES } from "@/lib/validations/shift";
-import { isManagerRole } from "@/lib/roles";
+import { SHIFT_TYPES, DUTY_ROLES } from "@/lib/validations/shift";
+import { isManagerRole, ROLE_LABELS } from "@/lib/roles";
 import type { ShiftType } from "@/types";
+
+type DutyRole = (typeof DUTY_ROLES)[number];
 import { Button } from "@/components/ui/button";
 import { DatePickerField } from "@/components/ui/date-picker-field";
 import { TimePickerField } from "@/components/ui/time-picker-field";
@@ -69,7 +71,7 @@ export default function ShiftFormDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  branchMembers: Pick<Profile, "id" | "full_name" | "role" | "branch_ids">[];
+  branchMembers: Pick<Profile, "id" | "full_name" | "role" | "secondary_role" | "branch_ids">[];
   branches: Branch[];
   shift?: ShiftWithAssignee | null;
   initialRange?: { start: Date; end: Date } | null;
@@ -81,6 +83,7 @@ export default function ShiftFormDialog({
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("11:00");
   const [shiftType, setShiftType] = useState<ShiftType>("morning");
+  const [dutyRole, setDutyRole] = useState<DutyRole | "">("");
 
   function handleStartTimeChange(value: string) {
     setStartTime(value);
@@ -118,6 +121,7 @@ export default function ShiftFormDialog({
       if (currentBranchId && !allowedBranches.some((b) => b.id === currentBranchId)) {
         setValue("branch_id", "");
       }
+      setDutyRole("");
     }
     previousAssigneeIdRef.current = selectedAssigneeId;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -133,6 +137,7 @@ export default function ShiftFormDialog({
         setStartTime(format(new Date(shift.start_at), TIME_FORMAT));
         setEndTime(format(new Date(shift.end_at), TIME_FORMAT));
         setShiftType(shift.shift_type);
+        setDutyRole((shift.duty_role as DutyRole | null) ?? "");
       } else {
         reset({ assignee_id: undefined, branch_id: undefined, note: "" });
         const base = initialRange?.start ?? new Date();
@@ -141,12 +146,18 @@ export default function ShiftFormDialog({
         setStartTime(initialStart);
         setEndTime(initialRange ? format(initialRange.end, TIME_FORMAT) : "11:00");
         setShiftType(detectShiftType(initialStart));
+        setDutyRole("");
       }
     }
   }
 
   async function onSubmit(values: FormValues) {
     setServerError("");
+
+    if (selectedAssignee?.secondary_role && !dutyRole) {
+      setServerError("Vui lòng chọn nhiệm vụ trong ca cho nhân viên kiêm nhiệm này");
+      return;
+    }
 
     const startDateTime = parse(startTime, TIME_FORMAT, date);
     const endDateTime = parse(endTime, TIME_FORMAT, date);
@@ -160,6 +171,7 @@ export default function ShiftFormDialog({
       start_at: startDateTime.toISOString(),
       end_at: endDateTime.toISOString(),
       shift_type: shiftType,
+      duty_role: dutyRole || undefined,
       note: values.note || undefined,
     };
     const result = isEdit
@@ -250,6 +262,23 @@ export default function ShiftFormDialog({
             />
             {errors.branch_id && <p className="text-sm text-destructive">{errors.branch_id.message}</p>}
           </div>
+
+          {selectedAssignee?.secondary_role && (
+            <div className="space-y-1.5">
+              <Label htmlFor="duty_role">Nhiệm vụ trong ca</Label>
+              <Select value={dutyRole} onValueChange={(v) => setDutyRole(v as DutyRole)}>
+                <SelectTrigger id="duty_role" className="w-full">
+                  <SelectValue placeholder="Chọn nhiệm vụ" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={selectedAssignee.role}>{ROLE_LABELS[selectedAssignee.role]}</SelectItem>
+                  <SelectItem value={selectedAssignee.secondary_role}>
+                    {ROLE_LABELS[selectedAssignee.secondary_role]}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-3">
             <DatePickerField
