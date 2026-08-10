@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import StaffRequestsDetailDialog from "@/components/manager/StaffRequestsDetailDialog";
 import { buildRequestsOverview } from "@/lib/requests-overview";
 import { type OverviewPeriod } from "@/lib/attendance";
-import { ROLE_LABELS } from "@/lib/roles";
+import { getRoleLabel } from "@/lib/roles";
 import TableScroller from "@/components/manager/TableScroller";
 import type {
   AttendanceCorrectionDetailed,
@@ -38,7 +38,7 @@ export default function RequestsOverviewTable({
   attendanceCorrections,
 }: {
   title?: string;
-  staff: Pick<Profile, "id" | "full_name" | "role">[];
+  staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[];
   leaveRequests: LeaveRequestDetailed[];
   swapRequests: SwapRequestDetailed[];
   shiftRequests: ShiftRequestDetailed[];
@@ -105,7 +105,7 @@ export default function RequestsOverviewTable({
                 <td className="border-b border-r px-3 py-2 font-medium">
                   {row.fullName}
                   <span className="block text-xs font-normal text-muted-foreground sm:hidden">
-                    {ROLE_LABELS[row.role]}
+                    {getRoleLabel({ role: row.role, secondary_role: row.secondaryRole })}
                   </span>
                   {/* Bốn cột đếm bị ẩn ở màn hẹp, nhưng phần lớn ô của chúng là
                       "—". Nên thay vì nhồi 4 cột rỗng, chỉ hiện loại đơn nào
@@ -131,7 +131,7 @@ export default function RequestsOverviewTable({
                     </span>
                   )}
                 </td>
-                <td className="hidden border-b border-r px-3 py-2 text-muted-foreground sm:table-cell">{ROLE_LABELS[row.role]}</td>
+                <td className="hidden border-b border-r px-3 py-2 text-muted-foreground sm:table-cell">{getRoleLabel({ role: row.role, secondary_role: row.secondaryRole })}</td>
                 <td className="hidden border-b border-r px-3 py-2 text-right tabular-nums md:table-cell">
                   {row.leaveCount || <span className="text-muted-foreground">—</span>}
                 </td>

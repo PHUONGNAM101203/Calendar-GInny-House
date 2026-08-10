@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import StaffAttendanceDetailDialog from "@/components/manager/StaffAttendanceDetailDialog";
 import { buildStaffOverview, type OverviewPeriod } from "@/lib/attendance";
-import { ROLE_LABELS } from "@/lib/roles";
+import { getRoleLabel } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 import TableScroller from "@/components/manager/TableScroller";
 import type { Attendance, LeaveRequest, Profile } from "@/types";
@@ -39,7 +39,7 @@ export default function StaffOverviewTable({
   leaveRequests,
 }: {
   title?: string;
-  staff: Pick<Profile, "id" | "full_name" | "role">[];
+  staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[];
   attendance: Attendance[];
   leaveRequests: Pick<LeaveRequest, "profile_id" | "start_date" | "end_date" | "status">[];
 }) {
@@ -106,11 +106,11 @@ export default function StaffOverviewTable({
                   {/* Vai trò chui xuống dưới tên khi cột riêng của nó bị ẩn —
                       đổi chỗ chứ không cắt bỏ, nên điện thoại không mất thông tin. */}
                   <span className="block text-xs font-normal text-muted-foreground sm:hidden">
-                    {ROLE_LABELS[row.role]}
+                    {getRoleLabel({ role: row.role, secondary_role: row.secondaryRole })}
                   </span>
                 </td>
                 <td className="hidden border-b border-r px-3 py-2 text-muted-foreground sm:table-cell">
-                  {ROLE_LABELS[row.role]}
+                  {getRoleLabel({ role: row.role, secondary_role: row.secondaryRole })}
                 </td>
                 <td className="border-b border-r px-3 py-2 tabular-nums">
                   {formatHours(row.totalMinutes)}

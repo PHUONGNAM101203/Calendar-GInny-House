@@ -144,7 +144,7 @@ export default function ManagerDashboard({
   pendingShiftRequests: number;
   pendingAttendanceCorrections: number;
   clockedInCount: number;
-  staff: Pick<Profile, "id" | "full_name" | "role">[];
+  staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[];
   attendance: Attendance[];
   leaveRequests: LeaveRequestDetailed[];
   swapRequests: SwapRequestDetailed[];

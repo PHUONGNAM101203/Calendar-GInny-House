@@ -12,6 +12,7 @@ export type RequestsOverviewRow = {
   id: string;
   fullName: string;
   role: Role;
+  secondaryRole: Role | null;
   leaveCount: number;
   swapCount: number;
   shiftRequestCount: number;
@@ -42,7 +43,7 @@ function countByProfile<T extends { created_at: string }>(
 // cancelled) — this is an activity overview, not an approval queue (that's
 // "Cần xử lý" and the per-type Sections further down /manager).
 export function buildRequestsOverview(
-  staff: Pick<Profile, "id" | "full_name" | "role">[],
+  staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[],
   leaveRequests: Pick<LeaveRequest, "profile_id" | "created_at">[],
   swapRequests: Pick<SwapRequest, "requester_id" | "created_at">[],
   shiftRequests: Pick<ShiftRequest, "profile_id" | "created_at">[],
@@ -67,6 +68,7 @@ export function buildRequestsOverview(
         id: s.id,
         fullName: s.full_name,
         role: s.role,
+        secondaryRole: s.secondary_role,
         leaveCount,
         swapCount,
         shiftRequestCount,

@@ -7,6 +7,7 @@ export type StaffOverviewRow = {
   id: string;
   fullName: string;
   role: Role;
+  secondaryRole: Role | null;
   totalMinutes: number;
   status: "in_shift" | "checked_out" | "not_clocked";
   onLeaveToday: boolean;
@@ -34,7 +35,7 @@ export function periodRange(period: OverviewPeriod, now: Date) {
 // app/(app)/manager/page.tsx) so switching Ngày/Tháng/Năm is instant, no
 // refetch.
 export function buildStaffOverview(
-  staff: Pick<Profile, "id" | "full_name" | "role">[],
+  staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[],
   attendance: Attendance[],
   leaveRequests: Pick<LeaveRequest, "profile_id" | "start_date" | "end_date" | "status">[],
   period: OverviewPeriod,
@@ -75,6 +76,7 @@ export function buildStaffOverview(
       id: s.id,
       fullName: s.full_name,
       role: s.role,
+      secondaryRole: s.secondary_role,
       totalMinutes: Math.round(minutesByProfile.get(s.id) ?? 0),
       status: (openByProfile.has(s.id)
         ? "in_shift"

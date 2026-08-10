@@ -69,7 +69,7 @@ export default function TechnicalDashboard({
   attendanceCorrections,
   groupPermissions,
 }: {
-  staff: Pick<Profile, "id" | "full_name" | "role">[];
+  staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[];
   attendance: Attendance[];
   leaveRequests: LeaveRequestDetailed[];
   swapRequests: SwapRequestDetailed[];
