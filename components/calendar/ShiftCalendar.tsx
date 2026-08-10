@@ -568,6 +568,11 @@ export default function ShiftCalendar({
     return branches.filter((b) => self?.branch_ids.includes(b.id));
   }, [branches, branchMembers, currentUserId, currentUserRole]);
 
+  const currentUserSecondaryRole = useMemo(
+    () => branchMembers.find((m) => m.id === currentUserId)?.secondary_role ?? null,
+    [branchMembers, currentUserId]
+  );
+
   // ShiftFormDialog's assignee picker must only offer people this viewer is
   // actually allowed to create/edit a shift for — branchMembers itself stays
   // unfiltered (it also feeds the follow/legend sidebar, which needs the
@@ -687,6 +692,8 @@ export default function ShiftCalendar({
     groups: followGroups,
     canFollowAll,
     currentUserName,
+    currentUserRole,
+    currentUserSecondaryRole,
     showHolidays,
     onToggleHolidays: setShowHolidays,
     eventToggles,
