@@ -118,6 +118,10 @@ export default async function ManagerPage({
     supabase
       .from("profiles")
       .select("id, full_name, phone, role, secondary_role, deactivated_at, profile_branches(branch_id)")
+      // Excludes the daily audit routine's dedicated login (0054) — it's
+      // not a real employee and would otherwise skew every staff-facing
+      // list and the TechnicalDashboard role pie chart fed by staffList.
+      .eq("is_monitoring_account", false)
       .order("full_name"),
     supabase.from("shift_swap_requests").select(SELECT).order("created_at", { ascending: false }),
     getBranches(),

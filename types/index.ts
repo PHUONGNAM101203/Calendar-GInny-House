@@ -37,6 +37,9 @@ export type Profile = {
   notifications_seen_at: string | null;
   /** Soft-delete: blocks login, reversible. null = active account. */
   deactivated_at: string | null;
+  /** The daily audit routine's dedicated login — excluded from staff
+   * listings/aggregates. See supabase/migrations/0054. */
+  is_monitoring_account: boolean;
 };
 
 export type ShiftType = "morning" | "afternoon" | "evening" | "remote";

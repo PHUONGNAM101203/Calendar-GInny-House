@@ -101,6 +101,9 @@ export default async function CalendarPage({
     supabase
       .from("profiles")
       .select("id, full_name, role, secondary_role, profile_branches(branch_id)")
+      // Excludes the daily audit routine's dedicated login (0054) from the
+      // sidebar's follow-color groups — it's not a real employee.
+      .eq("is_monitoring_account", false)
       .order("full_name"),
     canFollowAll
       ? supabase.from("calendar_follows").select("followee_id, color, followed").eq("follower_id", profile.id)
