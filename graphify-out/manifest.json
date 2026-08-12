@@ -90,8 +90,8 @@
     "semantic_hash": "a3a8d0493b34ead8d823fa3156599d2c"
   },
   "app/(app)/calendar/page.tsx": {
-    "mtime": 1786506838.0773292,
-    "ast_hash": "822096366186116bb10140993dc2ab88",
+    "mtime": 1786509764.8427527,
+    "ast_hash": "0f69c28884f4dcb53300705169c054ca",
     "semantic_hash": ""
   },
   "app/(app)/layout.tsx": {
@@ -115,8 +115,8 @@
     "semantic_hash": "f9d8ca010174db8d5387f086db48be9a"
   },
   "app/(app)/manager/page.tsx": {
-    "mtime": 1786506827.861107,
-    "ast_hash": "61372a72b942cdd5764c4ccda5f66a3a",
+    "mtime": 1786509895.3860533,
+    "ast_hash": "9123e04279e845296c38fab269133a48",
     "semantic_hash": ""
   },
   "app/(app)/swaps/page.tsx": {
@@ -165,8 +165,8 @@
     "semantic_hash": "511bb779e36b2c10a422b57006ee0171"
   },
   "components/attendance/AttendanceCorrectionCard.tsx": {
-    "mtime": 1786260933.0926757,
-    "ast_hash": "e2407c5730a501fce6c95bd972fe00cd",
+    "mtime": 1786509895.3991077,
+    "ast_hash": "b3d4237bea86306ef16ed7fc5c4d03c1",
     "semantic_hash": ""
   },
   "components/attendance/AttendanceCorrectionForm.tsx": {
@@ -255,8 +255,8 @@
     "semantic_hash": "24a5bb12cab3e77a2753210a75a9faf6"
   },
   "components/calendar/ShiftCalendar.tsx": {
-    "mtime": 1786335650.823562,
-    "ast_hash": "d5d74e7078a96eb745d3b551b5379a0e",
+    "mtime": 1786509771.921162,
+    "ast_hash": "5d0414c583d180ad319c87ba541c9ee7",
     "semantic_hash": ""
   },
   "components/calendar/ShiftCalendarLoader.tsx": {
@@ -280,8 +280,8 @@
     "semantic_hash": ""
   },
   "components/layout/AppHeader.tsx": {
-    "mtime": 1786257653.1531532,
-    "ast_hash": "7d14dd962335d02709364e57f35912b2",
+    "mtime": 1786509915.9066317,
+    "ast_hash": "d36768d5a2e2b947ab0e7a427988721d",
     "semantic_hash": ""
   },
   "components/layout/AppLauncher.tsx": {
@@ -305,9 +305,9 @@
     "semantic_hash": "75605942fad52be6bafa3bd9d649d41e"
   },
   "components/layout/RealtimeClock.tsx": {
-    "mtime": 1786009889.6255326,
-    "ast_hash": "7be41ae68be3f76169bdda78b8cf2470",
-    "semantic_hash": "7be41ae68be3f76169bdda78b8cf2470"
+    "mtime": 1786509926.4132798,
+    "ast_hash": "dc3e85b06909a7566639aec675a10989",
+    "semantic_hash": ""
   },
   "components/layout/ThemeToggle.tsx": {
     "mtime": 1786009889.6256015,
@@ -320,8 +320,8 @@
     "semantic_hash": "963d3b8565e1c822c511770d4c1748a0"
   },
   "components/leave/LeaveRequestCard.tsx": {
-    "mtime": 1786260850.7093942,
-    "ast_hash": "7587c8b967dadf2e04a848c6f017ab64",
+    "mtime": 1786509895.3971696,
+    "ast_hash": "a49b291eaf092da2c56e7b6b3658fd17",
     "semantic_hash": ""
   },
   "components/leave/LeaveRequestDialog.tsx": {
@@ -335,13 +335,13 @@
     "semantic_hash": "4a7f2e5b06d186d66774ff8582f60024"
   },
   "components/manager/ManagerDashboard.tsx": {
-    "mtime": 1786326727.6852353,
-    "ast_hash": "6b9184ba36b3aacda5165faa0f43039f",
+    "mtime": 1786509911.225621,
+    "ast_hash": "fe4e3d1ea033fd34e386f8f5a5c257c1",
     "semantic_hash": ""
   },
   "components/manager/RequestsOverviewTable.tsx": {
-    "mtime": 1786326707.7832148,
-    "ast_hash": "ce0a0791b45cf3be5c3068be92743535",
+    "mtime": 1786509813.3112273,
+    "ast_hash": "a64011d9f31036693566bfdad4174151",
     "semantic_hash": ""
   },
   "components/manager/StaffAttendanceDetailDialog.tsx": {
@@ -350,8 +350,8 @@
     "semantic_hash": ""
   },
   "components/manager/StaffOverviewTable.tsx": {
-    "mtime": 1786326684.588182,
-    "ast_hash": "f685115c85b7cf6a5508b53c6afcafef",
+    "mtime": 1786509813.3104813,
+    "ast_hash": "08371abea67a978bcd7a815357261370",
     "semantic_hash": ""
   },
   "components/manager/StaffRequestsDetailDialog.tsx": {
@@ -360,8 +360,8 @@
     "semantic_hash": ""
   },
   "components/manager/StaffTable.tsx": {
-    "mtime": 1786326596.3038576,
-    "ast_hash": "acf9a2474a0d1429d31364af85f613d8",
+    "mtime": 1786509842.809375,
+    "ast_hash": "31fe49f65f9d197cc6305a22c6cd3524",
     "semantic_hash": ""
   },
   "components/manager/TechnicalDashboard.tsx": {
@@ -380,8 +380,8 @@
     "semantic_hash": ""
   },
   "components/shifts/ShiftRequestCard.tsx": {
-    "mtime": 1786260878.115832,
-    "ast_hash": "80a3f7da770308e0ab871abdfff47abb",
+    "mtime": 1786509895.3979762,
+    "ast_hash": "72865edeb75e41be9574197d7d0ecbc6",
     "semantic_hash": ""
   },
   "components/shifts/ShiftRequestDialog.tsx": {
@@ -390,8 +390,8 @@
     "semantic_hash": ""
   },
   "components/swaps/SwapRequestCard.tsx": {
-    "mtime": 1786260905.4576545,
-    "ast_hash": "d5ff95713329e3f57ea7b01f0c237b19",
+    "mtime": 1786509895.3985827,
+    "ast_hash": "b6f5a0b1b553ebbffd93629c7a2fb3e1",
     "semantic_hash": ""
   },
   "components/swaps/SwapRequestDialog.tsx": {
@@ -510,9 +510,9 @@
     "semantic_hash": ""
   },
   "hooks/use-is-mobile.ts": {
-    "mtime": 1786009889.6301632,
-    "ast_hash": "65fe5ef41a5b61fe3042ca3547e85fc9",
-    "semantic_hash": "65fe5ef41a5b61fe3042ca3547e85fc9"
+    "mtime": 1786509715.2031095,
+    "ast_hash": "df5e7eaee35c572acfa6740798f69e76",
+    "semantic_hash": ""
   },
   "hooks/use-persistent-collapse.ts": {
     "mtime": 1786074106.8096025,
@@ -655,7 +655,7 @@
     "semantic_hash": "05080972d9b666c50e9beb22f7959b05"
   },
   "next.config.ts": {
-    "mtime": 1786009889.6323555,
+    "mtime": 1786508372.6636043,
     "ast_hash": "092a0cba8610b77b3cd5da2aaddebfea",
     "semantic_hash": "092a0cba8610b77b3cd5da2aaddebfea"
   },
@@ -1020,8 +1020,8 @@
     "semantic_hash": ""
   },
   "components/manager/CollapsibleGrid.tsx": {
-    "mtime": 1786178818.7377796,
-    "ast_hash": "ada97773ec3e786e904b684414dd05d8",
+    "mtime": 1786509880.9756274,
+    "ast_hash": "8c9c4eae94ef36c9f62ddb1ee9fd1d3f",
     "semantic_hash": ""
   },
   "components/manager/TableScroller.tsx": {
@@ -1100,8 +1100,8 @@
     "semantic_hash": ""
   },
   "components/manager/ShiftsOverviewTable.tsx": {
-    "mtime": 1786335822.6884468,
-    "ast_hash": "fd1fcfc4c21b210949f6607f996af827",
+    "mtime": 1786509842.8080883,
+    "ast_hash": "f5f7954e887762f366382cc315bea312",
     "semantic_hash": ""
   },
   "app/auth/deactivated/route.ts": {
