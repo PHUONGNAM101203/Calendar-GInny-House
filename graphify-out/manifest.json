@@ -90,8 +90,8 @@
     "semantic_hash": "a3a8d0493b34ead8d823fa3156599d2c"
   },
   "app/(app)/calendar/page.tsx": {
-    "mtime": 1786334136.2533839,
-    "ast_hash": "8cda04c1160ad557880e6f41b68b9856",
+    "mtime": 1786506838.0773292,
+    "ast_hash": "822096366186116bb10140993dc2ab88",
     "semantic_hash": ""
   },
   "app/(app)/layout.tsx": {
@@ -115,8 +115,8 @@
     "semantic_hash": "f9d8ca010174db8d5387f086db48be9a"
   },
   "app/(app)/manager/page.tsx": {
-    "mtime": 1786334315.9041195,
-    "ast_hash": "e7891522835df74af1edac7204ada7e2",
+    "mtime": 1786506827.861107,
+    "ast_hash": "61372a72b942cdd5764c4ccda5f66a3a",
     "semantic_hash": ""
   },
   "app/(app)/swaps/page.tsx": {
@@ -525,8 +525,8 @@
     "semantic_hash": ""
   },
   "lib/auth.ts": {
-    "mtime": 1786326537.8402424,
-    "ast_hash": "5fc82373de48d539c1b507acc6a50606",
+    "mtime": 1786506854.7532947,
+    "ast_hash": "464ac443dd057bb334dfc3211325be06",
     "semantic_hash": ""
   },
   "lib/branches.ts": {
@@ -905,8 +905,8 @@
     "semantic_hash": "02fc19ad21338c2ab820a70136310db4"
   },
   "types/index.ts": {
-    "mtime": 1786334125.5481892,
-    "ast_hash": "37a2e8e0e5bece6dca3c45e5fdcc7b7b",
+    "mtime": 1786506795.5844479,
+    "ast_hash": "c20a9bf290194200d6a4eddff8783eb4",
     "semantic_hash": ""
   },
   "AGENTS.md": {
@@ -1147,6 +1147,11 @@
   "docs/superpowers/specs/2026-08-12-daily-audit-routine-design.md": {
     "mtime": 1786506764.5407522,
     "ast_hash": "23c75eecb581473dff167eee1a013b98",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/0054_monitoring_account_flag.sql": {
+    "mtime": 1786506784.5590057,
+    "ast_hash": "caf29f6268f15eb96b77c37658882f2c",
     "semantic_hash": ""
   }
 }
