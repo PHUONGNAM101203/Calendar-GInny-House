@@ -1143,5 +1143,10 @@
     "mtime": 1786342407.391268,
     "ast_hash": "c555548bdb0a1f1c97e5f2424921b7e5",
     "semantic_hash": ""
+  },
+  "docs/superpowers/specs/2026-08-12-daily-audit-routine-design.md": {
+    "mtime": 1786506764.5407522,
+    "ast_hash": "23c75eecb581473dff167eee1a013b98",
+    "semantic_hash": ""
   }
 }
