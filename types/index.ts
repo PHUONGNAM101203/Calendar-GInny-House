@@ -53,7 +53,6 @@ export type Shift = {
   note: string | null;
   created_by: string | null;
   shift_type: ShiftType;
-  duty_role: Role | null;
 };
 
 export type ShiftWithAssignee = Shift & {
@@ -74,7 +73,6 @@ export type ShiftRequest = {
   resolved_at: string | null;
   created_at: string;
   shift_type: ShiftType;
-  duty_role: Role | null;
 };
 
 export type ShiftRequestDetailed = ShiftRequest & {
@@ -98,8 +96,8 @@ export type SwapRequest = {
 export type SwapRequestDetailed = SwapRequest & {
   requester: Pick<Profile, "id" | "full_name" | "role">;
   target: Pick<Profile, "id" | "full_name" | "role"> | null;
-  requester_shift: Pick<Shift, "id" | "start_at" | "end_at" | "duty_role">;
-  target_shift: Pick<Shift, "id" | "start_at" | "end_at" | "duty_role"> | null;
+  requester_shift: Pick<Shift, "id" | "start_at" | "end_at">;
+  target_shift: Pick<Shift, "id" | "start_at" | "end_at"> | null;
 };
 
 export type Attendance = {
@@ -136,7 +134,7 @@ export type AttendanceCorrection = {
 
 export type AttendanceCorrectionDetailed = AttendanceCorrection & {
   profile: Pick<Profile, "id" | "full_name" | "role">;
-  shift: Pick<Shift, "id" | "start_at" | "end_at" | "duty_role">;
+  shift: Pick<Shift, "id" | "start_at" | "end_at">;
 };
 
 export type LeaveRequestType = "full_day" | "late_arrival" | "early_leave" | "hourly";

@@ -11,13 +11,19 @@ function mapAttendanceError(message: string): string {
   if (message.includes("đã chấm công vào rồi")) return "Bạn đã chấm công vào rồi";
   if (message.includes("chưa chấm công vào")) return "Bạn chưa chấm công vào";
   if (message.includes("không có ca làm việc nào")) return "Bạn không có ca làm việc nào trong khung giờ này";
+  if (message.includes("Vui lòng chọn cơ sở")) return "Vui lòng chọn cơ sở";
+  if (message.includes("không thuộc cơ sở này")) return "Bạn không thuộc cơ sở này";
   return "Không thể ghi nhận chấm công";
 }
 
-export async function clockInAction(): Promise<ActionResult<Attendance>> {
+// branchId is only read when the caller has no matching shift right now —
+// see clock_in() (0056): a real matching shift always wins and this value
+// is ignored, so passing it for every clock-in (not just the trợ giảng
+// no-shift path) is harmless.
+export async function clockInAction(branchId?: string): Promise<ActionResult<Attendance>> {
   await requireProfile();
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("clock_in");
+  const { data, error } = await supabase.rpc("clock_in", { p_branch_id: branchId ?? null });
 
   if (error) return { ok: false, error: mapAttendanceError(error.message) };
 
@@ -104,5 +110,38 @@ export async function clockOutAction(): Promise<ActionResult<Attendance>> {
 
   revalidatePath("/attendance");
   revalidatePath("/manager");
+  return { ok: true, data: data as Attendance };
+}
+
+function mapManualAttendanceError(message: string): string {
+  if (message.includes("không có quyền tạo chấm công thủ công")) {
+    return "Bạn không có quyền tạo chấm công thủ công";
+  }
+  if (message.includes("Giờ ra phải sau giờ vào")) return "Giờ ra phải sau giờ vào";
+  if (message.includes("không thuộc cơ sở đã chọn")) return "Nhân viên này không thuộc cơ sở đã chọn";
+  return "Không thể tạo chấm công thủ công";
+}
+
+// Backfill for a missed trợ giảng free (shiftless) clock-in — see
+// create_attendance_manual() (0056). Role-gated server-side by the RPC
+// itself (technical only); requireProfile() here is just the auth floor.
+export async function createAttendanceManualAction(input: {
+  profile_id: string;
+  branch_id: string;
+  check_in_at: string;
+  check_out_at: string;
+}): Promise<ActionResult<Attendance>> {
+  await requireProfile();
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("create_attendance_manual", {
+    p_profile_id: input.profile_id,
+    p_branch_id: input.branch_id,
+    p_check_in_at: input.check_in_at,
+    p_check_out_at: input.check_out_at,
+  });
+
+  if (error) return { ok: false, error: mapManualAttendanceError(error.message) };
+
+  revalidateAttendanceManagePaths();
   return { ok: true, data: data as Attendance };
 }

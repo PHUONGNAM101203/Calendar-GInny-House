@@ -15,10 +15,14 @@ import {
   ReferenceDot,
   Label,
 } from "recharts";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
+import { AlertTriangleIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import StaffOverviewTable from "@/components/manager/StaffOverviewTable";
 import RequestsOverviewTable from "@/components/manager/RequestsOverviewTable";
 import GroupPermissionsEditor, { type ManagerHolders } from "@/components/manager/GroupPermissionsEditor";
+import CreateAttendanceManualDialog from "@/components/manager/CreateAttendanceManualDialog";
 import { GROUP_MANAGER_ROLES } from "@/lib/permissions";
 import { aggregateStaffByRole, aggregateHoursByDay } from "@/lib/attendance";
 import { ROLE_LABELS } from "@/lib/roles";
@@ -26,6 +30,7 @@ import type { GroupPermissions } from "@/lib/permissions";
 import type {
   Attendance,
   AttendanceCorrectionDetailed,
+  Branch,
   LeaveRequestDetailed,
   Profile,
   ShiftRequestDetailed,
@@ -68,6 +73,8 @@ export default function TechnicalDashboard({
   shiftRequests,
   attendanceCorrections,
   groupPermissions,
+  staleFreeAttendance,
+  branches,
 }: {
   staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[];
   attendance: Attendance[];
@@ -76,6 +83,9 @@ export default function TechnicalDashboard({
   shiftRequests: ShiftRequestDetailed[];
   attendanceCorrections: AttendanceCorrectionDetailed[];
   groupPermissions: GroupPermissions;
+  /** Trợ giảng free (shiftless) sessions still open — see 0056. Technical only. */
+  staleFreeAttendance: (Attendance & { profile: Pick<Profile, "id" | "full_name"> })[];
+  branches: Branch[];
 }) {
   const roleCounts = aggregateStaffByRole(staff);
   const hoursByDay = aggregateHoursByDay(attendance);
@@ -100,6 +110,31 @@ export default function TechnicalDashboard({
 
   return (
     <div className="space-y-6">
+      <div>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="font-heading text-lg font-semibold">Chấm công trợ giảng chưa chấm ra</h2>
+          <CreateAttendanceManualDialog staff={staff} branches={branches} />
+        </div>
+        {staleFreeAttendance.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Không có phiên nào đang mở quá lâu.</p>
+        ) : (
+          <ul className="space-y-2">
+            {staleFreeAttendance.map((a) => (
+              <li
+                key={a.id}
+                className="flex items-center gap-3 rounded-xl border border-gold/40 bg-gold/10 px-4 py-2.5 text-sm"
+              >
+                <AlertTriangleIcon className="size-4 shrink-0 text-gold-foreground" />
+                <span className="font-medium">{a.profile.full_name}</span>
+                <span className="text-muted-foreground">
+                  vào lúc {format(new Date(a.check_in_at), "HH:mm dd/MM/yyyy", { locale: vi })}, chưa chấm ra
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
       <div>
         <h2 className="mb-3 font-heading text-lg font-semibold">Phân quyền theo nhóm</h2>
         <GroupPermissionsEditor permissions={groupPermissions} managerHolders={managerHolders} />

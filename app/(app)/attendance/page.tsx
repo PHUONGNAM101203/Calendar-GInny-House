@@ -2,6 +2,7 @@ import Link from "next/link";
 import { subHours, addHours } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
+import { getBranches } from "@/lib/branches";
 import { PageHeader, SectionHeading } from "@/components/layout/PageChrome";
 import ClockWidget from "@/components/attendance/ClockWidget";
 import AttendanceHistory from "@/components/attendance/AttendanceHistory";
@@ -10,6 +11,13 @@ import type { Attendance, Shift } from "@/types";
 export default async function AttendancePage() {
   const profile = await requireProfile();
   const supabase = await createClient();
+
+  // Trợ giảng-eligible: primary role or secondary_role (kiêm nhiệm) — see
+  // clock_in() (0056), which allows these profiles to clock in with no
+  // matching shift, unlike everyone else.
+  const isTaEligible = profile.role === "teaching_assistant" || profile.secondary_role === "teaching_assistant";
+  const branches = isTaEligible ? await getBranches() : [];
+  const myBranches = branches.filter((b) => profile.branch_ids.includes(b.id));
 
   const now = new Date();
 
@@ -49,7 +57,7 @@ export default async function AttendancePage() {
         description="Một nút bấm mỗi khi tới hoặc rời cơ sở."
       />
 
-      <ClockWidget open={open} shifts={shifts} />
+      <ClockWidget open={open} shifts={shifts} isTaEligible={isTaEligible} branches={myBranches} />
 
       <p className="text-sm text-muted-foreground">
         Quên chấm công hoặc chấm công trễ?{" "}

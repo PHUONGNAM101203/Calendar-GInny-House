@@ -8,7 +8,14 @@ import { LogInIcon, LogOutIcon } from "lucide-react";
 import { clockInAction, clockOutAction } from "@/actions/attendance";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import type { Attendance, Shift } from "@/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { Attendance, Branch, Shift } from "@/types";
 
 type RelevantShift = Pick<Shift, "id" | "start_at" | "end_at">;
 
@@ -42,9 +49,22 @@ function getClockInGate(shifts: RelevantShift[], now: Date): ClockInGate {
   return { state: "none" };
 }
 
-export default function ClockWidget({ open, shifts }: { open: Attendance | null; shifts: RelevantShift[] }) {
+export default function ClockWidget({
+  open,
+  shifts,
+  isTaEligible,
+  branches,
+}: {
+  open: Attendance | null;
+  shifts: RelevantShift[];
+  /** Trợ giảng (primary role or kiêm nhiệm) — may clock in with no shift. */
+  isTaEligible: boolean;
+  /** Only populated (and only relevant) when isTaEligible. */
+  branches: Pick<Branch, "id" | "name">[];
+}) {
   const [isPending, startTransition] = useTransition();
   const [now, setNow] = useState(() => new Date());
+  const [freeBranchId, setFreeBranchId] = useState("");
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1_000);
@@ -52,11 +72,15 @@ export default function ClockWidget({ open, shifts }: { open: Attendance | null;
   }, []);
 
   const gate = getClockInGate(shifts, now);
-  const canClockIn = gate.state === "ready";
+  // No matching shift, but this profile is trợ giảng-eligible — they can
+  // still clock in (see clock_in(), 0056), just untied to any shift, once
+  // they pick which cơ sở they're at.
+  const isFreeClockIn = gate.state === "none" && isTaEligible;
+  const canClockIn = gate.state === "ready" || (isFreeClockIn && Boolean(freeBranchId));
 
   function handleClockIn() {
     startTransition(async () => {
-      const result = await clockInAction();
+      const result = await clockInAction(isFreeClockIn ? freeBranchId : undefined);
       if (!result.ok) {
         toast.error(result.error);
         return;
@@ -82,7 +106,9 @@ export default function ClockWidget({ open, shifts }: { open: Attendance | null;
       : gate.state === "ended"
         ? "Ca đã kết thúc, không thể chấm công"
         : gate.state === "none"
-          ? "Bạn không có ca làm việc hôm nay"
+          ? isFreeClockIn
+            ? "Không có ca — chấm công với vai trò Trợ giảng, chọn cơ sở bên dưới"
+            : "Bạn không có ca làm việc hôm nay"
           : "Tới cơ sở rồi thì bấm một nút là vào ca.";
 
   return (
@@ -123,6 +149,21 @@ export default function ClockWidget({ open, shifts }: { open: Attendance | null;
             </p>
             <p className="mt-2 text-sm text-muted-foreground">{gateMessage}</p>
           </div>
+        )}
+
+        {isFreeClockIn && (
+          <Select value={freeBranchId} onValueChange={setFreeBranchId}>
+            <SelectTrigger className="w-full max-w-56">
+              <SelectValue placeholder="Chọn cơ sở" />
+            </SelectTrigger>
+            <SelectContent>
+              {branches.map((branch) => (
+                <SelectItem key={branch.id} value={branch.id}>
+                  {branch.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         )}
 
         {open ? (

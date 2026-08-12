@@ -18,8 +18,15 @@ export async function proxy(request: NextRequest) {
 //
 // Both files are named explicitly *and* the extension list is widened, so the
 // next static asset added to public/ does not rediscover this the hard way.
+//
+// /api/ is also excluded — the app's first (and so far only) route lives at
+// /api/cron/attendance-reminders (0056), called by Vercel Cron with a Bearer
+// secret and no Supabase session cookie at all. Left in the matcher, this
+// gate would redirect that unauthenticated request to /login before the
+// route handler's own auth check ever ran, silently breaking the cron job.
+// API routes are expected to do their own auth, same as this one does.
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|json|txt|xml|webmanifest)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|json|txt|xml|webmanifest)$).*)",
   ],
 };

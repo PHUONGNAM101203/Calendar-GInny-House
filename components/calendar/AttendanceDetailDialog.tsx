@@ -29,7 +29,7 @@ import {
 import { TimePickerField } from "@/components/ui/time-picker-field";
 import { Badge } from "@/components/ui/badge";
 import { ATTENDANCE_CORRECTION_ISSUE_LABELS } from "@/lib/constants";
-import { isLeaveApprover, canApproveLeaveFor, canManageAttendanceFor, effectiveRole } from "@/lib/roles";
+import { isLeaveApprover, canApproveLeaveFor, canManageAttendanceFor } from "@/lib/roles";
 import { resolveColor, type AttendanceCalendarEvent, type AttendanceSession } from "@/lib/calendar";
 import type { GroupPermissions } from "@/lib/permissions";
 import type { Role } from "@/types";
@@ -166,7 +166,7 @@ export default function AttendanceDetailDialog({
             const canRespond =
               correction !== null &&
               isLeaveApprover(currentUserRole) &&
-              canApproveLeaveFor(currentUserRole, effectiveRole(correction.shift.duty_role, correction.profile.role), permissions);
+              canApproveLeaveFor(currentUserRole, correction.profile.role, permissions);
             const canManageSession = canManage && Boolean(s.id);
             return (
               <li key={i} className="rounded-md border bg-muted/40 p-2.5 text-sm">

@@ -36,7 +36,7 @@ import ShiftRequestDialog from "@/components/shifts/ShiftRequestDialog";
 import MiniMonth from "@/components/calendar/MiniMonth";
 import CustomEventFormDialog from "@/components/calendar/CustomEventFormDialog";
 import ColorPickerDialog from "@/components/calendar/ColorPickerDialog";
-import type { ActionResult, Branch, CustomCalendar, Role } from "@/types";
+import type { ActionResult, Branch, CustomCalendar } from "@/types";
 
 type Person = { id: string; name: string; followed: boolean; color: string | null };
 type PersonGroup = { key: string; label: string; people: Person[] };
@@ -67,8 +67,6 @@ type SidebarProps = {
   groups: PersonGroup[] | null;
   canFollowAll: boolean;
   currentUserName: string;
-  currentUserRole: Role;
-  currentUserSecondaryRole: Role | null;
   showHolidays: boolean;
   onToggleHolidays: (next: boolean) => void;
   eventToggles: EventTypeToggles;
@@ -611,8 +609,6 @@ function SidebarContent({
   groups,
   canFollowAll,
   currentUserName,
-  currentUserRole,
-  currentUserSecondaryRole,
   showHolidays,
   onToggleHolidays,
   eventToggles,
@@ -639,11 +635,7 @@ function SidebarContent({
           Tạo ca làm việc
         </Button>
       ) : (
-        <ShiftRequestDialog
-          branches={requestableBranches}
-          currentUserRole={currentUserRole}
-          currentUserSecondaryRole={currentUserSecondaryRole}
-        />
+        <ShiftRequestDialog branches={requestableBranches} />
       )}
 
       <MiniMonth date={date} onPick={onPickDate} onOpenDay={onOpenDay} />

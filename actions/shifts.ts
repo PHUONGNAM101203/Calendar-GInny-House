@@ -19,8 +19,7 @@ async function assertAssigneeAllowed(
   supabase: Awaited<ReturnType<typeof createClient>>,
   callerRole: Role,
   assigneeId: string,
-  branchId: string,
-  dutyRole: Role | null | undefined
+  branchId: string
 ): Promise<string | null> {
   const { data: assignee } = await supabase
     .from("profiles")
@@ -31,16 +30,6 @@ async function assertAssigneeAllowed(
   const permissions = await getGroupPermissions();
   if (!canCreateShiftFor(callerRole, assignee.role, permissions)) {
     return "Bạn không có quyền xếp ca cho nhân viên này";
-  }
-  if (assignee.secondary_role && !dutyRole) {
-    return "Vui lòng chọn nhiệm vụ trong ca cho nhân viên kiêm nhiệm này";
-  }
-  // Nhiệm vụ ca phải là 1 trong 2 vai trò của chính người được xếp — zod chỉ
-  // chặn được giá trị ngoài 3 nhiệm vụ hợp lệ, không biết người được xếp là
-  // ai. Trigger validate_shift_duty_role tự dọn lần nữa ở tầng DB; ở đây là để
-  // báo lỗi rõ ràng thay vì âm thầm bỏ giá trị.
-  if (dutyRole && dutyRole !== assignee.role && dutyRole !== assignee.secondary_role) {
-    return "Nhiệm vụ trong ca không hợp lệ với vai trò của nhân viên này";
   }
   if (isManagerRole(assignee.role)) return null;
 
@@ -64,9 +53,6 @@ function mapShiftError(message: string): string {
   if (message.includes("Đã có quản sinh khác trực ca bắt đầu cùng giờ này")) {
     return "Đã có quản sinh khác trực ca bắt đầu cùng giờ này";
   }
-  if (message.includes("Vui lòng chọn nhiệm vụ trong ca")) {
-    return "Vui lòng chọn nhiệm vụ trong ca cho nhân viên kiêm nhiệm này";
-  }
   // Safety net if assertAssigneeAllowed's app-level check gets bypassed by a
   // race (assignee's role changed between form-open and submit) — the RLS
   // policy (can_manage_shift_for, 0043) is the real boundary either way.
@@ -89,8 +75,7 @@ export async function createShiftAction(input: unknown): Promise<ActionResult> {
     supabase,
     manager.role,
     parsed.data.assignee_id,
-    parsed.data.branch_id,
-    parsed.data.duty_role
+    parsed.data.branch_id
   );
   if (assigneeError) return { ok: false, error: assigneeError };
 
@@ -100,7 +85,6 @@ export async function createShiftAction(input: unknown): Promise<ActionResult> {
     start_at: parsed.data.start_at,
     end_at: parsed.data.end_at,
     shift_type: parsed.data.shift_type,
-    duty_role: parsed.data.duty_role ?? null,
     // manager.id, not a second auth.getUser(). requireManager() above already
     // resolved this identity; re-fetching it cost a full network round-trip to
     // the auth server on every shift creation for a value already in hand. It
@@ -131,8 +115,7 @@ export async function updateShiftAction(
     supabase,
     manager.role,
     parsed.data.assignee_id,
-    parsed.data.branch_id,
-    parsed.data.duty_role
+    parsed.data.branch_id
   );
   if (assigneeError) return { ok: false, error: assigneeError };
 
@@ -144,7 +127,6 @@ export async function updateShiftAction(
       start_at: parsed.data.start_at,
       end_at: parsed.data.end_at,
       shift_type: parsed.data.shift_type,
-      duty_role: parsed.data.duty_role ?? null,
       note: parsed.data.note || null,
     })
     .eq("id", id);

@@ -27,33 +27,25 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { SHIFT_TYPE_LABELS, detectShiftType } from "@/lib/constants";
-import { SHIFT_TYPES, DUTY_ROLES } from "@/lib/validations/shift";
-import { ROLE_LABELS } from "@/lib/roles";
-import type { Branch, Role, ShiftType } from "@/types";
+import { SHIFT_TYPES } from "@/lib/validations/shift";
+import type { Branch, ShiftType } from "@/types";
 
 const DATE_FORMAT = "yyyy-MM-dd";
 const TIME_FORMAT = "HH:mm";
-
-type DutyRole = (typeof DUTY_ROLES)[number];
 
 export default function ShiftRequestDialog({
   trigger,
   initialRange,
   branches,
-  currentUserRole,
-  currentUserSecondaryRole,
 }: {
   trigger?: React.ReactNode;
   initialRange?: { start: Date; end: Date } | null;
   branches: Branch[];
-  currentUserRole: Role;
-  currentUserSecondaryRole: Role | null;
 }) {
   const [open, setOpen] = useState(false);
   const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [branchId, setBranchId] = useState("");
-  const [dutyRole, setDutyRole] = useState<DutyRole | "">("");
   const [date, setDate] = useState(() => startOfDay(initialRange?.start ?? new Date()));
   const [startTime, setStartTime] = useState(
     initialRange ? format(initialRange.start, TIME_FORMAT) : "09:00"
@@ -82,7 +74,6 @@ export default function ShiftRequestDialog({
       setEndTime(initialRange ? format(initialRange.end, TIME_FORMAT) : "11:00");
       setShiftType(detectShiftType(initialStart));
       setBranchId("");
-      setDutyRole("");
       setNote("");
     }
   }
@@ -93,10 +84,6 @@ export default function ShiftRequestDialog({
 
     if (!branchId) {
       setServerError("Vui lòng chọn cơ sở");
-      return;
-    }
-    if (currentUserSecondaryRole && !dutyRole) {
-      setServerError("Vui lòng chọn nhiệm vụ trong ca cho nhân viên kiêm nhiệm này");
       return;
     }
 
@@ -112,7 +99,6 @@ export default function ShiftRequestDialog({
       end_at: endDateTime.toISOString(),
       branch_id: branchId,
       shift_type: shiftType,
-      duty_role: dutyRole || undefined,
       note: note || undefined,
     });
     setIsSubmitting(false);
@@ -177,21 +163,6 @@ export default function ShiftRequestDialog({
               </SelectContent>
             </Select>
           </div>
-
-          {currentUserSecondaryRole && (
-            <div className="space-y-1.5">
-              <Label htmlFor="request_duty_role">Nhiệm vụ trong ca</Label>
-              <Select value={dutyRole} onValueChange={(v) => setDutyRole(v as DutyRole)}>
-                <SelectTrigger id="request_duty_role" className="w-full">
-                  <SelectValue placeholder="Chọn nhiệm vụ" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={currentUserRole}>{ROLE_LABELS[currentUserRole]}</SelectItem>
-                  <SelectItem value={currentUserSecondaryRole}>{ROLE_LABELS[currentUserSecondaryRole]}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
 
           <div className="space-y-1.5">
             <Label htmlFor="request_shift_type">Loại ca</Label>
