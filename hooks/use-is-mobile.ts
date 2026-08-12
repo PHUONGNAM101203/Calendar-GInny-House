@@ -2,12 +2,13 @@
 
 import { useSyncExternalStore } from "react";
 
-// Matches Tailwind's `md` breakpoint — phone-width viewports only, not
-// tablets. `undefined` on the server/first paint so callers can tell "not
-// yet known" apart from "known false" — useSyncExternalStore (not a
-// setState-in-effect) is the React-recommended way to subscribe to an
-// external browser API like matchMedia.
-const MOBILE_MAX_WIDTH = 767;
+// Matches Tailwind's `lg` breakpoint — phone AND tablet viewports get the
+// compact/mobile treatment, only true desktop widths don't. `undefined` on
+// the server/first paint so callers can tell "not yet known" apart from
+// "known false" — useSyncExternalStore (not a setState-in-effect) is the
+// React-recommended way to subscribe to an external browser API like
+// matchMedia.
+const MOBILE_MAX_WIDTH = 1023;
 const QUERY = `(max-width: ${MOBILE_MAX_WIDTH}px)`;
 
 function subscribe(onChange: () => void) {

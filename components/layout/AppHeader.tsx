@@ -38,7 +38,7 @@ export default function AppHeader({
       </Link>
 
       <div className="flex items-center gap-3">
-        <RealtimeClock className="hidden sm:flex" />
+        <RealtimeClock className="hidden lg:flex" />
 
         <div className="flex items-center gap-0.5 rounded-full border p-0.5">
           <Button

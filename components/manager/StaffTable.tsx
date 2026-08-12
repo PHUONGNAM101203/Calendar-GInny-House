@@ -53,8 +53,8 @@ export default function StaffTable({
 
   return (
     <TableScroller visibleRows={10}>
-      <table className="w-full text-sm max-sm:block">
-        <thead className="bg-muted/50 text-left text-muted-foreground max-sm:hidden">
+      <table className="w-full text-sm max-lg:block">
+        <thead className="bg-muted/50 text-left text-muted-foreground max-lg:hidden">
           <tr>
             <th className="px-4 py-2 font-medium">Họ tên</th>
             <th className="px-4 py-2 font-medium">Điện thoại</th>
@@ -63,10 +63,10 @@ export default function StaffTable({
             {canDeactivate && <th className="px-4 py-2 font-medium">Trạng thái</th>}
           </tr>
         </thead>
-        <tbody className="max-sm:block">
+        <tbody className="max-lg:block">
           {staff.map((member) => (
-            <tr key={member.id} className="border-t max-sm:block max-sm:space-y-2 max-sm:px-4 max-sm:py-3">
-              <td className="px-4 py-2 font-medium max-sm:block max-sm:px-0 max-sm:py-0">
+            <tr key={member.id} className="border-t max-lg:block max-lg:space-y-2 max-lg:px-4 max-lg:py-3">
+              <td className="px-4 py-2 font-medium max-lg:block max-lg:px-0 max-lg:py-0">
                 {member.full_name}
                 {member.id === currentUserId && (
                   <span className="ml-1 text-xs font-normal text-muted-foreground">(bạn)</span>
@@ -78,15 +78,15 @@ export default function StaffTable({
                 )}
                 {/* Số điện thoại chui xuống dưới tên khi cột riêng bị ẩn. */}
                 {member.phone && (
-                  <span className="block text-xs font-normal text-muted-foreground sm:hidden">
+                  <span className="block text-xs font-normal text-muted-foreground lg:hidden">
                     {member.phone}
                   </span>
                 )}
               </td>
-              <td className="px-4 py-2 text-muted-foreground max-sm:hidden">{member.phone || "—"}</td>
+              <td className="px-4 py-2 text-muted-foreground max-lg:hidden">{member.phone || "—"}</td>
               <RoleAndBranchCells member={member} branches={branches} />
               {canDeactivate && (
-                <td className="px-4 py-2 max-sm:block max-sm:px-0 max-sm:py-0">
+                <td className="px-4 py-2 max-lg:block max-lg:px-0 max-lg:py-0">
                   {member.id === currentUserId ? (
                     <span className="text-xs text-muted-foreground">—</span>
                   ) : (
@@ -226,9 +226,9 @@ function RoleAndBranchCells({
 
   return (
     <>
-      <td className="px-4 py-2 max-sm:block max-sm:px-0 max-sm:py-0">
+      <td className="px-4 py-2 max-lg:block max-lg:px-0 max-lg:py-0">
         <Select value={role} onValueChange={handleRoleChange} disabled={isPending}>
-          <SelectTrigger size="sm" className="w-44 max-sm:w-full">
+          <SelectTrigger size="sm" className="w-44 max-lg:w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -252,7 +252,7 @@ function RoleAndBranchCells({
           </label>
         )}
       </td>
-      <td className="px-4 py-2 max-sm:block max-sm:px-0 max-sm:py-0">
+      <td className="px-4 py-2 max-lg:block max-lg:px-0 max-lg:py-0">
         {isManagerRole(role) ? (
           <span className="text-xs text-muted-foreground">Toàn hệ thống</span>
         ) : (

@@ -120,7 +120,7 @@ export default function LeaveRequestCard({
       className="border-l-4 border-l-transparent data-[status=pending]:border-l-gold"
       data-status={request.status}
     >
-      <CardContent className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <CardContent className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
         <div className="space-y-1">
           <p className="flex items-center gap-1.5 text-sm font-medium">
             <TypeIcon className="size-3.5 shrink-0 text-muted-foreground" />

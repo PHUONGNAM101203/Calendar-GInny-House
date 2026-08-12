@@ -153,6 +153,15 @@ export default function ShiftCalendar({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile]);
 
+  // Remembers the real device category — accurate even for iPads, whose
+  // User-Agent claims to be a Mac by Apple's own design — so the NEXT
+  // visit's server render can pick the right default view with no flash.
+  // See app/(app)/calendar/page.tsx's cal_compact cookie read.
+  useEffect(() => {
+    if (isMobile === undefined) return;
+    document.cookie = `cal_compact=${isMobile ? "1" : "0"}; path=/; max-age=31536000; samesite=lax`;
+  }, [isMobile]);
+
   const [showHolidays, setShowHolidays] = useState(true);
   const [hiddenCustomCalendarIds, setHiddenCustomCalendarIds] = useState<Set<string>>(new Set());
   // "Remote" is a separate key alongside real branch ids — a remote shift

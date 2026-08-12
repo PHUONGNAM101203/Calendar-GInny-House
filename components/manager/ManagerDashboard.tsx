@@ -200,7 +200,7 @@ export default function ManagerDashboard({
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-3 lg:flex lg:items-end lg:gap-10">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-5 lg:flex lg:items-end lg:gap-10">
             <BandStat label="Nhân viên" value={totalStaff} />
             <BandStat label="Ca hôm nay" value={shiftsToday} />
             <BandStat label="Chờ đổi ca" value={pendingSwaps} tone="gold" />

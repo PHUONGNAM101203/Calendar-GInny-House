@@ -97,7 +97,7 @@ export default function ShiftRequestCard({
       className="border-l-4 border-l-transparent data-[status=pending]:border-l-gold"
       data-status={request.status}
     >
-      <CardContent className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <CardContent className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
         <div className="space-y-1">
           <p className="text-sm font-medium">
             {showName && `${request.profile.full_name} · `}

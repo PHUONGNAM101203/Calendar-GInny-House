@@ -12,10 +12,11 @@ import { cn } from "@/lib/utils";
    Sáu đơn thì vừa mắt; sáu mươi đơn thì trang thành cuộn giấy và mục nằm dưới
    coi như không tồn tại.
 
-   Số mục hiện sẵn khác nhau giữa desktop (4) và điện thoại (2), và việc đó làm
-   bằng CSS chứ không phải useIsMobile(). Lý do: hook đó trả `undefined` ở lần
-   vẽ đầu, nên chọn số bằng JS sẽ hiện 4 thẻ rồi thụt về 2 ngay sau hydrate —
-   đúng kiểu giật đã phải sửa ở lịch. CSS quyết định từ khung hình đầu tiên.
+   Số mục hiện sẵn khác nhau giữa desktop (4) và màn hẹp — điện thoại lẫn máy
+   tính bảng — (2), và việc đó làm bằng CSS chứ không phải useIsMobile(). Lý
+   do: hook đó trả `undefined` ở lần vẽ đầu, nên chọn số bằng JS sẽ hiện 4 thẻ
+   rồi thụt về 2 ngay sau hydrate — đúng kiểu giật đã phải sửa ở lịch. CSS
+   quyết định từ khung hình đầu tiên.
 
    Bộ lọc mặc định là "Tất cả", có chủ đích. Các mục này chứa đơn *chờ duyệt*;
    mặc định lọc theo ngày sẽ giấu mất đơn tồn từ tuần trước, và một đơn nghỉ
@@ -41,7 +42,7 @@ export default function CollapsibleGrid({
   dates?: string[];
   /** Số thẻ hiện sẵn trên desktop. */
   initial?: number;
-  /** Số thẻ hiện sẵn trên điện thoại — màn nhỏ nên ngưỡng thấp hơn. */
+  /** Số thẻ hiện sẵn trên màn hẹp (điện thoại + máy tính bảng). */
   initialMobile?: number;
   className?: string;
 }) {
@@ -88,7 +89,7 @@ export default function CollapsibleGrid({
           {visible.map((child, i) => (
             // Thẻ thứ 3-4 có mặt trong DOM nhưng ẩn ở màn hẹp: cùng một cây
             // DOM cho cả hai kích thước, không nhân bản, không phụ thuộc JS.
-            <div key={i} className={cn(!expanded && i >= initialMobile && "max-sm:hidden")}>
+            <div key={i} className={cn(!expanded && i >= initialMobile && "max-lg:hidden")}>
               {child}
             </div>
           ))}
@@ -102,9 +103,9 @@ export default function CollapsibleGrid({
           aria-expanded={expanded}
           className={cn(
             "flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent/40 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none",
-            // Ở desktop có thể đã hiện hết mà điện thoại thì chưa — khi đó nút
+            // Ở desktop có thể đã hiện hết mà màn hẹp thì chưa — khi đó nút
             // chỉ tồn tại trên màn hẹp.
-            hiddenDesktop <= 0 && "sm:hidden"
+            hiddenDesktop <= 0 && "lg:hidden"
           )}
         >
           {expanded ? (
@@ -113,8 +114,8 @@ export default function CollapsibleGrid({
             <>
               {/* Hai nhãn, hai con số — vì số thẻ đang ẩn khác nhau theo bề
                   rộng. Nói sai số lượng còn tệ hơn không nói. */}
-              <span className="sm:hidden">Xem thêm {hiddenMobile} mục</span>
-              <span className="hidden sm:inline">Xem thêm {Math.max(hiddenDesktop, 0)} mục</span>
+              <span className="lg:hidden">Xem thêm {hiddenMobile} mục</span>
+              <span className="hidden lg:inline">Xem thêm {Math.max(hiddenDesktop, 0)} mục</span>
             </>
           )}
           <ChevronDownIcon

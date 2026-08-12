@@ -87,11 +87,11 @@ export default function RequestsOverviewTable({
           <thead className="bg-muted/50 text-left text-muted-foreground">
             <tr>
               <th className="border-b border-r px-3 py-2 font-medium">Nhân viên</th>
-              <th className="hidden border-b border-r px-3 py-2 font-medium sm:table-cell">Vai trò</th>
-              <th className="hidden border-b border-r px-3 py-2 text-right font-medium md:table-cell">Nghỉ phép</th>
-              <th className="hidden border-b border-r px-3 py-2 text-right font-medium md:table-cell">Đổi ca</th>
-              <th className="hidden border-b border-r px-3 py-2 text-right font-medium md:table-cell">Đăng ký ca</th>
-              <th className="hidden border-b border-r px-3 py-2 text-right font-medium md:table-cell">Giải trình công</th>
+              <th className="hidden border-b border-r px-3 py-2 font-medium lg:table-cell">Vai trò</th>
+              <th className="hidden border-b border-r px-3 py-2 text-right font-medium lg:table-cell">Nghỉ phép</th>
+              <th className="hidden border-b border-r px-3 py-2 text-right font-medium lg:table-cell">Đổi ca</th>
+              <th className="hidden border-b border-r px-3 py-2 text-right font-medium lg:table-cell">Đăng ký ca</th>
+              <th className="hidden border-b border-r px-3 py-2 text-right font-medium lg:table-cell">Giải trình công</th>
               <th className="border-b px-3 py-2 text-right font-medium">Tổng</th>
             </tr>
           </thead>
@@ -104,7 +104,7 @@ export default function RequestsOverviewTable({
               >
                 <td className="border-b border-r px-3 py-2 font-medium">
                   {row.fullName}
-                  <span className="block text-xs font-normal text-muted-foreground sm:hidden">
+                  <span className="block text-xs font-normal text-muted-foreground lg:hidden">
                     {getRoleLabel({ role: row.role, secondary_role: row.secondaryRole })}
                   </span>
                   {/* Bốn cột đếm bị ẩn ở màn hẹp, nhưng phần lớn ô của chúng là
@@ -112,7 +112,7 @@ export default function RequestsOverviewTable({
                       thực sự có số. Chi tiết đầy đủ vẫn nằm trong dialog khi
                       bấm vào dòng. */}
                   {row.total > 0 && (
-                    <span className="mt-1 flex flex-wrap gap-1 md:hidden">
+                    <span className="mt-1 flex flex-wrap gap-1 lg:hidden">
                       {([
                         ["Nghỉ phép", row.leaveCount],
                         ["Đổi ca", row.swapCount],
@@ -131,17 +131,17 @@ export default function RequestsOverviewTable({
                     </span>
                   )}
                 </td>
-                <td className="hidden border-b border-r px-3 py-2 text-muted-foreground sm:table-cell">{getRoleLabel({ role: row.role, secondary_role: row.secondaryRole })}</td>
-                <td className="hidden border-b border-r px-3 py-2 text-right tabular-nums md:table-cell">
+                <td className="hidden border-b border-r px-3 py-2 text-muted-foreground lg:table-cell">{getRoleLabel({ role: row.role, secondary_role: row.secondaryRole })}</td>
+                <td className="hidden border-b border-r px-3 py-2 text-right tabular-nums lg:table-cell">
                   {row.leaveCount || <span className="text-muted-foreground">—</span>}
                 </td>
-                <td className="hidden border-b border-r px-3 py-2 text-right tabular-nums md:table-cell">
+                <td className="hidden border-b border-r px-3 py-2 text-right tabular-nums lg:table-cell">
                   {row.swapCount || <span className="text-muted-foreground">—</span>}
                 </td>
-                <td className="hidden border-b border-r px-3 py-2 text-right tabular-nums md:table-cell">
+                <td className="hidden border-b border-r px-3 py-2 text-right tabular-nums lg:table-cell">
                   {row.shiftRequestCount || <span className="text-muted-foreground">—</span>}
                 </td>
-                <td className="hidden border-b border-r px-3 py-2 text-right tabular-nums md:table-cell">
+                <td className="hidden border-b border-r px-3 py-2 text-right tabular-nums lg:table-cell">
                   {row.correctionCount || <span className="text-muted-foreground">—</span>}
                 </td>
                 <td className="border-b px-3 py-2 text-right font-medium tabular-nums">{row.total}</td>

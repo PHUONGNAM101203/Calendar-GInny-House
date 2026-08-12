@@ -1,4 +1,4 @@
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { parse, isValid, format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
@@ -62,11 +62,19 @@ export default async function CalendarPage({
   //
   // UA sniffing is imprecise, and deliberately so here: the cost of guessing
   // wrong is one tap on the view switcher, and an explicit ?view= in the URL
-  // always wins. Viewport width would be more accurate but is not knowable on
-  // the server, which is the whole point.
+  // always wins.
+  //
+  // It's also blind to tablets by design — iPadOS reports itself as a Mac in
+  // its User-Agent (Apple's own choice, so sites serve it desktop content),
+  // so a real iPad always fails this regex. ShiftCalendar writes the actual
+  // matchMedia result into the cal_compact cookie after its first client
+  // render, so every visit after the very first one (the overwhelming
+  // majority, for a tool staff open daily) gets the correct default with no
+  // flash — including tablets, which the UA string alone can never tell us.
   const userAgent = (await headers()).get("user-agent") ?? "";
   const isMobileUa = /Android|iPhone|iPod|Windows Phone|webOS|BlackBerry/i.test(userAgent);
-  const view = (params.view as CalendarView) || (isMobileUa ? "day" : "week");
+  const isCompactHint = (await cookies()).get("cal_compact")?.value === "1";
+  const view = (params.view as CalendarView) || (isMobileUa || isCompactHint ? "day" : "week");
   const { start, end } = getVisibleRange(date, view);
 
   const supabase = await createClient();

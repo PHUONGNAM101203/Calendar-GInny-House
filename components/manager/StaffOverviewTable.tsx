@@ -88,10 +88,10 @@ export default function StaffOverviewTable({
           <thead className="bg-muted/50 text-left text-muted-foreground">
             <tr>
               <th className="border-b border-r px-3 py-2 font-medium">Nhân viên</th>
-              <th className="hidden border-b border-r px-3 py-2 font-medium sm:table-cell">Vai trò</th>
+              <th className="hidden border-b border-r px-3 py-2 font-medium lg:table-cell">Vai trò</th>
               <th className="border-b border-r px-3 py-2 font-medium">Giờ làm</th>
               <th className="border-b border-r px-3 py-2 font-medium">Trạng thái</th>
-              <th className="hidden border-b px-3 py-2 font-medium md:table-cell">Nghỉ phép hôm nay</th>
+              <th className="hidden border-b px-3 py-2 font-medium lg:table-cell">Nghỉ phép hôm nay</th>
             </tr>
           </thead>
           <tbody>
@@ -105,11 +105,11 @@ export default function StaffOverviewTable({
                   {row.fullName}
                   {/* Vai trò chui xuống dưới tên khi cột riêng của nó bị ẩn —
                       đổi chỗ chứ không cắt bỏ, nên điện thoại không mất thông tin. */}
-                  <span className="block text-xs font-normal text-muted-foreground sm:hidden">
+                  <span className="block text-xs font-normal text-muted-foreground lg:hidden">
                     {getRoleLabel({ role: row.role, secondary_role: row.secondaryRole })}
                   </span>
                 </td>
-                <td className="hidden border-b border-r px-3 py-2 text-muted-foreground sm:table-cell">
+                <td className="hidden border-b border-r px-3 py-2 text-muted-foreground lg:table-cell">
                   {getRoleLabel({ role: row.role, secondary_role: row.secondaryRole })}
                 </td>
                 <td className="border-b border-r px-3 py-2 tabular-nums">
@@ -130,12 +130,12 @@ export default function StaffOverviewTable({
                   {/* Ở hẹp, cột "Nghỉ phép hôm nay" bị ẩn — huy hiệu bám theo
                       trạng thái để tin đó không biến mất khỏi màn hình nhỏ. */}
                   {row.onLeaveToday && (
-                    <span className="ml-1.5 inline-flex rounded-full bg-gold/20 px-2 py-0.5 text-xs font-medium text-gold-foreground md:hidden">
+                    <span className="ml-1.5 inline-flex rounded-full bg-gold/20 px-2 py-0.5 text-xs font-medium text-gold-foreground lg:hidden">
                       Nghỉ phép
                     </span>
                   )}
                 </td>
-                <td className="hidden border-b px-3 py-2 md:table-cell">
+                <td className="hidden border-b px-3 py-2 lg:table-cell">
                   {row.onLeaveToday ? (
                     <span className="inline-flex rounded-full bg-gold/20 px-2 py-0.5 text-xs font-medium text-gold-foreground">
                       Nghỉ phép

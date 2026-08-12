@@ -94,8 +94,8 @@ export default function ShiftsOverviewTable({
       </div>
 
       <TableScroller visibleRows={10}>
-        <table className="w-full border-collapse text-sm max-sm:block">
-          <thead className="bg-muted/50 text-left text-muted-foreground max-sm:hidden">
+        <table className="w-full border-collapse text-sm max-lg:block">
+          <thead className="bg-muted/50 text-left text-muted-foreground max-lg:hidden">
             <tr>
               <th className="border-b border-r px-3 py-2 font-medium">Nhân viên</th>
               <th className="border-b border-r px-3 py-2 font-medium">Ngày</th>
@@ -105,7 +105,7 @@ export default function ShiftsOverviewTable({
               <th className="border-b px-3 py-2 font-medium"></th>
             </tr>
           </thead>
-          <tbody className="max-sm:block">
+          <tbody className="max-lg:block">
             {rows.map((shift) => (
               <ShiftRow
                 key={shift.id}
@@ -146,24 +146,24 @@ function ShiftRow({ shift, canDelete }: { shift: ShiftOverviewRow; canDelete: bo
   if (deleted) return null;
 
   return (
-    <tr className="border-t max-sm:block max-sm:space-y-1 max-sm:px-3 max-sm:py-2.5">
-      <td className="border-b border-r px-3 py-2 font-medium max-sm:block max-sm:border-none max-sm:px-0 max-sm:py-0">
+    <tr className="border-t max-lg:block max-lg:space-y-1 max-lg:px-3 max-lg:py-2.5">
+      <td className="border-b border-r px-3 py-2 font-medium max-lg:block max-lg:border-none max-lg:px-0 max-lg:py-0">
         {shift.assignee.full_name}
         {shift.duty_role && <span className="text-muted-foreground"> · {ROLE_LABELS[shift.duty_role]}</span>}
       </td>
-      <td className="border-b border-r px-3 py-2 max-sm:block max-sm:border-none max-sm:px-0 max-sm:py-0 max-sm:text-xs max-sm:text-muted-foreground">
+      <td className="border-b border-r px-3 py-2 max-lg:block max-lg:border-none max-lg:px-0 max-lg:py-0 max-lg:text-xs max-lg:text-muted-foreground">
         {format(new Date(shift.start_at), "EEEE dd/MM/yyyy", { locale: vi })}
       </td>
-      <td className="border-b border-r px-3 py-2 tabular-nums max-sm:block max-sm:border-none max-sm:px-0 max-sm:py-0 max-sm:text-xs max-sm:text-muted-foreground">
+      <td className="border-b border-r px-3 py-2 tabular-nums max-lg:block max-lg:border-none max-lg:px-0 max-lg:py-0 max-lg:text-xs max-lg:text-muted-foreground">
         {format(new Date(shift.start_at), "HH:mm")}–{format(new Date(shift.end_at), "HH:mm")}
       </td>
-      <td className="border-b border-r px-3 py-2 max-sm:block max-sm:border-none max-sm:px-0 max-sm:py-0 max-sm:text-xs max-sm:text-muted-foreground">
+      <td className="border-b border-r px-3 py-2 max-lg:block max-lg:border-none max-lg:px-0 max-lg:py-0 max-lg:text-xs max-lg:text-muted-foreground">
         {shift.branch?.name ?? "—"}
       </td>
-      <td className="border-b border-r px-3 py-2 max-sm:block max-sm:border-none max-sm:px-0 max-sm:py-0">
+      <td className="border-b border-r px-3 py-2 max-lg:block max-lg:border-none max-lg:px-0 max-lg:py-0">
         <Badge variant="outline">{SHIFT_TYPE_LABELS[shift.shift_type]}</Badge>
       </td>
-      <td className="border-b px-3 py-2 text-right max-sm:block max-sm:border-none max-sm:px-0 max-sm:py-0">
+      <td className="border-b px-3 py-2 text-right max-lg:block max-lg:border-none max-lg:px-0 max-lg:py-0">
         {canDelete && (
           <AlertDialog>
             <AlertDialogTrigger asChild>

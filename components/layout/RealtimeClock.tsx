@@ -13,9 +13,10 @@ const formatter = new Intl.DateTimeFormat("vi-VN", {
 });
 
 // visibility is caller-driven (className) rather than baked in — the
-// header hides this below `sm` (too tight alongside the launcher/bell/user
-// menu), but the calendar page shows it on mobile instead, at its own
-// breakpoint (see ShiftCalendar.tsx).
+// header hides this below `lg` (too tight alongside the launcher/bell/user
+// menu), and the calendar page renders its own copy below `lg` instead.
+// Both must use the SAME cutoff: when the header used `sm` and the calendar
+// used `lg`, tablet widths rendered both clocks at once.
 export default function RealtimeClock({ className }: { className?: string }) {
   // Lazy initializer (not an effect + setState) so the very first paint —
   // server or client — already shows a real time instead of a placeholder;

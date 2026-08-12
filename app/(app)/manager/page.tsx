@@ -331,7 +331,7 @@ export default async function ManagerPage({
           {scopedShiftRequests.length === 0 ? (
             <p className="text-sm text-muted-foreground">Chưa có đăng ký ca làm nào.</p>
           ) : (
-            <CollapsibleGrid dates={scopedShiftRequests.map((r) => r.created_at)} className="grid gap-3 sm:grid-cols-2">
+            <CollapsibleGrid dates={scopedShiftRequests.map((r) => r.created_at)} className="grid gap-3 lg:grid-cols-2">
               {scopedShiftRequests.map((r) => (
                 <ShiftRequestCard
                   key={r.id}
@@ -351,7 +351,7 @@ export default async function ManagerPage({
         {scopedSwaps.length === 0 ? (
           <p className="text-sm text-muted-foreground">Chưa có yêu cầu đổi ca nào.</p>
         ) : (
-          <CollapsibleGrid dates={scopedSwaps.map((r) => r.created_at)} className="grid gap-3 sm:grid-cols-2">
+          <CollapsibleGrid dates={scopedSwaps.map((r) => r.created_at)} className="grid gap-3 lg:grid-cols-2">
             {scopedSwaps.map((r) => (
               <SwapRequestCard
                 key={r.id}
@@ -389,7 +389,7 @@ export default async function ManagerPage({
         {scopedLeaves.length === 0 ? (
           <p className="text-sm text-muted-foreground">Chưa có đơn nghỉ phép nào.</p>
         ) : (
-          <CollapsibleGrid dates={scopedLeaves.map((r) => r.created_at)} className="grid gap-3 sm:grid-cols-2">
+          <CollapsibleGrid dates={scopedLeaves.map((r) => r.created_at)} className="grid gap-3 lg:grid-cols-2">
             {scopedLeaves.map((r) => (
               <LeaveRequestCard
                 key={r.id}
@@ -416,7 +416,7 @@ export default async function ManagerPage({
         {scopedAttendanceCorrections.length === 0 ? (
           <p className="text-sm text-muted-foreground">Chưa có đơn giải trình công nào.</p>
         ) : (
-          <CollapsibleGrid dates={scopedAttendanceCorrections.map((r) => r.created_at)} className="grid gap-3 sm:grid-cols-2">
+          <CollapsibleGrid dates={scopedAttendanceCorrections.map((r) => r.created_at)} className="grid gap-3 lg:grid-cols-2">
             {scopedAttendanceCorrections.map((r) => (
               <AttendanceCorrectionCard
                 key={r.id}
