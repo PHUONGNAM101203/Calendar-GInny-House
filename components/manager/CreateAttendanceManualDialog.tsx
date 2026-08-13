@@ -30,10 +30,12 @@ import type { Branch, Profile } from "@/types";
 const DATE_FORMAT = "yyyy-MM-dd";
 const TIME_FORMAT = "HH:mm";
 
-// Backfills a missed trợ giảng free (shiftless) clock-in/out — technical
-// only (see create_attendance_manual(), 0056). Both times and the date are
-// always required: this fills in something that already happened, not an
-// open session.
+// Backfills a missed clock-in/out — technical only (see
+// create_attendance_manual(), 0056/0060). Both times and the date are
+// always required. If the employee already has an open session (from a
+// shift, a free clock-in, or a correction that only fixed check-in), this
+// updates that session in place rather than creating a duplicate — see
+// 0060 for why.
 export default function CreateAttendanceManualDialog({
   staff,
   branches,
