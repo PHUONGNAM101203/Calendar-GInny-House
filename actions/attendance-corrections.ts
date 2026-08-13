@@ -31,6 +31,7 @@ function mapAttendanceCorrectionError(message: string): string {
     "Không tìm thấy bản ghi chấm công liên quan — không thể khôi phục tự động",
     "Bản ghi chấm công đã có giờ ra — không thể khôi phục tự động",
     "Bản ghi chấm công đã bị sửa bởi đơn giải trình khác — không thể khôi phục tự động",
+    "Ca này đã có đơn giải trình khác đang chờ duyệt — không thể khôi phục tự động",
   ];
   return known.find((m) => message.includes(m)) ?? "Không thể xử lý đơn giải trình công";
 }

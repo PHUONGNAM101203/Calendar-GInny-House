@@ -27,6 +27,7 @@ function mapSwapError(message: string): string {
     "Đơn không hợp lệ hoặc đang chờ duyệt",
     "Không xác định được người đã nhận ca — không thể khôi phục tự động",
     "Ca đã bị thay đổi tiếp — không thể khôi phục tự động",
+    "Ca này đã có yêu cầu đổi ca khác đang chờ duyệt — không thể khôi phục tự động",
   ];
   return known.find((m) => message.includes(m)) ?? "Không thể thực hiện yêu cầu đổi ca";
 }
