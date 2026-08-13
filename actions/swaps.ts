@@ -23,6 +23,10 @@ function mapSwapError(message: string): string {
     "Ca gốc đã thay đổi, yêu cầu không còn hợp lệ",
     "Ca đối ứng đã thay đổi, yêu cầu không còn hợp lệ",
     "Không có quyền huỷ yêu cầu này",
+    "Chỉ Kỹ thuật mới có thể khôi phục đơn",
+    "Đơn không hợp lệ hoặc đang chờ duyệt",
+    "Không xác định được người đã nhận ca — không thể khôi phục tự động",
+    "Ca đã bị thay đổi tiếp — không thể khôi phục tự động",
   ];
   return known.find((m) => message.includes(m)) ?? "Không thể thực hiện yêu cầu đổi ca";
 }
@@ -138,6 +142,22 @@ export async function deleteSwapRequestAction(requestId: string): Promise<Action
 
   if (error) return { ok: false, error: "Không thể xoá yêu cầu đổi ca" };
   if (!count) return { ok: false, error: "Bạn không có quyền xoá đơn này" };
+
+  revalidateSwapPaths();
+  return { ok: true, data: undefined };
+}
+
+// Technical-only: undoes an accidental Từ chối/Huỷ/Đồng ý click. If the
+// swap was accepted, revert_swap_request also swaps assignee_id back on
+// the shift(s) involved — but only if neither shift has been reassigned
+// again since. Auto-cancelled sibling swaps from the original accept's
+// cascade are deliberately left cancelled (see design spec §Phạm vi).
+export async function revertSwapRequestAction(requestId: string): Promise<ActionResult> {
+  await requireProfile();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("revert_swap_request", { p_request_id: requestId });
+
+  if (error) return { ok: false, error: mapSwapError(error.message) };
 
   revalidateSwapPaths();
   return { ok: true, data: undefined };
