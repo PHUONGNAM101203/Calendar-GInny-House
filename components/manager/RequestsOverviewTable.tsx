@@ -36,6 +36,7 @@ export default function RequestsOverviewTable({
   swapRequests,
   shiftRequests,
   attendanceCorrections,
+  canRevert,
 }: {
   title?: string;
   staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[];
@@ -43,6 +44,7 @@ export default function RequestsOverviewTable({
   swapRequests: SwapRequestDetailed[];
   shiftRequests: ShiftRequestDetailed[];
   attendanceCorrections: AttendanceCorrectionDetailed[];
+  canRevert: boolean;
 }) {
   const [period, setPeriod] = useState<OverviewPeriod>("month");
   const [search, setSearch] = useState("");
@@ -172,6 +174,7 @@ export default function RequestsOverviewTable({
           swapRequests={swapRequests}
           shiftRequests={shiftRequests}
           attendanceCorrections={attendanceCorrections}
+          canRevert={canRevert}
         />
       )}
     </div>

@@ -26,6 +26,7 @@ export default function StaffRequestsDetailDialog({
   swapRequests,
   shiftRequests,
   attendanceCorrections,
+  canRevert,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -36,6 +37,7 @@ export default function StaffRequestsDetailDialog({
   swapRequests: SwapRequestDetailed[];
   shiftRequests: ShiftRequestDetailed[];
   attendanceCorrections: AttendanceCorrectionDetailed[];
+  canRevert: boolean;
 }) {
   const items = useMemo(() => {
     const { start, end } = periodRange(period, new Date());
@@ -58,6 +60,7 @@ export default function StaffRequestsDetailDialog({
             canRespond={false}
             canCancel={false}
             canDelete={false}
+            canRevert={canRevert}
             showName={false}
           />
         ),
@@ -69,7 +72,14 @@ export default function StaffRequestsDetailDialog({
         key: `swap-${r.id}`,
         createdAt: r.created_at,
         node: (
-          <SwapRequestCard key={r.id} request={r} canRespond={false} canCancel={false} canDelete={false} />
+          <SwapRequestCard
+            key={r.id}
+            request={r}
+            canRespond={false}
+            canCancel={false}
+            canDelete={false}
+            canRevert={canRevert}
+          />
         ),
       });
     }
@@ -85,6 +95,7 @@ export default function StaffRequestsDetailDialog({
             canRespond={false}
             canCancel={false}
             canDelete={false}
+            canRevert={canRevert}
             showName={false}
           />
         ),
@@ -102,6 +113,7 @@ export default function StaffRequestsDetailDialog({
             canRespond={false}
             canCancel={false}
             canDelete={false}
+            canRevert={canRevert}
             showName={false}
           />
         ),
