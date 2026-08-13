@@ -11,11 +11,14 @@ type StaleCheckoutRow = {
   shift_id: string | null;
 };
 
-// Runs every 15 minutes via Vercel Cron (see vercel.json) to catch two
-// things Kỹ thuật needs to know about promptly, not once a day:
+// Runs once daily via Vercel Cron (see vercel.json) — Vercel Hobby (this
+// project's plan) doesn't allow a tighter cadence; would run every 15
+// minutes on Pro. Catches two things Kỹ thuật needs to know about:
 //  1. "quá giờ vào ca" — a registered shift started >15min ago with no
 //     matching attendance row at all (a no-show, or someone who simply
-//     forgot to clock in).
+//     forgot to clock in). Window is 24h from start_at (0063), not tied
+//     to end_at, so a once-daily run still catches shifts whose own
+//     end-of-day has already passed by the time this fires.
 //  2. "quá giờ ra ca" — an open (not checked out) attendance session that
 //     should have ended by now: either a shiftless (trợ giảng) free
 //     clock-in open >30min, or a shift-tied session still open >15min
@@ -23,10 +26,10 @@ type StaleCheckoutRow = {
 //     check (0056) with one that covers every open session uniformly.
 //
 // Each shift/session is only ever notified about ONCE — see
-// find_late_checkin_shifts()/find_stale_checkout_sessions() (0062) and the
-// late_checkin_notified_at/stale_checkout_notified_at columns (0061) — a
-// 15-minute cron would otherwise re-buzz the same phone every 15 minutes
-// until someone resolves it.
+// find_late_checkin_shifts()/find_stale_checkout_sessions() (0062/0063)
+// and the late_checkin_notified_at/stale_checkout_notified_at columns
+// (0061) — without this, a shift still uncorrected the next day would get
+// re-flagged on every subsequent daily run.
 //
 // Auth: Vercel Cron sends `Authorization: Bearer ${CRON_SECRET}` for any
 // route listed in vercel.json's `crons` — this must match exactly, or
