@@ -5,7 +5,12 @@ import { toast } from "sonner";
 import { format, parse } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CalendarOffIcon, SunriseIcon, SunsetIcon, ClockIcon, TrashIcon } from "lucide-react";
-import { cancelLeaveRequestAction, respondToLeaveRequestAction, deleteLeaveRequestAction } from "@/actions/leave";
+import {
+  cancelLeaveRequestAction,
+  respondToLeaveRequestAction,
+  deleteLeaveRequestAction,
+  revertLeaveRequestAction,
+} from "@/actions/leave";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -59,12 +64,14 @@ export default function LeaveRequestCard({
   canRespond,
   canCancel,
   canDelete,
+  canRevert,
   showName,
 }: {
   request: LeaveRequestDetailed;
   canRespond: boolean;
   canCancel: boolean;
   canDelete: boolean;
+  canRevert: boolean;
   showName: boolean;
 }) {
   const [pending, setPending] = useState(false);
@@ -106,6 +113,17 @@ export default function LeaveRequestCard({
     }
     toast.success("Đã xoá đơn nghỉ phép");
     setDeleted(true);
+  }
+
+  async function handleRevert() {
+    setPending(true);
+    const result = await revertLeaveRequestAction(request.id);
+    setPending(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success("Đã khôi phục đơn nghỉ phép về chờ duyệt");
   }
 
   if (deleted) return null;
@@ -174,6 +192,27 @@ export default function LeaveRequestCard({
                   <AlertDialogAction variant="destructive" onClick={handleDelete}>
                     Xoá
                   </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+          {canRevert && request.status !== "pending" && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="sm" variant="outline" disabled={pending}>
+                  Khôi phục
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Khôi phục đơn nghỉ phép?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Đơn sẽ quay lại trạng thái Chờ duyệt, nội dung giữ nguyên.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Huỷ</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleRevert}>Khôi phục</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

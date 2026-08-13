@@ -9,6 +9,7 @@ import {
   cancelSwapRequestAction,
   respondToSwapRequestAction,
   deleteSwapRequestAction,
+  revertSwapRequestAction,
 } from "@/actions/swaps";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,11 +42,13 @@ export default function SwapRequestCard({
   canRespond,
   canCancel,
   canDelete,
+  canRevert,
 }: {
   request: SwapRequestDetailed;
   canRespond: boolean;
   canCancel: boolean;
   canDelete: boolean;
+  canRevert: boolean;
 }) {
   const [pending, setPending] = useState(false);
   const [deleted, setDeleted] = useState(false);
@@ -86,6 +89,17 @@ export default function SwapRequestCard({
     }
     toast.success("Đã xoá yêu cầu đổi ca");
     setDeleted(true);
+  }
+
+  async function handleRevert() {
+    setPending(true);
+    const result = await revertSwapRequestAction(request.id);
+    setPending(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success("Đã khôi phục yêu cầu đổi ca về chờ duyệt");
   }
 
   if (deleted) return null;
@@ -154,6 +168,28 @@ export default function SwapRequestCard({
                   <AlertDialogAction variant="destructive" onClick={handleDelete}>
                     Xoá
                   </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+          {canRevert && request.status !== "pending" && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="sm" variant="outline" disabled={pending}>
+                  Khôi phục
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Khôi phục yêu cầu đổi ca?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Yêu cầu sẽ quay lại trạng thái Chờ duyệt. Nếu đã chấp nhận, ca sẽ được trả lại
+                    đúng người cũ — trừ khi ca đó đã bị thay đổi tiếp, thì thao tác sẽ bị chặn.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Huỷ</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleRevert}>Khôi phục</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

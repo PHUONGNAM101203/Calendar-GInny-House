@@ -9,6 +9,7 @@ import {
   cancelAttendanceCorrectionAction,
   respondToAttendanceCorrectionAction,
   deleteAttendanceCorrectionAction,
+  revertAttendanceCorrectionAction,
 } from "@/actions/attendance-corrections";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,12 +38,14 @@ export default function AttendanceCorrectionCard({
   canRespond,
   canCancel,
   canDelete,
+  canRevert,
   showName,
 }: {
   request: AttendanceCorrectionDetailed;
   canRespond: boolean;
   canCancel: boolean;
   canDelete: boolean;
+  canRevert: boolean;
   showName: boolean;
 }) {
   const [pending, setPending] = useState(false);
@@ -84,6 +87,17 @@ export default function AttendanceCorrectionCard({
     }
     toast.success("Đã xoá đơn giải trình công");
     setDeleted(true);
+  }
+
+  async function handleRevert() {
+    setPending(true);
+    const result = await revertAttendanceCorrectionAction(request.id);
+    setPending(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success("Đã khôi phục đơn giải trình công về chờ duyệt");
   }
 
   if (deleted) return null;
@@ -156,6 +170,29 @@ export default function AttendanceCorrectionCard({
                   <AlertDialogAction variant="destructive" onClick={handleDelete}>
                     Xoá
                   </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+          {canRevert && request.status !== "pending" && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="sm" variant="outline" disabled={pending}>
+                  Khôi phục
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Khôi phục đơn giải trình công?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Đơn sẽ quay lại trạng thái Chờ duyệt. Nếu đã duyệt, bản ghi chấm công liên
+                    quan sẽ được hoàn tác — trừ khi đã chấm ra hoặc bị sửa tiếp, thì thao tác sẽ
+                    bị chặn.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Huỷ</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleRevert}>Khôi phục</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

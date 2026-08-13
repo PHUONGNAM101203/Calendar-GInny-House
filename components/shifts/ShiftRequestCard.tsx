@@ -9,6 +9,7 @@ import {
   cancelShiftRequestAction,
   respondToShiftRequestAction,
   deleteShiftRequestAction,
+  revertShiftRequestAction,
 } from "@/actions/shift-requests";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,12 +39,14 @@ export default function ShiftRequestCard({
   canRespond,
   canCancel,
   canDelete,
+  canRevert,
   showName,
 }: {
   request: ShiftRequestDetailed;
   canRespond: boolean;
   canCancel: boolean;
   canDelete: boolean;
+  canRevert: boolean;
   showName: boolean;
 }) {
   const [pending, setPending] = useState(false);
@@ -85,6 +88,17 @@ export default function ShiftRequestCard({
     }
     toast.success("Đã xoá đăng ký ca làm");
     setDeleted(true);
+  }
+
+  async function handleRevert() {
+    setPending(true);
+    const result = await revertShiftRequestAction(request.id);
+    setPending(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success("Đã khôi phục đăng ký ca làm về chờ duyệt");
   }
 
   if (deleted) return null;
@@ -143,6 +157,28 @@ export default function ShiftRequestCard({
                   <AlertDialogAction variant="destructive" onClick={handleDelete}>
                     Xoá
                   </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+          {canRevert && request.status !== "pending" && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="sm" variant="outline" disabled={pending}>
+                  Khôi phục
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Khôi phục đăng ký ca làm?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Đơn sẽ quay lại trạng thái Chờ duyệt. Nếu đơn đang Đã duyệt, ca đã tạo sẽ bị
+                    xoá — trừ khi ca đó đã có chấm công hoặc đã bị đổi ca, thì thao tác sẽ bị chặn.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Huỷ</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleRevert}>Khôi phục</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
