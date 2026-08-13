@@ -1198,5 +1198,10 @@
     "mtime": 1786623057.628113,
     "ast_hash": "a717a2eff9969b8c2d8a306ee4621e0e",
     "semantic_hash": ""
+  },
+  "supabase/migrations/0059_fix_correction_approve_open_attendance_conflict.sql": {
+    "mtime": 1786623835.9282484,
+    "ast_hash": "2d755e4ddcb9830ff314605ea76d2825",
+    "semantic_hash": ""
   }
 }
