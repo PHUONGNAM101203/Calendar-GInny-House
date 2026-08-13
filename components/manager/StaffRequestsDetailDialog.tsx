@@ -121,7 +121,7 @@ export default function StaffRequestsDetailDialog({
     }
 
     return entries.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  }, [employeeId, period, leaveRequests, swapRequests, shiftRequests, attendanceCorrections]);
+  }, [employeeId, period, leaveRequests, swapRequests, shiftRequests, attendanceCorrections, canRevert]);
 
   const periodLabel = period === "day" ? "Hôm nay" : period === "month" ? "Tháng này" : "Năm này";
 

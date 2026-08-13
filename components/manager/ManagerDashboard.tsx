@@ -328,6 +328,7 @@ export default function ManagerDashboard({
             swapRequests={swapRequests}
             shiftRequests={shiftRequests}
             attendanceCorrections={attendanceCorrections}
+            canRevert={false}
           />
         </CardContent>
       </Card>

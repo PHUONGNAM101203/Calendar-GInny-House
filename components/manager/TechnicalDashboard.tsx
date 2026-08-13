@@ -269,6 +269,7 @@ export default function TechnicalDashboard({
             swapRequests={swapRequests}
             shiftRequests={shiftRequests}
             attendanceCorrections={attendanceCorrections}
+            canRevert={true}
           />
         </CardContent>
       </Card>

@@ -66,6 +66,7 @@ export default async function LeavePage() {
                   canRespond={canRespondTo(r)}
                   canCancel={false}
                   canDelete={false}
+                  canRevert={false}
                   showName
                 />
               ))}
@@ -87,6 +88,7 @@ export default async function LeavePage() {
                 canRespond={false}
                 canCancel={r.status === "pending"}
                 canDelete={false}
+                canRevert={false}
                 showName={false}
               />
             ))}
@@ -108,6 +110,7 @@ export default async function LeavePage() {
                   canRespond={false}
                   canCancel={false}
                   canDelete={false}
+                  canRevert={false}
                   showName
                 />
               ))}

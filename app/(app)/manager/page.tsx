@@ -356,6 +356,7 @@ export default async function ManagerPage({
                   canRespond={r.status === "pending" && canApproveShiftRequestFor(manager.role, r.profile.role, permissions)}
                   canCancel={r.status === "pending"}
                   canDelete={r.status === "pending" && canApproveShiftRequestFor(manager.role, r.profile.role, permissions)}
+                  canRevert={false}
                   showName
                 />
               ))}
@@ -396,6 +397,7 @@ export default async function ManagerPage({
                     permissions
                   )
                 }
+                canRevert={false}
               />
             ))}
           </CollapsibleGrid>
@@ -422,6 +424,7 @@ export default async function ManagerPage({
                   isLeaveApprover(manager.role) &&
                   canApproveLeaveFor(manager.role, r.profile.role, permissions)
                 }
+                canRevert={false}
                 showName
               />
             ))}
@@ -449,6 +452,7 @@ export default async function ManagerPage({
                   isLeaveApprover(manager.role) &&
                   canApproveLeaveFor(manager.role, r.profile.role, permissions)
                 }
+                canRevert={false}
                 showName
               />
             ))}
