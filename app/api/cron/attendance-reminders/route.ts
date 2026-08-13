@@ -2,13 +2,31 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { sendPushToProfiles } from "@/lib/push";
 
-// Runs once/day via Vercel Cron (see vercel.json) to catch trợ giảng free
-// (shiftless) clock-ins (0056) left open — there's no shift end_at for
-// auto_checkout_expired_shifts (0031) to close these against, so a
-// forgotten check-out just stays open until someone notices. Same open
-// session gets re-notified every day it's still unresolved; the dashboard
-// list (TechnicalDashboard) is the source of truth either way, this is
-// just the nudge to go look at it.
+type LateCheckinRow = { shift_id: string; profile_id: string; full_name: string; start_at: string };
+type StaleCheckoutRow = {
+  attendance_id: string;
+  profile_id: string;
+  full_name: string;
+  check_in_at: string;
+  shift_id: string | null;
+};
+
+// Runs every 15 minutes via Vercel Cron (see vercel.json) to catch two
+// things Kỹ thuật needs to know about promptly, not once a day:
+//  1. "quá giờ vào ca" — a registered shift started >15min ago with no
+//     matching attendance row at all (a no-show, or someone who simply
+//     forgot to clock in).
+//  2. "quá giờ ra ca" — an open (not checked out) attendance session that
+//     should have ended by now: either a shiftless (trợ giảng) free
+//     clock-in open >30min, or a shift-tied session still open >15min
+//     past the shift's end_at. This replaces the old free-clock-in-only
+//     check (0056) with one that covers every open session uniformly.
+//
+// Each shift/session is only ever notified about ONCE — see
+// find_late_checkin_shifts()/find_stale_checkout_sessions() (0062) and the
+// late_checkin_notified_at/stale_checkout_notified_at columns (0061) — a
+// 15-minute cron would otherwise re-buzz the same phone every 15 minutes
+// until someone resolves it.
 //
 // Auth: Vercel Cron sends `Authorization: Bearer ${CRON_SECRET}` for any
 // route listed in vercel.json's `crons` — this must match exactly, or
@@ -19,33 +37,66 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: stale, error } = await supabaseAdmin
-    .from("attendance")
-    .select("id, check_in_at, profile:profiles!profile_id(full_name)")
-    .is("shift_id", null)
-    .is("check_out_at", null);
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-  if (!stale?.length) {
-    return NextResponse.json({ staleCount: 0 });
-  }
-
   const { data: technical } = await supabaseAdmin.from("profiles").select("id").eq("role", "technical");
   const technicalIds = (technical ?? []).map((p) => p.id);
 
-  if (technicalIds.length) {
-    await sendPushToProfiles(technicalIds, {
-      title: "Chấm công trợ giảng chưa chấm ra",
-      body:
-        stale.length === 1
-          ? "Có 1 phiên chấm công tự do đang mở quá lâu"
-          : `Có ${stale.length} phiên chấm công tự do đang mở quá lâu`,
-      url: "/manager",
-      tag: "attendance-reminder",
-    });
+  const [{ data: lateShifts, error: lateError }, { data: staleSessions, error: staleError }] = await Promise.all([
+    supabaseAdmin.rpc("find_late_checkin_shifts"),
+    supabaseAdmin.rpc("find_stale_checkout_sessions"),
+  ]);
+
+  if (lateError || staleError) {
+    return NextResponse.json({ error: (lateError ?? staleError)!.message }, { status: 500 });
   }
 
-  return NextResponse.json({ staleCount: stale.length, notified: technicalIds.length });
+  const late = (lateShifts as LateCheckinRow[]) ?? [];
+  const stale = (staleSessions as StaleCheckoutRow[]) ?? [];
+
+  if (technicalIds.length && late.length) {
+    await sendPushToProfiles(technicalIds, {
+      title: "Chưa chấm công vào ca",
+      body:
+        late.length === 1
+          ? `${late[0].full_name} đã quá giờ vào ca mà chưa chấm công`
+          : `${late.length} người đã quá giờ vào ca mà chưa chấm công`,
+      url: "/manager",
+      tag: "attendance-late-checkin",
+    });
+  }
+  if (late.length) {
+    await supabaseAdmin
+      .from("shifts")
+      .update({ late_checkin_notified_at: new Date().toISOString() })
+      .in(
+        "id",
+        late.map((s) => s.shift_id)
+      );
+  }
+
+  if (technicalIds.length && stale.length) {
+    await sendPushToProfiles(technicalIds, {
+      title: "Chưa chấm công ra",
+      body:
+        stale.length === 1
+          ? `${stale[0].full_name} đã quá giờ ra ca mà chưa chấm công ra`
+          : `${stale.length} phiên chấm công đang mở quá lâu`,
+      url: "/manager",
+      tag: "attendance-stale-checkout",
+    });
+  }
+  if (stale.length) {
+    await supabaseAdmin
+      .from("attendance")
+      .update({ stale_checkout_notified_at: new Date().toISOString() })
+      .in(
+        "id",
+        stale.map((s) => s.attendance_id)
+      );
+  }
+
+  return NextResponse.json({
+    lateCheckinCount: late.length,
+    staleCheckoutCount: stale.length,
+    notified: technicalIds.length,
+  });
 }
