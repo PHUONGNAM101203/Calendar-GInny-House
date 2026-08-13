@@ -1155,13 +1155,13 @@
     "semantic_hash": ""
   },
   "app/api/cron/attendance-reminders/route.ts": {
-    "mtime": 1786545853.162076,
-    "ast_hash": "0ddee870805cb4a38dbb02b8ed12b8be",
+    "mtime": 1786625319.6914992,
+    "ast_hash": "9a4820d5f020860f98f8c9b08a4a70d9",
     "semantic_hash": ""
   },
   "components/manager/CreateAttendanceManualDialog.tsx": {
-    "mtime": 1786545761.9087765,
-    "ast_hash": "ae95a8078eee8be8e5ac75466ecfb0f2",
+    "mtime": 1786624511.5354497,
+    "ast_hash": "ada9f0ad4bcd8b78a307bf88d6047d22",
     "semantic_hash": ""
   },
   "supabase/migrations/0055_revert_shift_duty_role.sql": {
@@ -1175,7 +1175,7 @@
     "semantic_hash": ""
   },
   "vercel.json": {
-    "mtime": 1786545886.2970216,
+    "mtime": 1786625297.2493908,
     "ast_hash": "41334fdb0d105df7176f87aea24666eb",
     "semantic_hash": ""
   },
@@ -1202,6 +1202,26 @@
   "supabase/migrations/0059_fix_correction_approve_open_attendance_conflict.sql": {
     "mtime": 1786623835.9282484,
     "ast_hash": "2d755e4ddcb9830ff314605ea76d2825",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/0060_manual_attendance_finishes_open_session.sql": {
+    "mtime": 1786624504.561876,
+    "ast_hash": "795c5ff92a9fe62a5c25c7a75b160a10",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/0061_late_and_stale_attendance_notify_columns.sql": {
+    "mtime": 1786624943.6081321,
+    "ast_hash": "19402b950fd8b35cd5d180fdb974b87a",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/0062_late_and_stale_attendance_finders.sql": {
+    "mtime": 1786624986.563956,
+    "ast_hash": "9826765d9cd3f925d1a3d82e3c9f622d",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/0063_widen_late_checkin_window_for_daily_cron.sql": {
+    "mtime": 1786625305.8860853,
+    "ast_hash": "ee0602bac2d163853abac4d7d8b90d69",
     "semantic_hash": ""
   }
 }
