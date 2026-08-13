@@ -38,6 +38,13 @@ const SHIFT_RPC_MESSAGES = [
   "Giờ kết thúc phải sau giờ bắt đầu",
   "Vui lòng chọn cơ sở",
   "Đã có quản sinh khác trực ca bắt đầu cùng giờ này",
+  "Chỉ Kỹ thuật mới có thể khôi phục đơn",
+  "Đơn không hợp lệ hoặc đang chờ duyệt",
+  "Ca đã có chấm công — không thể khôi phục tự động",
+  "Ca đã bị đổi cho người khác — không thể khôi phục tự động",
+  "Ca đã liên quan đến yêu cầu đổi ca — không thể khôi phục tự động",
+  "Ca đã liên quan đến giải trình công — không thể khôi phục tự động",
+  "Đơn duyệt trước khi có tính năng khôi phục — không thể khôi phục tự động",
 ];
 
 function mapShiftRpcError(message: string, fallback: string): string {
@@ -154,6 +161,24 @@ export async function deleteShiftRequestAction(id: string): Promise<ActionResult
 
   if (error) return { ok: false, error: "Không thể xoá đăng ký ca làm" };
   if (!count) return { ok: false, error: "Bạn không có quyền xoá đơn này" };
+
+  revalidateShiftRequestPaths();
+  return { ok: true, data: undefined };
+}
+
+// Technical-only: undoes an accidental Từ chối/Huỷ/Duyệt click. If the
+// request was approved, revert_shift_request also deletes the shift it
+// created — but only if nothing has touched that shift since (see the RPC
+// for the exact guards). requireProfile() is the minimal guard; the real
+// role check lives in the RPC.
+export async function revertShiftRequestAction(id: string): Promise<ActionResult> {
+  await requireProfile();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("revert_shift_request", { p_id: id });
+
+  if (error) {
+    return { ok: false, error: mapShiftRpcError(error.message, "Không thể khôi phục đăng ký ca này") };
+  }
 
   revalidateShiftRequestPaths();
   return { ok: true, data: undefined };
