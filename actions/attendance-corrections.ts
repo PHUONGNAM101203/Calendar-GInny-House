@@ -25,6 +25,12 @@ function mapAttendanceCorrectionError(message: string): string {
     "Bạn không có quyền duyệt đơn của nhân viên này",
     "Đơn giải trình công không hợp lệ hoặc đã được xử lý",
     "Không thể huỷ đơn này",
+    "Chỉ Kỹ thuật mới có thể khôi phục đơn",
+    "Đơn không hợp lệ hoặc đang chờ duyệt",
+    "Đơn duyệt trước khi có tính năng khôi phục — không thể khôi phục tự động",
+    "Không tìm thấy bản ghi chấm công liên quan — không thể khôi phục tự động",
+    "Bản ghi chấm công đã có giờ ra — không thể khôi phục tự động",
+    "Bản ghi chấm công đã bị sửa bởi đơn giải trình khác — không thể khôi phục tự động",
   ];
   return known.find((m) => message.includes(m)) ?? "Không thể xử lý đơn giải trình công";
 }
@@ -148,6 +154,23 @@ export async function cancelAttendanceCorrectionAction(id: string): Promise<Acti
   await requireProfile();
   const supabase = await createClient();
   const { error } = await supabase.rpc("cancel_attendance_correction", { p_id: id });
+
+  if (error) return { ok: false, error: mapAttendanceCorrectionError(error.message) };
+
+  revalidateAttendanceCorrectionPaths();
+  return { ok: true, data: undefined };
+}
+
+// Technical-only: undoes an accidental Từ chối/Huỷ/Duyệt click. If the
+// correction was approved, revert_attendance_correction also undoes the
+// attendance write it made — deleting the inserted row (missed_check_in)
+// or restoring the prior check_in_at (late_check_in) — but only if that
+// attendance row hasn't since been checked out or touched by another
+// approved correction.
+export async function revertAttendanceCorrectionAction(id: string): Promise<ActionResult> {
+  await requireProfile();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("revert_attendance_correction", { p_id: id });
 
   if (error) return { ok: false, error: mapAttendanceCorrectionError(error.message) };
 
