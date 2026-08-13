@@ -20,6 +20,8 @@ function mapLeaveError(message: string): string {
     "Bạn không có quyền duyệt đơn của nhân viên này",
     "Đơn nghỉ phép không hợp lệ hoặc đã được xử lý",
     "Không thể huỷ đơn này",
+    "Chỉ Kỹ thuật mới có thể khôi phục đơn",
+    "Đơn không hợp lệ hoặc đang chờ duyệt",
   ];
   return known.find((m) => message.includes(m)) ?? "Không thể xử lý đơn nghỉ phép";
 }
@@ -127,6 +129,21 @@ export async function deleteLeaveRequestAction(requestId: string): Promise<Actio
 
   if (error) return { ok: false, error: "Không thể xoá đơn nghỉ phép" };
   if (!count) return { ok: false, error: "Bạn không có quyền xoá đơn này" };
+
+  revalidateLeavePaths();
+  return { ok: true, data: undefined };
+}
+
+// Technical-only: undoes an accidental Từ chối/Huỷ/Duyệt click, back to
+// pending, content unchanged. The real gate is inside revert_leave_request
+// itself (role = 'technical') — requireProfile() here is just the minimal
+// "must be logged in" guard, same as respondToLeaveRequestAction.
+export async function revertLeaveRequestAction(requestId: string): Promise<ActionResult> {
+  await requireProfile();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("revert_leave_request", { p_id: requestId });
+
+  if (error) return { ok: false, error: mapLeaveError(error.message) };
 
   revalidateLeavePaths();
   return { ok: true, data: undefined };
