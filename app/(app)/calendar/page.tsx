@@ -149,7 +149,7 @@ export default async function CalendarPage({
     // approvable" shape this page needs, no app-level filtering required.
     supabase
       .from("shift_requests")
-      .select("*, profile:profiles!profile_id(id, full_name, role)")
+      .select("*, profile:profiles!profile_id(id, full_name, role), branch:branches!branch_id(id, name)")
       .eq("status", "pending")
       .order("created_at", { ascending: false }),
     // attendance_corrections_select RLS is can_view_profile-scoped
