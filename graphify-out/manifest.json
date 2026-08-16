@@ -80,8 +80,8 @@
     "semantic_hash": "c094a4495a26e44d3552a0568a4abd2d"
   },
   "app/(app)/attendance/page.tsx": {
-    "mtime": 1786545621.3448408,
-    "ast_hash": "54be54be003d882d1a9dbb3e91f68bca",
+    "mtime": 1786870999.064008,
+    "ast_hash": "b76bfcf0517b8d429864f83e1fd126d5",
     "semantic_hash": ""
   },
   "app/(app)/calendar/loading.tsx": {
@@ -140,8 +140,8 @@
     "semantic_hash": "5ced64a115d67ab848e763754b3f9ba8"
   },
   "app/layout.tsx": {
-    "mtime": 1786165094.6199582,
-    "ast_hash": "f959bb99b0fc80b18713f1829f81b476",
+    "mtime": 1786870962.933522,
+    "ast_hash": "6ccf70fd762d3da5ac5a43a6cc3fcb76",
     "semantic_hash": ""
   },
   "app/not-found.tsx": {
@@ -180,8 +180,8 @@
     "semantic_hash": "ad0a5438ec8d44bb20380aa0f137752f"
   },
   "components/attendance/ClockWidget.tsx": {
-    "mtime": 1786545655.253323,
-    "ast_hash": "cc6a3d957740f0f54a01e55c9d06c158",
+    "mtime": 1786871490.3519998,
+    "ast_hash": "5b1a0b4d0c3f6a0cdd5381aff060a933",
     "semantic_hash": ""
   },
   "components/auth/LoginForm.tsx": {
