@@ -50,7 +50,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
-      className={`${barlow.variable} h-full antialiased`}
+      className={`${barlow.variable} h-dvh antialiased`}
       suppressHydrationWarning
     >
       {/* suppressHydrationWarning: some browser extensions (ColorZilla's
@@ -64,7 +64,17 @@ export default function RootLayout({
           comment) so the internal time-grid scroll region engages instead
           of the whole page scrolling — min-height never gives flex/overflow
           descendants a definite size to constrain against, so that chain
-          silently never had a bounded ancestor to clip into. */}
+          silently never had a bounded ancestor to clip into. h-dvh (not
+          h-full) on <html> specifically: percentage height on the root
+          element resolves against the *largest* possible mobile-Safari
+          viewport (toolbar collapsed), so while the toolbar is showing the
+          whole h-full/flex-1 chain below ends up taller than what's actually
+          visible — and since nothing above each page's own inner
+          overflow-y-auto region can scroll, the bottom of that chain (e.g.
+          the attendance page's chấm công button) becomes genuinely
+          unreachable, not just "needs a scroll". dvh tracks the real visible
+          viewport instead. body stays h-full (100% of html), still a
+          definite value once html itself resolves to a real dvh length. */}
       <body className="flex h-full flex-col" suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}

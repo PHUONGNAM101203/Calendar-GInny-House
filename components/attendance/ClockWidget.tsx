@@ -112,11 +112,21 @@ export default function ClockWidget({
           : "Tới cơ sở rồi thì bấm một nút là vào ca.";
 
   return (
-    <Card className="relative overflow-hidden">
+    // shrink-0 is load-bearing, not tidying: Card (components/ui/card.tsx)
+    // ships its own overflow-hidden for image-corner clipping, and per the
+    // flexbox spec, a flex item's automatic minimum size resolves to 0 (not
+    // its content size) whenever its own overflow isn't "visible". As a flex
+    // item of the attendance page's flex-col wrapper, that let this Card
+    // silently shrink and clip its own CardContent — including the
+    // "Chấm công vào/ra" button — on short viewports, instead of the
+    // wrapper's overflow-y-auto engaging and letting the page scroll.
+    // shrink-0 pins the Card to its content height so the page scrolls
+    // instead of the button disappearing.
+    <Card className="relative shrink-0 overflow-hidden">
       {/* viền trên đổi màu theo trạng thái — cùng quy ước "màu = trạng thái"
           với badge và băng điều hành */}
       <span className={`absolute inset-x-0 top-0 h-1 ${open ? "bg-success" : "bg-border"}`} />
-      <CardContent className="flex flex-col items-center gap-5 py-8 text-center">
+      <CardContent className="flex flex-col items-center gap-4 py-6 text-center sm:gap-5 sm:py-8">
         <p className="flex items-center gap-2 text-[11px] font-extrabold tracking-[0.16em] text-muted-foreground uppercase">
           {open && (
             <span className="relative flex size-2">
@@ -142,7 +152,7 @@ export default function ClockWidget({
         ) : (
           <div>
             <p
-              className="font-heading text-5xl leading-none font-semibold tracking-tight tabular-nums sm:text-6xl"
+              className="font-heading text-4xl leading-none font-semibold tracking-tight tabular-nums sm:text-5xl md:text-6xl"
               suppressHydrationWarning
             >
               {format(now, "HH:mm:ss", { locale: vi })}

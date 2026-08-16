@@ -50,7 +50,7 @@ export default async function AttendancePage() {
   const shifts = (shiftRows as Pick<Shift, "id" | "start_at" | "end_at">[]) ?? [];
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 overflow-y-auto p-4 sm:p-6">
+    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 overflow-y-auto p-4 sm:gap-8 sm:p-6">
       <PageHeader
         eyebrow="Chấm công"
         title="Vào ca, ra ca"
