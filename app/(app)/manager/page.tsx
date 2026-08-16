@@ -145,7 +145,7 @@ export default async function ManagerPage({
     })(),
     supabase
       .from("shift_requests")
-      .select("*, profile:profiles!profile_id(id, full_name, role)")
+      .select("*, profile:profiles!profile_id(id, full_name, role), branch:branches!branch_id(id, name)")
       .order("created_at", { ascending: false }),
     supabase
       .from("attendance_corrections")

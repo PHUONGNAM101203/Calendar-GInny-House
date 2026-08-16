@@ -117,6 +117,9 @@ export default function ShiftRequestCard({
             {showName && `${request.profile.full_name} · `}
             {formatRange(request.start_at, request.end_at)}
           </p>
+          {showName && request.branch && (
+            <p className="text-xs text-muted-foreground">{request.branch.name}</p>
+          )}
           {request.note && <p className="text-sm text-muted-foreground italic">“{request.note}”</p>}
         </div>
 

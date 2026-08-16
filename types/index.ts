@@ -77,6 +77,7 @@ export type ShiftRequest = {
 
 export type ShiftRequestDetailed = ShiftRequest & {
   profile: Pick<Profile, "id" | "full_name" | "role">;
+  branch: Pick<Branch, "id" | "name"> | null;
 };
 
 export type SwapRequest = {
