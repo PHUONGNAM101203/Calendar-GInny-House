@@ -137,7 +137,7 @@
   "135": "public.profiles",
   "136": "public.profiles",
   "137": "CalendarSidebar.tsx",
-  "138": "manager/page.tsx",
+  "138": "isManagerRole",
   "139": "public.find_late_checkin_shifts",
   "140": "0054_monitoring_account_flag.sql",
   "141": "Global Constraints",

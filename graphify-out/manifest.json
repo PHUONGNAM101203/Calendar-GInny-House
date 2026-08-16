@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "components/calendar/ShiftEventCell.tsx": {
-    "mtime": 1786895732.7342048,
-    "ast_hash": "f7d33ac9145f8c7b23c55d4533eb1b84",
+    "mtime": 1786896409.8720725,
+    "ast_hash": "7c0413651f70e0736d0242591f8e3879",
     "semantic_hash": ""
   },
   "components/calendar/ShiftRequestDetailDialog.tsx": {
