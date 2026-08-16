@@ -220,8 +220,17 @@ export default function ShiftCalendar({
   );
 
   const shiftEvents = useMemo(
-    () => toCalendarEvents(visibleShifts, currentUserId, currentUserRole, permissions, pendingSwaps, colorFor),
-    [visibleShifts, currentUserId, currentUserRole, permissions, pendingSwaps, colorFor]
+    () =>
+      toCalendarEvents(
+        visibleShifts,
+        currentUserId,
+        currentUserRole,
+        permissions,
+        pendingSwaps,
+        colorFor,
+        branchNames
+      ),
+    [visibleShifts, currentUserId, currentUserRole, permissions, pendingSwaps, colorFor, branchNames]
   );
   const holidayEvents = useMemo(() => {
     if (!showHolidays) return [];
@@ -461,6 +470,7 @@ export default function ShiftCalendar({
         pendingSwap,
         pendingSwapId: request.id,
         colorVar: colorFor(request.requester_id),
+        branchName: branchNames.get(request.branch_id) ?? "—",
       },
     });
   }

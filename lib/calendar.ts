@@ -183,6 +183,7 @@ export type ShiftEvent = {
     pendingSwap: "none" | "outgoing" | "incoming" | "open" | "approvable";
     pendingSwapId: string | null;
     colorVar: string;
+    branchName: string;
   };
 };
 
@@ -541,7 +542,8 @@ export function toCalendarEvents(
   currentUserRole: Role,
   permissions: GroupPermissions,
   pendingSwaps: SwapRequestDetailed[],
-  colorFor: (profileId: string) => string
+  colorFor: (profileId: string) => string,
+  branchNames: Map<string, string>
 ): ShiftEvent[] {
   return shifts.map((shift) => {
     const isMine = shift.assignee_id === currentUserId;
@@ -595,6 +597,7 @@ export function toCalendarEvents(
         pendingSwap,
         pendingSwapId,
         colorVar: colorFor(shift.assignee_id),
+        branchName: branchNames.get(shift.branch_id) ?? "—",
       },
     };
   });
