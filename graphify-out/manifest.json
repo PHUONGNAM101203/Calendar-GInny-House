@@ -255,8 +255,8 @@
     "semantic_hash": "24a5bb12cab3e77a2753210a75a9faf6"
   },
   "components/calendar/ShiftCalendar.tsx": {
-    "mtime": 1786545417.6151164,
-    "ast_hash": "908221766d7164a9bec8dca6152dde37",
+    "mtime": 1786895749.020736,
+    "ast_hash": "6c4867b3e46d042e3366bc3c7ef497dc",
     "semantic_hash": ""
   },
   "components/calendar/ShiftCalendarLoader.tsx": {
@@ -265,9 +265,9 @@
     "semantic_hash": ""
   },
   "components/calendar/ShiftEventCell.tsx": {
-    "mtime": 1786075449.2240896,
-    "ast_hash": "1ae6cb785f2ac4c7bd834fc77b784272",
-    "semantic_hash": "1ae6cb785f2ac4c7bd834fc77b784272"
+    "mtime": 1786895732.7342048,
+    "ast_hash": "f7d33ac9145f8c7b23c55d4533eb1b84",
+    "semantic_hash": ""
   },
   "components/calendar/ShiftRequestDetailDialog.tsx": {
     "mtime": 1786072106.6176054,
@@ -380,8 +380,8 @@
     "semantic_hash": ""
   },
   "components/shifts/ShiftRequestCard.tsx": {
-    "mtime": 1786895089.1620517,
-    "ast_hash": "4fd4b9aa8de339d528cc6fe3b1c79764",
+    "mtime": 1786895526.7378848,
+    "ast_hash": "d751f828bffd35a9187ff566af147480",
     "semantic_hash": ""
   },
   "components/shifts/ShiftRequestDialog.tsx": {
@@ -535,8 +535,8 @@
     "semantic_hash": "e9bb1774af5b504fca79a43c5c68a396"
   },
   "lib/calendar.ts": {
-    "mtime": 1786545182.6055403,
-    "ast_hash": "ef935b734667cf650480628335917fec",
+    "mtime": 1786895688.3568451,
+    "ast_hash": "461b56197380dce9d69cbd8107ce1dd4",
     "semantic_hash": ""
   },
   "lib/color.ts": {
@@ -1222,6 +1222,11 @@
   "supabase/migrations/0063_widen_late_checkin_window_for_daily_cron.sql": {
     "mtime": 1786625305.8860853,
     "ast_hash": "ee0602bac2d163853abac4d7d8b90d69",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/0064_shift_requests_select_technical.sql": {
+    "mtime": 1786895990.2568715,
+    "ast_hash": "d42ca573a7409b3dc660cd2c7f0fd823",
     "semantic_hash": ""
   }
 }

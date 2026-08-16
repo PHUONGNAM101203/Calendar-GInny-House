@@ -415,7 +415,7 @@
       "_origin": "ast",
       "id": "actions_auth_signoutaction",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "signoutaction()"
     },
     {
@@ -836,7 +836,7 @@
       "_origin": "ast",
       "id": "actions_push_subscribetopushaction",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "subscribetopushaction()"
     },
     {
@@ -2113,7 +2113,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_attendance_attendancecorrectionform",
-      "community": 5,
+      "community": 127,
       "community_name": "LeaveRequestDialog.tsx",
       "norm_label": "attendancecorrectionform.tsx"
     },
@@ -2126,7 +2126,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "components_attendance_attendancecorrectionform_correctionrow",
-      "community": 5,
+      "community": 127,
       "community_name": "LeaveRequestDialog.tsx",
       "norm_label": "correctionrow"
     },
@@ -2138,7 +2138,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_attendance_attendancecorrectionform_emptyrow",
-      "community": 5,
+      "community": 127,
       "community_name": "LeaveRequestDialog.tsx",
       "norm_label": "emptyrow()"
     },
@@ -2150,7 +2150,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_attendance_attendancecorrectionform_cansubmitrow",
-      "community": 5,
+      "community": 127,
       "community_name": "LeaveRequestDialog.tsx",
       "norm_label": "cansubmitrow()"
     },
@@ -2162,7 +2162,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_attendance_attendancecorrectionform_shiftidforrow",
-      "community": 5,
+      "community": 127,
       "community_name": "LeaveRequestDialog.tsx",
       "norm_label": "shiftidforrow()"
     },
@@ -2174,7 +2174,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_attendance_attendancecorrectionform_attendancecorrectionform",
-      "community": 5,
+      "community": 127,
       "community_name": "LeaveRequestDialog.tsx",
       "norm_label": "attendancecorrectionform()"
     },
@@ -2316,7 +2316,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_auth_registerform",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "registerform.tsx"
     },
@@ -2802,7 +2802,7 @@
       "_origin": "ast",
       "id": "components_calendar_colorpickerdialog",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "colorpickerdialog.tsx"
     },
     {
@@ -2814,7 +2814,7 @@
       "_origin": "ast",
       "id": "components_calendar_colorpickerdialog_colorpickerdialog",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "colorpickerdialog()"
     },
     {
@@ -2825,7 +2825,7 @@
       "_origin": "ast",
       "id": "components_calendar_customeventdetaildialog",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "customeventdetaildialog.tsx"
     },
     {
@@ -2848,7 +2848,7 @@
       "_origin": "ast",
       "id": "components_calendar_customeventformdialog",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "customeventformdialog.tsx"
     },
     {
@@ -2860,7 +2860,7 @@
       "_origin": "ast",
       "id": "components_calendar_customeventformdialog_customeventformdialog",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "customeventformdialog()"
     },
     {
@@ -2872,7 +2872,7 @@
       "_origin": "ast",
       "id": "components_calendar_customeventformdialog_enddatetouched",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "enddatetouched()"
     },
     {
@@ -2883,7 +2883,7 @@
       "_origin": "ast",
       "id": "components_calendar_leavedetaildialog",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "leavedetaildialog.tsx"
     },
     {
@@ -2894,7 +2894,7 @@
       "_origin": "ast",
       "id": "components_calendar_leavedetaildialog_type_icon",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "type_icon"
     },
     {
@@ -2906,7 +2906,7 @@
       "_origin": "ast",
       "id": "components_calendar_leavedetaildialog_formatrange",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "formatrange()"
     },
     {
@@ -2918,7 +2918,7 @@
       "_origin": "ast",
       "id": "components_calendar_leavedetaildialog_formattimeofday",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "formattimeofday()"
     },
     {
@@ -2930,7 +2930,7 @@
       "_origin": "ast",
       "id": "components_calendar_leavedetaildialog_leavedetaildialog",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "leavedetaildialog()"
     },
     {
@@ -2974,8 +2974,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_calendar_mobiledaystrip",
-      "community": 1,
-      "community_name": "cn",
+      "community": 4,
+      "community_name": "button.tsx",
       "norm_label": "mobiledaystrip.tsx"
     },
     {
@@ -2985,8 +2985,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "components_calendar_mobiledaystrip_weekday_labels",
-      "community": 1,
-      "community_name": "cn",
+      "community": 4,
+      "community_name": "button.tsx",
       "norm_label": "weekday_labels"
     },
     {
@@ -2996,8 +2996,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "components_calendar_mobiledaystrip_view_labels",
-      "community": 1,
-      "community_name": "cn",
+      "community": 4,
+      "community_name": "button.tsx",
       "norm_label": "view_labels"
     },
     {
@@ -3008,8 +3008,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_calendar_mobiledaystrip_mobiledaystrip",
-      "community": 1,
-      "community_name": "cn",
+      "community": 4,
+      "community_name": "button.tsx",
       "norm_label": "mobiledaystrip()"
     },
     {
@@ -3133,7 +3133,7 @@
       "_origin": "ast",
       "id": "components_calendar_shiftrequestdetaildialog",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "shiftrequestdetaildialog.tsx"
     },
     {
@@ -3201,8 +3201,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_layout_appheader",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 4,
+      "community_name": "button.tsx",
       "norm_label": "appheader.tsx"
     },
     {
@@ -3213,8 +3213,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_layout_appheader_appheader",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 4,
+      "community_name": "button.tsx",
       "norm_label": "appheader()"
     },
     {
@@ -3224,8 +3224,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_layout_applauncher",
-      "community": 10,
-      "community_name": "utils.ts",
+      "community": 4,
+      "community_name": "button.tsx",
       "norm_label": "applauncher.tsx"
     },
     {
@@ -3235,8 +3235,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "components_layout_applauncher_apps",
-      "community": 10,
-      "community_name": "utils.ts",
+      "community": 4,
+      "community_name": "button.tsx",
       "norm_label": "apps"
     },
     {
@@ -3247,8 +3247,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_layout_applauncher_applauncher",
-      "community": 10,
-      "community_name": "utils.ts",
+      "community": 4,
+      "community_name": "button.tsx",
       "norm_label": "applauncher()"
     },
     {
@@ -3259,7 +3259,7 @@
       "_origin": "ast",
       "id": "components_layout_notificationsbell",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "notificationsbell.tsx"
     },
     {
@@ -3271,7 +3271,7 @@
       "_origin": "ast",
       "id": "components_layout_notificationsbell_notificationsbell",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "notificationsbell()"
     },
     {
@@ -3329,7 +3329,7 @@
       "_origin": "ast",
       "id": "components_layout_pushnotificationtoggle",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "pushnotificationtoggle.tsx"
     },
     {
@@ -3341,7 +3341,7 @@
       "_origin": "ast",
       "id": "components_layout_pushnotificationtoggle_urlbase64touint8array",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "urlbase64touint8array()"
     },
     {
@@ -3353,7 +3353,7 @@
       "_origin": "ast",
       "id": "components_layout_pushnotificationtoggle_pushnotificationtoggle",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "pushnotificationtoggle()"
     },
     {
@@ -3363,8 +3363,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_layout_realtimeclock",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 4,
+      "community_name": "button.tsx",
       "norm_label": "realtimeclock.tsx"
     },
     {
@@ -3374,8 +3374,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "components_layout_realtimeclock_formatter",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 4,
+      "community_name": "button.tsx",
       "norm_label": "formatter"
     },
     {
@@ -3386,8 +3386,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_layout_realtimeclock_realtimeclock",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 4,
+      "community_name": "button.tsx",
       "norm_label": "realtimeclock()"
     },
     {
@@ -3397,8 +3397,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_layout_themetoggle",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 4,
+      "community_name": "button.tsx",
       "norm_label": "themetoggle.tsx"
     },
     {
@@ -3409,8 +3409,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_layout_themetoggle_noopsubscribe",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 4,
+      "community_name": "button.tsx",
       "norm_label": "noopsubscribe()"
     },
     {
@@ -3421,8 +3421,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_layout_themetoggle_usemounted",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 4,
+      "community_name": "button.tsx",
       "norm_label": "usemounted()"
     },
     {
@@ -3433,8 +3433,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_layout_themetoggle_themetoggle",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 4,
+      "community_name": "button.tsx",
       "norm_label": "themetoggle()"
     },
     {
@@ -3445,7 +3445,7 @@
       "_origin": "ast",
       "id": "components_layout_usermenu",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "usermenu.tsx"
     },
     {
@@ -3457,7 +3457,7 @@
       "_origin": "ast",
       "id": "components_layout_usermenu_usermenu",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "usermenu()"
     },
     {
@@ -3537,7 +3537,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_leave_leaverequestdialog",
-      "community": 5,
+      "community": 127,
       "community_name": "LeaveRequestDialog.tsx",
       "norm_label": "leaverequestdialog.tsx"
     },
@@ -3548,7 +3548,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "components_leave_leaverequestdialog_type_options",
-      "community": 5,
+      "community": 127,
       "community_name": "LeaveRequestDialog.tsx",
       "norm_label": "type_options"
     },
@@ -3605,7 +3605,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_manager_createattendancemanualdialog",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "createattendancemanualdialog.tsx"
     },
@@ -3628,7 +3628,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_manager_daterangefilter",
-      "community": 117,
+      "community": 4,
       "community_name": "button.tsx",
       "norm_label": "daterangefilter.tsx"
     },
@@ -3829,7 +3829,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_manager_staffattendancedetaildialog",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "staffattendancedetaildialog.tsx"
     },
@@ -3923,7 +3923,7 @@
       "_origin": "ast",
       "id": "components_manager_staffrequestsdetaildialog",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "staffrequestsdetaildialog.tsx"
     },
     {
@@ -4075,7 +4075,7 @@
       "_origin": "ast",
       "id": "components_shifts_shiftdetaildialog",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "shiftdetaildialog.tsx"
     },
     {
@@ -4109,7 +4109,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_shifts_shiftformdialog",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "shiftformdialog.tsx"
     },
@@ -4120,7 +4120,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "components_shifts_shiftformdialog_formschema",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "formschema"
     },
@@ -4133,7 +4133,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "components_shifts_shiftformdialog_formvalues",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "formvalues"
     },
@@ -4191,7 +4191,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_shifts_shiftrequestdialog",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "shiftrequestdialog.tsx"
     },
@@ -4203,7 +4203,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_shifts_shiftrequestdialog_shiftrequestdialog",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "shiftrequestdialog()"
     },
@@ -4250,7 +4250,7 @@
       "_origin": "ast",
       "id": "components_swaps_swaprequestdialog",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "swaprequestdialog.tsx"
     },
     {
@@ -4262,7 +4262,7 @@
       "_origin": "ast",
       "id": "components_swaps_swaprequestdialog_formatrange",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "formatrange()"
     },
     {
@@ -4274,7 +4274,7 @@
       "_origin": "ast",
       "id": "components_swaps_swaprequestdialog_swaprequestdialog",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "swaprequestdialog()"
     },
     {
@@ -4579,7 +4579,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_button",
-      "community": 117,
+      "community": 4,
       "community_name": "button.tsx",
       "norm_label": "button.tsx"
     },
@@ -4590,7 +4590,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "components_ui_button_buttonvariants",
-      "community": 117,
+      "community": 4,
       "community_name": "button.tsx",
       "norm_label": "buttonvariants"
     },
@@ -4602,7 +4602,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_button_button",
-      "community": 117,
+      "community": 4,
       "community_name": "button.tsx",
       "norm_label": "button()"
     },
@@ -4720,7 +4720,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_date_picker_field_datepickerfield",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "datepickerfield()"
     },
@@ -4732,7 +4732,7 @@
       "_origin": "ast",
       "id": "components_ui_dialog",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "dialog.tsx"
     },
     {
@@ -4744,7 +4744,7 @@
       "_origin": "ast",
       "id": "components_ui_dialog_dialog",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "dialog()"
     },
     {
@@ -4755,7 +4755,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_dialog_dialogtrigger",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "dialogtrigger()"
     },
@@ -4768,7 +4768,7 @@
       "_origin": "ast",
       "id": "components_ui_dialog_dialogportal",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "dialogportal()"
     },
     {
@@ -4780,7 +4780,7 @@
       "_origin": "ast",
       "id": "components_ui_dialog_dialogclose",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "dialogclose()"
     },
     {
@@ -4804,7 +4804,7 @@
       "_origin": "ast",
       "id": "components_ui_dialog_dialogcontent",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "dialogcontent()"
     },
     {
@@ -4816,7 +4816,7 @@
       "_origin": "ast",
       "id": "components_ui_dialog_dialogheader",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "dialogheader()"
     },
     {
@@ -4828,7 +4828,7 @@
       "_origin": "ast",
       "id": "components_ui_dialog_dialogfooter",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "dialogfooter()"
     },
     {
@@ -4840,7 +4840,7 @@
       "_origin": "ast",
       "id": "components_ui_dialog_dialogtitle",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "dialogtitle()"
     },
     {
@@ -4852,7 +4852,7 @@
       "_origin": "ast",
       "id": "components_ui_dialog_dialogdescription",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "dialogdescription()"
     },
     {
@@ -4863,7 +4863,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdown-menu.tsx"
     },
     {
@@ -4875,7 +4875,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenu",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenu()"
     },
     {
@@ -4887,7 +4887,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenuportal",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenuportal()"
     },
     {
@@ -4899,7 +4899,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenutrigger",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenutrigger()"
     },
     {
@@ -4911,7 +4911,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenucontent",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenucontent()"
     },
     {
@@ -4923,7 +4923,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenugroup",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenugroup()"
     },
     {
@@ -4935,7 +4935,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenuitem",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenuitem()"
     },
     {
@@ -4947,7 +4947,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenucheckboxitem",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenucheckboxitem()"
     },
     {
@@ -4959,7 +4959,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenuradiogroup",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenuradiogroup()"
     },
     {
@@ -4971,7 +4971,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenuradioitem",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenuradioitem()"
     },
     {
@@ -4983,7 +4983,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenulabel",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenulabel()"
     },
     {
@@ -4995,7 +4995,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenuseparator",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenuseparator()"
     },
     {
@@ -5007,7 +5007,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenushortcut",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenushortcut()"
     },
     {
@@ -5019,7 +5019,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenusub",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenusub()"
     },
     {
@@ -5031,7 +5031,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenusubtrigger",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenusubtrigger()"
     },
     {
@@ -5043,7 +5043,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenusubcontent",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenusubcontent()"
     },
     {
@@ -5076,7 +5076,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_label",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "label.tsx"
     },
@@ -5088,7 +5088,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_label_label",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "label()"
     },
@@ -5217,7 +5217,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_select",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "select.tsx"
     },
@@ -5229,7 +5229,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_select_select",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "select()"
     },
@@ -5253,7 +5253,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_select_selectvalue",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "selectvalue()"
     },
@@ -5265,7 +5265,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_select_selecttrigger",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "selecttrigger()"
     },
@@ -5277,7 +5277,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_select_selectcontent",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "selectcontent()"
     },
@@ -5301,7 +5301,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_select_selectitem",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "selectitem()"
     },
@@ -5487,7 +5487,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_textarea",
-      "community": 5,
+      "community": 127,
       "community_name": "LeaveRequestDialog.tsx",
       "norm_label": "textarea.tsx"
     },
@@ -5499,7 +5499,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_textarea_textarea",
-      "community": 5,
+      "community": 127,
       "community_name": "LeaveRequestDialog.tsx",
       "norm_label": "textarea()"
     },
@@ -6161,7 +6161,7 @@
       "label": "HolidayEvent",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L189",
+      "source_location": "L190",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -6174,7 +6174,7 @@
       "label": "AttendanceSession",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L198",
+      "source_location": "L199",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -6187,7 +6187,7 @@
       "label": "AttendanceCalendarEvent",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L212",
+      "source_location": "L213",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -6200,7 +6200,7 @@
       "label": "LeaveCalendarEvent",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L231",
+      "source_location": "L232",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -6213,7 +6213,7 @@
       "label": "CustomCalendarEvent",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L246",
+      "source_location": "L247",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -6226,7 +6226,7 @@
       "label": "ShiftRequestPendingEvent",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L259",
+      "source_location": "L260",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -6239,7 +6239,7 @@
       "label": "AttendanceCorrectionPendingEvent",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L277",
+      "source_location": "L278",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -6252,7 +6252,7 @@
       "label": "CalendarEvent",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L290",
+      "source_location": "L291",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -6265,7 +6265,7 @@
       "label": "isShiftEvent()",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L299",
+      "source_location": "L300",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_calendar_isshiftevent",
@@ -6277,7 +6277,7 @@
       "label": "isAttendanceEvent()",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L303",
+      "source_location": "L304",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_calendar_isattendanceevent",
@@ -6289,7 +6289,7 @@
       "label": "isLeaveEvent()",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L307",
+      "source_location": "L308",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_calendar_isleaveevent",
@@ -6301,7 +6301,7 @@
       "label": "isCustomEvent()",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L311",
+      "source_location": "L312",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_calendar_iscustomevent",
@@ -6313,7 +6313,7 @@
       "label": "isAttendanceCorrectionPendingEvent()",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L315",
+      "source_location": "L316",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_calendar_isattendancecorrectionpendingevent",
@@ -6325,7 +6325,7 @@
       "label": "isShiftRequestPendingEvent()",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L321",
+      "source_location": "L322",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_calendar_isshiftrequestpendingevent",
@@ -6337,7 +6337,7 @@
       "label": "toHolidayEvents()",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L328",
+      "source_location": "L329",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_calendar_toholidayevents",
@@ -6349,7 +6349,7 @@
       "label": "toCustomEvents()",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L351",
+      "source_location": "L352",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_calendar_tocustomevents",
@@ -6361,7 +6361,7 @@
       "label": "toAttendanceEvents()",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L385",
+      "source_location": "L386",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_calendar_toattendanceevents",
@@ -6373,7 +6373,7 @@
       "label": "toLeaveEvents()",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L492",
+      "source_location": "L493",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_calendar_toleaveevents",
@@ -6385,7 +6385,7 @@
       "label": "toCalendarEvents()",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L538",
+      "source_location": "L539",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_calendar_tocalendarevents",
@@ -6397,7 +6397,7 @@
       "label": "toShiftRequestPendingEvents()",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L608",
+      "source_location": "L611",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_calendar_toshiftrequestpendingevents",
@@ -6409,7 +6409,7 @@
       "label": "toAttendanceCorrectionPendingEvents()",
       "file_type": "code",
       "source_file": "lib/calendar.ts",
-      "source_location": "L632",
+      "source_location": "L635",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_calendar_toattendancecorrectionpendingevents",
@@ -6425,7 +6425,7 @@
       "_origin": "ast",
       "id": "lib_color",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "color.ts"
     },
     {
@@ -6438,7 +6438,7 @@
       "_origin": "ast",
       "id": "lib_color_hsv",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "hsv"
     },
     {
@@ -6450,7 +6450,7 @@
       "_origin": "ast",
       "id": "lib_color_hextohsv",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "hextohsv()"
     },
     {
@@ -6462,7 +6462,7 @@
       "_origin": "ast",
       "id": "lib_color_hsvtohex",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "hsvtohex()"
     },
     {
@@ -6583,7 +6583,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_constants_detectshifttype",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "detectshifttype()"
     },
@@ -6643,7 +6643,7 @@
       "_origin": "ast",
       "id": "lib_notifications_appnotification",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "appnotification"
     },
     {
@@ -7065,7 +7065,7 @@
       "_origin": "ast",
       "id": "lib_roles_role_labels",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "role_labels"
     },
     {
@@ -7427,7 +7427,7 @@
       "_origin": "ast",
       "id": "lib_roles_canaccessmanagerpage",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "canaccessmanagerpage()"
     },
     {
@@ -7771,7 +7771,7 @@
       "_origin": "ast",
       "id": "lib_validations_custom_event",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "custom-event.ts"
     },
     {
@@ -7782,7 +7782,7 @@
       "_origin": "ast",
       "id": "lib_validations_custom_event_customeventschema",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "customeventschema"
     },
     {
@@ -7795,7 +7795,7 @@
       "_origin": "ast",
       "id": "lib_validations_custom_event_customeventinput",
       "community": 117,
-      "community_name": "button.tsx",
+      "community_name": "SwapRequestDialog.tsx",
       "norm_label": "customeventinput"
     },
     {
@@ -7840,7 +7840,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_validations_leave",
-      "community": 5,
+      "community": 127,
       "community_name": "LeaveRequestDialog.tsx",
       "norm_label": "validations/leave.ts"
     },
@@ -7851,7 +7851,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "lib_validations_leave_leave_request_types",
-      "community": 5,
+      "community": 127,
       "community_name": "LeaveRequestDialog.tsx",
       "norm_label": "leave_request_types"
     },
@@ -7862,7 +7862,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "lib_validations_leave_leaverequestschema",
-      "community": 5,
+      "community": 127,
       "community_name": "LeaveRequestDialog.tsx",
       "norm_label": "leaverequestschema"
     },
@@ -7875,7 +7875,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_validations_leave_leaverequestinput",
-      "community": 5,
+      "community": 127,
       "community_name": "LeaveRequestDialog.tsx",
       "norm_label": "leaverequestinput"
     },
@@ -7956,7 +7956,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_validations_shift",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "shift.ts"
     },
@@ -7967,7 +7967,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "lib_validations_shift_shift_types",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "shift_types"
     },
@@ -7991,7 +7991,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_validations_shift_shiftinput",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "shiftinput"
     },
@@ -12509,6 +12509,17 @@
       "norm_label": "public.attendance"
     },
     {
+      "label": "0064_shift_requests_select_technical.sql",
+      "file_type": "code",
+      "source_file": "supabase/migrations/0064_shift_requests_select_technical.sql",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "supabase_migrations_0064_shift_requests_select_technical",
+      "community": 143,
+      "community_name": "0064_shift_requests_select_technical.sql",
+      "norm_label": "0064_shift_requests_select_technical.sql"
+    },
+    {
       "label": "seed.sql",
       "file_type": "code",
       "source_file": "supabase/seed.sql",
@@ -12897,7 +12908,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_branch",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "branch"
     },
@@ -12923,7 +12934,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_shifttype",
-      "community": 127,
+      "community": 5,
       "community_name": "ShiftFormDialog.tsx",
       "norm_label": "shifttype"
     },
@@ -27985,7 +27996,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L826",
+      "source_location": "L836",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -30935,7 +30946,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L824",
+      "source_location": "L834",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -30971,7 +30982,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L819",
+      "source_location": "L829",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -30995,7 +31006,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L228",
+      "source_location": "L237",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31007,7 +31018,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L771",
+      "source_location": "L781",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31019,7 +31030,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L295",
+      "source_location": "L304",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31031,7 +31042,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L243",
+      "source_location": "L252",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31043,7 +31054,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L223",
+      "source_location": "L224",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31055,7 +31066,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L281",
+      "source_location": "L290",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31067,7 +31078,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L229",
+      "source_location": "L238",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31079,7 +31090,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L259",
+      "source_location": "L268",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31091,7 +31102,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L289",
+      "source_location": "L298",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31103,7 +31114,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L608",
+      "source_location": "L618",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31115,7 +31126,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L613",
+      "source_location": "L623",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31127,7 +31138,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L885",
+      "source_location": "L895",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31139,7 +31150,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L629",
+      "source_location": "L639",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31151,7 +31162,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L583",
+      "source_location": "L593",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31163,7 +31174,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L543",
+      "source_location": "L553",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31175,7 +31186,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L613",
+      "source_location": "L623",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31187,7 +31198,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L573",
+      "source_location": "L583",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31199,7 +31210,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L834",
+      "source_location": "L844",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31507,7 +31518,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftEventCell.tsx",
-      "source_location": "L91",
+      "source_location": "L96",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shifteventcell_shifteventcell",
@@ -42674,7 +42685,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L212",
+      "source_location": "L213",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -42685,7 +42696,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L277",
+      "source_location": "L278",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -42696,7 +42707,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L198",
+      "source_location": "L199",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -42729,7 +42740,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L290",
+      "source_location": "L291",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -42773,7 +42784,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L246",
+      "source_location": "L247",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -42828,7 +42839,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L189",
+      "source_location": "L190",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -42839,7 +42850,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L315",
+      "source_location": "L316",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -42850,7 +42861,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L303",
+      "source_location": "L304",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -42861,7 +42872,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L311",
+      "source_location": "L312",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -42883,7 +42894,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L307",
+      "source_location": "L308",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -42894,7 +42905,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L299",
+      "source_location": "L300",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -42905,7 +42916,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L321",
+      "source_location": "L322",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -42916,7 +42927,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L231",
+      "source_location": "L232",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -42971,7 +42982,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L259",
+      "source_location": "L260",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -42982,7 +42993,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L632",
+      "source_location": "L635",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -42993,7 +43004,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L385",
+      "source_location": "L386",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -43004,7 +43015,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L538",
+      "source_location": "L539",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -43015,7 +43026,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L351",
+      "source_location": "L352",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -43026,7 +43037,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L328",
+      "source_location": "L329",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -43037,7 +43048,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L492",
+      "source_location": "L493",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -43048,7 +43059,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/calendar.ts",
-      "source_location": "L608",
+      "source_location": "L611",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_calendar",
@@ -53791,5 +53802,5 @@
       "source_file": "docs/superpowers/specs/2026-08-07-multi-branch-staff-cutover-design.md"
     }
   ],
-  "built_at_commit": "361b9d572a909525deb6b0cf3cc68bb02a677ce0"
+  "built_at_commit": "a80a0899a25b2d7db676611d350496924e32cbea"
 }
