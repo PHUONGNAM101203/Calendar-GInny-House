@@ -78,6 +78,7 @@ export default function ShiftRequestDetailDialog({
               <DialogTitle>{request.profile.full_name}</DialogTitle>
               <DialogDescription>
                 {format(new Date(request.start_at), "EEEE dd/MM/yyyy", { locale: vi })}
+                {request.branch && ` · ${request.branch.name}`}
               </DialogDescription>
             </div>
           </div>

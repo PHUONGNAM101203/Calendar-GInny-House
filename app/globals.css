@@ -533,6 +533,12 @@
   background-color: color-mix(in oklch, var(--gold) 14%, var(--card));
   color: var(--gold-foreground);
   border: 1.5px dashed var(--gold);
+  /* Two lines (name, then cơ sở below it) — react-big-calendar sizes
+     .rbc-day-slot .rbc-event purely off the event's time span and clips
+     anything taller (overflow: hidden), so a short request would otherwise
+     hide its own second line. min-height wins over a smaller inline height,
+     forcing enough room for both lines regardless of how short the request is. */
+  min-height: 34px;
 }
 .rbc-selected.shift-event {
   outline: 2px solid var(--ring);
