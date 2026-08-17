@@ -180,8 +180,8 @@
     "semantic_hash": "ad0a5438ec8d44bb20380aa0f137752f"
   },
   "components/attendance/ClockWidget.tsx": {
-    "mtime": 1786871490.3519998,
-    "ast_hash": "5b1a0b4d0c3f6a0cdd5381aff060a933",
+    "mtime": 1786971025.3768628,
+    "ast_hash": "22913af3d61687d7c01fa255f72d52ae",
     "semantic_hash": ""
   },
   "components/auth/LoginForm.tsx": {
