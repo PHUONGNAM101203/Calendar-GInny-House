@@ -72,10 +72,15 @@ export default function ClockWidget({
   }, []);
 
   const gate = getClockInGate(shifts, now);
-  // No matching shift, but this profile is trợ giảng-eligible — they can
-  // still clock in (see clock_in(), 0056), just untied to any shift, once
-  // they pick which cơ sở they're at.
-  const isFreeClockIn = gate.state === "none" && isTaEligible;
+  // No *currently active* shift, but this profile is trợ giảng-eligible —
+  // they can still clock in (see clock_in(), 0056), just untied to any
+  // shift, once they pick which cơ sở they're at. Gated on `!== "ready"`,
+  // not `=== "none"`: clock_in() itself only checks for an active shift
+  // right now, so an ended-earlier or upcoming-later shift elsewhere in the
+  // day must NOT block free clock-in — using "none" here silently disabled
+  // (and hid the cơ sở picker for) any TA who had another shift anywhere in
+  // the fetch window, even though the RPC would have accepted the request.
+  const isFreeClockIn = gate.state !== "ready" && isTaEligible;
   const canClockIn = gate.state === "ready" || (isFreeClockIn && Boolean(freeBranchId));
 
   function handleClockIn() {
@@ -100,15 +105,14 @@ export default function ClockWidget({
     });
   }
 
-  const gateMessage =
-    gate.state === "upcoming"
+  const gateMessage = isFreeClockIn
+    ? "Không có ca đang hoạt động — chấm công với vai trò Trợ giảng, chọn cơ sở bên dưới"
+    : gate.state === "upcoming"
       ? `Có thể chấm công vào lúc ${format(gate.opensAt, "HH:mm", { locale: vi })}`
       : gate.state === "ended"
         ? "Ca đã kết thúc, không thể chấm công"
         : gate.state === "none"
-          ? isFreeClockIn
-            ? "Không có ca — chấm công với vai trò Trợ giảng, chọn cơ sở bên dưới"
-            : "Bạn không có ca làm việc hôm nay"
+          ? "Bạn không có ca làm việc hôm nay"
           : "Tới cơ sở rồi thì bấm một nút là vào ca.";
 
   return (
