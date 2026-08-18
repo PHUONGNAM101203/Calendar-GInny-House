@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 import { PageHeader, SectionHeading, EmptyState } from "@/components/layout/PageChrome";
 import SwapRequestCard from "@/components/swaps/SwapRequestCard";
+import CollapsibleGrid from "@/components/manager/CollapsibleGrid";
 import type { SwapRequestDetailed } from "@/types";
 
 const SELECT = `
@@ -50,11 +51,11 @@ export default async function SwapRequestsPage() {
         {awaitingMe.length === 0 ? (
           <EmptyState>Không có yêu cầu nào đang chờ bạn.</EmptyState>
         ) : (
-          <div className="space-y-3">
+          <CollapsibleGrid dates={awaitingMe.map((r) => r.created_at)} className="space-y-3">
             {awaitingMe.map((r) => (
               <SwapRequestCard key={r.id} request={r} canRespond canCancel={false} canDelete={false} canRevert={false} />
             ))}
-          </div>
+          </CollapsibleGrid>
         )}
       </section>
 
@@ -63,11 +64,11 @@ export default async function SwapRequestsPage() {
         {mine.length === 0 ? (
           <EmptyState>Bạn chưa gửi yêu cầu đổi ca nào — mở lịch, chọn một ca của bạn để bắt đầu.</EmptyState>
         ) : (
-          <div className="space-y-3">
+          <CollapsibleGrid dates={mine.map((r) => r.created_at)} className="space-y-3">
             {mine.map((r) => (
               <SwapRequestCard key={r.id} request={r} canRespond={false} canCancel canDelete={false} canRevert={false} />
             ))}
-          </div>
+          </CollapsibleGrid>
         )}
       </section>
 
@@ -76,11 +77,11 @@ export default async function SwapRequestsPage() {
         {history.length === 0 ? (
           <EmptyState>Chưa có yêu cầu đổi ca nào khác.</EmptyState>
         ) : (
-          <div className="space-y-3">
+          <CollapsibleGrid dates={history.map((r) => r.created_at)} className="space-y-3">
             {history.map((r) => (
               <SwapRequestCard key={r.id} request={r} canRespond={false} canCancel={false} canDelete={false} canRevert={false} />
             ))}
-          </div>
+          </CollapsibleGrid>
         )}
       </section>
     </div>

@@ -147,7 +147,14 @@ export default function AttendanceCorrectionForm() {
   const hasSubmittable = rows.some(canSubmitRow);
 
   return (
-    <Card>
+    // shrink-0: same bug as ClockWidget.tsx's Card — a flex item whose own
+    // overflow isn't "visible" (Card ships overflow-hidden) gets an
+    // automatic minimum size of 0 in a flex column, so once "Đơn của tôi"
+    // below grows past the viewport, this Card would silently shrink and
+    // clip its own date picker instead of the page's overflow-y-auto
+    // engaging. Confirmed live: a staff member with many giải trình
+    // requests saw the date field render corrupted/cut off.
+    <Card className="shrink-0">
       <CardContent className="space-y-5">
         {rows.map((row, index) => (
           <div key={row.key} className={index > 0 ? "space-y-3 border-t pt-5" : "space-y-3"}>

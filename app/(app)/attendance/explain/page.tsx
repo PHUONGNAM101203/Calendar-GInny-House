@@ -3,6 +3,7 @@ import { requireProfile } from "@/lib/auth";
 import { PageHeader, SectionHeading, EmptyState } from "@/components/layout/PageChrome";
 import AttendanceCorrectionForm from "@/components/attendance/AttendanceCorrectionForm";
 import AttendanceCorrectionCard from "@/components/attendance/AttendanceCorrectionCard";
+import CollapsibleGrid from "@/components/manager/CollapsibleGrid";
 import type { AttendanceCorrectionDetailed } from "@/types";
 
 export default async function AttendanceExplainPage() {
@@ -32,7 +33,7 @@ export default async function AttendanceExplainPage() {
         {requests.length === 0 ? (
           <EmptyState>Bạn chưa gửi đơn giải trình công nào.</EmptyState>
         ) : (
-          <div className="space-y-3">
+          <CollapsibleGrid dates={requests.map((r) => r.created_at)} className="space-y-3">
             {requests.map((r) => (
               <AttendanceCorrectionCard
                 key={r.id}
@@ -44,7 +45,7 @@ export default async function AttendanceExplainPage() {
                 showName={false}
               />
             ))}
-          </div>
+          </CollapsibleGrid>
         )}
       </section>
     </div>

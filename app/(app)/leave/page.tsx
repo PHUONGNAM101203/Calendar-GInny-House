@@ -5,6 +5,7 @@ import { getGroupPermissions } from "@/lib/permissions-server";
 import { PageHeader, SectionHeading, EmptyState } from "@/components/layout/PageChrome";
 import LeaveRequestDialog from "@/components/leave/LeaveRequestDialog";
 import LeaveRequestCard from "@/components/leave/LeaveRequestCard";
+import CollapsibleGrid from "@/components/manager/CollapsibleGrid";
 import type { LeaveRequestDetailed, Profile } from "@/types";
 
 export default async function LeavePage() {
@@ -58,7 +59,7 @@ export default async function LeavePage() {
           {pending.length === 0 ? (
             <EmptyState>Không có đơn nào đang chờ duyệt.</EmptyState>
           ) : (
-            <div className="space-y-3">
+            <CollapsibleGrid dates={pending.map((r) => r.created_at)} className="space-y-3">
               {pending.map((r) => (
                 <LeaveRequestCard
                   key={r.id}
@@ -70,7 +71,7 @@ export default async function LeavePage() {
                   showName
                 />
               ))}
-            </div>
+            </CollapsibleGrid>
           )}
         </section>
       )}
@@ -80,7 +81,7 @@ export default async function LeavePage() {
         {mine.length === 0 ? (
           <EmptyState>Bạn chưa gửi đơn nghỉ phép nào — bấm &quot;Xin nghỉ phép&quot; ở trên để tạo đơn đầu tiên.</EmptyState>
         ) : (
-          <div className="space-y-3">
+          <CollapsibleGrid dates={mine.map((r) => r.created_at)} className="space-y-3">
             {mine.map((r) => (
               <LeaveRequestCard
                 key={r.id}
@@ -92,7 +93,7 @@ export default async function LeavePage() {
                 showName={false}
               />
             ))}
-          </div>
+          </CollapsibleGrid>
         )}
       </section>
 
@@ -102,7 +103,7 @@ export default async function LeavePage() {
           {history.length === 0 ? (
             <EmptyState>Chưa có đơn nghỉ phép nào khác.</EmptyState>
           ) : (
-            <div className="space-y-3">
+            <CollapsibleGrid dates={history.map((r) => r.created_at)} className="space-y-3">
               {history.map((r) => (
                 <LeaveRequestCard
                   key={r.id}
@@ -114,7 +115,7 @@ export default async function LeavePage() {
                   showName
                 />
               ))}
-            </div>
+            </CollapsibleGrid>
           )}
         </section>
       )}

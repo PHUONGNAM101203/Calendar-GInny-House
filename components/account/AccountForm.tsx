@@ -34,7 +34,11 @@ export default function AccountForm({ profile }: { profile: Profile & { email: s
   }
 
   return (
-    <Card>
+    // shrink-0: same latent bug as ClockWidget.tsx/AttendanceCorrectionForm.tsx's
+    // Card — preventive here, since nothing unbounded renders below this
+    // Card today, but the structural risk (Card's own overflow-hidden +
+    // default flex-shrink in a flex-col page wrapper) is identical.
+    <Card className="shrink-0">
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
