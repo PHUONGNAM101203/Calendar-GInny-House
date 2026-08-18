@@ -26,9 +26,9 @@ type CorrectionRow = {
   reasonError: string;
 };
 
-function emptyRow(): CorrectionRow {
+function emptyRow(key: string): CorrectionRow {
   return {
-    key: crypto.randomUUID(),
+    key,
     date: "",
     preview: null,
     previewError: "",
@@ -53,7 +53,14 @@ function shiftIdForRow(row: CorrectionRow): string | null {
 // with its own date → shift-preview → reason flow, submitted together in
 // one requestAttendanceCorrectionsAction call.
 export default function AttendanceCorrectionForm() {
-  const [rows, setRows] = useState<CorrectionRow[]>([emptyRow()]);
+  // "row-0" (not crypto.randomUUID()) — this initial state is computed
+  // during both the server render and the client hydration render of this
+  // client component, so a random value here would differ between the two
+  // passes and produce a real hydration mismatch on every id/htmlFor pair
+  // this row's DatePickerField renders. Rows added later via addRow() are
+  // client-only (an onClick handler can't run during SSR), so they're safe
+  // to key with a real random id.
+  const [rows, setRows] = useState<CorrectionRow[]>(() => [emptyRow("row-0")]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function updateRow(key: string, patch: Partial<CorrectionRow>) {
@@ -73,7 +80,7 @@ export default function AttendanceCorrectionForm() {
   }
 
   function addRow() {
-    setRows((prev) => [...prev, emptyRow()]);
+    setRows((prev) => [...prev, emptyRow(crypto.randomUUID())]);
   }
 
   function removeRow(key: string) {
@@ -122,7 +129,7 @@ export default function AttendanceCorrectionForm() {
     setRows((prev) => {
       const kept = prev.filter((r) => !canSubmitRow(r) || failedByKey.has(r.key));
       const withErrors = kept.map((r) => (failedByKey.has(r.key) ? { ...r, reasonError: failedByKey.get(r.key)! } : r));
-      return withErrors.length === 0 ? [emptyRow()] : withErrors;
+      return withErrors.length === 0 ? [emptyRow(crypto.randomUUID())] : withErrors;
     });
 
     if (result.data.succeededCount > 0) {

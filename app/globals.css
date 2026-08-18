@@ -224,7 +224,12 @@
   --input: rgb(255 255 255 / 15%);
   --ring: var(--blue-400);
   --gold: var(--yellow-400);
-  --gold-foreground: var(--yellow-900);
+  /* Same inversion as --destructive-strong above, missed here originally:
+     bg-gold/20 blends yellow-400 into the DARK card, so the tint stays
+     dark — yellow-900 text on it measured ~1.9:1 (the badge read as
+     near-blank, e.g. "Đang chờ" on AttendanceCorrectionCard). yellow-200
+     clears ~8.5:1 against that same tint. */
+  --gold-foreground: var(--yellow-200);
   /* Not from a ramp: the guideline has no green scale, and #167A3B sinks to
      roughly 2:1 against #0A1230. Lightened just far enough to clear 4.5:1. */
   --success: #4FB477;
