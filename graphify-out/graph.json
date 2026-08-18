@@ -108,15 +108,87 @@
   },
   "nodes": [
     {
+      "label": "AttendanceCorrectionForm.tsx",
+      "file_type": "code",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "components_attendance_attendancecorrectionform",
+      "community": 127,
+      "community_name": "LeaveRequestDialog.tsx",
+      "norm_label": "attendancecorrectionform.tsx"
+    },
+    {
+      "label": "CorrectionRow",
+      "file_type": "code",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L19",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "components_attendance_attendancecorrectionform_correctionrow",
+      "community": 127,
+      "community_name": "LeaveRequestDialog.tsx",
+      "norm_label": "correctionrow"
+    },
+    {
+      "label": "emptyRow()",
+      "file_type": "code",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L29",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "components_attendance_attendancecorrectionform_emptyrow",
+      "community": 127,
+      "community_name": "LeaveRequestDialog.tsx",
+      "norm_label": "emptyrow()"
+    },
+    {
+      "label": "canSubmitRow()",
+      "file_type": "code",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L41",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "components_attendance_attendancecorrectionform_cansubmitrow",
+      "community": 127,
+      "community_name": "LeaveRequestDialog.tsx",
+      "norm_label": "cansubmitrow()"
+    },
+    {
+      "label": "shiftIdForRow()",
+      "file_type": "code",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L45",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "components_attendance_attendancecorrectionform_shiftidforrow",
+      "community": 127,
+      "community_name": "LeaveRequestDialog.tsx",
+      "norm_label": "shiftidforrow()"
+    },
+    {
+      "label": "AttendanceCorrectionForm()",
+      "file_type": "code",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L55",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "components_attendance_attendancecorrectionform_attendancecorrectionform",
+      "community": 127,
+      "community_name": "LeaveRequestDialog.tsx",
+      "norm_label": "attendancecorrectionform()"
+    },
+    {
       "label": "ClockWidget.tsx",
       "file_type": "code",
       "source_file": "components/attendance/ClockWidget.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "components_attendance_clockwidget",
       "community": 116,
       "community_name": "ClockWidget.tsx",
-      "norm_label": "clockwidget.tsx"
+      "norm_label": "clockwidget.tsx",
+      "id": "components_attendance_clockwidget"
     },
     {
       "label": "RelevantShift",
@@ -126,10 +198,10 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "components_attendance_clockwidget_relevantshift",
       "community": 116,
       "community_name": "ClockWidget.tsx",
-      "norm_label": "relevantshift"
+      "norm_label": "relevantshift",
+      "id": "components_attendance_clockwidget_relevantshift"
     },
     {
       "label": "formatDuration()",
@@ -138,10 +210,10 @@
       "source_location": "L22",
       "_callable": true,
       "_origin": "ast",
-      "id": "components_attendance_clockwidget_formatduration",
       "community": 116,
       "community_name": "ClockWidget.tsx",
-      "norm_label": "formatduration()"
+      "norm_label": "formatduration()",
+      "id": "components_attendance_clockwidget_formatduration"
     },
     {
       "label": "ClockInGate",
@@ -151,10 +223,10 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "id": "components_attendance_clockwidget_clockingate",
       "community": 116,
       "community_name": "ClockWidget.tsx",
-      "norm_label": "clockingate"
+      "norm_label": "clockingate",
+      "id": "components_attendance_clockwidget_clockingate"
     },
     {
       "label": "getClockInGate()",
@@ -163,10 +235,10 @@
       "source_location": "L39",
       "_callable": true,
       "_origin": "ast",
-      "id": "components_attendance_clockwidget_getclockingate",
       "community": 116,
       "community_name": "ClockWidget.tsx",
-      "norm_label": "getclockingate()"
+      "norm_label": "getclockingate()",
+      "id": "components_attendance_clockwidget_getclockingate"
     },
     {
       "label": "ClockWidget()",
@@ -175,10 +247,10 @@
       "source_location": "L52",
       "_callable": true,
       "_origin": "ast",
-      "id": "components_attendance_clockwidget_clockwidget",
       "community": 116,
       "community_name": "ClockWidget.tsx",
-      "norm_label": "clockwidget()"
+      "norm_label": "clockwidget()",
+      "id": "components_attendance_clockwidget_clockwidget"
     },
     {
       "label": "attendance-corrections.ts",
@@ -2178,78 +2250,6 @@
       "community_name": "ClockWidget.tsx",
       "norm_label": "attendancecorrectioncard()",
       "id": "components_attendance_attendancecorrectioncard_attendancecorrectioncard"
-    },
-    {
-      "label": "AttendanceCorrectionForm.tsx",
-      "file_type": "code",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 127,
-      "community_name": "LeaveRequestDialog.tsx",
-      "norm_label": "attendancecorrectionform.tsx",
-      "id": "components_attendance_attendancecorrectionform"
-    },
-    {
-      "label": "CorrectionRow",
-      "file_type": "code",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L19",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 127,
-      "community_name": "LeaveRequestDialog.tsx",
-      "norm_label": "correctionrow",
-      "id": "components_attendance_attendancecorrectionform_correctionrow"
-    },
-    {
-      "label": "emptyRow()",
-      "file_type": "code",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L29",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 127,
-      "community_name": "LeaveRequestDialog.tsx",
-      "norm_label": "emptyrow()",
-      "id": "components_attendance_attendancecorrectionform_emptyrow"
-    },
-    {
-      "label": "canSubmitRow()",
-      "file_type": "code",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L41",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 127,
-      "community_name": "LeaveRequestDialog.tsx",
-      "norm_label": "cansubmitrow()",
-      "id": "components_attendance_attendancecorrectionform_cansubmitrow"
-    },
-    {
-      "label": "shiftIdForRow()",
-      "file_type": "code",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L45",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 127,
-      "community_name": "LeaveRequestDialog.tsx",
-      "norm_label": "shiftidforrow()",
-      "id": "components_attendance_attendancecorrectionform_shiftidforrow"
-    },
-    {
-      "label": "AttendanceCorrectionForm()",
-      "file_type": "code",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L55",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 127,
-      "community_name": "LeaveRequestDialog.tsx",
-      "norm_label": "attendancecorrectionform()",
-      "id": "components_attendance_attendancecorrectionform_attendancecorrectionform"
     },
     {
       "label": "AttendanceHistory.tsx",
@@ -16189,6 +16189,313 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "app/(app)/attendance/explain/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "app_app_attendance_explain_page",
+      "target": "components_attendance_attendancecorrectionform"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "actions_attendance_corrections",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "actions_attendance_corrections_correctionpreview",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "actions_attendance_corrections_getattendancecorrectionpreviewaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "actions_attendance_corrections_requestattendancecorrectionsaction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L55",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "components_attendance_attendancecorrectionform_attendancecorrectionform",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L41",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "components_attendance_attendancecorrectionform_cansubmitrow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "components_attendance_attendancecorrectionform_correctionrow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L29",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "components_attendance_attendancecorrectionform_emptyrow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L45",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "components_attendance_attendancecorrectionform_shiftidforrow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "components_ui_button",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "components_ui_button_button",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "components_ui_card",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "components_ui_card_card",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "components_ui_card_cardcontent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "components_ui_date_picker_field",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "components_ui_date_picker_field_datepickerfield",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "components_ui_label",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "components_ui_label_label",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "components_ui_textarea",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "components_ui_textarea_textarea",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "lib_validations_attendance_correction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform",
+      "target": "lib_validations_attendance_correction_attendancecorrectionschema",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L63",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform_attendancecorrectionform",
+      "target": "components_attendance_attendancecorrectionform_emptyrow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "indirect_call",
+      "context": "argument",
+      "confidence": "INFERRED",
+      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
+      "source_location": "L147",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_attendance_attendancecorrectionform_attendancecorrectionform",
+      "target": "components_attendance_attendancecorrectionform_cansubmitrow",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/(app)/attendance/explain/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "app_app_attendance_explain_page",
+      "target": "components_attendance_attendancecorrectionform_attendancecorrectionform"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "app/(app)/attendance/page.tsx",
       "source_location": "L7",
       "weight": 1.0,
@@ -16205,9 +16512,9 @@
       "source_location": "L8",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "actions_attendance",
-      "confidence_score": 1.0
+      "target": "actions_attendance"
     },
     {
       "relation": "imports",
@@ -16217,9 +16524,9 @@
       "source_location": "L8",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "actions_attendance_clockinaction",
-      "confidence_score": 1.0
+      "target": "actions_attendance_clockinaction"
     },
     {
       "relation": "imports",
@@ -16229,9 +16536,9 @@
       "source_location": "L8",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "actions_attendance_clockoutaction",
-      "confidence_score": 1.0
+      "target": "actions_attendance_clockoutaction"
     },
     {
       "relation": "contains",
@@ -16240,9 +16547,9 @@
       "source_location": "L33",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "components_attendance_clockwidget_clockingate",
-      "confidence_score": 1.0
+      "target": "components_attendance_clockwidget_clockingate"
     },
     {
       "relation": "contains",
@@ -16251,9 +16558,9 @@
       "source_location": "L52",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "components_attendance_clockwidget_clockwidget",
-      "confidence_score": 1.0
+      "target": "components_attendance_clockwidget_clockwidget"
     },
     {
       "relation": "contains",
@@ -16262,9 +16569,9 @@
       "source_location": "L22",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "components_attendance_clockwidget_formatduration",
-      "confidence_score": 1.0
+      "target": "components_attendance_clockwidget_formatduration"
     },
     {
       "relation": "contains",
@@ -16273,9 +16580,9 @@
       "source_location": "L39",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "components_attendance_clockwidget_getclockingate",
-      "confidence_score": 1.0
+      "target": "components_attendance_clockwidget_getclockingate"
     },
     {
       "relation": "contains",
@@ -16284,9 +16591,9 @@
       "source_location": "L20",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "components_attendance_clockwidget_relevantshift",
-      "confidence_score": 1.0
+      "target": "components_attendance_clockwidget_relevantshift"
     },
     {
       "relation": "imports_from",
@@ -16296,9 +16603,9 @@
       "source_location": "L9",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "components_ui_button",
-      "confidence_score": 1.0
+      "target": "components_ui_button"
     },
     {
       "relation": "imports",
@@ -16308,9 +16615,9 @@
       "source_location": "L9",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "components_ui_button_button",
-      "confidence_score": 1.0
+      "target": "components_ui_button_button"
     },
     {
       "relation": "imports_from",
@@ -16320,9 +16627,9 @@
       "source_location": "L10",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "components_ui_card",
-      "confidence_score": 1.0
+      "target": "components_ui_card"
     },
     {
       "relation": "imports",
@@ -16332,9 +16639,9 @@
       "source_location": "L10",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "components_ui_card_card",
-      "confidence_score": 1.0
+      "target": "components_ui_card_card"
     },
     {
       "relation": "imports",
@@ -16344,9 +16651,9 @@
       "source_location": "L10",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "components_ui_card_cardcontent",
-      "confidence_score": 1.0
+      "target": "components_ui_card_cardcontent"
     },
     {
       "relation": "imports_from",
@@ -16356,9 +16663,9 @@
       "source_location": "L11",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "components_ui_select",
-      "confidence_score": 1.0
+      "target": "components_ui_select"
     },
     {
       "relation": "imports",
@@ -16368,9 +16675,9 @@
       "source_location": "L11",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "components_ui_select_select",
-      "confidence_score": 1.0
+      "target": "components_ui_select_select"
     },
     {
       "relation": "imports",
@@ -16380,9 +16687,9 @@
       "source_location": "L11",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "components_ui_select_selectcontent",
-      "confidence_score": 1.0
+      "target": "components_ui_select_selectcontent"
     },
     {
       "relation": "imports",
@@ -16392,9 +16699,9 @@
       "source_location": "L11",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "components_ui_select_selectitem",
-      "confidence_score": 1.0
+      "target": "components_ui_select_selectitem"
     },
     {
       "relation": "imports",
@@ -16404,9 +16711,9 @@
       "source_location": "L11",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "components_ui_select_selecttrigger",
-      "confidence_score": 1.0
+      "target": "components_ui_select_selecttrigger"
     },
     {
       "relation": "imports",
@@ -16416,9 +16723,9 @@
       "source_location": "L11",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "components_ui_select_selectvalue",
-      "confidence_score": 1.0
+      "target": "components_ui_select_selectvalue"
     },
     {
       "relation": "imports_from",
@@ -16428,9 +16735,9 @@
       "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "types_index",
-      "confidence_score": 1.0
+      "target": "types_index"
     },
     {
       "relation": "imports",
@@ -16440,9 +16747,9 @@
       "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "types_index_attendance",
-      "confidence_score": 1.0
+      "target": "types_index_attendance"
     },
     {
       "relation": "imports",
@@ -16452,9 +16759,9 @@
       "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "types_index_branch",
-      "confidence_score": 1.0
+      "target": "types_index_branch"
     },
     {
       "relation": "imports",
@@ -16464,9 +16771,9 @@
       "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget",
-      "target": "types_index_shift",
-      "confidence_score": 1.0
+      "target": "types_index_shift"
     },
     {
       "relation": "calls",
@@ -16476,9 +16783,9 @@
       "source_location": "L147",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget_clockwidget",
-      "target": "components_attendance_clockwidget_formatduration",
-      "confidence_score": 1.0
+      "target": "components_attendance_clockwidget_formatduration"
     },
     {
       "relation": "calls",
@@ -16488,9 +16795,9 @@
       "source_location": "L74",
       "weight": 1.0,
       "_origin": "ast",
+      "confidence_score": 1.0,
       "source": "components_attendance_clockwidget_clockwidget",
-      "target": "components_attendance_clockwidget_getclockingate",
-      "confidence_score": 1.0
+      "target": "components_attendance_clockwidget_getclockingate"
     },
     {
       "relation": "imports",
@@ -16810,18 +17117,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L8",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "actions_attendance_corrections"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "components/calendar/AttendanceDetailDialog.tsx",
       "source_location": "L8",
       "weight": 1.0,
@@ -16829,18 +17124,6 @@
       "confidence_score": 1.0,
       "source": "components_calendar_attendancedetaildialog",
       "target": "actions_attendance_corrections"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L8",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "actions_attendance_corrections_correctionpreview"
     },
     {
       "relation": "calls",
@@ -16985,18 +17268,6 @@
       "_origin": "ast",
       "source": "actions_attendance_corrections_requestattendancecorrectionsaction",
       "target": "lib_supabase_server_createclient"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L8",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "actions_attendance_corrections_requestattendancecorrectionsaction"
     },
     {
       "relation": "calls",
@@ -17189,18 +17460,6 @@
       "_origin": "ast",
       "source": "actions_attendance_corrections_getattendancecorrectionpreviewaction",
       "target": "lib_supabase_server_createclient"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L8",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "actions_attendance_corrections_getattendancecorrectionpreviewaction"
     },
     {
       "relation": "contains",
@@ -22561,30 +22820,6 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/(app)/attendance/explain/page.tsx",
-      "source_location": "L4",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "app_app_attendance_explain_page",
-      "target": "components_attendance_attendancecorrectionform"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "app/(app)/attendance/explain/page.tsx",
-      "source_location": "L4",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "app_app_attendance_explain_page",
-      "target": "components_attendance_attendancecorrectionform_attendancecorrectionform"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "app/(app)/attendance/explain/page.tsx",
       "source_location": "L3",
       "weight": 1.0,
       "_origin": "ast",
@@ -26389,241 +26624,6 @@
       "confidence_score": 1.0,
       "source": "components_manager_staffrequestsdetaildialog",
       "target": "components_attendance_attendancecorrectioncard_attendancecorrectioncard"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L55",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "components_attendance_attendancecorrectionform_attendancecorrectionform"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L41",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "components_attendance_attendancecorrectionform_cansubmitrow"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L19",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "components_attendance_attendancecorrectionform_correctionrow"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L29",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "components_attendance_attendancecorrectionform_emptyrow"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L45",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "components_attendance_attendancecorrectionform_shiftidforrow"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L13",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "components_ui_button"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L13",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "components_ui_button_button"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L17",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "components_ui_card"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L17",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "components_ui_card_card"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L17",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "components_ui_card_cardcontent"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L14",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "components_ui_date_picker_field"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L14",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "components_ui_date_picker_field_datepickerfield"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L15",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "components_ui_label"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L15",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "components_ui_label_label"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L16",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "components_ui_textarea"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L16",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "components_ui_textarea_textarea"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L7",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "lib_validations_attendance_correction"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L7",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform",
-      "target": "lib_validations_attendance_correction_attendancecorrectionschema"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L56",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "components_attendance_attendancecorrectionform_attendancecorrectionform",
-      "target": "components_attendance_attendancecorrectionform_emptyrow"
-    },
-    {
-      "relation": "indirect_call",
-      "context": "argument",
-      "confidence": "INFERRED",
-      "source_file": "components/attendance/AttendanceCorrectionForm.tsx",
-      "source_location": "L140",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 0.5,
-      "source": "components_attendance_attendancecorrectionform_attendancecorrectionform",
-      "target": "components_attendance_attendancecorrectionform_cansubmitrow"
     },
     {
       "relation": "contains",
@@ -53802,5 +53802,5 @@
       "source_file": "docs/superpowers/specs/2026-08-07-multi-branch-staff-cutover-design.md"
     }
   ],
-  "built_at_commit": "22ebbf4a39af74a2c593ebfa3be728947cd5840d"
+  "built_at_commit": "5065e1156c1dbbec32fe8f57eff8b28d2e63b16f"
 }

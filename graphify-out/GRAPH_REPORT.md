@@ -1,7 +1,7 @@
-# Graph Report - Calendar-GInny-House  (2026-08-17)
+# Graph Report - Calendar-GInny-House  (2026-08-18)
 
 ## Corpus Check
-- 241 files · ~162,671 words
+- 241 files · ~162,752 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `22ebbf4a`
+- Built from commit: `5065e115`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -482,7 +482,7 @@ Nodes (18): ShiftCalendar, ShiftCalendarLoader(), AttendanceWithProfileRole, Cal
   docs/superpowers/specs/2026-08-07-multi-branch-staff-cutover-design.md · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **280 isolated node(s):** `RelevantShift`, `ClockInGate`, `AttendanceCorrectionsBatchResult`, `VALID_COLORS`, `VALID_COLORS` (+275 more)
+- **280 isolated node(s):** `CorrectionRow`, `RelevantShift`, `ClockInGate`, `AttendanceCorrectionsBatchResult`, `VALID_COLORS` (+275 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **51 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -500,6 +500,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **What is the exact relationship between `app/(app)/manager/page.tsx — scoped fetch layer` and `StaffTable.tsx branch cell`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **Why does `cn()` connect `cn` to `card.tsx`, `button.tsx`, `ShiftFormDialog.tsx`, `utils.ts`, `UserMenu.tsx`, `AttendanceDetailDialog.tsx`, `ShiftCalendar.tsx`, `skeleton.tsx`, `roles.ts`, `SwapRequestDialog.tsx`, `StaffOverviewTable.tsx`, `LeaveRequestDialog.tsx`?**
-  _High betweenness centrality (0.051) - this node is a cross-community bridge._
+  _High betweenness centrality (0.049) - this node is a cross-community bridge._
 - **Why does `createClient()` connect `createClient` to `card.tsx`, `shift-requests.ts`, `requireManager`, `isManagerRole`, `UserMenu.tsx`, `attendance-corrections.ts`, `actions/leave.ts`, `index.ts`, `swaps.ts`, `ClockWidget.tsx`, `roles.ts`, `actions/attendance.ts`?**
   _High betweenness centrality (0.017) - this node is a cross-community bridge._
