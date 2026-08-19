@@ -47,7 +47,8 @@ const SELECT = `
 // types, supabase-js can't know assignee_id/branch_id are to-one relations
 // and defaults the embedded join shape to arrays.
 const SHIFTS_OVERVIEW_SELECT =
-  "id, start_at, end_at, shift_type, assignee:profiles!assignee_id(id, full_name, role), branch:branches!branch_id(id, name)";
+  "id, start_at, end_at, shift_type, assignee:profiles!assignee_id(id, full_name, role, secondary_role), " +
+  "branch:branches!branch_id(id, name), attendance:attendance!shift_id(check_in_at, check_out_at)";
 
 type ProfileRoleRef = Pick<Profile, "id" | "full_name" | "role">;
 
