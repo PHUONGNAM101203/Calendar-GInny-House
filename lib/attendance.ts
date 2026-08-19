@@ -3,19 +3,9 @@ import type { Attendance, LeaveRequest, Profile, Role } from "@/types";
 
 export type OverviewPeriod = "day" | "month" | "year";
 
-export type StaffOverviewRow = {
-  id: string;
-  fullName: string;
-  role: Role;
-  secondaryRole: Role | null;
-  totalMinutes: number;
-  status: "in_shift" | "checked_out" | "not_clocked";
-  onLeaveToday: boolean;
-};
-
-// Exported so drill-down UI (StaffAttendanceDetailDialog) and the requests
-// overview (lib/requests-overview.ts) compute the exact same day/month/year
-// boundaries as this table — one definition of "what does 'theo tháng' mean".
+// Exported so drill-down UI and the requests overview (lib/requests-overview.ts)
+// compute the exact same day/month/year boundaries as this table — one
+// definition of "what does 'theo tháng' mean".
 export function periodRange(period: OverviewPeriod, now: Date) {
   switch (period) {
     case "month":
@@ -28,118 +18,31 @@ export function periodRange(period: OverviewPeriod, now: Date) {
   }
 }
 
-// One row per employee — the "mỗi tính năng 1 table" dashboard view: for the
-// selected period, how many minutes did they actually work, are they
-// currently clocked in or already checked out, and are they on approved/
-// pending leave today. Built client-side off one broad attendance fetch (see
-// app/(app)/manager/page.tsx) so switching Ngày/Tháng/Năm is instant, no
-// refetch.
-export function buildStaffOverview(
-  staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[],
-  attendance: Attendance[],
+export function formatHours(totalMinutes: number) {
+  const h = Math.floor(totalMinutes / 60);
+  const m = Math.round(totalMinutes % 60);
+  return m > 0 ? `${h}g ${m}p` : `${h}g`;
+}
+
+// Generalizes the date-overlap check every "on leave" badge in the app needs
+// (approved OR pending, per the same convention used everywhere else leave
+// status gates a UI hint rather than an authorization decision) to any single
+// date — not hardcoded to "today", so callers like ShiftsOverviewTable can
+// check a specific shift's own date instead of only "right now".
+export function isOnLeaveForDate(
   leaveRequests: Pick<LeaveRequest, "profile_id" | "start_date" | "end_date" | "status">[],
-  period: OverviewPeriod,
-  now: Date = new Date()
-): StaffOverviewRow[] {
-  const { start, end } = periodRange(period, now);
-
-  const minutesByProfile = new Map<string, number>();
-  const openByProfile = new Set<string>();
-  const closedInRangeByProfile = new Set<string>();
-
-  for (const record of attendance) {
-    const checkIn = new Date(record.check_in_at);
-    const checkOut = record.check_out_at ? new Date(record.check_out_at) : null;
-    if (!checkOut) openByProfile.add(record.profile_id);
-
-    const effectiveEnd = checkOut ?? now;
-    const overlapStart = checkIn > start ? checkIn : start;
-    const overlapEnd = effectiveEnd < end ? effectiveEnd : end;
-    if (overlapEnd > overlapStart) {
-      const minutes = (overlapEnd.getTime() - overlapStart.getTime()) / 60000;
-      minutesByProfile.set(record.profile_id, (minutesByProfile.get(record.profile_id) ?? 0) + minutes);
-      if (checkOut) closedInRangeByProfile.add(record.profile_id);
-    }
-  }
-
-  const todayStart = startOfDay(now);
-  const todayEnd = endOfDay(now);
-  const onLeaveToday = new Set(
-    leaveRequests
-      .filter((r) => r.status === "approved" || r.status === "pending")
-      .filter((r) => new Date(r.end_date) >= todayStart && new Date(r.start_date) <= todayEnd)
-      .map((r) => r.profile_id)
+  profileId: string,
+  date: Date
+): boolean {
+  const dayStart = startOfDay(date);
+  const dayEnd = endOfDay(date);
+  return leaveRequests.some(
+    (r) =>
+      r.profile_id === profileId &&
+      (r.status === "approved" || r.status === "pending") &&
+      new Date(r.end_date) >= dayStart &&
+      new Date(r.start_date) <= dayEnd
   );
-
-  return staff
-    .map((s) => ({
-      id: s.id,
-      fullName: s.full_name,
-      role: s.role,
-      secondaryRole: s.secondary_role,
-      totalMinutes: Math.round(minutesByProfile.get(s.id) ?? 0),
-      status: (openByProfile.has(s.id)
-        ? "in_shift"
-        : closedInRangeByProfile.has(s.id)
-          ? "checked_out"
-          : "not_clocked") as StaffOverviewRow["status"],
-      onLeaveToday: onLeaveToday.has(s.id),
-    }))
-    .sort((a, b) => b.totalMinutes - a.totalMinutes || a.fullName.localeCompare(b.fullName, "vi"));
-}
-
-export type AttendanceSession = { checkInAt: string; checkOutAt: string | null };
-export type DayBreakdownEntry = { date: string; sessions: AttendanceSession[]; totalMinutes: number };
-
-// One entry per calendar day within [rangeStart, rangeEnd] that has at least
-// one attendance record for this person — feeds StaffAttendanceDetailDialog's
-// day-by-day view (used for "theo ngày"/"theo tháng", and for a single month
-// drilled into from "theo năm").
-export function buildDayBreakdown(
-  attendance: Attendance[],
-  profileId: string,
-  rangeStart: Date,
-  rangeEnd: Date,
-  now: Date = new Date()
-): DayBreakdownEntry[] {
-  const byDate = new Map<string, DayBreakdownEntry>();
-  for (const record of attendance) {
-    if (record.profile_id !== profileId) continue;
-    const checkIn = new Date(record.check_in_at);
-    if (checkIn < rangeStart || checkIn > rangeEnd) continue;
-    const key = format(checkIn, "yyyy-MM-dd");
-    const checkOut = record.check_out_at ? new Date(record.check_out_at) : null;
-    const minutes = Math.max(0, ((checkOut ?? now).getTime() - checkIn.getTime()) / 60000);
-    const entry = byDate.get(key) ?? { date: key, sessions: [], totalMinutes: 0 };
-    entry.sessions.push({ checkInAt: record.check_in_at, checkOutAt: record.check_out_at });
-    entry.totalMinutes += minutes;
-    byDate.set(key, entry);
-  }
-  return Array.from(byDate.values())
-    .map((entry) => ({ ...entry, totalMinutes: Math.round(entry.totalMinutes) }))
-    .sort((a, b) => b.date.localeCompare(a.date));
-}
-
-export type MonthBreakdownEntry = { month: number; totalMinutes: number };
-
-// 12-month rollup for one person in one calendar year — feeds the "cả năm"
-// summary in StaffAttendanceDetailDialog, which a manager then drills into
-// (picks a month) to get the day-by-day view above.
-export function buildMonthBreakdown(
-  attendance: Attendance[],
-  profileId: string,
-  year: number,
-  now: Date = new Date()
-): MonthBreakdownEntry[] {
-  const totals = new Array(12).fill(0) as number[];
-  for (const record of attendance) {
-    if (record.profile_id !== profileId) continue;
-    const checkIn = new Date(record.check_in_at);
-    if (checkIn.getFullYear() !== year) continue;
-    const checkOut = record.check_out_at ? new Date(record.check_out_at) : now;
-    totals[checkIn.getMonth()] += Math.max(0, (checkOut.getTime() - checkIn.getTime()) / 60000);
-  }
-  return totals.map((totalMinutes, i) => ({ month: i + 1, totalMinutes: Math.round(totalMinutes) }));
 }
 
 export type DayHours = { date: string; label: string; hours: number };

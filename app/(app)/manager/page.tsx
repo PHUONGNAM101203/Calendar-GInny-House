@@ -17,7 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import ManagerDashboard from "@/components/manager/ManagerDashboard";
 import TechnicalDashboard from "@/components/manager/TechnicalDashboard";
 import StaffTable from "@/components/manager/StaffTable";
-import ShiftsOverviewTable, { type ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
+import { type ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
 import DateRangeFilter from "@/components/manager/DateRangeFilter";
 import SwapRequestCard from "@/components/swaps/SwapRequestCard";
 import LeaveRequestCard from "@/components/leave/LeaveRequestCard";
@@ -276,6 +276,8 @@ export default async function ManagerPage({
           groupPermissions={permissions}
           staleFreeAttendance={staleFreeAttendanceList}
           branches={branches}
+          shifts={scopedShiftsOverview}
+          currentUserRole={manager.role}
         />
       ) : isGroupManager ? (
         <ManagerDashboard
@@ -298,6 +300,9 @@ export default async function ManagerPage({
           shiftRequests={scopedShiftRequests}
           attendanceCorrections={scopedAttendanceCorrections}
           overviewTitle={groupMeta ? `Tổng hợp chấm công — ${groupMeta.label}` : undefined}
+          shifts={scopedShiftsOverview}
+          currentUserRole={manager.role}
+          permissions={permissions}
         />
       ) : (
         <ManagerDashboard
@@ -315,6 +320,9 @@ export default async function ManagerPage({
           swapRequests={swapsList}
           shiftRequests={shiftRequestsList}
           attendanceCorrections={attendanceCorrectionsList}
+          shifts={scopedShiftsOverview}
+          currentUserRole={manager.role}
+          permissions={permissions}
         />
       )}
 
@@ -334,14 +342,6 @@ export default async function ManagerPage({
             />
           </CardContent>
         </Card>
-      </Section>
-
-      <Section id="shifts" title="Ca làm việc" count={scopedShiftsOverview.length}>
-        <ShiftsOverviewTable
-          shifts={scopedShiftsOverview}
-          currentUserRole={manager.role}
-          permissions={permissions}
-        />
       </Section>
 
       {isShiftRequestApprover(manager.role) && (
