@@ -16,17 +16,15 @@ import {
 } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import BrandMark from "@/components/brand/BrandMark";
-import ShiftsOverviewTable, { type ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
+import StaffOverviewTable from "@/components/manager/StaffOverviewTable";
 import RequestsOverviewTable from "@/components/manager/RequestsOverviewTable";
 import { aggregateHoursByDay } from "@/lib/attendance";
 import { cn } from "@/lib/utils";
-import type { GroupPermissions } from "@/lib/permissions";
 import type {
   Attendance,
   AttendanceCorrectionDetailed,
   LeaveRequestDetailed,
   Profile,
-  Role,
   ShiftRequestDetailed,
   SwapRequestDetailed,
 } from "@/types";
@@ -137,9 +135,6 @@ export default function ManagerDashboard({
   shiftRequests,
   attendanceCorrections,
   overviewTitle,
-  shifts,
-  currentUserRole,
-  permissions,
 }: {
   totalStaff: number;
   unassignedStaff: number;
@@ -156,9 +151,6 @@ export default function ManagerDashboard({
   shiftRequests: ShiftRequestDetailed[];
   attendanceCorrections: AttendanceCorrectionDetailed[];
   overviewTitle?: string;
-  shifts: ShiftOverviewRow[];
-  currentUserRole: Role;
-  permissions: GroupPermissions;
 }) {
   const hoursByDay = useMemo(() => aggregateHoursByDay(attendance, 7), [attendance]);
   const peakDay = useMemo(
@@ -319,11 +311,10 @@ export default function ManagerDashboard({
 
       <Card>
         <CardContent>
-          <ShiftsOverviewTable
+          <StaffOverviewTable
             title={overviewTitle}
-            shifts={shifts}
-            currentUserRole={currentUserRole}
-            permissions={permissions}
+            staff={staff}
+            attendance={attendance}
             leaveRequests={leaveRequests}
           />
         </CardContent>

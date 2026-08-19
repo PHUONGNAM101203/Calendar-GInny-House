@@ -23,7 +23,7 @@ import {
 import TableScroller from "@/components/manager/TableScroller";
 import { deleteShiftAction } from "@/actions/shifts";
 import { canCreateShiftFor } from "@/lib/roles";
-import { periodRange, formatHours, isOnLeaveForDate, type OverviewPeriod } from "@/lib/attendance";
+import { periodRange, type OverviewPeriod } from "@/lib/attendance";
 import { SHIFT_TYPE_LABELS } from "@/lib/constants";
 import {
   computeShiftAttendanceTag,
@@ -31,7 +31,7 @@ import {
   SHIFT_ATTENDANCE_TAG_VARIANTS,
 } from "@/lib/shift-attendance-tag";
 import type { GroupPermissions } from "@/lib/permissions";
-import type { LeaveRequest, Role } from "@/types";
+import type { Role } from "@/types";
 
 export type ShiftOverviewRow = {
   id: string;
@@ -50,23 +50,17 @@ function normalizeForSearch(value: string): string {
     .toLowerCase();
 }
 
-// Same period-tabs-and-search shell as the old StaffOverviewTable it absorbed
-// (that table — per-person "Giờ làm"/"Nghỉ phép hôm nay" — was folded in here
-// and deleted; see those two columns below), but one row per shift, not per
-// person, since the point is picking a specific shift to delete or checking
-// its own attendance, not browsing a person-level summary.
+// Same period-tabs-and-search shell as RequestsOverviewTable, but one row
+// per shift (not aggregated counts) since the point here is picking a
+// specific shift to delete, not browsing a summary.
 export default function ShiftsOverviewTable({
-  title = "Ca làm việc",
   shifts,
   currentUserRole,
   permissions,
-  leaveRequests,
 }: {
-  title?: string;
   shifts: ShiftOverviewRow[];
   currentUserRole: Role;
   permissions: GroupPermissions;
-  leaveRequests: Pick<LeaveRequest, "profile_id" | "start_date" | "end_date" | "status">[];
 }) {
   const [period, setPeriod] = useState<OverviewPeriod>("month");
   const [search, setSearch] = useState("");
@@ -86,24 +80,21 @@ export default function ShiftsOverviewTable({
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="font-heading text-base font-semibold">{title}</h3>
-        <div className="flex flex-wrap items-center gap-2">
-          <Tabs value={period} onValueChange={(v) => setPeriod(v as OverviewPeriod)}>
-            <TabsList>
-              <TabsTrigger value="day">Theo ngày</TabsTrigger>
-              <TabsTrigger value="month">Theo tháng</TabsTrigger>
-              <TabsTrigger value="year">Theo năm</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          <div className="relative">
-            <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Tìm nhân viên..."
-              className="h-8 w-40 pl-8 text-sm"
-            />
-          </div>
+        <Tabs value={period} onValueChange={(v) => setPeriod(v as OverviewPeriod)}>
+          <TabsList>
+            <TabsTrigger value="day">Theo ngày</TabsTrigger>
+            <TabsTrigger value="month">Theo tháng</TabsTrigger>
+            <TabsTrigger value="year">Theo năm</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <div className="relative">
+          <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Tìm nhân viên..."
+            className="h-8 w-40 pl-8 text-sm"
+          />
         </div>
       </div>
 
@@ -117,8 +108,6 @@ export default function ShiftsOverviewTable({
               <th className="border-b border-r px-3 py-2 font-medium">Cơ sở</th>
               <th className="border-b border-r px-3 py-2 font-medium">Loại ca</th>
               <th className="border-b border-r px-3 py-2 font-medium">Trạng thái</th>
-              <th className="border-b border-r px-3 py-2 font-medium">Giờ làm</th>
-              <th className="border-b border-r px-3 py-2 font-medium">Nghỉ phép</th>
               <th className="border-b px-3 py-2 font-medium"></th>
             </tr>
           </thead>
@@ -128,12 +117,11 @@ export default function ShiftsOverviewTable({
                 key={shift.id}
                 shift={shift}
                 canDelete={canCreateShiftFor(currentUserRole, shift.assignee.role, permissions)}
-                onLeave={isOnLeaveForDate(leaveRequests, shift.assignee.id, new Date(shift.start_at))}
               />
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-3 py-6 text-center text-muted-foreground">
+                <td colSpan={7} className="px-3 py-6 text-center text-muted-foreground">
                   {search.trim() ? "Không tìm thấy ca phù hợp." : "Chưa có ca làm việc nào."}
                 </td>
               </tr>
@@ -145,15 +133,7 @@ export default function ShiftsOverviewTable({
   );
 }
 
-function ShiftRow({
-  shift,
-  canDelete,
-  onLeave,
-}: {
-  shift: ShiftOverviewRow;
-  canDelete: boolean;
-  onLeave: boolean;
-}) {
+function ShiftRow({ shift, canDelete }: { shift: ShiftOverviewRow; canDelete: boolean }) {
   const [isPending, setIsPending] = useState(false);
   const [deleted, setDeleted] = useState(false);
 
@@ -171,17 +151,7 @@ function ShiftRow({
 
   if (deleted) return null;
 
-  const now = new Date();
-  const tag = computeShiftAttendanceTag(shift, now);
-  // "Giờ làm" for this specific shift — the same worked-duration idea the
-  // old per-person StaffOverviewTable showed as a period total, here shown
-  // per row instead: check-in→check-out if closed, check-in→now if still
-  // open, "—" if no attendance recorded at all yet.
-  const record = shift.attendance[0];
-  const workedMinutes = record
-    ? ((record.check_out_at ? new Date(record.check_out_at) : now).getTime() - new Date(record.check_in_at).getTime()) /
-      60000
-    : null;
+  const tag = computeShiftAttendanceTag(shift, new Date());
 
   return (
     <tr className="border-t max-lg:block max-lg:space-y-1 max-lg:px-3 max-lg:py-2.5">
@@ -202,16 +172,6 @@ function ShiftRow({
       </td>
       <td className="border-b border-r px-3 py-2 max-lg:block max-lg:border-none max-lg:px-0 max-lg:py-0">
         {tag && <Badge variant={SHIFT_ATTENDANCE_TAG_VARIANTS[tag]}>{SHIFT_ATTENDANCE_TAG_LABELS[tag]}</Badge>}
-      </td>
-      <td className="border-b border-r px-3 py-2 tabular-nums max-lg:block max-lg:border-none max-lg:px-0 max-lg:py-0 max-lg:text-xs max-lg:text-muted-foreground">
-        {workedMinutes === null ? "—" : formatHours(workedMinutes)}
-      </td>
-      <td className="border-b border-r px-3 py-2 max-lg:block max-lg:border-none max-lg:px-0 max-lg:py-0">
-        {onLeave ? (
-          <Badge variant="gold">Nghỉ phép</Badge>
-        ) : (
-          <span className="text-muted-foreground">—</span>
-        )}
       </td>
       <td className="border-b px-3 py-2 text-right max-lg:block max-lg:border-none max-lg:px-0 max-lg:py-0">
         {canDelete && (
