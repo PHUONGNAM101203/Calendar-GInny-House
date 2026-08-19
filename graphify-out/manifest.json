@@ -115,8 +115,8 @@
     "semantic_hash": "f9d8ca010174db8d5387f086db48be9a"
   },
   "app/(app)/manager/page.tsx": {
-    "mtime": 1787115926.8188806,
-    "ast_hash": "ced7c5a240a0fef5cae2007849ef38ff",
+    "mtime": 1787124577.9419568,
+    "ast_hash": "02572ecbd2bd002d4066374cddbb77ff",
     "semantic_hash": ""
   },
   "app/(app)/swaps/page.tsx": {
@@ -335,23 +335,13 @@
     "semantic_hash": "4a7f2e5b06d186d66774ff8582f60024"
   },
   "components/manager/ManagerDashboard.tsx": {
-    "mtime": 1786617589.5508094,
-    "ast_hash": "65dcfe9a324ea99c577e61138dfce726",
+    "mtime": 1787124530.095917,
+    "ast_hash": "7d86b47e0cd0e7cee77bc7d324d66e48",
     "semantic_hash": ""
   },
   "components/manager/RequestsOverviewTable.tsx": {
     "mtime": 1786617570.3319108,
     "ast_hash": "a4d0501940e8f9fe417de3a3e4c90c20",
-    "semantic_hash": ""
-  },
-  "components/manager/StaffAttendanceDetailDialog.tsx": {
-    "mtime": 1786164718.0861804,
-    "ast_hash": "64711114e94d8c7f7cae2baced1c3b98",
-    "semantic_hash": ""
-  },
-  "components/manager/StaffOverviewTable.tsx": {
-    "mtime": 1786509813.3104813,
-    "ast_hash": "08371abea67a978bcd7a815357261370",
     "semantic_hash": ""
   },
   "components/manager/StaffRequestsDetailDialog.tsx": {
@@ -365,8 +355,8 @@
     "semantic_hash": ""
   },
   "components/manager/TechnicalDashboard.tsx": {
-    "mtime": 1786617584.792085,
-    "ast_hash": "438b35b8b43384e999de4cd04fd84c7b",
+    "mtime": 1787124498.0836706,
+    "ast_hash": "4c45cf98113bf7cd1abe1607a5aff2af",
     "semantic_hash": ""
   },
   "components/shifts/ShiftDetailDialog.tsx": {
@@ -520,8 +510,8 @@
     "semantic_hash": "69c05000f5b485cc4a5f2fc1b0e91c40"
   },
   "lib/attendance.ts": {
-    "mtime": 1786326637.4074333,
-    "ast_hash": "17934c9abb8ee96354791f8b930096da",
+    "mtime": 1787124381.6175916,
+    "ast_hash": "722f37bec7c5e91adff708f74054c3e0",
     "semantic_hash": ""
   },
   "lib/auth.ts": {
@@ -1100,8 +1090,8 @@
     "semantic_hash": ""
   },
   "components/manager/ShiftsOverviewTable.tsx": {
-    "mtime": 1787115970.7783344,
-    "ast_hash": "770720137abbd9bcdb426a532aa2cef9",
+    "mtime": 1787124455.9700704,
+    "ast_hash": "bb06e20a019551aacf99627579430b17",
     "semantic_hash": ""
   },
   "app/auth/deactivated/route.ts": {
