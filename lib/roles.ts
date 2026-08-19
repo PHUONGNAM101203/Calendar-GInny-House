@@ -30,6 +30,7 @@ export const ROLE_LABELS: Record<Role, string> = {
   collaborator: "CTV",
   customer_care: "CSKH",
   operations_staff: "Nhân viên vận hành",
+  receptionist: "Lễ tân",
 };
 
 // Display copy for the manager dashboard's group-scoped view — keyed by
@@ -43,11 +44,21 @@ export const MANAGER_GROUP_META: Partial<Record<Role, { label: string; descripti
   hr: { label: "Nhóm quản sinh", description: "Quản sinh và Trợ giảng" },
 };
 
-// Which primary roles may hold teaching_assistant as a secondary ("kiêm
-// nhiệm") role. Mirrors the profiles_secondary_role_valid_pair CHECK
-// constraint in supabase/migrations/0051_staff_secondary_role.sql — keep
-// both in sync.
-export const SECONDARY_ROLE_ELIGIBLE_ROLES: ReadonlySet<Role> = new Set(["teacher", "student_affairs"]);
+// Which primary role maps to which secondary ("kiêm nhiệm") role — each
+// primary role has exactly one valid secondary value, never a free choice.
+// Mirrors the profiles_secondary_role_valid_pair CHECK constraint in
+// supabase/migrations/0051_staff_secondary_role.sql (teacher/student_affairs
+// → teaching_assistant) and 0068_receptionist_secondary_role.sql
+// (customer_care/hr → receptionist) — keep all three in sync.
+export const SECONDARY_ROLE_BY_PRIMARY: Partial<Record<Role, Role>> = {
+  teacher: "teaching_assistant",
+  student_affairs: "teaching_assistant",
+  customer_care: "receptionist",
+  hr: "receptionist",
+};
+export const SECONDARY_ROLE_ELIGIBLE_ROLES: ReadonlySet<Role> = new Set(
+  Object.keys(SECONDARY_ROLE_BY_PRIMARY) as Role[]
+);
 
 // Display-only combined label, e.g. "Giáo viên · Trợ giảng" — never used
 // for authorization. Approval authority stays keyed to profiles.role
@@ -56,6 +67,18 @@ export const SECONDARY_ROLE_ELIGIBLE_ROLES: ReadonlySet<Role> = new Set(["teache
 export function getRoleLabel(profile: { role: Role; secondary_role: Role | null }): string {
   if (!profile.secondary_role) return ROLE_LABELS[profile.role];
   return `${ROLE_LABELS[profile.role]} · ${ROLE_LABELS[profile.secondary_role]}`;
+}
+
+// "Kiêm lễ tân" (customer_care/hr covering front-desk reception) is exempt
+// from attendance reminders entirely, at all times — not per-shift. A
+// per-shift duty model was tried for teaching_assistant (0052) and reverted
+// (0055) for being too fragile around swaps; this mirrors that decision by
+// staying person-level. Used by both the "Chưa chấm công" cron exclusion
+// (find_late_checkin_shifts/find_stale_checkout_sessions,
+// 0068_receptionist_secondary_role.sql) and the shift attendance tag
+// (lib/shift-attendance-tag.ts).
+export function isReceptionistExempt(profile: { secondary_role: Role | null }): boolean {
+  return profile.secondary_role === "receptionist";
 }
 
 // Mirrors is_manager() in supabase/migrations/0005_role_hierarchy.sql —

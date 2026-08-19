@@ -68,7 +68,7 @@ function mapStaffSecondaryRoleError(message: string): string {
 
 export async function updateStaffSecondaryRoleAction(
   profileId: string,
-  secondaryRole: "teaching_assistant" | null
+  secondaryRole: Role | null
 ): Promise<ActionResult> {
   await requireManager();
   const supabase = await createClient();

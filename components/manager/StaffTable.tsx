@@ -29,7 +29,13 @@ import {
   updateStaffSecondaryRoleAction,
   deactivateStaffAction,
 } from "@/actions/staff";
-import { ROLE_HIERARCHY, ROLE_LABELS, SECONDARY_ROLE_ELIGIBLE_ROLES, isManagerRole } from "@/lib/roles";
+import {
+  ROLE_HIERARCHY,
+  ROLE_LABELS,
+  SECONDARY_ROLE_BY_PRIMARY,
+  SECONDARY_ROLE_ELIGIBLE_ROLES,
+  isManagerRole,
+} from "@/lib/roles";
 import type { Branch, Profile, Role } from "@/types";
 import TableScroller from "@/components/manager/TableScroller";
 
@@ -197,7 +203,7 @@ function RoleAndBranchCells({
 
   function handleSecondaryRoleChange(checked: boolean) {
     const previous = secondaryRole;
-    const next = checked ? ("teaching_assistant" as const) : null;
+    const next = checked ? (SECONDARY_ROLE_BY_PRIMARY[role] ?? null) : null;
     setSecondaryRole(next);
     startTransition(async () => {
       const result = await updateStaffSecondaryRoleAction(member.id, next);
@@ -244,11 +250,11 @@ function RoleAndBranchCells({
             <input
               type="checkbox"
               className="h-3.5 w-3.5 rounded border-input"
-              checked={secondaryRole === "teaching_assistant"}
+              checked={secondaryRole === SECONDARY_ROLE_BY_PRIMARY[role]}
               disabled={isPending}
               onChange={(e) => handleSecondaryRoleChange(e.target.checked)}
             />
-            Kiêm Trợ giảng
+            Kiêm {ROLE_LABELS[SECONDARY_ROLE_BY_PRIMARY[role]!]}
           </label>
         )}
       </td>

@@ -9,7 +9,11 @@ export type Role =
   | "teaching_assistant"
   | "collaborator"
   | "customer_care"
-  | "operations_staff";
+  | "operations_staff"
+  // Secondary-role-only value (see lib/roles.ts's SECONDARY_ROLE_BY_PRIMARY,
+  // supabase/migrations/0067/0068) — never a primary role, so it's
+  // deliberately absent from ROLE_HIERARCHY's pickable list.
+  | "receptionist";
 export type SwapStatus = "pending" | "accepted" | "rejected" | "cancelled";
 export type LeaveStatus = "pending" | "approved" | "rejected" | "cancelled";
 
