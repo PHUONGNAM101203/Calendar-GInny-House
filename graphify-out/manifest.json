@@ -115,8 +115,8 @@
     "semantic_hash": "f9d8ca010174db8d5387f086db48be9a"
   },
   "app/(app)/manager/page.tsx": {
-    "mtime": 1787124577.9419568,
-    "ast_hash": "02572ecbd2bd002d4066374cddbb77ff",
+    "mtime": 1787160460.3595133,
+    "ast_hash": "477e1af2f6c4295d44d6dec58125882f",
     "semantic_hash": ""
   },
   "app/(app)/swaps/page.tsx": {
@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "components/calendar/ShiftEventCell.tsx": {
-    "mtime": 1786897184.0565217,
-    "ast_hash": "2ee4a027ee8154c3f907cb7a0271f943",
+    "mtime": 1787160208.3409283,
+    "ast_hash": "aa8c217814d800da6d4128f4fa529b42",
     "semantic_hash": ""
   },
   "components/calendar/ShiftRequestDetailDialog.tsx": {
@@ -335,8 +335,8 @@
     "semantic_hash": "4a7f2e5b06d186d66774ff8582f60024"
   },
   "components/manager/ManagerDashboard.tsx": {
-    "mtime": 1787124530.095917,
-    "ast_hash": "7d86b47e0cd0e7cee77bc7d324d66e48",
+    "mtime": 1787160427.5488627,
+    "ast_hash": "369a8b63dc5c66929410bd5d4e72dc30",
     "semantic_hash": ""
   },
   "components/manager/RequestsOverviewTable.tsx": {
@@ -355,8 +355,8 @@
     "semantic_hash": ""
   },
   "components/manager/TechnicalDashboard.tsx": {
-    "mtime": 1787124498.0836706,
-    "ast_hash": "4c45cf98113bf7cd1abe1607a5aff2af",
+    "mtime": 1787160387.5432239,
+    "ast_hash": "d8a54e3c894c4fcda7e51c943fdf96a1",
     "semantic_hash": ""
   },
   "components/shifts/ShiftDetailDialog.tsx": {
@@ -510,8 +510,8 @@
     "semantic_hash": "69c05000f5b485cc4a5f2fc1b0e91c40"
   },
   "lib/attendance.ts": {
-    "mtime": 1787124381.6175916,
-    "ast_hash": "722f37bec7c5e91adff708f74054c3e0",
+    "mtime": 1787160574.4814248,
+    "ast_hash": "4a2f022b65402b1192ac841992c4844c",
     "semantic_hash": ""
   },
   "lib/auth.ts": {
@@ -1090,8 +1090,8 @@
     "semantic_hash": ""
   },
   "components/manager/ShiftsOverviewTable.tsx": {
-    "mtime": 1787124455.9700704,
-    "ast_hash": "bb06e20a019551aacf99627579430b17",
+    "mtime": 1787160154.781818,
+    "ast_hash": "3a9e09578e26f7d85a766fd8ea5bd6ef",
     "semantic_hash": ""
   },
   "app/auth/deactivated/route.ts": {
@@ -1249,9 +1249,19 @@
     "ast_hash": "146200a472fef599ed92a6fce6bdee55",
     "semantic_hash": ""
   },
-  "lib/shift-attendance-tag.ts": {
-    "mtime": 1787115913.255371,
-    "ast_hash": "f032bf2e5a93056a5fedbacab21a60c1",
+  "components/manager/StaffAttendanceDetailDialog.tsx": {
+    "mtime": 1787160531.6696634,
+    "ast_hash": "02b9c22ee19fbfc7a2b4bf7ac1df2958",
+    "semantic_hash": ""
+  },
+  "components/manager/StaffOverviewTable.tsx": {
+    "mtime": 1787160493.5735338,
+    "ast_hash": "b4420d44ce9bdae58f850645f3e8ca8a",
+    "semantic_hash": ""
+  },
+  "lib/shift-kind-tag.ts": {
+    "mtime": 1787160104.0609372,
+    "ast_hash": "e324386a3db56864a75b27edb0a132fb",
     "semantic_hash": ""
   }
 }

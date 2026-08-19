@@ -1,44 +1,44 @@
-# Graph Report - Calendar-GInny-House  (2026-08-19)
+# Graph Report - Calendar-GInny-House  (2026-08-20)
 
 ## Corpus Check
-- 246 files · ~166,882 words
+- 248 files · ~167,781 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1411 nodes · 3261 edges · 163 communities (111 shown, 52 thin omitted)
+- 1416 nodes · 3307 edges · 155 communities (104 shown, 51 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 22 edges (avg confidence: 0.7)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `59e78a33`
+- Built from commit: `d21ae8d8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- lib/auth.ts
+- lib/push.ts
 - cn
 - DESIGN.md — Ginny House Design System
 - Thiết kế
-- shift-attendance-tag.ts
-- RegisterForm.tsx
+- StaffOverviewTable.tsx
+- AccountForm.tsx
 - Global Constraints
 - profile_branches join table
 - Global Constraints
 - TypeScript Config
-- leave/page.tsx
+- lib/auth.ts
 - Initial Database Schema
 - shadcn Component Config
-- NotificationsBell.tsx
+- AppHeader.tsx
 - Dev Dependencies
-- resolveColor
-- RequestsOverviewTable.tsx
+- ShiftFormDialog.tsx
+- RegisterForm.tsx
 - dependencies
 - skeleton.tsx
 - Dynamic Group Permissions — Design
 - 0055_revert_shift_duty_role.sql
 - roles.ts
-- createClient
-- attendance/page.tsx
+- requireProfile
+- manager/page.tsx
 - 0057_revert_request_status.sql
 - app/layout.tsx
 - PWA Manifest
@@ -77,7 +77,7 @@
 - Push Subscriptions Table
 - 0056_teaching_assistant_free_clock_in.sql
 - ESLint Config
-- @hookform/resolvers
+- actions/attendance.ts
 - Next.js Framework
 - Next.js Config
 - Radix UI Primitives
@@ -101,17 +101,17 @@
 - Shifts Table
 - Profiles Table Schema
 - Khôi phục trạng thái đơn (Kỹ thuật) — Design
+- shift-requests.ts
 - shifts.ts
-- useIsMobile
 - public.can_manage_shift_for
 - public.respond_to_attendance_correction
-- TechnicalDashboard.tsx
+- permissions.ts
 - Global Constraints
 - public.profiles
 - swaps.ts
-- ShiftFormDialog.tsx
+- button.tsx
 - 0047_group_permissions.sql
-- AppHeader.tsx
+- Branch
 - public.find_late_checkin_shifts
 - ShiftsOverviewTable.tsx
 - Nới luật "1 quản sinh / ca": chỉ chặn khi trùng giờ bắt đầu
@@ -122,17 +122,17 @@
 - 0048_group_permissions_sql_functions.sql
 - 0053_student_affairs_same_start_only.sql
 - 0044_shift_and_swap_approval_scoping.sql
-- manager/page.tsx
-- shift-requests.ts
+- actions/auth.ts
+- actions/leave.ts
 - public.auto_checkout_expired_shifts
 - public.profiles
 - public.profiles
 - public.profiles
-- date-picker-field.tsx
-- UserMenu.tsx
+- ColorPickerDialog
+- TechnicalDashboard.tsx
 - public.find_late_checkin_shifts
 - Global Constraints
-- attendance-correction.ts
+- class-variance-authority
 - public.find_late_checkin_shifts
 - index.ts
 - public.find_late_checkin_shifts
@@ -140,40 +140,32 @@
 - ShiftCalendar.tsx
 - public.attendance
 - public.shifts
-- ShiftCalendar
 - Ca remote không chọn cơ sở · Kiêm lễ tân · Tag trạng thái chấm công
-- BrandMark.tsx
-- actions/auth.ts
 - 0066_remote_branch.sql
-- ManagerPage
-- actions/leave.ts
-- actions/attendance.ts
-- MobileDayStrip.tsx
-- ColorPickerDialog
-- CalendarDayHeader.tsx
+- createClient
 
 ## God Nodes (most connected - your core abstractions)
-1. `cn()` - 115 edges
+1. `cn()` - 117 edges
 2. `createClient()` - 81 edges
 3. `requireProfile()` - 66 edges
 4. `Button()` - 40 edges
 5. `ShiftCalendar()` - 25 edges
-6. `Role` - 23 edges
-7. `requireManager()` - 22 edges
-8. `resolveColor()` - 22 edges
-9. `isManagerRole()` - 21 edges
-10. `DESIGN.md — Ginny House Design System` - 19 edges
+6. `requireManager()` - 22 edges
+7. `resolveColor()` - 22 edges
+8. `isManagerRole()` - 21 edges
+9. `Role` - 21 edges
+10. `Profile` - 19 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `AddOtherCalendarMenu()` --calls--> `createCustomCalendarAction()`  [EXTRACTED]
   components/calendar/CalendarSidebar.tsx → actions/custom-calendars.ts
-- `unsubscribeFromPushAction()` --calls--> `requireProfile()`  [EXTRACTED]
-  actions/push.ts → lib/auth.ts
 - `AccountPage()` --calls--> `requireProfile()`  [EXTRACTED]
   app/(app)/account/page.tsx → lib/auth.ts
+- `CalendarCheckItem()` --calls--> `resolveColor()`  [EXTRACTED]
+  components/calendar/CalendarSidebar.tsx → lib/calendar.ts
+- `BranchRow()` --calls--> `resolveColor()`  [EXTRACTED]
+  components/calendar/CalendarSidebar.tsx → lib/calendar.ts
 - `BandStat()` --calls--> `cn()`  [EXTRACTED]
-  components/manager/ManagerDashboard.tsx → lib/utils.ts
-- `QueueRow()` --calls--> `cn()`  [EXTRACTED]
   components/manager/ManagerDashboard.tsx → lib/utils.ts
 
 ## Import Cycles
@@ -187,15 +179,15 @@
 - **Single branch_id → profile_branches membership cutover (data, RPC, RLS, UI)** — docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_profile_branches, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_is_branch_member, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_current_branch_id, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_profiles_branch_id, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_set_profile_branches, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_handle_new_user, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_cutover_sequencing [EXTRACTED 0.90]
 - **Multi-branch picker UI surface across register, staff table, and shift dialogs** — docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_multiselectbranches, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_registerform, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_stafftable, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_shiftformdialog, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_shiftrequestdialog, docs_superpowers_specs_2026_08_07_multi_branch_staff_cutover_design_management_tier_exemption [EXTRACTED 0.85]
 
-## Communities (163 total, 52 thin omitted)
+## Communities (155 total, 51 thin omitted)
 
-### Community 0 - "lib/auth.ts"
-Cohesion: 0.11
-Nodes (27): subscribeToPushAction(), unsubscribeFromPushAction(), GET(), LateCheckinRow, StaleCheckoutRow, GET(), AppShellLayout(), LeavePage() (+19 more)
+### Community 0 - "lib/push.ts"
+Cohesion: 0.17
+Nodes (17): GET(), LateCheckinRow, StaleCheckoutRow, GET(), AppShellLayout(), getGroupPermissions(), configured, isPushOversightRole() (+9 more)
 
 ### Community 1 - "cn"
-Cohesion: 0.08
-Nodes (33): AccountPage(), BRANCHES, Chip(), DAY_MOMENTS, HeroBoard(), LandingPage(), metadata, AccountForm() (+25 more)
+Cohesion: 0.14
+Nodes (20): BRANCHES, Chip(), DAY_MOMENTS, HeroBoard(), LandingPage(), metadata, Reveal(), TiltCard() (+12 more)
 
 ### Community 2 - "DESIGN.md — Ginny House Design System"
 Cohesion: 0.05
@@ -205,13 +197,13 @@ Nodes (73): AGENTS.md — Next.js Agent Rules, App Favicon — navy square with 
 Cohesion: 0.15
 Nodes (12): 1. Dữ liệu — migration `0052_shift_duty_role.sql`, 2. Duyệt theo nhiệm vụ của ca — không đổi chữ ký hàm TS, 3. SQL mirror — 3 hàm `security definer`, 4. Kiểu dữ liệu (`types/index.ts`), 5. Validation (`lib/validations/`), 6. UI, 7. Không đổi (ngoài phạm vi, nêu rõ để tránh hiểu nhầm khi review), Context (+4 more)
 
-### Community 4 - "shift-attendance-tag.ts"
-Cohesion: 0.25
-Nodes (8): deleteShiftAction(), ShiftRow(), formatHours(), isReceptionistExempt(), computeShiftAttendanceTag(), SHIFT_ATTENDANCE_TAG_LABELS, SHIFT_ATTENDANCE_TAG_VARIANTS, ShiftAttendanceTag
+### Community 4 - "StaffOverviewTable.tsx"
+Cohesion: 0.13
+Nodes (27): PERIOD_LABELS, normalizeForSearch(), RequestsOverviewTable(), formatHours(), normalizeForSearch(), StaffOverviewTable(), STATUS_LABEL, StaffRequestsDetailDialog() (+19 more)
 
-### Community 5 - "RegisterForm.tsx"
-Cohesion: 0.14
-Nodes (20): AttendanceCorrectionForm(), canSubmitRow(), CorrectionRow, emptyRow(), ClockInGate, ClockWidget(), formatDuration(), getClockInGate() (+12 more)
+### Community 5 - "AccountForm.tsx"
+Cohesion: 0.39
+Nodes (5): updateProfileAction(), AccountPage(), AccountForm(), ProfileInput, profileSchema
 
 ### Community 6 - "Global Constraints"
 Cohesion: 0.18
@@ -229,9 +221,9 @@ Nodes (5): Global Constraints, Student-Affairs Same-Start-Only Rule — Implemen
 Cohesion: 0.07
 Nodes (28): dom, dom.iterable, esnext, **/*.mts, .next/dev/types/**/*.ts, next-env.d.ts, .next/types/**/*.ts, node_modules (+20 more)
 
-### Community 10 - "leave/page.tsx"
-Cohesion: 0.24
-Nodes (11): EmptyState(), PageHeader(), SectionHeading(), formatRange(), formatTimeOfDay(), formatTypeDetail(), LeaveRequestCard(), CollapsibleGrid() (+3 more)
+### Community 10 - "lib/auth.ts"
+Cohesion: 0.37
+Nodes (7): EmptyState(), PageHeader(), SectionHeading(), CollapsibleGrid(), ensureProfile(), ProfileRow, toProfile()
 
 ### Community 11 - "Initial Database Schema"
 Cohesion: 0.11
@@ -241,25 +233,25 @@ Nodes (19): auth.users, public, public.handle_new_user, public.protect_profile_p
 Cohesion: 0.09
 Nodes (21): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+13 more)
 
-### Community 13 - "NotificationsBell.tsx"
-Cohesion: 0.13
-Nodes (15): PendingApprovalRow(), NotificationsBell(), PushNotificationToggle(), DropdownMenu(), DropdownMenuCheckboxItem(), DropdownMenuContent(), DropdownMenuItem(), DropdownMenuLabel() (+7 more)
+### Community 13 - "AppHeader.tsx"
+Cohesion: 0.06
+Nodes (41): signOutAction(), AuthIllustration(), BACK_CELLS, FRONT_CELLS, BrandMark(), noopSubscribe(), useMounted(), PendingApprovalRow() (+33 more)
 
 ### Community 14 - "Dev Dependencies"
 Cohesion: 0.10
 Nodes (21): eslint, eslint-config-next, devDependencies, eslint, eslint-config-next, tailwindcss, @tailwindcss/postcss, @types/node (+13 more)
 
-### Community 15 - "resolveColor"
-Cohesion: 0.13
-Nodes (15): BranchRow(), CalendarCheckItem(), CustomCalendarRow(), SwatchGrid(), CustomEventDetailDialog(), formatRange(), formatTimeOfDay(), LeaveDetailDialog() (+7 more)
+### Community 15 - "ShiftFormDialog.tsx"
+Cohesion: 0.15
+Nodes (30): CustomEventFormDialog(), endDateTouched(), TYPE_ICON, TYPE_OPTIONS, formSchema, FormValues, ShiftFormDialog(), ShiftRequestDialog() (+22 more)
 
-### Community 16 - "RequestsOverviewTable.tsx"
-Cohesion: 0.20
-Nodes (16): normalizeForSearch(), RequestsOverviewTable(), normalizeForSearch(), ShiftsOverviewTable(), StaffRequestsDetailDialog(), DayHours, isOnLeaveForDate(), OverviewPeriod (+8 more)
+### Community 16 - "RegisterForm.tsx"
+Cohesion: 0.13
+Nodes (19): AttendanceCorrectionForm(), canSubmitRow(), CorrectionRow, emptyRow(), ClockInGate, ClockWidget(), formatDuration(), getClockInGate() (+11 more)
 
 ### Community 17 - "dependencies"
 Cohesion: 0.11
-Nodes (19): class-variance-authority, date-fns, lucide-react, next-themes, dependencies, class-variance-authority, date-fns, lucide-react (+11 more)
+Nodes (19): date-fns, @hookform/resolvers, lucide-react, next-themes, dependencies, date-fns, @hookform/resolvers, lucide-react (+11 more)
 
 ### Community 19 - "Dynamic Group Permissions — Design"
 Cohesion: 0.22
@@ -271,15 +263,15 @@ Nodes (13): public.can_approve_shift_request(), public.can_approve_swap_request(
 
 ### Community 21 - "roles.ts"
 Cohesion: 0.12
-Nodes (16): CALENDAR_COLLABORATOR_ONLY, CALENDAR_MANAGEMENT_ROLES, CALENDAR_OPERATIONS_ONLY, CALENDAR_STUDENT_AFFAIRS_ONLY, CALENDAR_TEACHER_ONLY, CALENDAR_TEACHING_ASSISTANT_ONLY, CalendarFollowGroup, CalendarScope (+8 more)
+Nodes (14): CALENDAR_COLLABORATOR_ONLY, CALENDAR_MANAGEMENT_ROLES, CALENDAR_OPERATIONS_ONLY, CALENDAR_STUDENT_AFFAIRS_ONLY, CALENDAR_TEACHER_ONLY, CALENDAR_TEACHING_ASSISTANT_ONLY, CalendarFollowGroup, CalendarScope (+6 more)
 
-### Community 22 - "createClient"
-Cohesion: 0.16
-Nodes (27): AttendanceCorrectionsBatchResult, cancelAttendanceCorrectionAction(), CorrectionPreview, deleteAttendanceCorrectionAction(), getAttendanceCorrectionPreviewAction(), mapAttendanceCorrectionError(), requestAttendanceCorrectionsAction(), respondToAttendanceCorrectionAction() (+19 more)
+### Community 22 - "requireProfile"
+Cohesion: 0.15
+Nodes (17): createCustomCalendarAction(), createCustomEventAction(), deleteCustomEventAction(), isValidColor(), VALID_COLORS, mapGroupPermissionError(), updateGroupPermissionAction(), markNotificationsSeenAction() (+9 more)
 
-### Community 23 - "attendance/page.tsx"
-Cohesion: 0.24
-Nodes (8): RegisterPage(), AttendanceHistory(), formatDuration(), RegisterForm(), getBranches, supabasePublic, Attendance, Shift
+### Community 23 - "manager/page.tsx"
+Cohesion: 0.12
+Nodes (17): ProfileRoleRef, AttendanceHistory(), formatDuration(), DateRangeFilter(), BandStat(), ManagerDashboard(), QueueRow(), normalizeForSearch() (+9 more)
 
 ### Community 24 - "0057_revert_request_status.sql"
 Cohesion: 0.22
@@ -369,25 +361,29 @@ Nodes (3): public.respond_to_swap_request(), public.shift_swap_requests, public.
 Cohesion: 0.40
 Nodes (4): public.clock_in(), public.create_attendance_manual(), public.attendance, public.profiles
 
+### Community 67 - "actions/attendance.ts"
+Cohesion: 0.35
+Nodes (10): canCurrentUserManageAttendanceRow(), clockInAction(), clockOutAction(), createAttendanceManualAction(), deleteAttendanceAction(), mapAttendanceError(), mapManualAttendanceError(), revalidateAttendanceManagePaths() (+2 more)
+
 ### Community 104 - "Khôi phục trạng thái đơn (Kỹ thuật) — Design"
 Cohesion: 0.14
 Nodes (13): Context, Khôi phục trạng thái đơn (Kỹ thuật) — Design, Lớp Actions (`actions/*.ts`), Phạm vi, `revert_attendance_correction(p_id uuid)`, `revert_leave_request(p_id uuid)`, `revert_shift_request(p_id uuid)`, `revert_swap_request(p_id uuid)` (+5 more)
 
-### Community 105 - "shifts.ts"
-Cohesion: 0.20
-Nodes (17): assertAssigneeAllowed(), createShiftAction(), mapShiftError(), resolveBranchId(), updateShiftAction(), deactivateStaffAction(), mapStaffSecondaryRoleError(), updateStaffBranchesAction() (+9 more)
+### Community 105 - "shift-requests.ts"
+Cohesion: 0.33
+Nodes (11): cancelShiftRequestAction(), deleteShiftRequestAction(), mapShiftRequestError(), mapShiftRpcError(), requestShiftAction(), respondToShiftRequestAction(), revalidateShiftRequestPaths(), revertShiftRequestAction() (+3 more)
 
-### Community 106 - "useIsMobile"
-Cohesion: 0.70
-Nodes (4): getServerSnapshot(), getSnapshot(), subscribe(), useIsMobile()
+### Community 106 - "shifts.ts"
+Cohesion: 0.23
+Nodes (12): assertAssigneeAllowed(), createShiftAction(), mapShiftError(), resolveBranchId(), updateShiftAction(), getRemoteBranchId, canCreateShiftFor(), ShiftRequestInput (+4 more)
 
 ### Community 109 - "public.respond_to_attendance_correction"
 Cohesion: 0.40
 Nodes (4): public.respond_to_attendance_correction(), public.attendance, public.attendance_corrections, public.shifts
 
-### Community 111 - "TechnicalDashboard.tsx"
-Cohesion: 0.18
-Nodes (18): CreateAttendanceManualDialog(), GroupPermissionsEditor(), ManagerHolders, ROLE_PIE_COLORS, getGrantedTargetRoles(), getGrantedTargetRolesUnion(), GROUP_MANAGER_ROLES, GROUP_PERMISSION_LABELS (+10 more)
+### Community 111 - "permissions.ts"
+Cohesion: 0.34
+Nodes (10): GROUP_MANAGER_ROLES, GROUP_PERMISSION_LABELS, GROUP_PERMISSION_TYPES, GROUP_TARGET_ROLES, GroupPermissions, GroupPermissionType, hasGroupPermission(), permKey() (+2 more)
 
 ### Community 112 - "Global Constraints"
 Cohesion: 0.20
@@ -397,21 +393,21 @@ Nodes (9): Global Constraints, Shift Duty Role Implementation Plan, Task 1: Data
 Cohesion: 0.35
 Nodes (10): cancelSwapRequestAction(), createSwapRequestAction(), deleteSwapRequestAction(), mapSwapError(), respondToSwapRequestAction(), revalidateSwapPaths(), revertSwapRequestAction(), sendPushToProfile() (+2 more)
 
-### Community 117 - "ShiftFormDialog.tsx"
-Cohesion: 0.15
-Nodes (31): CustomEventFormDialog(), endDateTouched(), TYPE_ICON, TYPE_OPTIONS, formSchema, FormValues, ShiftFormDialog(), ShiftRequestDialog() (+23 more)
+### Community 117 - "button.tsx"
+Cohesion: 0.17
+Nodes (14): MiniMonth(), WEEKDAY_LABELS, APPS, Button(), buttonVariants, MultiSelectBranches(), Popover(), PopoverContent() (+6 more)
 
-### Community 119 - "AppHeader.tsx"
-Cohesion: 0.25
-Nodes (8): AppHeader(), AppLauncher(), formatter, RealtimeClock(), noopSubscribe(), ThemeToggle(), useMounted(), AppNotification
+### Community 119 - "Branch"
+Cohesion: 0.36
+Nodes (5): RegisterPage(), RegisterForm(), getBranches, supabasePublic, Branch
 
 ### Community 120 - "public.find_late_checkin_shifts"
 Cohesion: 0.40
 Nodes (4): public.find_late_checkin_shifts(), public.attendance, public.profiles, public.shifts
 
 ### Community 121 - "ShiftsOverviewTable.tsx"
-Cohesion: 0.22
-Nodes (21): ISSUE_ICON, TYPE_ICON, StaffRow, TableScroller(), AlertDialog(), AlertDialogAction(), AlertDialogCancel(), AlertDialogContent() (+13 more)
+Cohesion: 0.13
+Nodes (35): deleteShiftAction(), AttendanceCorrectionCard(), ISSUE_ICON, formatRange(), formatTimeOfDay(), formatTypeDetail(), LeaveRequestCard(), TYPE_ICON (+27 more)
 
 ### Community 123 - "Nới luật "1 quản sinh / ca": chỉ chặn khi trùng giờ bắt đầu"
 Cohesion: 0.14
@@ -426,8 +422,8 @@ Cohesion: 0.14
 Nodes (13): 1. Monitoring account, 2. Pages checked, 3. Speed measurement, 4. The routine, Context, Decisions already made with the user, Exclusion call sites, File changes (+5 more)
 
 ### Community 127 - "CalendarSidebar.tsx"
-Cohesion: 0.10
-Nodes (28): isValidColor(), updateBranchColorAction(), VALID_COLORS, followGroupAction(), followPersonAction(), isValidColor(), unfollowGroupAction(), unfollowPersonAction() (+20 more)
+Cohesion: 0.09
+Nodes (33): isValidColor(), updateBranchColorAction(), VALID_COLORS, followGroupAction(), followPersonAction(), isValidColor(), unfollowGroupAction(), unfollowPersonAction() (+25 more)
 
 ### Community 128 - "0048_group_permissions_sql_functions.sql"
 Cohesion: 0.50
@@ -441,21 +437,21 @@ Nodes (7): public.enforce_student_affairs_single_slot(), public.student_affairs_
 Cohesion: 0.33
 Nodes (6): public.can_approve_shift_request(), public.can_approve_swap_request(), public.respond_to_swap_request(), public.profiles, public.shift_swap_requests, public.shifts
 
-### Community 131 - "manager/page.tsx"
-Cohesion: 0.14
-Nodes (15): ProfileRoleRef, AttendanceCorrectionCard(), DateRangeFilter(), BandStat(), ManagerDashboard(), QueueRow(), ShiftOverviewRow, StaffTable() (+7 more)
-
-### Community 132 - "shift-requests.ts"
-Cohesion: 0.27
-Nodes (12): cancelShiftRequestAction(), deleteShiftRequestAction(), mapShiftRequestError(), mapShiftRpcError(), requestShiftAction(), respondToShiftRequestAction(), revalidateShiftRequestPaths(), revertShiftRequestAction() (+4 more)
-
-### Community 137 - "date-picker-field.tsx"
+### Community 131 - "actions/auth.ts"
 Cohesion: 0.21
-Nodes (10): APPS, MultiSelectBranches(), Popover(), PopoverContent(), PopoverDescription(), PopoverHeader(), PopoverTitle(), PopoverTrigger() (+2 more)
+Nodes (10): mapSignUpError(), signInAction(), signUpAction(), SELF_SIGNUP_ROLES, emailField, LoginInput, loginSchema, passwordField (+2 more)
 
-### Community 138 - "UserMenu.tsx"
-Cohesion: 0.27
-Nodes (8): signOutAction(), UserMenu(), Avatar(), AvatarBadge(), AvatarFallback(), AvatarGroup(), AvatarGroupCount(), AvatarImage()
+### Community 132 - "actions/leave.ts"
+Cohesion: 0.32
+Nodes (10): cancelLeaveRequestAction(), deleteLeaveRequestAction(), mapLeaveError(), requestLeaveAction(), respondToLeaveRequestAction(), revalidateLeavePaths(), revertLeaveRequestAction(), LEAVE_REQUEST_TYPES (+2 more)
+
+### Community 137 - "ColorPickerDialog"
+Cohesion: 0.50
+Nodes (4): ColorPickerDialog(), hexToHsv(), Hsv, hsvToHex()
+
+### Community 138 - "TechnicalDashboard.tsx"
+Cohesion: 0.29
+Nodes (6): CreateAttendanceManualDialog(), GroupPermissionsEditor(), ManagerHolders, ROLE_PIE_COLORS, TechnicalDashboard(), aggregateStaffByRole()
 
 ### Community 139 - "public.find_late_checkin_shifts"
 Cohesion: 0.53
@@ -465,65 +461,33 @@ Nodes (5): public.find_late_checkin_shifts(), public.find_stale_checkout_session
 Cohesion: 0.17
 Nodes (11): Global Constraints, Khôi phục trạng thái đơn (Kỹ thuật) Implementation Plan, Task 1: Migration — traceability + 4 `revert_*` RPCs, Task 2: `actions/leave.ts` — `revertLeaveRequestAction`, Task 3: `actions/shift-requests.ts` — `revertShiftRequestAction`, Task 4: `actions/swaps.ts` — `revertSwapRequestAction`, Task 5: `actions/attendance-corrections.ts` — `revertAttendanceCorrectionAction`, Task 6: `canRevert` button on all 4 Card components (+3 more)
 
-### Community 142 - "attendance-correction.ts"
-Cohesion: 0.29
-Nodes (6): AttendanceCorrectionInput, attendanceCorrectionSchema, AttendanceCorrectionsInput, attendanceCorrectionsSchema, CorrectionPreviewInput, correctionPreviewSchema
-
 ### Community 144 - "public.find_late_checkin_shifts"
 Cohesion: 0.43
 Nodes (5): public.find_late_checkin_shifts(), public.find_stale_checkout_sessions(), public.attendance, public.profiles, public.shifts
 
 ### Community 145 - "index.ts"
-Cohesion: 0.15
-Nodes (22): ShiftCalendar, ShiftCalendarLoader(), AttendanceWithProfileRole, LeaveRequestWithRole, buildNotifications(), AttendanceCorrection, AttendanceCorrectionDetailed, AttendanceCorrectionIssue (+14 more)
+Cohesion: 0.18
+Nodes (19): ShiftCalendar, ShiftCalendarLoader(), buildNotifications(), canApproveShiftRequestFor(), AttendanceCorrectionDetailed, AttendanceCorrectionIssue, AttendanceCorrectionStatus, CustomCalendar (+11 more)
 
 ### Community 146 - "public.find_late_checkin_shifts"
 Cohesion: 0.40
 Nodes (4): public.find_late_checkin_shifts(), public.attendance, public.profiles, public.shifts
 
 ### Community 148 - "ShiftCalendar.tsx"
-Cohesion: 0.12
-Nodes (25): maxTime, minTime, useCalendarNav(), AttendanceCalendarEvent, AttendanceCorrectionPendingEvent, AttendanceSession, AUTO_COLOR_VARS, calendarFormats (+17 more)
-
-### Community 152 - "ShiftCalendar"
-Cohesion: 0.14
-Nodes (13): ShiftCalendar(), getEventTextColorVar(), getPersonColorVar(), getVisibleRange(), toAttendanceCorrectionPendingEvents(), toAttendanceEvents(), toCalendarEvents(), toCustomEvents() (+5 more)
+Cohesion: 0.05
+Nodes (71): LeavePage(), ManagerPage(), AttendanceDetailDialog(), formatMinutes(), CalendarDayHeader(), WEEKDAY_LABEL, CalendarToolbar(), VIEW_LABELS (+63 more)
 
 ### Community 153 - "Ca remote không chọn cơ sở · Kiêm lễ tân · Tag trạng thái chấm công"
 Cohesion: 0.12
 Nodes (16): Ca remote không chọn cơ sở · Kiêm lễ tân · Tag trạng thái chấm công, Context, Migration, Migration (SQL) — carve-out cho cơ sở Remote, Miễn chấm công + miễn thông báo, Phần 1 — Ca remote không chọn cơ sở (ưu tiên, deploy trước), Phần 2 — "Kiêm lễ tân" cho CSKH/HR, Phần 3 — Tag trạng thái chấm công trong bảng "Ca làm việc" (+8 more)
 
-### Community 154 - "BrandMark.tsx"
-Cohesion: 0.29
-Nodes (6): AuthIllustration(), BACK_CELLS, FRONT_CELLS, BrandMark(), noopSubscribe(), useMounted()
-
-### Community 155 - "actions/auth.ts"
-Cohesion: 0.21
-Nodes (10): mapSignUpError(), signInAction(), signUpAction(), SELF_SIGNUP_ROLES, emailField, LoginInput, loginSchema, passwordField (+2 more)
-
 ### Community 156 - "0066_remote_branch.sql"
 Cohesion: 0.22
 Nodes (7): public.create_attendance_manual(), public.is_remote_branch(), public.request_shift(), public.branches, public.profiles, public.shift_swap_requests, public.shifts
 
-### Community 157 - "ManagerPage"
-Cohesion: 0.33
-Nodes (7): ManagerPage(), AttendanceDetailDialog(), formatMinutes(), canApproveLeaveFor(), canApproveShiftRequestFor(), canApproveSwapRequestFor(), isLeaveApprover()
-
-### Community 158 - "actions/leave.ts"
-Cohesion: 0.32
-Nodes (10): cancelLeaveRequestAction(), deleteLeaveRequestAction(), mapLeaveError(), requestLeaveAction(), respondToLeaveRequestAction(), revalidateLeavePaths(), revertLeaveRequestAction(), LEAVE_REQUEST_TYPES (+2 more)
-
-### Community 159 - "actions/attendance.ts"
-Cohesion: 0.35
-Nodes (10): canCurrentUserManageAttendanceRow(), clockInAction(), clockOutAction(), createAttendanceManualAction(), deleteAttendanceAction(), mapAttendanceError(), mapManualAttendanceError(), revalidateAttendanceManagePaths() (+2 more)
-
-### Community 160 - "MobileDayStrip.tsx"
-Cohesion: 0.25
-Nodes (6): CalendarToolbar(), VIEW_LABELS, MobileDayStrip(), VIEW_LABELS, WEEKDAY_LABELS, ShiftEvent
-
-### Community 161 - "ColorPickerDialog"
-Cohesion: 0.50
-Nodes (4): ColorPickerDialog(), hexToHsv(), Hsv, hsvToHex()
+### Community 158 - "createClient"
+Cohesion: 0.13
+Nodes (27): AttendanceCorrectionsBatchResult, cancelAttendanceCorrectionAction(), CorrectionPreview, deleteAttendanceCorrectionAction(), getAttendanceCorrectionPreviewAction(), mapAttendanceCorrectionError(), requestAttendanceCorrectionsAction(), respondToAttendanceCorrectionAction() (+19 more)
 
 ## Ambiguous Edges - Review These
 - `Technology Stack (Next.js 16 + Supabase + Tailwind v4)` → `README.md — create-next-app Boilerplate`  [AMBIGUOUS]
@@ -538,9 +502,9 @@ Nodes (4): ColorPickerDialog(), hexToHsv(), Hsv, hsvToHex()
   docs/superpowers/specs/2026-08-07-multi-branch-staff-cutover-design.md · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **288 isolated node(s):** `AttendanceCorrectionsBatchResult`, `VALID_COLORS`, `VALID_COLORS`, `VALID_COLORS`, `ProfileRoleRef` (+283 more)
+- **289 isolated node(s):** `AttendanceCorrectionsBatchResult`, `VALID_COLORS`, `VALID_COLORS`, `VALID_COLORS`, `ProfileRoleRef` (+284 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **52 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **51 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -555,7 +519,7 @@ _Questions this graph is uniquely positioned to answer:_
   _Edge tagged AMBIGUOUS (relation: shares_data_with) - confidence is low._
 - **What is the exact relationship between `app/(app)/manager/page.tsx — scoped fetch layer` and `StaffTable.tsx branch cell`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `cn()` connect `cn` to `MobileDayStrip.tsx`, `manager/page.tsx`, `RegisterForm.tsx`, `date-picker-field.tsx`, `leave/page.tsx`, `UserMenu.tsx`, `NotificationsBell.tsx`, `skeleton.tsx`, `ShiftCalendar.tsx`, `AppHeader.tsx`, `ShiftFormDialog.tsx`, `attendance/page.tsx`, `ShiftCalendar`, `ShiftsOverviewTable.tsx`, `BrandMark.tsx`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
-- **Why does `createClient()` connect `createClient` to `actions/attendance.ts`, `lib/auth.ts`, `manager/page.tsx`, `shift-requests.ts`, `shift-attendance-tag.ts`, `shifts.ts`, `UserMenu.tsx`, `leave/page.tsx`, `index.ts`, `swaps.ts`, `attendance/page.tsx`, `actions/auth.ts`, `ManagerPage`, `actions/leave.ts`, `CalendarSidebar.tsx`?**
+- **Why does `cn()` connect `cn` to `StaffOverviewTable.tsx`, `lib/auth.ts`, `AppHeader.tsx`, `ShiftFormDialog.tsx`, `RegisterForm.tsx`, `skeleton.tsx`, `ShiftCalendar.tsx`, `button.tsx`, `manager/page.tsx`, `ShiftsOverviewTable.tsx`?**
+  _High betweenness centrality (0.046) - this node is a cross-community bridge._
+- **Why does `createClient()` connect `createClient` to `lib/push.ts`, `actions/attendance.ts`, `actions/auth.ts`, `actions/leave.ts`, `AccountForm.tsx`, `shift-requests.ts`, `shifts.ts`, `lib/auth.ts`, `AppHeader.tsx`, `index.ts`, `swaps.ts`, `ShiftCalendar.tsx`, `requireProfile`, `manager/page.tsx`, `ShiftsOverviewTable.tsx`, `CalendarSidebar.tsx`?**
   _High betweenness centrality (0.012) - this node is a cross-community bridge._
