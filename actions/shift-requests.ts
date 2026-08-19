@@ -5,6 +5,7 @@ import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile, requireManager } from "@/lib/auth";
 import { isShiftRequestApprover } from "@/lib/roles";
+import { getRemoteBranchId } from "@/lib/branches";
 import { shiftRequestSchema } from "@/lib/validations/shift-request";
 import { sendPushToShiftRequestApprovers, sendPushToProfile } from "@/lib/push";
 import type { ActionResult } from "@/types";
@@ -74,10 +75,12 @@ export async function requestShiftAction(input: unknown): Promise<ActionResult> 
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" };
   }
   const supabase = await createClient();
+  const branchId =
+    parsed.data.branch_id ?? (parsed.data.shift_type === "remote" ? await getRemoteBranchId() : undefined);
   const { error } = await supabase.rpc("request_shift", {
     p_start_at: new Date(parsed.data.start_at).toISOString(),
     p_end_at: new Date(parsed.data.end_at).toISOString(),
-    p_branch_id: parsed.data.branch_id,
+    p_branch_id: branchId,
     p_note: parsed.data.note || null,
     p_shift_type: parsed.data.shift_type,
   });

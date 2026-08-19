@@ -82,7 +82,7 @@ export default function ShiftRequestDialog({
     e.preventDefault();
     setServerError("");
 
-    if (!branchId) {
+    if (shiftType !== "remote" && !branchId) {
       setServerError("Vui lòng chọn cơ sở");
       return;
     }
@@ -97,7 +97,7 @@ export default function ShiftRequestDialog({
     const result = await requestShiftAction({
       start_at: startDateTime.toISOString(),
       end_at: endDateTime.toISOString(),
-      branch_id: branchId,
+      branch_id: branchId || undefined,
       shift_type: shiftType,
       note: note || undefined,
     });
@@ -148,21 +148,23 @@ export default function ShiftRequestDialog({
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="request_branch_id">Cơ sở</Label>
-            <Select value={branchId} onValueChange={setBranchId}>
-              <SelectTrigger id="request_branch_id" className="w-full">
-                <SelectValue placeholder="Chọn cơ sở" />
-              </SelectTrigger>
-              <SelectContent>
-                {branches.map((branch) => (
-                  <SelectItem key={branch.id} value={branch.id}>
-                    {branch.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {shiftType !== "remote" && (
+            <div className="space-y-1.5">
+              <Label htmlFor="request_branch_id">Cơ sở</Label>
+              <Select value={branchId} onValueChange={setBranchId}>
+                <SelectTrigger id="request_branch_id" className="w-full">
+                  <SelectValue placeholder="Chọn cơ sở" />
+                </SelectTrigger>
+                <SelectContent>
+                  {branches.map((branch) => (
+                    <SelectItem key={branch.id} value={branch.id}>
+                      {branch.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <Label htmlFor="request_shift_type">Loại ca</Label>

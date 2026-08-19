@@ -54,7 +54,10 @@ const TIME_FORMAT = "HH:mm";
 // enough, same as Google Calendar's compact event editor.
 const formSchema = z.object({
   assignee_id: z.uuid("Vui lòng chọn nhân viên"),
-  branch_id: z.uuid("Vui lòng chọn cơ sở"),
+  // Optional here — shiftType (separate state, not a form field) decides
+  // whether it's required; that check happens imperatively in onSubmit
+  // below, same as the overnight-shift date rollover already does.
+  branch_id: z.uuid("Vui lòng chọn cơ sở").optional(),
   note: z.string().max(280, "Ghi chú tối đa 280 ký tự").optional(),
 });
 type FormValues = z.infer<typeof formSchema>;
@@ -95,6 +98,7 @@ export default function ShiftFormDialog({
     watch,
     getValues,
     setValue,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(formSchema) });
 
@@ -147,6 +151,11 @@ export default function ShiftFormDialog({
 
   async function onSubmit(values: FormValues) {
     setServerError("");
+
+    if (shiftType !== "remote" && !values.branch_id) {
+      setError("branch_id", { message: "Vui lòng chọn cơ sở" });
+      return;
+    }
 
     const startDateTime = parse(startTime, TIME_FORMAT, date);
     const endDateTime = parse(endTime, TIME_FORMAT, date);
@@ -228,28 +237,30 @@ export default function ShiftFormDialog({
             )}
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="branch_id">Cơ sở</Label>
-            <Controller
-              control={control}
-              name="branch_id"
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <SelectTrigger id="branch_id" className="w-full">
-                    <SelectValue placeholder="Chọn cơ sở" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {allowedBranches.map((branch) => (
-                      <SelectItem key={branch.id} value={branch.id}>
-                        {branch.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            {errors.branch_id && <p className="text-sm text-destructive">{errors.branch_id.message}</p>}
-          </div>
+          {shiftType !== "remote" && (
+            <div className="space-y-1.5">
+              <Label htmlFor="branch_id">Cơ sở</Label>
+              <Controller
+                control={control}
+                name="branch_id"
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger id="branch_id" className="w-full">
+                      <SelectValue placeholder="Chọn cơ sở" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allowedBranches.map((branch) => (
+                        <SelectItem key={branch.id} value={branch.id}>
+                          {branch.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.branch_id && <p className="text-sm text-destructive">{errors.branch_id.message}</p>}
+            </div>
+          )}
 
           <div className="space-y-3">
             <DatePickerField

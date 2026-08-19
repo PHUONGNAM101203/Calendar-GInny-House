@@ -6,6 +6,7 @@ import { requireManager } from "@/lib/auth";
 import { shiftSchema } from "@/lib/validations/shift";
 import { isManagerRole, canCreateShiftFor } from "@/lib/roles";
 import { getGroupPermissions } from "@/lib/permissions-server";
+import { getRemoteBranchId } from "@/lib/branches";
 import type { ActionResult, Role } from "@/types";
 
 // Defense in depth — ShiftFormDialog's picker already narrows assignee
@@ -14,12 +15,15 @@ import type { ActionResult, Role } from "@/types";
 // group-scoping (canCreateShiftFor) and branch membership off that single
 // lookup. A management-tier assignee has no profile_branches rows by design
 // and is exempt from the branch check (they cover every branch), matching
-// that convention everywhere else in the app.
+// that convention everywhere else in the app. isRemote skips the branch
+// check entirely — nobody is really a "member" of the synthetic Remote
+// branch (0066_remote_branch.sql), so membership can't apply there.
 async function assertAssigneeAllowed(
   supabase: Awaited<ReturnType<typeof createClient>>,
   callerRole: Role,
   assigneeId: string,
-  branchId: string
+  branchId: string,
+  isRemote: boolean
 ): Promise<string | null> {
   const { data: assignee } = await supabase
     .from("profiles")
@@ -31,13 +35,19 @@ async function assertAssigneeAllowed(
   if (!canCreateShiftFor(callerRole, assignee.role, permissions)) {
     return "Bạn không có quyền xếp ca cho nhân viên này";
   }
-  if (isManagerRole(assignee.role)) return null;
+  if (isManagerRole(assignee.role) || isRemote) return null;
 
   const { data: isMember } = await supabase.rpc("is_branch_member", {
     p_profile_id: assigneeId,
     p_branch_id: branchId,
   });
   return isMember ? null : "Nhân viên này không thuộc cơ sở đã chọn";
+}
+
+async function resolveBranchId(shiftType: string, branchId: string | undefined): Promise<string> {
+  if (branchId) return branchId;
+  if (shiftType === "remote") return getRemoteBranchId();
+  throw new Error("Vui lòng chọn cơ sở");
 }
 
 function mapShiftError(message: string): string {
@@ -70,18 +80,20 @@ export async function createShiftAction(input: unknown): Promise<ActionResult> {
   }
 
   const supabase = await createClient();
+  const branchId = await resolveBranchId(parsed.data.shift_type, parsed.data.branch_id);
 
   const assigneeError = await assertAssigneeAllowed(
     supabase,
     manager.role,
     parsed.data.assignee_id,
-    parsed.data.branch_id
+    branchId,
+    parsed.data.shift_type === "remote"
   );
   if (assigneeError) return { ok: false, error: assigneeError };
 
   const { error } = await supabase.from("shifts").insert({
     assignee_id: parsed.data.assignee_id,
-    branch_id: parsed.data.branch_id,
+    branch_id: branchId,
     start_at: parsed.data.start_at,
     end_at: parsed.data.end_at,
     shift_type: parsed.data.shift_type,
@@ -110,12 +122,14 @@ export async function updateShiftAction(
   }
 
   const supabase = await createClient();
+  const branchId = await resolveBranchId(parsed.data.shift_type, parsed.data.branch_id);
 
   const assigneeError = await assertAssigneeAllowed(
     supabase,
     manager.role,
     parsed.data.assignee_id,
-    parsed.data.branch_id
+    branchId,
+    parsed.data.shift_type === "remote"
   );
   if (assigneeError) return { ok: false, error: assigneeError };
 
@@ -123,7 +137,7 @@ export async function updateShiftAction(
     .from("shifts")
     .update({
       assignee_id: parsed.data.assignee_id,
-      branch_id: parsed.data.branch_id,
+      branch_id: branchId,
       start_at: parsed.data.start_at,
       end_at: parsed.data.end_at,
       shift_type: parsed.data.shift_type,
