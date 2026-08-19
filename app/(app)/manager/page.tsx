@@ -48,7 +48,7 @@ const SELECT = `
 // and defaults the embedded join shape to arrays.
 const SHIFTS_OVERVIEW_SELECT =
   "id, start_at, end_at, shift_type, assignee:profiles!assignee_id(id, full_name, role, secondary_role), " +
-  "branch:branches!branch_id(id, name), attendance:attendance!shift_id(check_in_at, check_out_at)";
+  "branch:branches!branch_id(id, name)";
 
 type ProfileRoleRef = Pick<Profile, "id" | "full_name" | "role">;
 
@@ -276,6 +276,7 @@ export default async function ManagerPage({
           groupPermissions={permissions}
           staleFreeAttendance={staleFreeAttendanceList}
           branches={branches}
+          shifts={scopedShiftsOverview}
         />
       ) : isGroupManager ? (
         <ManagerDashboard
@@ -298,6 +299,7 @@ export default async function ManagerPage({
           shiftRequests={scopedShiftRequests}
           attendanceCorrections={scopedAttendanceCorrections}
           overviewTitle={groupMeta ? `Tổng hợp chấm công — ${groupMeta.label}` : undefined}
+          shifts={scopedShiftsOverview}
         />
       ) : (
         <ManagerDashboard
@@ -315,6 +317,7 @@ export default async function ManagerPage({
           swapRequests={swapsList}
           shiftRequests={shiftRequestsList}
           attendanceCorrections={attendanceCorrectionsList}
+          shifts={scopedShiftsOverview}
         />
       )}
 

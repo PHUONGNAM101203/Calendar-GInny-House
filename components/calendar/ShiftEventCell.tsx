@@ -84,21 +84,26 @@ export default function ShiftEventCell({ event }: EventProps<CalendarEvent>) {
     );
   }
 
-  const { isMine, pendingSwap, colorVar, branchName } = event.resource;
+  const { isMine, pendingSwap, colorVar, branchName, shift } = event.resource;
 
   return (
-    <div className="flex items-center gap-1.5 truncate">
-      {pendingSwap !== "none" && <ClockIcon className="size-3 shrink-0" />}
-      {!isMine && (
-        <span
-          className="size-1.5 shrink-0 rounded-full"
-          style={{ backgroundColor: resolveColor(colorVar) }}
-        />
+    <div className="flex flex-col truncate">
+      <div className="flex items-center gap-1.5 truncate">
+        {pendingSwap !== "none" && <ClockIcon className="size-3 shrink-0" />}
+        {!isMine && (
+          <span
+            className="size-1.5 shrink-0 rounded-full"
+            style={{ backgroundColor: resolveColor(colorVar) }}
+          />
+        )}
+        <span className="truncate">
+          {event.title} - {branchName}
+        </span>
+        {pendingSwap === "open" && <span className="shrink-0 text-[10px]">· cần người</span>}
+      </div>
+      {shift.note && (
+        <span className="truncate pl-[18px] text-[10px] opacity-80">Ghi chú: {shift.note}</span>
       )}
-      <span className="truncate">
-        {event.title} - {branchName}
-      </span>
-      {pendingSwap === "open" && <span className="shrink-0 text-[10px]">· cần người</span>}
     </div>
   );
 }

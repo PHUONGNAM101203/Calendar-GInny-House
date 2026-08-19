@@ -20,6 +20,7 @@ import { vi } from "date-fns/locale";
 import { AlertTriangleIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import StaffOverviewTable from "@/components/manager/StaffOverviewTable";
+import type { ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
 import RequestsOverviewTable from "@/components/manager/RequestsOverviewTable";
 import GroupPermissionsEditor, { type ManagerHolders } from "@/components/manager/GroupPermissionsEditor";
 import CreateAttendanceManualDialog from "@/components/manager/CreateAttendanceManualDialog";
@@ -75,6 +76,7 @@ export default function TechnicalDashboard({
   groupPermissions,
   staleFreeAttendance,
   branches,
+  shifts,
 }: {
   staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[];
   attendance: Attendance[];
@@ -86,6 +88,7 @@ export default function TechnicalDashboard({
   /** Trợ giảng free (shiftless) sessions still open — see 0056. Technical only. */
   staleFreeAttendance: (Attendance & { profile: Pick<Profile, "id" | "full_name"> })[];
   branches: Branch[];
+  shifts: ShiftOverviewRow[];
 }) {
   const roleCounts = aggregateStaffByRole(staff);
   const hoursByDay = aggregateHoursByDay(attendance);
@@ -256,6 +259,7 @@ export default function TechnicalDashboard({
             staff={staff}
             attendance={attendance}
             leaveRequests={leaveRequests}
+            shifts={shifts}
           />
         </CardContent>
       </Card>

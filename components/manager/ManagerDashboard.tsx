@@ -17,6 +17,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import BrandMark from "@/components/brand/BrandMark";
 import StaffOverviewTable from "@/components/manager/StaffOverviewTable";
+import type { ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
 import RequestsOverviewTable from "@/components/manager/RequestsOverviewTable";
 import { aggregateHoursByDay } from "@/lib/attendance";
 import { cn } from "@/lib/utils";
@@ -135,6 +136,7 @@ export default function ManagerDashboard({
   shiftRequests,
   attendanceCorrections,
   overviewTitle,
+  shifts,
 }: {
   totalStaff: number;
   unassignedStaff: number;
@@ -151,6 +153,7 @@ export default function ManagerDashboard({
   shiftRequests: ShiftRequestDetailed[];
   attendanceCorrections: AttendanceCorrectionDetailed[];
   overviewTitle?: string;
+  shifts: ShiftOverviewRow[];
 }) {
   const hoursByDay = useMemo(() => aggregateHoursByDay(attendance, 7), [attendance]);
   const peakDay = useMemo(
@@ -316,6 +319,7 @@ export default function ManagerDashboard({
             staff={staff}
             attendance={attendance}
             leaveRequests={leaveRequests}
+            shifts={shifts}
           />
         </CardContent>
       </Card>

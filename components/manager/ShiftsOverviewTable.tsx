@@ -25,11 +25,7 @@ import { deleteShiftAction } from "@/actions/shifts";
 import { canCreateShiftFor } from "@/lib/roles";
 import { periodRange, type OverviewPeriod } from "@/lib/attendance";
 import { SHIFT_TYPE_LABELS } from "@/lib/constants";
-import {
-  computeShiftAttendanceTag,
-  SHIFT_ATTENDANCE_TAG_LABELS,
-  SHIFT_ATTENDANCE_TAG_VARIANTS,
-} from "@/lib/shift-attendance-tag";
+import { computeShiftKind, SHIFT_KIND_LABELS } from "@/lib/shift-kind-tag";
 import type { GroupPermissions } from "@/lib/permissions";
 import type { Role } from "@/types";
 
@@ -40,7 +36,6 @@ export type ShiftOverviewRow = {
   shift_type: keyof typeof SHIFT_TYPE_LABELS;
   assignee: { id: string; full_name: string; role: Role; secondary_role: Role | null };
   branch: { id: string; name: string } | null;
-  attendance: { check_in_at: string; check_out_at: string | null }[];
 };
 
 function normalizeForSearch(value: string): string {
@@ -151,7 +146,7 @@ function ShiftRow({ shift, canDelete }: { shift: ShiftOverviewRow; canDelete: bo
 
   if (deleted) return null;
 
-  const tag = computeShiftAttendanceTag(shift, new Date());
+  const kind = computeShiftKind(shift.assignee);
 
   return (
     <tr className="border-t max-lg:block max-lg:space-y-1 max-lg:px-3 max-lg:py-2.5">
@@ -171,7 +166,7 @@ function ShiftRow({ shift, canDelete }: { shift: ShiftOverviewRow; canDelete: bo
         <Badge variant="outline">{SHIFT_TYPE_LABELS[shift.shift_type]}</Badge>
       </td>
       <td className="border-b border-r px-3 py-2 max-lg:block max-lg:border-none max-lg:px-0 max-lg:py-0">
-        {tag && <Badge variant={SHIFT_ATTENDANCE_TAG_VARIANTS[tag]}>{SHIFT_ATTENDANCE_TAG_LABELS[tag]}</Badge>}
+        <Badge variant="outline">{SHIFT_KIND_LABELS[kind]}</Badge>
       </td>
       <td className="border-b px-3 py-2 text-right max-lg:block max-lg:border-none max-lg:px-0 max-lg:py-0">
         {canDelete && (

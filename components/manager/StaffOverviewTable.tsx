@@ -5,6 +5,7 @@ import { SearchIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import StaffAttendanceDetailDialog from "@/components/manager/StaffAttendanceDetailDialog";
+import type { ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
 import { buildStaffOverview, type OverviewPeriod } from "@/lib/attendance";
 import { getRoleLabel } from "@/lib/roles";
 import { cn } from "@/lib/utils";
@@ -37,11 +38,13 @@ export default function StaffOverviewTable({
   staff,
   attendance,
   leaveRequests,
+  shifts,
 }: {
   title?: string;
   staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[];
   attendance: Attendance[];
   leaveRequests: Pick<LeaveRequest, "profile_id" | "start_date" | "end_date" | "status">[];
+  shifts: ShiftOverviewRow[];
 }) {
   const [period, setPeriod] = useState<OverviewPeriod>("day");
   const [search, setSearch] = useState("");
@@ -167,7 +170,7 @@ export default function StaffOverviewTable({
           employeeId={selectedEmployee.id}
           employeeName={selectedEmployee.fullName}
           period={period}
-          attendance={attendance}
+          shifts={shifts}
         />
       )}
     </div>

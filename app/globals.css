@@ -469,13 +469,19 @@
   font-size: 0.75rem;
   font-weight: 500;
 }
+/* Can now be 2 lines (name/cơ sở, then "Ghi chú: ..." if the shift has a
+   note) — same react-big-calendar clipping issue as
+   shift-event--shift-request-pending below: it sizes purely off the
+   event's time span, so a short shift would otherwise hide its note. */
 .rbc-event.shift-event--mine {
   background-color: var(--primary);
   color: var(--primary-foreground);
+  min-height: 34px;
 }
 .rbc-event.shift-event--other {
   background-color: var(--event-color, var(--chart-3));
   color: var(--event-text, var(--primary-foreground));
+  min-height: 34px;
 }
 .rbc-event.shift-event--pending {
   outline: 2px dashed var(--gold);
