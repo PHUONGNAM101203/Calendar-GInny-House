@@ -11,14 +11,15 @@ type StaleCheckoutRow = {
   shift_id: string | null;
 };
 
-// Runs once daily via Vercel Cron (see vercel.json) — Vercel Hobby (this
-// project's plan) doesn't allow a tighter cadence; would run every 15
-// minutes on Pro. Catches two things Kỹ thuật needs to know about:
+// Runs hourly via Vercel Cron (see vercel.json) — now that the project is
+// on Pro, not the once-daily ceiling Hobby forced (see git history for the
+// 0063 migration this superseded). Catches two things Kỹ thuật needs to
+// know about:
 //  1. "quá giờ vào ca" — a registered shift started >15min ago with no
 //     matching attendance row at all (a no-show, or someone who simply
-//     forgot to clock in). Window is 24h from start_at (0063), not tied
-//     to end_at, so a once-daily run still catches shifts whose own
-//     end-of-day has already passed by the time this fires.
+//     forgot to clock in). Window is tied to end_at + 2h (0065) — narrowed
+//     back down from 0063's flat 24h now that hourly runs don't need a
+//     wide window to avoid missing shifts between cron firings.
 //  2. "quá giờ ra ca" — an open (not checked out) attendance session that
 //     should have ended by now: either a shiftless (trợ giảng) free
 //     clock-in open >30min, or a shift-tied session still open >15min
