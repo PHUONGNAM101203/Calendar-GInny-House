@@ -1155,8 +1155,8 @@
     "semantic_hash": ""
   },
   "app/api/cron/attendance-reminders/route.ts": {
-    "mtime": 1786625319.6914992,
-    "ast_hash": "9a4820d5f020860f98f8c9b08a4a70d9",
+    "mtime": 1787110370.7453501,
+    "ast_hash": "891b477f82a27861a76129973c157aa1",
     "semantic_hash": ""
   },
   "components/manager/CreateAttendanceManualDialog.tsx": {
@@ -1175,8 +1175,8 @@
     "semantic_hash": ""
   },
   "vercel.json": {
-    "mtime": 1786625297.2493908,
-    "ast_hash": "41334fdb0d105df7176f87aea24666eb",
+    "mtime": 1787110351.1724374,
+    "ast_hash": "2d4ce88976c88e10347eb6b699ff6b76",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-08-13-request-status-revert-design.md": {
@@ -1227,6 +1227,16 @@
   "supabase/migrations/0064_shift_requests_select_technical.sql": {
     "mtime": 1786895990.2568715,
     "ast_hash": "d42ca573a7409b3dc660cd2c7f0fd823",
+    "semantic_hash": ""
+  },
+  "app/api/cron/weekly-summary/route.ts": {
+    "mtime": 1787110417.3264554,
+    "ast_hash": "c7141f159e827a85562849c48d201c93",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/0065_narrow_late_checkin_window_for_hourly_cron.sql": {
+    "mtime": 1787110331.4918487,
+    "ast_hash": "71ea464ae64d8db385812504c3f2f768",
     "semantic_hash": ""
   }
 }
