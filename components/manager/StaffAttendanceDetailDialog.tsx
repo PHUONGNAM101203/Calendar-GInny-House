@@ -95,7 +95,7 @@ export default function StaffAttendanceDetailDialog({
         <Tabs defaultValue="shifts">
           <TabsList className="w-full">
             <TabsTrigger value="shifts" className="flex-1">
-              Tổng số ca
+              Tổng số giờ đăng ký
             </TabsTrigger>
             <TabsTrigger value="attendance" className="flex-1">
               Chấm công
@@ -104,8 +104,6 @@ export default function StaffAttendanceDetailDialog({
 
           <TabsContent value="shifts" className="space-y-3">
             <p className="font-heading text-lg font-semibold tabular-nums">
-              Tổng {personShifts.length} ca
-              <span className="mx-1.5 text-muted-foreground">·</span>
               Tổng {formatHours(totalShiftMinutes)}
             </p>
 
