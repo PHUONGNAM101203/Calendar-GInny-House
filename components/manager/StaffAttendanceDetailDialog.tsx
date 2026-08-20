@@ -62,6 +62,15 @@ export default function StaffAttendanceDetailDialog({
       .sort((a, b) => b.start_at.localeCompare(a.start_at));
   }, [shifts, employeeId, period, now]);
 
+  const totalShiftMinutes = useMemo(
+    () =>
+      personShifts.reduce(
+        (sum, s) => sum + (new Date(s.end_at).getTime() - new Date(s.start_at).getTime()) / 60000,
+        0
+      ),
+    [personShifts]
+  );
+
   const attendanceEntries = useMemo(
     () => buildAttendanceEntries(attendance, employeeId, period, now),
     [attendance, employeeId, period, now]
@@ -94,7 +103,11 @@ export default function StaffAttendanceDetailDialog({
           </TabsList>
 
           <TabsContent value="shifts" className="space-y-3">
-            <p className="font-heading text-lg font-semibold tabular-nums">Tổng {personShifts.length} ca</p>
+            <p className="font-heading text-lg font-semibold tabular-nums">
+              Tổng {personShifts.length} ca
+              <span className="mx-1.5 text-muted-foreground">·</span>
+              Tổng {formatHours(totalShiftMinutes)}
+            </p>
 
             {personShifts.length === 0 ? (
               <p className="py-6 text-center text-sm text-muted-foreground">Không có ca nào trong kỳ đã chọn.</p>
