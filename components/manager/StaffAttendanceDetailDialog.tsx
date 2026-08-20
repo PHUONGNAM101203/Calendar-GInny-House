@@ -94,7 +94,7 @@ export default function StaffAttendanceDetailDialog({
           </TabsList>
 
           <TabsContent value="shifts" className="space-y-3">
-            <p className="font-heading text-lg font-semibold tabular-nums">{personShifts.length} ca</p>
+            <p className="font-heading text-lg font-semibold tabular-nums">Tổng {personShifts.length} ca</p>
 
             {personShifts.length === 0 ? (
               <p className="py-6 text-center text-sm text-muted-foreground">Không có ca nào trong kỳ đã chọn.</p>
@@ -129,7 +129,7 @@ export default function StaffAttendanceDetailDialog({
 
           <TabsContent value="attendance" className="space-y-3">
             <p className="font-heading text-lg font-semibold tabular-nums">
-              {formatHours(totalAttendanceMinutes)}
+              Tổng {formatHours(totalAttendanceMinutes)}
             </p>
 
             {attendanceEntries.length === 0 ? (
