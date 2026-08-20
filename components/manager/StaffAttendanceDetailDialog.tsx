@@ -10,12 +10,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import CollapsibleGrid from "@/components/manager/CollapsibleGrid";
 import type { ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
-import { periodRange, type OverviewPeriod } from "@/lib/attendance";
+import { periodRange, buildAttendanceEntries, type OverviewPeriod } from "@/lib/attendance";
 import { SHIFT_TYPE_LABELS } from "@/lib/constants";
 import { computeShiftKind, SHIFT_KIND_LABELS } from "@/lib/shift-kind-tag";
+import type { Attendance } from "@/types";
+
+function formatHours(totalMinutes: number) {
+  const h = Math.floor(totalMinutes / 60);
+  const m = Math.round(totalMinutes % 60);
+  return m > 0 ? `${h}g ${m}p` : `${h}g`;
+}
 
 // Full list of this person's shifts within the selected period (ngày/tháng/
 // năm — same period the parent table's tabs already picked), each tagged by
@@ -31,6 +39,7 @@ export default function StaffAttendanceDetailDialog({
   employeeName,
   period,
   shifts,
+  attendance,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -38,6 +47,7 @@ export default function StaffAttendanceDetailDialog({
   employeeName: string;
   period: OverviewPeriod;
   shifts: ShiftOverviewRow[];
+  attendance: Attendance[];
 }) {
   const now = useMemo(() => new Date(), []);
 
@@ -52,6 +62,15 @@ export default function StaffAttendanceDetailDialog({
       .sort((a, b) => b.start_at.localeCompare(a.start_at));
   }, [shifts, employeeId, period, now]);
 
+  const attendanceEntries = useMemo(
+    () => buildAttendanceEntries(attendance, employeeId, period, now),
+    [attendance, employeeId, period, now]
+  );
+  const totalAttendanceMinutes = useMemo(
+    () => attendanceEntries.reduce((sum, e) => sum + e.minutes, 0),
+    [attendanceEntries]
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -64,37 +83,81 @@ export default function StaffAttendanceDetailDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <p className="font-heading text-lg font-semibold tabular-nums">{personShifts.length} ca</p>
+        <Tabs defaultValue="shifts">
+          <TabsList className="w-full">
+            <TabsTrigger value="shifts" className="flex-1">
+              Tổng số ca
+            </TabsTrigger>
+            <TabsTrigger value="attendance" className="flex-1">
+              Chấm công
+            </TabsTrigger>
+          </TabsList>
 
-        {personShifts.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">Không có ca nào trong kỳ đã chọn.</p>
-        ) : (
-          <div className="max-h-80 overflow-y-auto">
-            <CollapsibleGrid className="space-y-2">
-              {personShifts.map((shift) => (
-                <div key={shift.id} className="rounded-md border bg-muted/40 p-2.5 text-sm">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="font-medium capitalize">
-                      {format(new Date(shift.start_at), "EEEE dd/MM", { locale: vi })}
-                    </p>
-                    <Badge variant="outline">{SHIFT_KIND_LABELS[computeShiftKind(shift.assignee)]}</Badge>
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground tabular-nums">
-                    {format(new Date(shift.start_at), "HH:mm")}–{format(new Date(shift.end_at), "HH:mm")}
-                    <span className="mx-1.5">·</span>
-                    {SHIFT_TYPE_LABELS[shift.shift_type]}
-                    {shift.branch && (
-                      <>
+          <TabsContent value="shifts" className="space-y-3">
+            <p className="font-heading text-lg font-semibold tabular-nums">{personShifts.length} ca</p>
+
+            {personShifts.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">Không có ca nào trong kỳ đã chọn.</p>
+            ) : (
+              <div className="max-h-80 overflow-y-auto">
+                <CollapsibleGrid className="space-y-2">
+                  {personShifts.map((shift) => (
+                    <div key={shift.id} className="rounded-md border bg-muted/40 p-2.5 text-sm">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-medium capitalize">
+                          {format(new Date(shift.start_at), "EEEE dd/MM", { locale: vi })}
+                        </p>
+                        <Badge variant="outline">{SHIFT_KIND_LABELS[computeShiftKind(shift.assignee)]}</Badge>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground tabular-nums">
+                        {format(new Date(shift.start_at), "HH:mm")}–{format(new Date(shift.end_at), "HH:mm")}
                         <span className="mx-1.5">·</span>
-                        {shift.branch.name}
-                      </>
-                    )}
-                  </p>
-                </div>
-              ))}
-            </CollapsibleGrid>
-          </div>
-        )}
+                        {SHIFT_TYPE_LABELS[shift.shift_type]}
+                        {shift.branch && (
+                          <>
+                            <span className="mx-1.5">·</span>
+                            {shift.branch.name}
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  ))}
+                </CollapsibleGrid>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="attendance" className="space-y-3">
+            <p className="font-heading text-lg font-semibold tabular-nums">
+              {formatHours(totalAttendanceMinutes)}
+            </p>
+
+            {attendanceEntries.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                Không có dữ liệu chấm công trong kỳ đã chọn.
+              </p>
+            ) : (
+              <div className="max-h-80 overflow-y-auto">
+                <CollapsibleGrid className="space-y-2">
+                  {attendanceEntries.map((entry) => (
+                    <div key={entry.id} className="rounded-md border bg-muted/40 p-2.5 text-sm">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-medium capitalize">
+                          {format(new Date(entry.checkInAt), "EEEE dd/MM", { locale: vi })}
+                        </p>
+                        <Badge variant="outline">{formatHours(entry.minutes)}</Badge>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground tabular-nums">
+                        {format(new Date(entry.checkInAt), "HH:mm")}–
+                        {entry.checkOutAt ? format(new Date(entry.checkOutAt), "HH:mm") : "đang trong ca"}
+                      </p>
+                    </div>
+                  ))}
+                </CollapsibleGrid>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

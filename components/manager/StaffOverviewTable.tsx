@@ -171,6 +171,7 @@ export default function StaffOverviewTable({
           employeeName={selectedEmployee.fullName}
           period={period}
           shifts={shifts}
+          attendance={attendance}
         />
       )}
     </div>

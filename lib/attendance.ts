@@ -89,6 +89,40 @@ export function buildStaffOverview(
 }
 
 
+export type AttendanceEntry = {
+  id: string;
+  checkInAt: string;
+  checkOutAt: string | null;
+  minutes: number;
+};
+
+// Per-session breakdown for the "Chấm công" tab of the per-person popup —
+// same overlap-with-period math as buildStaffOverview's totalMinutes (so the
+// tab's sum matches the table's Giờ làm column), just kept per-record
+// instead of collapsed into one total.
+export function buildAttendanceEntries(
+  attendance: Pick<Attendance, "id" | "profile_id" | "check_in_at" | "check_out_at">[],
+  profileId: string,
+  period: OverviewPeriod,
+  now: Date = new Date()
+): AttendanceEntry[] {
+  const { start, end } = periodRange(period, now);
+
+  return attendance
+    .filter((r) => r.profile_id === profileId)
+    .map((r) => {
+      const checkIn = new Date(r.check_in_at);
+      const checkOut = r.check_out_at ? new Date(r.check_out_at) : null;
+      const effectiveEnd = checkOut ?? now;
+      const overlapStart = checkIn > start ? checkIn : start;
+      const overlapEnd = effectiveEnd < end ? effectiveEnd : end;
+      const minutes = overlapEnd > overlapStart ? Math.round((overlapEnd.getTime() - overlapStart.getTime()) / 60000) : 0;
+      return { id: r.id, checkInAt: r.check_in_at, checkOutAt: r.check_out_at, minutes };
+    })
+    .filter((entry) => entry.minutes > 0)
+    .sort((a, b) => b.checkInAt.localeCompare(a.checkInAt));
+}
+
 export type DayHours = { date: string; label: string; hours: number };
 
 // System-wide hours-worked-per-day, last N days — feeds the line chart in
