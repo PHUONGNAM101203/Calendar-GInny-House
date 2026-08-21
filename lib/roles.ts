@@ -1,4 +1,4 @@
-import { hasGroupPermission, getGrantedTargetRoles, type GroupPermissions } from "@/lib/permissions";
+import { hasGroupPermission, type GroupPermissions } from "@/lib/permissions";
 import type { Role } from "@/types";
 
 // Order here is the organizational hierarchy, highest first — reused
@@ -96,24 +96,29 @@ export function isManagerRole(role: Role): boolean {
   return MANAGER_ROLES.has(role);
 }
 
-// Who can see/follow whose calendar (2026-08 pass): three tiers, not one
-// flat "sees everyone" set —
-//   "all"   — ceo, technical: every role, org-wide.
-//   "group" — coo: operations group only; training_director: training
-//             group only. Mirrors can_view_profile() in
-//             0013_group_scoped_visibility.sql — keep both in sync.
-//   "none"  — everyone else: just their own branch's shared schedule, no
-//             follow feature at all (unchanged default behavior).
+// Who can see/follow whose calendar (2026-08: collapsed to one universal
+// tier — every role now sees/follows everyone, org-wide, matching what
+// ceo/technical always had. This ONLY covers the calendar-viewing feature
+// (shift blocks, attendance/clock dots, the people list) — approval/
+// management authority (create/approve shift, approve leave/swap, manage
+// attendance) is untouched, still gated per-role by the can*For predicates
+// below. Mirrors can_view_shift_calendar() in
+// supabase/migrations/0069_calendar_view_all_roles.sql — a function
+// deliberately separate from can_view_profile_calendar() (0048), which
+// still gates shift_swap_requests/leave_requests visibility and stays
+// unchanged — keep both in sync if this ever needs to change again.
 export type CalendarScope = "all" | "group" | "none";
 
-export function getCalendarScope(role: Role): CalendarScope {
-  if (role === "ceo" || role === "technical") return "all";
-  if (role === "coo" || role === "training_director" || role === "hr") return "group";
-  return "none";
+export function getCalendarScope(): CalendarScope {
+  return "all";
 }
 
-export function canSeeAllCalendars(role: Role): boolean {
-  return getCalendarScope(role) !== "none";
+// Always true now that getCalendarScope() is universal — kept as its own
+// predicate (rather than inlining `true` at call sites) since it still
+// reads as "can this role follow/tick other people's calendars" at every
+// call site (calendar/page.tsx, actions/calendar-follows.ts).
+export function canSeeAllCalendars(): boolean {
+  return getCalendarScope() !== "none";
 }
 
 // Leave-request approval — ceo approves anyone; coo/training_director/hr
@@ -231,17 +236,15 @@ export const SELF_SIGNUP_ROLES = [
 
 export type SelfSignupRole = (typeof SELF_SIGNUP_ROLES)[number];
 
-// Calendar-follow-sidebar grouping (2026-08). The ceo/technical branch
-// below is a pure display taxonomy for an already-unrestricted viewer —
-// not an access boundary — so it keeps its own fixed tile groupings
-// (intentionally diverging from the dynamic group_permissions data, e.g.
-// splitting "Đào tạo"/CTV/Trợ giảng into separate tiles) rather than
-// reading from group_permissions. The coo/training_director/hr branches
-// ARE an access boundary and read live from group_permissions
-// (permission 'view_calendar') — a role only appears once granted, and
-// each manager's grants collapse into one flat list (no more sub-
-// grouping by target role — that finer clustering was cosmetic, not a
-// permission difference; see the plan's Out of Scope note).
+// Calendar-follow-sidebar grouping (2026-08: universal). Every role now
+// sees the same fixed tile breakdown that only ceo/technical used to get —
+// a pure display taxonomy, not an access boundary (calendar view is
+// unrestricted for everyone now, see getCalendarScope above). "Kỹ thuật"
+// stays merged inside "Quản lý" rather than its own tile (confirmed
+// design choice, not an oversight). This no longer reads from
+// group_permissions at all — the old coo/training_director/hr dynamic
+// single-tile branch (keyed off the 'view_calendar' permission type) and
+// the "no group feature" null fallback for everyone else are both gone.
 export type CalendarFollowGroup = { key: string; label: string; roles: ReadonlySet<Role> };
 
 const CALENDAR_TEACHER_ONLY: ReadonlySet<Role> = new Set(["teacher"]);
@@ -257,26 +260,15 @@ const CALENDAR_MANAGEMENT_ROLES: ReadonlySet<Role> = new Set([
   "technical",
 ]);
 
-// null => this viewer keeps the flat, non-interactive legend (canFollowAll
-// is already false for every role that returns null here).
-export function getCalendarFollowGroups(role: Role, permissions: GroupPermissions): CalendarFollowGroup[] | null {
-  if (role === "ceo" || role === "technical") {
-    return [
-      { key: "management", label: "Quản lý", roles: CALENDAR_MANAGEMENT_ROLES },
-      { key: "operations", label: "Vận hành", roles: CALENDAR_OPERATIONS_ONLY },
-      { key: "training", label: "Đào tạo", roles: CALENDAR_TEACHER_ONLY },
-      { key: "student_affairs", label: "Quản sinh", roles: CALENDAR_STUDENT_AFFAIRS_ONLY },
-      { key: "teaching_assistant", label: "Trợ giảng", roles: CALENDAR_TEACHING_ASSISTANT_ONLY },
-      { key: "collaborators", label: "CTV", roles: CALENDAR_COLLABORATOR_ONLY },
-    ];
-  }
-  if (role === "coo" || role === "training_director" || role === "hr") {
-    const granted = getGrantedTargetRoles(permissions, role, "view_calendar");
-    if (granted.size === 0) return null;
-    const label = MANAGER_GROUP_META[role]?.label ?? "Nhóm của bạn";
-    return [{ key: "granted", label, roles: granted }];
-  }
-  return null;
+export function getCalendarFollowGroups(): CalendarFollowGroup[] {
+  return [
+    { key: "management", label: "Quản lý", roles: CALENDAR_MANAGEMENT_ROLES },
+    { key: "operations", label: "Vận hành", roles: CALENDAR_OPERATIONS_ONLY },
+    { key: "training", label: "Đào tạo", roles: CALENDAR_TEACHER_ONLY },
+    { key: "student_affairs", label: "Quản sinh", roles: CALENDAR_STUDENT_AFFAIRS_ONLY },
+    { key: "teaching_assistant", label: "Trợ giảng", roles: CALENDAR_TEACHING_ASSISTANT_ONLY },
+    { key: "collaborators", label: "CTV", roles: CALENDAR_COLLABORATOR_ONLY },
+  ];
 }
 
 // Attendance edit/delete: ceo/technical manage everyone's records (incl.

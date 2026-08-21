@@ -43,6 +43,7 @@ import {
   canApproveShiftRequestFor,
   canCreateShiftFor,
   canApproveSwapRequestFor,
+  canAccessManagerPage,
 } from "@/lib/roles";
 import { scopeToOwnOrApprovable } from "@/lib/pending-approvals";
 import { useCalendarNav } from "@/hooks/use-calendar-nav";
@@ -521,11 +522,10 @@ export default function ShiftCalendar({
   );
 
   // branchMembers is already the full list of people this viewer is
-  // allowed to see per RLS (can_view_profile — ceo/technical get
-  // everyone, coo/training_director/hr get their own group, everyone else
-  // gets their own branch). Building this from `shifts` instead (people
-  // with a shift in the currently visible week) used to hide anyone
-  // without a shift this week from the follow list, even when RLS
+  // allowed to see per RLS (can_view_shift_calendar, 2026-08: unconditional
+  // — every role sees everyone now). Building this from `shifts` instead
+  // (people with a shift in the currently visible week) used to hide
+  // anyone without a shift this week from the follow list, even when RLS
   // permitted following them — fixed to source from branchMembers.
   const coworkers = useMemo(() => {
     const followedSet = new Set(followedIds);
@@ -543,15 +543,13 @@ export default function ShiftCalendar({
 
   // Same source (branchMembers) as `coworkers`, bucketed into role-based
   // groups instead of one flat list — see getCalendarFollowGroups() for
-  // which roles land in which group per viewer role. null for viewers
-  // without the group feature (canFollowAll === false), who keep the flat
-  // `coworkers` legend below unchanged. Filtering here (not on the raw
-  // branchMembers prop) matters: branchMembers is also threaded straight
-  // into ShiftFormDialog for the shift-assignee picker, which must keep
-  // seeing everyone RLS allows, not just this viewer's calendar groups.
+  // which roles land in which group (same fixed breakdown for every
+  // viewer now). Filtering here (not on the raw branchMembers prop)
+  // matters: branchMembers is also threaded straight into ShiftFormDialog
+  // for the shift-assignee picker, which must keep seeing everyone RLS
+  // allows, not just this viewer's calendar groups.
   const followGroups = useMemo(() => {
-    const defs = getCalendarFollowGroups(currentUserRole, permissions);
-    if (!defs) return null;
+    const defs = getCalendarFollowGroups();
     const followedSet = new Set(followedIds);
     return defs.map((def) => ({
       key: def.key,
@@ -570,7 +568,7 @@ export default function ShiftCalendar({
         }))
         .sort((a, b) => a.name.localeCompare(b.name, "vi")),
     }));
-  }, [branchMembers, currentUserId, currentUserRole, followedIds, followColors, permissions]);
+  }, [branchMembers, currentUserId, followedIds, followColors]);
 
   // ShiftRequestDialog only ever renders for the current viewer requesting
   // their OWN shift, so this is scoped to their branches, not the
@@ -607,10 +605,15 @@ export default function ShiftCalendar({
   // doesn't need this pass (its RLS select is already exactly that shape,
   // see calendar/page.tsx); the other three tables' RLS is broader
   // (visibility, not approval rights), so this is where that gets applied.
-  // canFollowAll roles (ceo/technical) already see everyone's calendar —
-  // extend that same blanket visibility to "Cần xét duyệt" for roles that
-  // aren't actual approvers (technical today), so they can at least see
-  // what's pending. The dialogs opened from these rows independently gate
+  // Manager-tier roles (ceo/coo/training_director/hr/technical, same set as
+  // canAccessManagerPage) get a blanket informational fallback here even
+  // when they aren't the approver for a given row (e.g. technical, which
+  // approves nothing), so they can at least see what's pending. This is
+  // deliberately NOT `canFollowAll` — that flag is universal now (every
+  // role can view/follow every calendar, 2026-08), but this fallback must
+  // stay scoped to the original manager-tier set or every front-line role
+  // would suddenly see every pending leave/swap/attendance-correction
+  // request org-wide. The dialogs opened from these rows independently gate
   // their own Duyệt/Từ chối buttons via isLeaveApprover/canApproveLeaveFor,
   // so a non-approver seeing the row here still can't act on it.
   const pendingLeaveForApproval = useMemo(
@@ -621,9 +624,9 @@ export default function ShiftCalendar({
         (r) => r.profile_id,
         (r) =>
           (isLeaveApprover(currentUserRole) && canApproveLeaveFor(currentUserRole, r.profile.role, permissions)) ||
-          canFollowAll
+          canAccessManagerPage(currentUserRole)
       ),
-    [leaveRequests, currentUserId, currentUserRole, canFollowAll, permissions]
+    [leaveRequests, currentUserId, currentUserRole, permissions]
   );
   const pendingSwapsForApproval = useMemo(
     () =>
@@ -642,9 +645,9 @@ export default function ShiftCalendar({
               r.target.role,
               permissions
             )) ||
-          canFollowAll
+          canAccessManagerPage(currentUserRole)
       ),
-    [pendingSwaps, currentUserId, currentUserRole, canFollowAll, permissions]
+    [pendingSwaps, currentUserId, currentUserRole, permissions]
   );
   const attendanceCorrectionsForApproval = useMemo(
     () =>
@@ -655,9 +658,9 @@ export default function ShiftCalendar({
         (r) =>
           (isLeaveApprover(currentUserRole) &&
             canApproveLeaveFor(currentUserRole, r.profile.role, permissions)) ||
-          canFollowAll
+          canAccessManagerPage(currentUserRole)
       ),
-    [attendanceCorrections, currentUserId, currentUserRole, canFollowAll, permissions]
+    [attendanceCorrections, currentUserId, currentUserRole, permissions]
   );
   const pendingApprovals: PendingApprovalItem[] = useMemo(() => {
     const items: PendingApprovalItem[] = [

@@ -247,7 +247,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "actions_attendance",
-      "community": 67,
+      "community": 22,
       "community_name": "actions/attendance.ts",
       "norm_label": "actions/attendance.ts"
     },
@@ -259,7 +259,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_attendance_mapattendanceerror",
-      "community": 67,
+      "community": 22,
       "community_name": "actions/attendance.ts",
       "norm_label": "mapattendanceerror()"
     },
@@ -271,7 +271,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_attendance_clockinaction",
-      "community": 67,
+      "community": 22,
       "community_name": "actions/attendance.ts",
       "norm_label": "clockinaction()"
     },
@@ -283,7 +283,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_attendance_revalidateattendancemanagepaths",
-      "community": 67,
+      "community": 22,
       "community_name": "actions/attendance.ts",
       "norm_label": "revalidateattendancemanagepaths()"
     },
@@ -295,7 +295,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_attendance_cancurrentusermanageattendancerow",
-      "community": 67,
+      "community": 22,
       "community_name": "actions/attendance.ts",
       "norm_label": "cancurrentusermanageattendancerow()"
     },
@@ -307,7 +307,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_attendance_updateattendanceaction",
-      "community": 67,
+      "community": 22,
       "community_name": "actions/attendance.ts",
       "norm_label": "updateattendanceaction()"
     },
@@ -319,7 +319,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_attendance_deleteattendanceaction",
-      "community": 67,
+      "community": 22,
       "community_name": "actions/attendance.ts",
       "norm_label": "deleteattendanceaction()"
     },
@@ -331,7 +331,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_attendance_clockoutaction",
-      "community": 67,
+      "community": 22,
       "community_name": "actions/attendance.ts",
       "norm_label": "clockoutaction()"
     },
@@ -343,7 +343,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_attendance_mapmanualattendanceerror",
-      "community": 67,
+      "community": 22,
       "community_name": "actions/attendance.ts",
       "norm_label": "mapmanualattendanceerror()"
     },
@@ -355,7 +355,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_attendance_createattendancemanualaction",
-      "community": 67,
+      "community": 22,
       "community_name": "actions/attendance.ts",
       "norm_label": "createattendancemanualaction()"
     },
@@ -415,7 +415,7 @@
       "_origin": "ast",
       "id": "actions_auth_signoutaction",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "signoutaction()"
     },
     {
@@ -565,7 +565,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "actions_custom_calendars",
-      "community": 22,
+      "community": 10,
       "community_name": "requireProfile",
       "norm_label": "custom-calendars.ts"
     },
@@ -576,7 +576,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "actions_custom_calendars_valid_colors",
-      "community": 22,
+      "community": 10,
       "community_name": "requireProfile",
       "norm_label": "valid_colors"
     },
@@ -588,7 +588,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_custom_calendars_isvalidcolor",
-      "community": 22,
+      "community": 10,
       "community_name": "requireProfile",
       "norm_label": "isvalidcolor()"
     },
@@ -600,7 +600,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_custom_calendars_createcustomcalendaraction",
-      "community": 22,
+      "community": 10,
       "community_name": "requireProfile",
       "norm_label": "createcustomcalendaraction()"
     },
@@ -612,8 +612,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_custom_calendars_deletecustomcalendaraction",
-      "community": 127,
-      "community_name": "CalendarSidebar.tsx",
+      "community": 10,
+      "community_name": "requireProfile",
       "norm_label": "deletecustomcalendaraction()"
     },
     {
@@ -624,7 +624,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_custom_calendars_createcustomeventaction",
-      "community": 22,
+      "community": 10,
       "community_name": "requireProfile",
       "norm_label": "createcustomeventaction()"
     },
@@ -636,7 +636,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_custom_calendars_deletecustomeventaction",
-      "community": 22,
+      "community": 10,
       "community_name": "requireProfile",
       "norm_label": "deletecustomeventaction()"
     },
@@ -647,8 +647,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "actions_group_permissions",
-      "community": 22,
-      "community_name": "requireProfile",
+      "community": 158,
+      "community_name": "createClient",
       "norm_label": "actions/group-permissions.ts"
     },
     {
@@ -659,8 +659,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_group_permissions_mapgrouppermissionerror",
-      "community": 22,
-      "community_name": "requireProfile",
+      "community": 158,
+      "community_name": "createClient",
       "norm_label": "mapgrouppermissionerror()"
     },
     {
@@ -671,8 +671,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_group_permissions_updategrouppermissionaction",
-      "community": 22,
-      "community_name": "requireProfile",
+      "community": 158,
+      "community_name": "createClient",
       "norm_label": "updategrouppermissionaction()"
     },
     {
@@ -777,8 +777,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "actions_notifications",
-      "community": 22,
-      "community_name": "requireProfile",
+      "community": 158,
+      "community_name": "createClient",
       "norm_label": "actions/notifications.ts"
     },
     {
@@ -789,8 +789,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_notifications_marknotificationsseenaction",
-      "community": 22,
-      "community_name": "requireProfile",
+      "community": 158,
+      "community_name": "createClient",
       "norm_label": "marknotificationsseenaction()"
     },
     {
@@ -800,8 +800,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "actions_profile",
-      "community": 5,
-      "community_name": "AccountForm.tsx",
+      "community": 158,
+      "community_name": "createClient",
       "norm_label": "actions/profile.ts"
     },
     {
@@ -812,8 +812,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_profile_updateprofileaction",
-      "community": 5,
-      "community_name": "AccountForm.tsx",
+      "community": 158,
+      "community_name": "createClient",
       "norm_label": "updateprofileaction()"
     },
     {
@@ -823,7 +823,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "actions_push",
-      "community": 22,
+      "community": 10,
       "community_name": "requireProfile",
       "norm_label": "actions/push.ts"
     },
@@ -835,7 +835,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_push_subscribetopushaction",
-      "community": 22,
+      "community": 10,
       "community_name": "requireProfile",
       "norm_label": "subscribetopushaction()"
     },
@@ -847,7 +847,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_push_unsubscribefrompushaction",
-      "community": 22,
+      "community": 10,
       "community_name": "requireProfile",
       "norm_label": "unsubscribefrompushaction()"
     },
@@ -976,8 +976,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "actions_shifts",
-      "community": 106,
-      "community_name": "shifts.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "shifts.ts"
     },
     {
@@ -988,8 +988,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_shifts_assertassigneeallowed",
-      "community": 106,
-      "community_name": "shifts.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "assertassigneeallowed()"
     },
     {
@@ -1000,8 +1000,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_shifts_resolvebranchid",
-      "community": 106,
-      "community_name": "shifts.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "resolvebranchid()"
     },
     {
@@ -1012,8 +1012,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_shifts_mapshifterror",
-      "community": 106,
-      "community_name": "shifts.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "mapshifterror()"
     },
     {
@@ -1024,8 +1024,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_shifts_createshiftaction",
-      "community": 106,
-      "community_name": "shifts.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "createshiftaction()"
     },
     {
@@ -1036,8 +1036,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_shifts_updateshiftaction",
-      "community": 106,
-      "community_name": "shifts.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "updateshiftaction()"
     },
     {
@@ -1048,8 +1048,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_shifts_deleteshiftaction",
-      "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community": 152,
+      "community_name": "requireManager",
       "norm_label": "deleteshiftaction()"
     },
     {
@@ -1059,8 +1059,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "actions_staff",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 152,
+      "community_name": "requireManager",
       "norm_label": "staff.ts"
     },
     {
@@ -1071,8 +1071,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_staff_updatestaffbranchesaction",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 152,
+      "community_name": "requireManager",
       "norm_label": "updatestaffbranchesaction()"
     },
     {
@@ -1083,8 +1083,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_staff_updatestaffroleaction",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 152,
+      "community_name": "requireManager",
       "norm_label": "updatestaffroleaction()"
     },
     {
@@ -1095,8 +1095,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_staff_mapstaffsecondaryroleerror",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 152,
+      "community_name": "requireManager",
       "norm_label": "mapstaffsecondaryroleerror()"
     },
     {
@@ -1107,8 +1107,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_staff_updatestaffsecondaryroleaction",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 152,
+      "community_name": "requireManager",
       "norm_label": "updatestaffsecondaryroleaction()"
     },
     {
@@ -1119,8 +1119,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "actions_staff_deactivatestaffaction",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 152,
+      "community_name": "requireManager",
       "norm_label": "deactivatestaffaction()"
     },
     {
@@ -1226,7 +1226,7 @@
       "_origin": "ast",
       "id": "app_app_account_page",
       "community": 5,
-      "community_name": "AccountForm.tsx",
+      "community_name": "account/page.tsx",
       "norm_label": "account/page.tsx"
     },
     {
@@ -1238,7 +1238,7 @@
       "_origin": "ast",
       "id": "app_app_account_page_accountpage",
       "community": 5,
-      "community_name": "AccountForm.tsx",
+      "community_name": "account/page.tsx",
       "norm_label": "accountpage()"
     },
     {
@@ -1248,8 +1248,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_app_attendance_explain_page",
-      "community": 10,
-      "community_name": "lib/auth.ts",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "explain/page.tsx"
     },
     {
@@ -1260,7 +1260,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_app_attendance_explain_page_attendanceexplainpage",
-      "community": 22,
+      "community": 10,
       "community_name": "requireProfile",
       "norm_label": "attendanceexplainpage()"
     },
@@ -1294,8 +1294,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_app_attendance_page",
-      "community": 10,
-      "community_name": "lib/auth.ts",
+      "community": 119,
+      "community_name": "attendance/page.tsx",
       "norm_label": "attendance/page.tsx"
     },
     {
@@ -1306,8 +1306,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_app_attendance_page_attendancepage",
-      "community": 22,
-      "community_name": "requireProfile",
+      "community": 119,
+      "community_name": "attendance/page.tsx",
       "norm_label": "attendancepage()"
     },
     {
@@ -1340,7 +1340,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_app_calendar_page",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "calendar/page.tsx"
     },
@@ -1352,8 +1352,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_app_calendar_page_calendarpage",
-      "community": 127,
-      "community_name": "CalendarSidebar.tsx",
+      "community": 119,
+      "community_name": "attendance/page.tsx",
       "norm_label": "calendarpage()"
     },
     {
@@ -1363,7 +1363,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_app_layout",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "(app)/layout.tsx"
     },
@@ -1375,8 +1375,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_app_layout_appshelllayout",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "appshelllayout()"
     },
     {
@@ -1386,8 +1386,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_app_leave_page",
-      "community": 10,
-      "community_name": "lib/auth.ts",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "leave/page.tsx"
     },
     {
@@ -1398,8 +1398,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_app_leave_page_leavepage",
-      "community": 148,
-      "community_name": "ShiftCalendar.tsx",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "leavepage()"
     },
     {
@@ -1455,7 +1455,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_app_manager_page",
-      "community": 23,
+      "community": 121,
       "community_name": "manager/page.tsx",
       "norm_label": "manager/page.tsx"
     },
@@ -1468,7 +1468,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_app_manager_page_profileroleref",
-      "community": 23,
+      "community": 121,
       "community_name": "manager/page.tsx",
       "norm_label": "profileroleref"
     },
@@ -1480,7 +1480,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_app_manager_page_section",
-      "community": 23,
+      "community": 121,
       "community_name": "manager/page.tsx",
       "norm_label": "section()"
     },
@@ -1492,8 +1492,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_app_manager_page_managerpage",
-      "community": 148,
-      "community_name": "ShiftCalendar.tsx",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "managerpage()"
     },
     {
@@ -1503,8 +1503,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_app_swaps_page",
-      "community": 10,
-      "community_name": "lib/auth.ts",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "swaps/page.tsx"
     },
     {
@@ -1515,7 +1515,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_app_swaps_page_swaprequestspage",
-      "community": 22,
+      "community": 10,
       "community_name": "requireProfile",
       "norm_label": "swaprequestspage()"
     },
@@ -1526,8 +1526,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_auth_layout",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 154,
+      "community_name": "BrandMark.tsx",
       "norm_label": "(auth)/layout.tsx"
     },
     {
@@ -1538,8 +1538,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_auth_layout_authlayout",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 154,
+      "community_name": "BrandMark.tsx",
       "norm_label": "authlayout()"
     },
     {
@@ -1549,8 +1549,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_auth_login_page",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "login/page.tsx"
     },
     {
@@ -1561,8 +1561,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_auth_login_page_loginpage",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "loginpage()"
     },
     {
@@ -1573,7 +1573,7 @@
       "_origin": "ast",
       "id": "app_auth_register_page",
       "community": 119,
-      "community_name": "Branch",
+      "community_name": "attendance/page.tsx",
       "norm_label": "register/page.tsx"
     },
     {
@@ -1585,7 +1585,7 @@
       "_origin": "ast",
       "id": "app_auth_register_page_registerpage",
       "community": 119,
-      "community_name": "Branch",
+      "community_name": "attendance/page.tsx",
       "norm_label": "registerpage()"
     },
     {
@@ -1595,8 +1595,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_api_cron_attendance_reminders_route",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "attendance-reminders/route.ts"
     },
     {
@@ -1608,8 +1608,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_api_cron_attendance_reminders_route_latecheckinrow",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "latecheckinrow"
     },
     {
@@ -1621,8 +1621,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "app_api_cron_attendance_reminders_route_stalecheckoutrow",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "stalecheckoutrow"
     },
     {
@@ -1633,8 +1633,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_api_cron_attendance_reminders_route_get",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "get()"
     },
     {
@@ -1644,8 +1644,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_api_cron_weekly_summary_route",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "weekly-summary/route.ts"
     },
     {
@@ -1656,8 +1656,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "app_api_cron_weekly_summary_route_get",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "get()"
     },
     {
@@ -1770,7 +1770,7 @@
       "_origin": "ast",
       "id": "app_page",
       "community": 1,
-      "community_name": "cn",
+      "community_name": "app/page.tsx",
       "norm_label": "app/page.tsx"
     },
     {
@@ -1781,7 +1781,7 @@
       "_origin": "ast",
       "id": "app_page_metadata",
       "community": 1,
-      "community_name": "cn",
+      "community_name": "app/page.tsx",
       "norm_label": "metadata"
     },
     {
@@ -1793,7 +1793,7 @@
       "_origin": "ast",
       "id": "app_page_chip",
       "community": 1,
-      "community_name": "cn",
+      "community_name": "app/page.tsx",
       "norm_label": "chip()"
     },
     {
@@ -1804,7 +1804,7 @@
       "_origin": "ast",
       "id": "app_page_day_moments",
       "community": 1,
-      "community_name": "cn",
+      "community_name": "app/page.tsx",
       "norm_label": "day_moments"
     },
     {
@@ -1815,7 +1815,7 @@
       "_origin": "ast",
       "id": "app_page_branches",
       "community": 1,
-      "community_name": "cn",
+      "community_name": "app/page.tsx",
       "norm_label": "branches"
     },
     {
@@ -1827,7 +1827,7 @@
       "_origin": "ast",
       "id": "app_page_heroboard",
       "community": 1,
-      "community_name": "cn",
+      "community_name": "app/page.tsx",
       "norm_label": "heroboard()"
     },
     {
@@ -1839,7 +1839,7 @@
       "_origin": "ast",
       "id": "app_page_landingpage",
       "community": 1,
-      "community_name": "cn",
+      "community_name": "app/page.tsx",
       "norm_label": "landingpage()"
     },
     {
@@ -2091,8 +2091,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_account_accountform",
-      "community": 5,
-      "community_name": "AccountForm.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "accountform.tsx"
     },
     {
@@ -2104,7 +2104,7 @@
       "_origin": "ast",
       "id": "components_account_accountform_accountform",
       "community": 5,
-      "community_name": "AccountForm.tsx",
+      "community_name": "account/page.tsx",
       "norm_label": "accountform()"
     },
     {
@@ -2115,7 +2115,7 @@
       "_origin": "ast",
       "id": "components_attendance_attendancecorrectioncard",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "attendancecorrectioncard.tsx"
     },
     {
@@ -2126,7 +2126,7 @@
       "_origin": "ast",
       "id": "components_attendance_attendancecorrectioncard_issue_icon",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "issue_icon"
     },
     {
@@ -2138,7 +2138,7 @@
       "_origin": "ast",
       "id": "components_attendance_attendancecorrectioncard_attendancecorrectioncard",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "attendancecorrectioncard()"
     },
     {
@@ -2148,8 +2148,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_attendance_attendancecorrectionform",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "attendancecorrectionform.tsx"
     },
     {
@@ -2161,8 +2161,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "components_attendance_attendancecorrectionform_correctionrow",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "correctionrow"
     },
     {
@@ -2173,8 +2173,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_attendance_attendancecorrectionform_emptyrow",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "emptyrow()"
     },
     {
@@ -2185,8 +2185,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_attendance_attendancecorrectionform_cansubmitrow",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "cansubmitrow()"
     },
     {
@@ -2197,8 +2197,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_attendance_attendancecorrectionform_shiftidforrow",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "shiftidforrow()"
     },
     {
@@ -2209,8 +2209,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_attendance_attendancecorrectionform_attendancecorrectionform",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "attendancecorrectionform()"
     },
     {
@@ -2221,7 +2221,7 @@
       "_origin": "ast",
       "id": "components_attendance_attendancehistory",
       "community": 23,
-      "community_name": "manager/page.tsx",
+      "community_name": "AttendanceHistory.tsx",
       "norm_label": "attendancehistory.tsx"
     },
     {
@@ -2233,7 +2233,7 @@
       "_origin": "ast",
       "id": "components_attendance_attendancehistory_formatduration",
       "community": 23,
-      "community_name": "manager/page.tsx",
+      "community_name": "AttendanceHistory.tsx",
       "norm_label": "formatduration()"
     },
     {
@@ -2245,7 +2245,7 @@
       "_origin": "ast",
       "id": "components_attendance_attendancehistory_attendancehistory",
       "community": 23,
-      "community_name": "manager/page.tsx",
+      "community_name": "AttendanceHistory.tsx",
       "norm_label": "attendancehistory()"
     },
     {
@@ -2255,8 +2255,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_attendance_clockwidget",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "clockwidget.tsx"
     },
     {
@@ -2268,8 +2268,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "components_attendance_clockwidget_relevantshift",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "relevantshift"
     },
     {
@@ -2280,8 +2280,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_attendance_clockwidget_formatduration",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "formatduration()"
     },
     {
@@ -2293,8 +2293,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "components_attendance_clockwidget_clockingate",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "clockingate"
     },
     {
@@ -2305,8 +2305,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_attendance_clockwidget_getclockingate",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "getclockingate()"
     },
     {
@@ -2317,8 +2317,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_attendance_clockwidget_clockwidget",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "clockwidget()"
     },
     {
@@ -2328,8 +2328,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_auth_loginform",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "loginform.tsx"
     },
     {
@@ -2340,8 +2340,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_auth_loginform_loginform",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "loginform()"
     },
     {
@@ -2351,8 +2351,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_auth_registerform",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "registerform.tsx"
     },
     {
@@ -2364,7 +2364,7 @@
       "_origin": "ast",
       "id": "components_auth_registerform_registerform",
       "community": 119,
-      "community_name": "Branch",
+      "community_name": "attendance/page.tsx",
       "norm_label": "registerform()"
     },
     {
@@ -2374,8 +2374,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_brand_authillustration",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 154,
+      "community_name": "BrandMark.tsx",
       "norm_label": "authillustration.tsx"
     },
     {
@@ -2385,8 +2385,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_brand_authillustration_back_cells",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 154,
+      "community_name": "BrandMark.tsx",
       "norm_label": "back_cells"
     },
     {
@@ -2396,8 +2396,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "components_brand_authillustration_front_cells",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 154,
+      "community_name": "BrandMark.tsx",
       "norm_label": "front_cells"
     },
     {
@@ -2408,8 +2408,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_brand_authillustration_authillustration",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 154,
+      "community_name": "BrandMark.tsx",
       "norm_label": "authillustration()"
     },
     {
@@ -2419,8 +2419,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_brand_brandmark",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 154,
+      "community_name": "BrandMark.tsx",
       "norm_label": "brandmark.tsx"
     },
     {
@@ -2431,8 +2431,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_brand_brandmark_noopsubscribe",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 154,
+      "community_name": "BrandMark.tsx",
       "norm_label": "noopsubscribe()"
     },
     {
@@ -2443,8 +2443,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_brand_brandmark_usemounted",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 154,
+      "community_name": "BrandMark.tsx",
       "norm_label": "usemounted()"
     },
     {
@@ -2455,8 +2455,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_brand_brandmark_brandmark",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 154,
+      "community_name": "BrandMark.tsx",
       "norm_label": "brandmark()"
     },
     {
@@ -2467,7 +2467,7 @@
       "_origin": "ast",
       "id": "components_calendar_attendancedetaildialog",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "attendancedetaildialog.tsx"
     },
     {
@@ -2479,7 +2479,7 @@
       "_origin": "ast",
       "id": "components_calendar_attendancedetaildialog_combinedateandtime",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "combinedateandtime()"
     },
     {
@@ -2490,8 +2490,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_calendar_attendancedetaildialog_formatminutes",
-      "community": 148,
-      "community_name": "ShiftCalendar.tsx",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "formatminutes()"
     },
     {
@@ -2502,8 +2502,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_calendar_attendancedetaildialog_attendancedetaildialog",
-      "community": 148,
-      "community_name": "ShiftCalendar.tsx",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "attendancedetaildialog()"
     },
     {
@@ -2635,8 +2635,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_calendar_calendarsidebar_calendarcheckitem",
-      "community": 127,
-      "community_name": "CalendarSidebar.tsx",
+      "community": 148,
+      "community_name": "ShiftCalendar.tsx",
       "norm_label": "calendarcheckitem()"
     },
     {
@@ -2647,8 +2647,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_calendar_calendarsidebar_branchrow",
-      "community": 127,
-      "community_name": "CalendarSidebar.tsx",
+      "community": 148,
+      "community_name": "ShiftCalendar.tsx",
       "norm_label": "branchrow()"
     },
     {
@@ -2659,8 +2659,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_calendar_calendarsidebar_swatchgrid",
-      "community": 127,
-      "community_name": "CalendarSidebar.tsx",
+      "community": 148,
+      "community_name": "ShiftCalendar.tsx",
       "norm_label": "swatchgrid()"
     },
     {
@@ -2695,8 +2695,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_calendar_calendarsidebar_customcalendarrow",
-      "community": 127,
-      "community_name": "CalendarSidebar.tsx",
+      "community": 148,
+      "community_name": "ShiftCalendar.tsx",
       "norm_label": "customcalendarrow()"
     },
     {
@@ -2707,8 +2707,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_calendar_calendarsidebar_addothercalendarmenu",
-      "community": 127,
-      "community_name": "CalendarSidebar.tsx",
+      "community": 10,
+      "community_name": "requireProfile",
       "norm_label": "addothercalendarmenu()"
     },
     {
@@ -2755,8 +2755,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_calendar_calendarsidebar_pendingapprovalrow",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 127,
+      "community_name": "CalendarSidebar.tsx",
       "norm_label": "pendingapprovalrow()"
     },
     {
@@ -2848,8 +2848,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_calendar_colorpickerdialog_colorpickerdialog",
-      "community": 137,
-      "community_name": "ColorPickerDialog",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "colorpickerdialog()"
     },
     {
@@ -2940,8 +2940,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_calendar_leavedetaildialog_formatrange",
-      "community": 148,
-      "community_name": "ShiftCalendar.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "formatrange()"
     },
     {
@@ -2952,8 +2952,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_calendar_leavedetaildialog_formattimeofday",
-      "community": 148,
-      "community_name": "ShiftCalendar.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "formattimeofday()"
     },
     {
@@ -2964,8 +2964,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_calendar_leavedetaildialog_leavedetaildialog",
-      "community": 148,
-      "community_name": "ShiftCalendar.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "leavedetaildialog()"
     },
     {
@@ -2975,8 +2975,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_calendar_minimonth",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "minimonth.tsx"
     },
     {
@@ -2986,8 +2986,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "components_calendar_minimonth_weekday_labels",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "weekday_labels"
     },
     {
@@ -2998,8 +2998,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_calendar_minimonth_minimonth",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "minimonth()"
     },
     {
@@ -3062,7 +3062,7 @@
       "label": "minTime",
       "file_type": "code",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L77",
+      "source_location": "L78",
       "_origin": "ast",
       "id": "components_calendar_shiftcalendar_mintime",
       "community": 148,
@@ -3073,7 +3073,7 @@
       "label": "maxTime",
       "file_type": "code",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L79",
+      "source_location": "L80",
       "_origin": "ast",
       "id": "components_calendar_shiftcalendar_maxtime",
       "community": 148,
@@ -3084,7 +3084,7 @@
       "label": "ShiftCalendar()",
       "file_type": "code",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L82",
+      "source_location": "L83",
       "_callable": true,
       "_origin": "ast",
       "id": "components_calendar_shiftcalendar_shiftcalendar",
@@ -3099,7 +3099,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_calendar_shiftcalendarloader",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "shiftcalendarloader.tsx"
     },
@@ -3110,7 +3110,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "components_calendar_shiftcalendarloader_shiftcalendar",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "shiftcalendar"
     },
@@ -3122,7 +3122,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_calendar_shiftcalendarloader_shiftcalendarloader",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "shiftcalendarloader()"
     },
@@ -3191,7 +3191,7 @@
       "_origin": "ast",
       "id": "components_landing_reveal",
       "community": 1,
-      "community_name": "cn",
+      "community_name": "app/page.tsx",
       "norm_label": "reveal.tsx"
     },
     {
@@ -3203,7 +3203,7 @@
       "_origin": "ast",
       "id": "components_landing_reveal_reveal",
       "community": 1,
-      "community_name": "cn",
+      "community_name": "app/page.tsx",
       "norm_label": "reveal()"
     },
     {
@@ -3214,7 +3214,7 @@
       "_origin": "ast",
       "id": "components_landing_tiltcard",
       "community": 1,
-      "community_name": "cn",
+      "community_name": "app/page.tsx",
       "norm_label": "tiltcard.tsx"
     },
     {
@@ -3226,7 +3226,7 @@
       "_origin": "ast",
       "id": "components_landing_tiltcard_tiltcard",
       "community": 1,
-      "community_name": "cn",
+      "community_name": "app/page.tsx",
       "norm_label": "tiltcard()"
     },
     {
@@ -3236,7 +3236,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_layout_appheader",
-      "community": 13,
+      "community": 137,
       "community_name": "AppHeader.tsx",
       "norm_label": "appheader.tsx"
     },
@@ -3248,7 +3248,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_layout_appheader_appheader",
-      "community": 13,
+      "community": 137,
       "community_name": "AppHeader.tsx",
       "norm_label": "appheader()"
     },
@@ -3259,8 +3259,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_layout_applauncher",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "applauncher.tsx"
     },
     {
@@ -3270,8 +3270,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "components_layout_applauncher_apps",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "apps"
     },
     {
@@ -3282,8 +3282,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_layout_applauncher_applauncher",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "applauncher()"
     },
     {
@@ -3294,7 +3294,7 @@
       "_origin": "ast",
       "id": "components_layout_notificationsbell",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "notificationsbell.tsx"
     },
     {
@@ -3305,7 +3305,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_layout_notificationsbell_notificationsbell",
-      "community": 13,
+      "community": 137,
       "community_name": "AppHeader.tsx",
       "norm_label": "notificationsbell()"
     },
@@ -3316,8 +3316,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_layout_pagechrome",
-      "community": 10,
-      "community_name": "lib/auth.ts",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "pagechrome.tsx"
     },
     {
@@ -3328,8 +3328,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_layout_pagechrome_pageheader",
-      "community": 10,
-      "community_name": "lib/auth.ts",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "pageheader()"
     },
     {
@@ -3340,8 +3340,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_layout_pagechrome_sectionheading",
-      "community": 10,
-      "community_name": "lib/auth.ts",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "sectionheading()"
     },
     {
@@ -3352,8 +3352,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_layout_pagechrome_emptystate",
-      "community": 10,
-      "community_name": "lib/auth.ts",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "emptystate()"
     },
     {
@@ -3364,7 +3364,7 @@
       "_origin": "ast",
       "id": "components_layout_pushnotificationtoggle",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "pushnotificationtoggle.tsx"
     },
     {
@@ -3376,7 +3376,7 @@
       "_origin": "ast",
       "id": "components_layout_pushnotificationtoggle_urlbase64touint8array",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "urlbase64touint8array()"
     },
     {
@@ -3388,7 +3388,7 @@
       "_origin": "ast",
       "id": "components_layout_pushnotificationtoggle_pushnotificationtoggle",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "pushnotificationtoggle()"
     },
     {
@@ -3398,7 +3398,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_layout_realtimeclock",
-      "community": 13,
+      "community": 137,
       "community_name": "AppHeader.tsx",
       "norm_label": "realtimeclock.tsx"
     },
@@ -3409,7 +3409,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "components_layout_realtimeclock_formatter",
-      "community": 13,
+      "community": 137,
       "community_name": "AppHeader.tsx",
       "norm_label": "formatter"
     },
@@ -3421,7 +3421,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_layout_realtimeclock_realtimeclock",
-      "community": 13,
+      "community": 137,
       "community_name": "AppHeader.tsx",
       "norm_label": "realtimeclock()"
     },
@@ -3432,7 +3432,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_layout_themetoggle",
-      "community": 13,
+      "community": 137,
       "community_name": "AppHeader.tsx",
       "norm_label": "themetoggle.tsx"
     },
@@ -3444,7 +3444,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_layout_themetoggle_noopsubscribe",
-      "community": 13,
+      "community": 137,
       "community_name": "AppHeader.tsx",
       "norm_label": "noopsubscribe()"
     },
@@ -3456,7 +3456,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_layout_themetoggle_usemounted",
-      "community": 13,
+      "community": 137,
       "community_name": "AppHeader.tsx",
       "norm_label": "usemounted()"
     },
@@ -3468,7 +3468,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_layout_themetoggle_themetoggle",
-      "community": 13,
+      "community": 137,
       "community_name": "AppHeader.tsx",
       "norm_label": "themetoggle()"
     },
@@ -3480,7 +3480,7 @@
       "_origin": "ast",
       "id": "components_layout_usermenu",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "usermenu.tsx"
     },
     {
@@ -3492,7 +3492,7 @@
       "_origin": "ast",
       "id": "components_layout_usermenu_usermenu",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "usermenu()"
     },
     {
@@ -3503,7 +3503,7 @@
       "_origin": "ast",
       "id": "components_leave_leaverequestcard",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "leaverequestcard.tsx"
     },
     {
@@ -3514,7 +3514,7 @@
       "_origin": "ast",
       "id": "components_leave_leaverequestcard_type_icon",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "type_icon"
     },
     {
@@ -3526,7 +3526,7 @@
       "_origin": "ast",
       "id": "components_leave_leaverequestcard_formatrange",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "formatrange()"
     },
     {
@@ -3538,7 +3538,7 @@
       "_origin": "ast",
       "id": "components_leave_leaverequestcard_formattimeofday",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "formattimeofday()"
     },
     {
@@ -3550,7 +3550,7 @@
       "_origin": "ast",
       "id": "components_leave_leaverequestcard_formattypedetail",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "formattypedetail()"
     },
     {
@@ -3562,7 +3562,7 @@
       "_origin": "ast",
       "id": "components_leave_leaverequestcard_leaverequestcard",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "leaverequestcard()"
     },
     {
@@ -3595,8 +3595,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_leave_leaverequestdialog_leaverequestdialog",
-      "community": 1,
-      "community_name": "cn",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "leaverequestdialog()"
     },
     {
@@ -3607,7 +3607,7 @@
       "_origin": "ast",
       "id": "components_manager_collapsiblegrid",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "collapsiblegrid.tsx"
     },
     {
@@ -3618,7 +3618,7 @@
       "_origin": "ast",
       "id": "components_manager_collapsiblegrid_period_labels",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "period_labels"
     },
     {
@@ -3629,8 +3629,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_collapsiblegrid_collapsiblegrid",
-      "community": 10,
-      "community_name": "lib/auth.ts",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "collapsiblegrid()"
     },
     {
@@ -3652,8 +3652,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_createattendancemanualdialog_createattendancemanualdialog",
-      "community": 138,
-      "community_name": "TechnicalDashboard.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "createattendancemanualdialog()"
     },
     {
@@ -3663,8 +3663,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_manager_daterangefilter",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "daterangefilter.tsx"
     },
     {
@@ -3675,7 +3675,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_daterangefilter_daterangefilter",
-      "community": 23,
+      "community": 121,
       "community_name": "manager/page.tsx",
       "norm_label": "daterangefilter()"
     },
@@ -3686,8 +3686,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_manager_grouppermissionseditor",
-      "community": 111,
-      "community_name": "permissions.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "grouppermissionseditor.tsx"
     },
     {
@@ -3699,8 +3699,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "components_manager_grouppermissionseditor_managerholders",
-      "community": 138,
-      "community_name": "TechnicalDashboard.tsx",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "managerholders"
     },
     {
@@ -3711,8 +3711,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_grouppermissionseditor_grouppermissionseditor",
-      "community": 138,
-      "community_name": "TechnicalDashboard.tsx",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "grouppermissionseditor()"
     },
     {
@@ -3722,8 +3722,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_manager_managerdashboard",
-      "community": 23,
-      "community_name": "manager/page.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "managerdashboard.tsx"
     },
     {
@@ -3734,8 +3734,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_managerdashboard_bandstat",
-      "community": 23,
-      "community_name": "manager/page.tsx",
+      "community": 67,
+      "community_name": "cn",
       "norm_label": "bandstat()"
     },
     {
@@ -3746,8 +3746,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_managerdashboard_queuerow",
-      "community": 23,
-      "community_name": "manager/page.tsx",
+      "community": 67,
+      "community_name": "cn",
       "norm_label": "queuerow()"
     },
     {
@@ -3758,8 +3758,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_managerdashboard_managerdashboard",
-      "community": 23,
-      "community_name": "manager/page.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "managerdashboard()"
     },
     {
@@ -3770,7 +3770,7 @@
       "_origin": "ast",
       "id": "components_manager_requestsoverviewtable",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "requestsoverviewtable.tsx"
     },
     {
@@ -3782,7 +3782,7 @@
       "_origin": "ast",
       "id": "components_manager_requestsoverviewtable_normalizeforsearch",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "normalizeforsearch()"
     },
     {
@@ -3794,7 +3794,7 @@
       "_origin": "ast",
       "id": "components_manager_requestsoverviewtable_requestsoverviewtable",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "requestsoverviewtable()"
     },
     {
@@ -3805,7 +3805,7 @@
       "_origin": "ast",
       "id": "components_manager_shiftsoverviewtable",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "shiftsoverviewtable.tsx"
     },
     {
@@ -3817,8 +3817,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "components_manager_shiftsoverviewtable_shiftoverviewrow",
-      "community": 23,
-      "community_name": "manager/page.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "shiftoverviewrow"
     },
     {
@@ -3829,7 +3829,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_shiftsoverviewtable_normalizeforsearch",
-      "community": 23,
+      "community": 121,
       "community_name": "manager/page.tsx",
       "norm_label": "normalizeforsearch()"
     },
@@ -3841,7 +3841,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_shiftsoverviewtable_shiftsoverviewtable",
-      "community": 23,
+      "community": 121,
       "community_name": "manager/page.tsx",
       "norm_label": "shiftsoverviewtable()"
     },
@@ -3853,8 +3853,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_shiftsoverviewtable_shiftrow",
-      "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "shiftrow()"
     },
     {
@@ -3864,20 +3864,32 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_manager_staffattendancedetaildialog",
-      "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "staffattendancedetaildialog.tsx"
+    },
+    {
+      "label": "formatHours()",
+      "file_type": "code",
+      "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
+      "source_location": "L22",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "components_manager_staffattendancedetaildialog_formathours",
+      "community": 4,
+      "community_name": "index.ts",
+      "norm_label": "formathours()"
     },
     {
       "label": "StaffAttendanceDetailDialog()",
       "file_type": "code",
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L27",
+      "source_location": "L35",
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_staffattendancedetaildialog_staffattendancedetaildialog",
-      "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "staffattendancedetaildialog()"
     },
     {
@@ -3888,7 +3900,7 @@
       "_origin": "ast",
       "id": "components_manager_staffoverviewtable",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "staffoverviewtable.tsx"
     },
     {
@@ -3900,7 +3912,7 @@
       "_origin": "ast",
       "id": "components_manager_staffoverviewtable_normalizeforsearch",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "normalizeforsearch()"
     },
     {
@@ -3912,7 +3924,7 @@
       "_origin": "ast",
       "id": "components_manager_staffoverviewtable_formathours",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "formathours()"
     },
     {
@@ -3923,7 +3935,7 @@
       "_origin": "ast",
       "id": "components_manager_staffoverviewtable_status_label",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "status_label"
     },
     {
@@ -3935,7 +3947,7 @@
       "_origin": "ast",
       "id": "components_manager_staffoverviewtable_staffoverviewtable",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "staffoverviewtable()"
     },
     {
@@ -3945,8 +3957,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_manager_staffrequestsdetaildialog",
-      "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "staffrequestsdetaildialog.tsx"
     },
     {
@@ -3958,7 +3970,7 @@
       "_origin": "ast",
       "id": "components_manager_staffrequestsdetaildialog_staffrequestsdetaildialog",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "staffrequestsdetaildialog()"
     },
     {
@@ -3969,7 +3981,7 @@
       "_origin": "ast",
       "id": "components_manager_stafftable",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "stafftable.tsx"
     },
     {
@@ -3982,7 +3994,7 @@
       "_origin": "ast",
       "id": "components_manager_stafftable_staffrow",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "staffrow"
     },
     {
@@ -3993,7 +4005,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_stafftable_stafftable",
-      "community": 23,
+      "community": 121,
       "community_name": "manager/page.tsx",
       "norm_label": "stafftable()"
     },
@@ -4005,8 +4017,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_stafftable_deactivatebutton",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 152,
+      "community_name": "requireManager",
       "norm_label": "deactivatebutton()"
     },
     {
@@ -4017,8 +4029,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_stafftable_roleandbranchcells",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 152,
+      "community_name": "requireManager",
       "norm_label": "roleandbranchcells()"
     },
     {
@@ -4028,8 +4040,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_manager_tablescroller",
-      "community": 1,
-      "community_name": "cn",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "tablescroller.tsx"
     },
     {
@@ -4040,8 +4052,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_tablescroller_tablescroller",
-      "community": 1,
-      "community_name": "cn",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "tablescroller()"
     },
     {
@@ -4051,8 +4063,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_manager_technicaldashboard",
-      "community": 138,
-      "community_name": "TechnicalDashboard.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "technicaldashboard.tsx"
     },
     {
@@ -4063,8 +4075,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_technicaldashboard_chartcardheader",
-      "community": 138,
-      "community_name": "TechnicalDashboard.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "chartcardheader()"
     },
     {
@@ -4074,8 +4086,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "components_manager_technicaldashboard_role_pie_colors",
-      "community": 138,
-      "community_name": "TechnicalDashboard.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "role_pie_colors"
     },
     {
@@ -4086,8 +4098,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_manager_technicaldashboard_technicaldashboard",
-      "community": 138,
-      "community_name": "TechnicalDashboard.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "technicaldashboard()"
     },
     {
@@ -4180,7 +4192,7 @@
       "_origin": "ast",
       "id": "components_shifts_shiftrequestcard",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "shiftrequestcard.tsx"
     },
     {
@@ -4192,7 +4204,7 @@
       "_origin": "ast",
       "id": "components_shifts_shiftrequestcard_formatrange",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "formatrange()"
     },
     {
@@ -4204,7 +4216,7 @@
       "_origin": "ast",
       "id": "components_shifts_shiftrequestcard_shiftrequestcard",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "shiftrequestcard()"
     },
     {
@@ -4238,7 +4250,7 @@
       "_origin": "ast",
       "id": "components_swaps_swaprequestcard",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "swaprequestcard.tsx"
     },
     {
@@ -4250,7 +4262,7 @@
       "_origin": "ast",
       "id": "components_swaps_swaprequestcard_formatshift",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "formatshift()"
     },
     {
@@ -4262,7 +4274,7 @@
       "_origin": "ast",
       "id": "components_swaps_swaprequestcard_swaprequestcard",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "swaprequestcard()"
     },
     {
@@ -4331,7 +4343,7 @@
       "_origin": "ast",
       "id": "components_ui_alert_dialog",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "alert-dialog.tsx"
     },
     {
@@ -4343,7 +4355,7 @@
       "_origin": "ast",
       "id": "components_ui_alert_dialog_alertdialog",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "alertdialog()"
     },
     {
@@ -4355,7 +4367,7 @@
       "_origin": "ast",
       "id": "components_ui_alert_dialog_alertdialogtrigger",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "alertdialogtrigger()"
     },
     {
@@ -4367,7 +4379,7 @@
       "_origin": "ast",
       "id": "components_ui_alert_dialog_alertdialogportal",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "alertdialogportal()"
     },
     {
@@ -4378,7 +4390,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_alert_dialog_alertdialogoverlay",
-      "community": 1,
+      "community": 67,
       "community_name": "cn",
       "norm_label": "alertdialogoverlay()"
     },
@@ -4391,7 +4403,7 @@
       "_origin": "ast",
       "id": "components_ui_alert_dialog_alertdialogcontent",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "alertdialogcontent()"
     },
     {
@@ -4403,7 +4415,7 @@
       "_origin": "ast",
       "id": "components_ui_alert_dialog_alertdialogheader",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "alertdialogheader()"
     },
     {
@@ -4415,7 +4427,7 @@
       "_origin": "ast",
       "id": "components_ui_alert_dialog_alertdialogfooter",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "alertdialogfooter()"
     },
     {
@@ -4426,7 +4438,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_alert_dialog_alertdialogmedia",
-      "community": 1,
+      "community": 67,
       "community_name": "cn",
       "norm_label": "alertdialogmedia()"
     },
@@ -4439,7 +4451,7 @@
       "_origin": "ast",
       "id": "components_ui_alert_dialog_alertdialogtitle",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "alertdialogtitle()"
     },
     {
@@ -4451,7 +4463,7 @@
       "_origin": "ast",
       "id": "components_ui_alert_dialog_alertdialogdescription",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "alertdialogdescription()"
     },
     {
@@ -4463,7 +4475,7 @@
       "_origin": "ast",
       "id": "components_ui_alert_dialog_alertdialogaction",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "alertdialogaction()"
     },
     {
@@ -4475,7 +4487,7 @@
       "_origin": "ast",
       "id": "components_ui_alert_dialog_alertdialogcancel",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "alertdialogcancel()"
     },
     {
@@ -4485,8 +4497,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_avatar",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 67,
+      "community_name": "cn",
       "norm_label": "avatar.tsx"
     },
     {
@@ -4497,8 +4509,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_avatar_avatar",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 67,
+      "community_name": "cn",
       "norm_label": "avatar()"
     },
     {
@@ -4509,8 +4521,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_avatar_avatarimage",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 67,
+      "community_name": "cn",
       "norm_label": "avatarimage()"
     },
     {
@@ -4521,8 +4533,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_avatar_avatarfallback",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 67,
+      "community_name": "cn",
       "norm_label": "avatarfallback()"
     },
     {
@@ -4533,8 +4545,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_avatar_avatarbadge",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 67,
+      "community_name": "cn",
       "norm_label": "avatarbadge()"
     },
     {
@@ -4545,8 +4557,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_avatar_avatargroup",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 67,
+      "community_name": "cn",
       "norm_label": "avatargroup()"
     },
     {
@@ -4557,8 +4569,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_avatar_avatargroupcount",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 67,
+      "community_name": "cn",
       "norm_label": "avatargroupcount()"
     },
     {
@@ -4569,7 +4581,7 @@
       "_origin": "ast",
       "id": "components_ui_badge",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "badge.tsx"
     },
     {
@@ -4580,7 +4592,7 @@
       "_origin": "ast",
       "id": "components_ui_badge_badgevariants",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "badgevariants"
     },
     {
@@ -4592,7 +4604,7 @@
       "_origin": "ast",
       "id": "components_ui_badge_badge",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "badge()"
     },
     {
@@ -4602,8 +4614,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_button",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "button.tsx"
     },
     {
@@ -4613,8 +4625,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "components_ui_button_buttonvariants",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "buttonvariants"
     },
     {
@@ -4625,8 +4637,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_button_button",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "button()"
     },
     {
@@ -4636,8 +4648,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_card",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "card.tsx"
     },
     {
@@ -4648,8 +4660,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_card_card",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "card()"
     },
     {
@@ -4660,8 +4672,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_card_cardheader",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "cardheader()"
     },
     {
@@ -4672,8 +4684,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_card_cardtitle",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "cardtitle()"
     },
     {
@@ -4684,8 +4696,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_card_carddescription",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "carddescription()"
     },
     {
@@ -4696,8 +4708,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_card_cardaction",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 67,
+      "community_name": "cn",
       "norm_label": "cardaction()"
     },
     {
@@ -4708,8 +4720,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_card_cardcontent",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "cardcontent()"
     },
     {
@@ -4720,8 +4732,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_card_cardfooter",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 67,
+      "community_name": "cn",
       "norm_label": "cardfooter()"
     },
     {
@@ -4731,8 +4743,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_date_picker_field",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "date-picker-field.tsx"
     },
     {
@@ -4814,7 +4826,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_dialog_dialogoverlay",
-      "community": 1,
+      "community": 67,
       "community_name": "cn",
       "norm_label": "dialogoverlay()"
     },
@@ -4886,7 +4898,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdown-menu.tsx"
     },
     {
@@ -4898,7 +4910,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenu",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenu()"
     },
     {
@@ -4910,7 +4922,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenuportal",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenuportal()"
     },
     {
@@ -4922,7 +4934,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenutrigger",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenutrigger()"
     },
     {
@@ -4934,7 +4946,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenucontent",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenucontent()"
     },
     {
@@ -4946,7 +4958,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenugroup",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenugroup()"
     },
     {
@@ -4958,7 +4970,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenuitem",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenuitem()"
     },
     {
@@ -4970,7 +4982,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenucheckboxitem",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenucheckboxitem()"
     },
     {
@@ -4982,7 +4994,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenuradiogroup",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenuradiogroup()"
     },
     {
@@ -4994,7 +5006,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenuradioitem",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenuradioitem()"
     },
     {
@@ -5006,7 +5018,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenulabel",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenulabel()"
     },
     {
@@ -5018,7 +5030,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenuseparator",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenuseparator()"
     },
     {
@@ -5030,7 +5042,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenushortcut",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenushortcut()"
     },
     {
@@ -5042,7 +5054,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenusub",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenusub()"
     },
     {
@@ -5054,7 +5066,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenusubtrigger",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenusubtrigger()"
     },
     {
@@ -5066,7 +5078,7 @@
       "_origin": "ast",
       "id": "components_ui_dropdown_menu_dropdownmenusubcontent",
       "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community_name": "UserMenu.tsx",
       "norm_label": "dropdownmenusubcontent()"
     },
     {
@@ -5076,8 +5088,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_input",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "input.tsx"
     },
     {
@@ -5088,8 +5100,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_input_input",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "input()"
     },
     {
@@ -5122,8 +5134,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_multi_select_branches",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "multi-select-branches.tsx"
     },
     {
@@ -5134,8 +5146,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_multi_select_branches_multiselectbranches",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "multiselectbranches()"
     },
     {
@@ -5145,8 +5157,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_popover",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "popover.tsx"
     },
     {
@@ -5157,8 +5169,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_popover_popover",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "popover()"
     },
     {
@@ -5169,8 +5181,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_popover_popovertrigger",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "popovertrigger()"
     },
     {
@@ -5181,8 +5193,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_popover_popovercontent",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "popovercontent()"
     },
     {
@@ -5193,8 +5205,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_popover_popoveranchor",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "popoveranchor()"
     },
     {
@@ -5205,8 +5217,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_popover_popoverheader",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "popoverheader()"
     },
     {
@@ -5217,8 +5229,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_popover_popovertitle",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "popovertitle()"
     },
     {
@@ -5229,8 +5241,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_popover_popoverdescription",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "popoverdescription()"
     },
     {
@@ -5240,8 +5252,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_select",
-      "community": 1,
-      "community_name": "cn",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "select.tsx"
     },
     {
@@ -5264,7 +5276,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_select_selectgroup",
-      "community": 1,
+      "community": 67,
       "community_name": "cn",
       "norm_label": "selectgroup()"
     },
@@ -5312,7 +5324,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_select_selectlabel",
-      "community": 1,
+      "community": 67,
       "community_name": "cn",
       "norm_label": "selectlabel()"
     },
@@ -5336,7 +5348,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_select_selectseparator",
-      "community": 1,
+      "community": 67,
       "community_name": "cn",
       "norm_label": "selectseparator()"
     },
@@ -5348,7 +5360,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_select_selectscrollupbutton",
-      "community": 1,
+      "community": 67,
       "community_name": "cn",
       "norm_label": "selectscrollupbutton()"
     },
@@ -5360,7 +5372,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_select_selectscrolldownbutton",
-      "community": 1,
+      "community": 67,
       "community_name": "cn",
       "norm_label": "selectscrolldownbutton()"
     },
@@ -5371,8 +5383,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_separator",
-      "community": 1,
-      "community_name": "cn",
+      "community": 5,
+      "community_name": "account/page.tsx",
       "norm_label": "separator.tsx"
     },
     {
@@ -5383,8 +5395,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_separator_separator",
-      "community": 1,
-      "community_name": "cn",
+      "community": 5,
+      "community_name": "account/page.tsx",
       "norm_label": "separator()"
     },
     {
@@ -5441,7 +5453,7 @@
       "_origin": "ast",
       "id": "components_ui_tabs",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "tabs.tsx"
     },
     {
@@ -5453,7 +5465,7 @@
       "_origin": "ast",
       "id": "components_ui_tabs_tabs",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "tabs()"
     },
     {
@@ -5464,7 +5476,7 @@
       "_origin": "ast",
       "id": "components_ui_tabs_tabslistvariants",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "tabslistvariants"
     },
     {
@@ -5476,7 +5488,7 @@
       "_origin": "ast",
       "id": "components_ui_tabs_tabslist",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "tabslist()"
     },
     {
@@ -5488,7 +5500,7 @@
       "_origin": "ast",
       "id": "components_ui_tabs_tabstrigger",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "tabstrigger()"
     },
     {
@@ -5500,7 +5512,7 @@
       "_origin": "ast",
       "id": "components_ui_tabs_tabscontent",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "tabscontent()"
     },
     {
@@ -5533,8 +5545,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_time_picker_field",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "time-picker-field.tsx"
     },
     {
@@ -5545,8 +5557,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "components_ui_time_picker_field_formattimelabel",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "formattimelabel()"
     },
     {
@@ -5731,7 +5743,7 @@
       "_origin": "ast",
       "id": "lib_attendance",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "lib/attendance.ts"
     },
     {
@@ -5744,7 +5756,7 @@
       "_origin": "ast",
       "id": "lib_attendance_overviewperiod",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "overviewperiod"
     },
     {
@@ -5757,7 +5769,7 @@
       "_origin": "ast",
       "id": "lib_attendance_staffoverviewrow",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "staffoverviewrow"
     },
     {
@@ -5769,7 +5781,7 @@
       "_origin": "ast",
       "id": "lib_attendance_periodrange",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "periodrange()"
     },
     {
@@ -5781,57 +5793,82 @@
       "_origin": "ast",
       "id": "lib_attendance_buildstaffoverview",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "buildstaffoverview()"
     },
     {
-      "label": "DayHours",
+      "label": "AttendanceEntry",
       "file_type": "code",
       "source_file": "lib/attendance.ts",
       "source_location": "L92",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
+      "id": "lib_attendance_attendanceentry",
+      "community": 4,
+      "community_name": "index.ts",
+      "norm_label": "attendanceentry"
+    },
+    {
+      "label": "buildAttendanceEntries()",
+      "file_type": "code",
+      "source_file": "lib/attendance.ts",
+      "source_location": "L103",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "lib_attendance_buildattendanceentries",
+      "community": 4,
+      "community_name": "index.ts",
+      "norm_label": "buildattendanceentries()"
+    },
+    {
+      "label": "DayHours",
+      "file_type": "code",
+      "source_file": "lib/attendance.ts",
+      "source_location": "L126",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
       "id": "lib_attendance_dayhours",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "dayhours"
     },
     {
       "label": "aggregateHoursByDay()",
       "file_type": "code",
       "source_file": "lib/attendance.ts",
-      "source_location": "L98",
+      "source_location": "L132",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_attendance_aggregatehoursbyday",
-      "community": 23,
-      "community_name": "manager/page.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "aggregatehoursbyday()"
     },
     {
       "label": "RoleCount",
       "file_type": "code",
       "source_file": "lib/attendance.ts",
-      "source_location": "L120",
+      "source_location": "L154",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_attendance_rolecount",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "rolecount"
     },
     {
       "label": "aggregateStaffByRole()",
       "file_type": "code",
       "source_file": "lib/attendance.ts",
-      "source_location": "L123",
+      "source_location": "L157",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_attendance_aggregatestaffbyrole",
-      "community": 138,
-      "community_name": "TechnicalDashboard.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "aggregatestaffbyrole()"
     },
     {
@@ -5842,7 +5879,7 @@
       "_origin": "ast",
       "id": "lib_auth",
       "community": 10,
-      "community_name": "lib/auth.ts",
+      "community_name": "requireProfile",
       "norm_label": "lib/auth.ts"
     },
     {
@@ -5855,7 +5892,7 @@
       "_origin": "ast",
       "id": "lib_auth_profilerow",
       "community": 10,
-      "community_name": "lib/auth.ts",
+      "community_name": "requireProfile",
       "norm_label": "profilerow"
     },
     {
@@ -5867,7 +5904,7 @@
       "_origin": "ast",
       "id": "lib_auth_toprofile",
       "community": 10,
-      "community_name": "lib/auth.ts",
+      "community_name": "requireProfile",
       "norm_label": "toprofile()"
     },
     {
@@ -5879,7 +5916,7 @@
       "_origin": "ast",
       "id": "lib_auth_ensureprofile",
       "community": 10,
-      "community_name": "lib/auth.ts",
+      "community_name": "requireProfile",
       "norm_label": "ensureprofile()"
     },
     {
@@ -5889,7 +5926,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "lib_auth_getsessionprofile",
-      "community": 22,
+      "community": 10,
       "community_name": "requireProfile",
       "norm_label": "getsessionprofile"
     },
@@ -5901,7 +5938,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_auth_requireprofile",
-      "community": 22,
+      "community": 10,
       "community_name": "requireProfile",
       "norm_label": "requireprofile()"
     },
@@ -5913,8 +5950,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_auth_requiremanager",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 152,
+      "community_name": "requireManager",
       "norm_label": "requiremanager()"
     },
     {
@@ -5925,7 +5962,7 @@
       "_origin": "ast",
       "id": "lib_branches",
       "community": 119,
-      "community_name": "Branch",
+      "community_name": "attendance/page.tsx",
       "norm_label": "branches.ts"
     },
     {
@@ -5936,7 +5973,7 @@
       "_origin": "ast",
       "id": "lib_branches_getbranches",
       "community": 119,
-      "community_name": "Branch",
+      "community_name": "attendance/page.tsx",
       "norm_label": "getbranches"
     },
     {
@@ -5946,8 +5983,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "lib_branches_getremotebranchid",
-      "community": 106,
-      "community_name": "shifts.ts",
+      "community": 105,
+      "community_name": "shift-requests.ts",
       "norm_label": "getremotebranchid"
     },
     {
@@ -6395,8 +6432,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_color",
-      "community": 137,
-      "community_name": "ColorPickerDialog",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "color.ts"
     },
     {
@@ -6408,8 +6445,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_color_hsv",
-      "community": 137,
-      "community_name": "ColorPickerDialog",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "hsv"
     },
     {
@@ -6420,8 +6457,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_color_hextohsv",
-      "community": 137,
-      "community_name": "ColorPickerDialog",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "hextohsv()"
     },
     {
@@ -6432,8 +6469,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_color_hsvtohex",
-      "community": 137,
-      "community_name": "ColorPickerDialog",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "hsvtohex()"
     },
     {
@@ -6444,7 +6481,7 @@
       "_origin": "ast",
       "id": "lib_constants",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "constants.ts"
     },
     {
@@ -6455,7 +6492,7 @@
       "_origin": "ast",
       "id": "lib_constants_swap_status_labels",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "swap_status_labels"
     },
     {
@@ -6466,7 +6503,7 @@
       "_origin": "ast",
       "id": "lib_constants_leave_status_labels",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "leave_status_labels"
     },
     {
@@ -6477,7 +6514,7 @@
       "_origin": "ast",
       "id": "lib_constants_shift_request_status_labels",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "shift_request_status_labels"
     },
     {
@@ -6488,7 +6525,7 @@
       "_origin": "ast",
       "id": "lib_constants_attendance_correction_status_labels",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "attendance_correction_status_labels"
     },
     {
@@ -6499,7 +6536,7 @@
       "_origin": "ast",
       "id": "lib_constants_attendance_correction_issue_labels",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "attendance_correction_issue_labels"
     },
     {
@@ -6510,7 +6547,7 @@
       "_origin": "ast",
       "id": "lib_constants_leave_request_type_labels",
       "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community_name": "manager/page.tsx",
       "norm_label": "leave_request_type_labels"
     },
     {
@@ -6520,8 +6557,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "lib_constants_calendar_min_hour",
-      "community": 148,
-      "community_name": "ShiftCalendar.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "calendar_min_hour"
     },
     {
@@ -6531,8 +6568,8 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "lib_constants_calendar_max_hour",
-      "community": 148,
-      "community_name": "ShiftCalendar.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "calendar_max_hour"
     },
     {
@@ -6542,8 +6579,8 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "lib_constants_shift_type_labels",
-      "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "shift_type_labels"
     },
     {
@@ -6600,7 +6637,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_notifications",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "lib/notifications.ts"
     },
@@ -6613,7 +6650,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_notifications_appnotification",
-      "community": 13,
+      "community": 137,
       "community_name": "AppHeader.tsx",
       "norm_label": "appnotification"
     },
@@ -6625,8 +6662,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_notifications_buildnotifications",
-      "community": 145,
-      "community_name": "index.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "buildnotifications()"
     },
     {
@@ -6637,8 +6674,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_notifications_formatnotificationtime",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 127,
+      "community_name": "CalendarSidebar.tsx",
       "norm_label": "formatnotificationtime()"
     },
     {
@@ -6671,8 +6708,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_permissions_server",
-      "community": 111,
-      "community_name": "permissions.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "permissions-server.ts"
     },
     {
@@ -6683,8 +6720,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_permissions_server_getgrouppermissions",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "getgrouppermissions()"
     },
     {
@@ -6694,8 +6731,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_permissions",
-      "community": 111,
-      "community_name": "permissions.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "permissions.ts"
     },
     {
@@ -6707,8 +6744,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_permissions_grouppermissiontype",
-      "community": 111,
-      "community_name": "permissions.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "grouppermissiontype"
     },
     {
@@ -6718,8 +6755,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "lib_permissions_group_permission_types",
-      "community": 111,
-      "community_name": "permissions.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "group_permission_types"
     },
     {
@@ -6729,8 +6766,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "lib_permissions_group_permission_labels",
-      "community": 111,
-      "community_name": "permissions.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "group_permission_labels"
     },
     {
@@ -6740,8 +6777,8 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "lib_permissions_group_manager_roles",
-      "community": 111,
-      "community_name": "permissions.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "group_manager_roles"
     },
     {
@@ -6751,8 +6788,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "lib_permissions_group_target_roles",
-      "community": 111,
-      "community_name": "permissions.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "group_target_roles"
     },
     {
@@ -6763,8 +6800,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_permissions_permkey",
-      "community": 111,
-      "community_name": "permissions.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "permkey()"
     },
     {
@@ -6776,8 +6813,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_permissions_grouppermissions",
-      "community": 111,
-      "community_name": "permissions.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "grouppermissions"
     },
     {
@@ -6788,8 +6825,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_permissions_hasgrouppermission",
-      "community": 111,
-      "community_name": "permissions.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "hasgrouppermission()"
     },
     {
@@ -6800,8 +6837,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_permissions_getgrantedtargetroles",
-      "community": 23,
-      "community_name": "manager/page.tsx",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "getgrantedtargetroles()"
     },
     {
@@ -6812,8 +6849,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_permissions_getgrantedtargetrolesunion",
-      "community": 23,
-      "community_name": "manager/page.tsx",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "getgrantedtargetrolesunion()"
     },
     {
@@ -6823,8 +6860,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_push",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "lib/push.ts"
     },
     {
@@ -6834,8 +6871,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "lib_push_configured",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "configured"
     },
     {
@@ -6847,8 +6884,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_push_pushpayload",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "pushpayload"
     },
     {
@@ -6860,8 +6897,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_push_subscriptionrow",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "subscriptionrow"
     },
     {
@@ -6872,8 +6909,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_push_sendtosubscription",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "sendtosubscription()"
     },
     {
@@ -6896,8 +6933,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_push_sendpushtoprofiles",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "sendpushtoprofiles()"
     },
     {
@@ -6907,8 +6944,8 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "lib_push_leave_approver_candidate_roles",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "leave_approver_candidate_roles"
     },
     {
@@ -6918,8 +6955,8 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "lib_push_shift_request_approver_candidate_roles",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "shift_request_approver_candidate_roles"
     },
     {
@@ -6930,8 +6967,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_push_ispushoversightrole",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "ispushoversightrole()"
     },
     {
@@ -6942,8 +6979,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_push_sendpushtoleaveapprovers",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 132,
+      "community_name": "actions/leave.ts",
       "norm_label": "sendpushtoleaveapprovers()"
     },
     {
@@ -6954,8 +6991,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_push_sendpushtoshiftrequestapprovers",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "sendpushtoshiftrequestapprovers()"
     },
     {
@@ -6966,7 +7003,7 @@
       "_origin": "ast",
       "id": "lib_requests_overview",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "requests-overview.ts"
     },
     {
@@ -6979,7 +7016,7 @@
       "_origin": "ast",
       "id": "lib_requests_overview_requestsoverviewrow",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "requestsoverviewrow"
     },
     {
@@ -6991,7 +7028,7 @@
       "_origin": "ast",
       "id": "lib_requests_overview_countbyprofile",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "countbyprofile()"
     },
     {
@@ -7003,7 +7040,7 @@
       "_origin": "ast",
       "id": "lib_requests_overview_buildrequestsoverview",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "buildrequestsoverview()"
     },
     {
@@ -7035,8 +7072,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "lib_roles_role_labels",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "role_labels"
     },
     {
@@ -7046,8 +7083,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "lib_roles_manager_group_meta",
-      "community": 23,
-      "community_name": "manager/page.tsx",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "manager_group_meta"
     },
     {
@@ -7068,8 +7105,8 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "lib_roles_secondary_role_eligible_roles",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "secondary_role_eligible_roles"
     },
     {
@@ -7081,7 +7118,7 @@
       "_origin": "ast",
       "id": "lib_roles_getrolelabel",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "getrolelabel()"
     },
     {
@@ -7103,8 +7140,8 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "lib_roles_manager_roles",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "manager_roles"
     },
     {
@@ -7115,15 +7152,15 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_roles_ismanagerrole",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "ismanagerrole()"
     },
     {
       "label": "CalendarScope",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L107",
+      "source_location": "L110",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -7136,7 +7173,7 @@
       "label": "getCalendarScope()",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L109",
+      "source_location": "L112",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_roles_getcalendarscope",
@@ -7148,7 +7185,7 @@
       "label": "canSeeAllCalendars()",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L115",
+      "source_location": "L120",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_roles_canseeallcalendars",
@@ -7160,42 +7197,42 @@
       "label": "LEAVE_APPROVER_ROLES",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L129",
+      "source_location": "L134",
       "_origin": "ast",
       "id": "lib_roles_leave_approver_roles",
-      "community": 148,
-      "community_name": "ShiftCalendar.tsx",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "leave_approver_roles"
     },
     {
       "label": "isLeaveApprover()",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L131",
+      "source_location": "L136",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_roles_isleaveapprover",
-      "community": 148,
-      "community_name": "ShiftCalendar.tsx",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "isleaveapprover()"
     },
     {
       "label": "canApproveLeaveFor()",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L135",
+      "source_location": "L140",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_roles_canapproveleavefor",
-      "community": 148,
-      "community_name": "ShiftCalendar.tsx",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "canapproveleavefor()"
     },
     {
       "label": "DIRECT_SHIFT_ROLES",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L145",
+      "source_location": "L150",
       "_origin": "ast",
       "id": "lib_roles_direct_shift_roles",
       "community": 21,
@@ -7206,7 +7243,7 @@
       "label": "canCreateShiftDirectly()",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L153",
+      "source_location": "L158",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_roles_cancreateshiftdirectly",
@@ -7218,19 +7255,19 @@
       "label": "canCreateShiftFor()",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L162",
+      "source_location": "L167",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_roles_cancreateshiftfor",
-      "community": 106,
-      "community_name": "shifts.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "cancreateshiftfor()"
     },
     {
       "label": "isCeo()",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L168",
+      "source_location": "L173",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_roles_isceo",
@@ -7242,19 +7279,19 @@
       "label": "canApproveShiftRequestFor()",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L176",
+      "source_location": "L181",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_roles_canapproveshiftrequestfor",
-      "community": 145,
-      "community_name": "index.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "canapproveshiftrequestfor()"
     },
     {
       "label": "SHIFT_REQUEST_APPROVER_ROLES",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L181",
+      "source_location": "L186",
       "_origin": "ast",
       "id": "lib_roles_shift_request_approver_roles",
       "community": 105,
@@ -7265,7 +7302,7 @@
       "label": "isShiftRequestApprover()",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L188",
+      "source_location": "L193",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_roles_isshiftrequestapprover",
@@ -7277,7 +7314,7 @@
       "label": "canApproveSwapRequestFor()",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L202",
+      "source_location": "L207",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_roles_canapproveswaprequestfor",
@@ -7289,7 +7326,7 @@
       "label": "SELF_SIGNUP_ROLES",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L223",
+      "source_location": "L228",
       "_origin": "ast",
       "id": "lib_roles_self_signup_roles",
       "community": 131,
@@ -7300,7 +7337,7 @@
       "label": "SelfSignupRole",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L232",
+      "source_location": "L237",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -7313,7 +7350,7 @@
       "label": "CalendarFollowGroup",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L245",
+      "source_location": "L248",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -7326,7 +7363,7 @@
       "label": "CALENDAR_TEACHER_ONLY",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L247",
+      "source_location": "L250",
       "_origin": "ast",
       "id": "lib_roles_calendar_teacher_only",
       "community": 21,
@@ -7337,7 +7374,7 @@
       "label": "CALENDAR_COLLABORATOR_ONLY",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L248",
+      "source_location": "L251",
       "_origin": "ast",
       "id": "lib_roles_calendar_collaborator_only",
       "community": 21,
@@ -7348,7 +7385,7 @@
       "label": "CALENDAR_TEACHING_ASSISTANT_ONLY",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L249",
+      "source_location": "L252",
       "_origin": "ast",
       "id": "lib_roles_calendar_teaching_assistant_only",
       "community": 21,
@@ -7359,7 +7396,7 @@
       "label": "CALENDAR_STUDENT_AFFAIRS_ONLY",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L250",
+      "source_location": "L253",
       "_origin": "ast",
       "id": "lib_roles_calendar_student_affairs_only",
       "community": 21,
@@ -7370,7 +7407,7 @@
       "label": "CALENDAR_OPERATIONS_ONLY",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L251",
+      "source_location": "L254",
       "_origin": "ast",
       "id": "lib_roles_calendar_operations_only",
       "community": 21,
@@ -7381,7 +7418,7 @@
       "label": "CALENDAR_MANAGEMENT_ROLES",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L252",
+      "source_location": "L255",
       "_origin": "ast",
       "id": "lib_roles_calendar_management_roles",
       "community": 21,
@@ -7392,7 +7429,7 @@
       "label": "getCalendarFollowGroups()",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L262",
+      "source_location": "L263",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_roles_getcalendarfollowgroups",
@@ -7404,11 +7441,11 @@
       "label": "canManageAttendanceFor()",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L289",
+      "source_location": "L281",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_roles_canmanageattendancefor",
-      "community": 67,
+      "community": 22,
       "community_name": "actions/attendance.ts",
       "norm_label": "canmanageattendancefor()"
     },
@@ -7416,12 +7453,12 @@
       "label": "canAccessManagerPage()",
       "file_type": "code",
       "source_file": "lib/roles.ts",
-      "source_location": "L298",
+      "source_location": "L290",
       "_callable": true,
       "_origin": "ast",
       "id": "lib_roles_canaccessmanagerpage",
-      "community": 13,
-      "community_name": "AppHeader.tsx",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "canaccessmanagerpage()"
     },
     {
@@ -7431,8 +7468,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_shift_kind_tag",
-      "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "shift-kind-tag.ts"
     },
     {
@@ -7443,8 +7480,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_shift_kind_tag_computeshiftkind",
-      "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "computeshiftkind()"
     },
     {
@@ -7454,8 +7491,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "lib_shift_kind_tag_shift_kind_labels",
-      "community": 121,
-      "community_name": "ShiftsOverviewTable.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "shift_kind_labels"
     },
     {
@@ -7465,8 +7502,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_supabase_admin",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 10,
+      "community_name": "requireProfile",
       "norm_label": "admin.ts"
     },
     {
@@ -7476,8 +7513,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "lib_supabase_admin_supabaseadmin",
-      "community": 0,
-      "community_name": "lib/push.ts",
+      "community": 10,
+      "community_name": "requireProfile",
       "norm_label": "supabaseadmin"
     },
     {
@@ -7545,7 +7582,7 @@
       "_origin": "ast",
       "id": "lib_supabase_public",
       "community": 119,
-      "community_name": "Branch",
+      "community_name": "attendance/page.tsx",
       "norm_label": "public.ts"
     },
     {
@@ -7556,7 +7593,7 @@
       "_origin": "ast",
       "id": "lib_supabase_public_supabasepublic",
       "community": 119,
-      "community_name": "Branch",
+      "community_name": "attendance/page.tsx",
       "norm_label": "supabasepublic"
     },
     {
@@ -7566,8 +7603,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_supabase_server",
-      "community": 10,
-      "community_name": "lib/auth.ts",
+      "community": 158,
+      "community_name": "createClient",
       "norm_label": "server.ts"
     },
     {
@@ -7589,8 +7626,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_time_options",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "time-options.ts"
     },
     {
@@ -7600,8 +7637,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "lib_time_options_time_options",
-      "community": 117,
-      "community_name": "button.tsx",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "time_options"
     },
     {
@@ -7611,8 +7648,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_utils",
-      "community": 1,
-      "community_name": "cn",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "utils.ts"
     },
     {
@@ -7623,7 +7660,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "lib_utils_cn",
-      "community": 1,
+      "community": 67,
       "community_name": "cn",
       "norm_label": "cn()"
     },
@@ -7634,8 +7671,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_validations_attendance_correction",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 0,
+      "community_name": "attendance-correction.ts",
       "norm_label": "attendance-correction.ts"
     },
     {
@@ -7645,8 +7682,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "lib_validations_attendance_correction_attendancecorrectionschema",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 0,
+      "community_name": "attendance-correction.ts",
       "norm_label": "attendancecorrectionschema"
     },
     {
@@ -7658,8 +7695,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_validations_attendance_correction_attendancecorrectioninput",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 0,
+      "community_name": "attendance-correction.ts",
       "norm_label": "attendancecorrectioninput"
     },
     {
@@ -7669,8 +7706,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "lib_validations_attendance_correction_attendancecorrectionsschema",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 0,
+      "community_name": "attendance-correction.ts",
       "norm_label": "attendancecorrectionsschema"
     },
     {
@@ -7682,8 +7719,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_validations_attendance_correction_attendancecorrectionsinput",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 0,
+      "community_name": "attendance-correction.ts",
       "norm_label": "attendancecorrectionsinput"
     },
     {
@@ -7693,8 +7730,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "lib_validations_attendance_correction_correctionpreviewschema",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 0,
+      "community_name": "attendance-correction.ts",
       "norm_label": "correctionpreviewschema"
     },
     {
@@ -7706,8 +7743,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_validations_attendance_correction_correctionpreviewinput",
-      "community": 158,
-      "community_name": "createClient",
+      "community": 0,
+      "community_name": "attendance-correction.ts",
       "norm_label": "correctionpreviewinput"
     },
     {
@@ -7833,8 +7870,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_validations_group_permissions",
-      "community": 111,
-      "community_name": "permissions.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "validations/group-permissions.ts"
     },
     {
@@ -7844,8 +7881,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "lib_validations_group_permissions_grouppermissionupdateschema",
-      "community": 22,
-      "community_name": "requireProfile",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "grouppermissionupdateschema"
     },
     {
@@ -7857,8 +7894,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_validations_group_permissions_grouppermissionupdateinput",
-      "community": 111,
-      "community_name": "permissions.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "grouppermissionupdateinput"
     },
     {
@@ -7868,8 +7905,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_validations_leave",
-      "community": 132,
-      "community_name": "actions/leave.ts",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "validations/leave.ts"
     },
     {
@@ -7879,8 +7916,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "lib_validations_leave_leave_request_types",
-      "community": 132,
-      "community_name": "actions/leave.ts",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "leave_request_types"
     },
     {
@@ -7890,8 +7927,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "lib_validations_leave_leaverequestschema",
-      "community": 132,
-      "community_name": "actions/leave.ts",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "leaverequestschema"
     },
     {
@@ -7903,8 +7940,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_validations_leave_leaverequestinput",
-      "community": 132,
-      "community_name": "actions/leave.ts",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "leaverequestinput"
     },
     {
@@ -7914,8 +7951,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_validations_profile",
-      "community": 5,
-      "community_name": "AccountForm.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "validations/profile.ts"
     },
     {
@@ -7925,8 +7962,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "lib_validations_profile_profileschema",
-      "community": 5,
-      "community_name": "AccountForm.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "profileschema"
     },
     {
@@ -7938,8 +7975,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_validations_profile_profileinput",
-      "community": 5,
-      "community_name": "AccountForm.tsx",
+      "community": 121,
+      "community_name": "manager/page.tsx",
       "norm_label": "profileinput"
     },
     {
@@ -7949,8 +7986,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_validations_shift_request",
-      "community": 106,
-      "community_name": "shifts.ts",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "shift-request.ts"
     },
     {
@@ -7960,8 +7997,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "lib_validations_shift_request_shiftrequestschema",
-      "community": 106,
-      "community_name": "shifts.ts",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "shiftrequestschema"
     },
     {
@@ -7973,8 +8010,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_validations_shift_request_shiftrequestinput",
-      "community": 106,
-      "community_name": "shifts.ts",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "shiftrequestinput"
     },
     {
@@ -7984,8 +8021,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_validations_shift",
-      "community": 106,
-      "community_name": "shifts.ts",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "shift.ts"
     },
     {
@@ -7995,8 +8032,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "lib_validations_shift_shift_types",
-      "community": 106,
-      "community_name": "shifts.ts",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "shift_types"
     },
     {
@@ -8006,8 +8043,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "lib_validations_shift_shiftschema",
-      "community": 106,
-      "community_name": "shifts.ts",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "shiftschema"
     },
     {
@@ -8019,8 +8056,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "lib_validations_shift_shiftinput",
-      "community": 106,
-      "community_name": "shifts.ts",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "shiftinput"
     },
     {
@@ -8197,8 +8234,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "package_dependencies_hookform_resolvers",
-      "community": 17,
-      "community_name": "dependencies",
+      "community": 159,
+      "community_name": "@hookform/resolvers",
       "norm_label": "@hookform/resolvers"
     },
     {
@@ -8208,8 +8245,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "hookform_resolvers",
-      "community": 17,
-      "community_name": "dependencies",
+      "community": 159,
+      "community_name": "@hookform/resolvers",
       "norm_label": "@hookform/resolvers"
     },
     {
@@ -8263,8 +8300,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "package_dependencies_class_variance_authority",
-      "community": 142,
-      "community_name": "class-variance-authority",
+      "community": 17,
+      "community_name": "dependencies",
       "norm_label": "class-variance-authority"
     },
     {
@@ -8274,8 +8311,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "class_variance_authority",
-      "community": 142,
-      "community_name": "class-variance-authority",
+      "community": 17,
+      "community_name": "dependencies",
       "norm_label": "class-variance-authority"
     },
     {
@@ -12801,6 +12838,28 @@
       "norm_label": "public.find_stale_checkout_sessions()"
     },
     {
+      "label": "0069_calendar_view_all_roles.sql",
+      "file_type": "code",
+      "source_file": "supabase/migrations/0069_calendar_view_all_roles.sql",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "supabase_migrations_0069_calendar_view_all_roles",
+      "community": 16,
+      "community_name": "0069_calendar_view_all_roles.sql",
+      "norm_label": "0069_calendar_view_all_roles.sql"
+    },
+    {
+      "label": "public.can_view_shift_calendar()",
+      "file_type": "code",
+      "source_file": "supabase/migrations/0069_calendar_view_all_roles.sql",
+      "source_location": "L16",
+      "_origin": "ast",
+      "id": "supabase_migrations_0069_calendar_view_all_roles_public_can_view_shift_calendar",
+      "community": 16,
+      "community_name": "0069_calendar_view_all_roles.sql",
+      "norm_label": "public.can_view_shift_calendar()"
+    },
+    {
       "label": "seed.sql",
       "file_type": "code",
       "source_file": "supabase/seed.sql",
@@ -13137,7 +13196,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "types_index",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "index.ts"
     },
@@ -13150,8 +13209,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_role",
-      "community": 111,
-      "community_name": "permissions.ts",
+      "community": 21,
+      "community_name": "roles.ts",
       "norm_label": "role"
     },
     {
@@ -13163,7 +13222,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_swapstatus",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "swapstatus"
     },
@@ -13176,7 +13235,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_leavestatus",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "leavestatus"
     },
@@ -13189,8 +13248,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_branch",
-      "community": 119,
-      "community_name": "Branch",
+      "community": 15,
+      "community_name": "ShiftFormDialog.tsx",
       "norm_label": "branch"
     },
     {
@@ -13202,7 +13261,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_profile",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "profile"
     },
@@ -13228,8 +13287,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_shift",
-      "community": 16,
-      "community_name": "RegisterForm.tsx",
+      "community": 119,
+      "community_name": "attendance/page.tsx",
       "norm_label": "shift"
     },
     {
@@ -13241,7 +13300,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_shiftwithassignee",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "shiftwithassignee"
     },
@@ -13254,7 +13313,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_shiftrequeststatus",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "shiftrequeststatus"
     },
@@ -13268,7 +13327,7 @@
       "_origin": "ast",
       "id": "types_index_shiftrequest",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "shiftrequest"
     },
     {
@@ -13280,7 +13339,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_shiftrequestdetailed",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "shiftrequestdetailed"
     },
@@ -13294,7 +13353,7 @@
       "_origin": "ast",
       "id": "types_index_swaprequest",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "swaprequest"
     },
     {
@@ -13306,7 +13365,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_swaprequestdetailed",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "swaprequestdetailed"
     },
@@ -13319,8 +13378,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_attendance",
-      "community": 23,
-      "community_name": "manager/page.tsx",
+      "community": 4,
+      "community_name": "index.ts",
       "norm_label": "attendance"
     },
     {
@@ -13332,8 +13391,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_attendancewithprofile",
-      "community": 23,
-      "community_name": "manager/page.tsx",
+      "community": 148,
+      "community_name": "ShiftCalendar.tsx",
       "norm_label": "attendancewithprofile"
     },
     {
@@ -13345,7 +13404,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_attendancecorrectionstatus",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "attendancecorrectionstatus"
     },
@@ -13358,7 +13417,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_attendancecorrectionissue",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "attendancecorrectionissue"
     },
@@ -13372,7 +13431,7 @@
       "_origin": "ast",
       "id": "types_index_attendancecorrection",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "attendancecorrection"
     },
     {
@@ -13384,7 +13443,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_attendancecorrectiondetailed",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "attendancecorrectiondetailed"
     },
@@ -13397,7 +13456,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_leaverequesttype",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "leaverequesttype"
     },
@@ -13411,7 +13470,7 @@
       "_origin": "ast",
       "id": "types_index_leaverequest",
       "community": 4,
-      "community_name": "StaffOverviewTable.tsx",
+      "community_name": "index.ts",
       "norm_label": "leaverequest"
     },
     {
@@ -13423,7 +13482,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_leaverequestdetailed",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "leaverequestdetailed"
     },
@@ -13436,7 +13495,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_customcalendar",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "customcalendar"
     },
@@ -13449,7 +13508,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_customevent",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "customevent"
     },
@@ -13462,7 +13521,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_pushsubscriptionrow",
-      "community": 145,
+      "community": 4,
       "community_name": "index.ts",
       "norm_label": "pushsubscriptionrow"
     },
@@ -13475,8 +13534,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "types_index_actionresult",
-      "community": 22,
-      "community_name": "requireProfile",
+      "community": 158,
+      "community_name": "createClient",
       "norm_label": "actionresult"
     },
     {
@@ -28655,7 +28714,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L60",
+      "source_location": "L61",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -28727,7 +28786,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L60",
+      "source_location": "L61",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -28761,7 +28820,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L57",
+      "source_location": "L58",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -28773,7 +28832,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L57",
+      "source_location": "L58",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -28786,7 +28845,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L836",
+      "source_location": "L839",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -29365,7 +29424,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L54",
+      "source_location": "L55",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -29377,7 +29436,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L54",
+      "source_location": "L55",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -29509,7 +29568,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L54",
+      "source_location": "L55",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -29521,7 +29580,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L54",
+      "source_location": "L55",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -29603,7 +29662,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L52",
+      "source_location": "L53",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -29615,7 +29674,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L52",
+      "source_location": "L53",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -29961,7 +30020,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L62",
+      "source_location": "L63",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -29985,7 +30044,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L62",
+      "source_location": "L63",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30519,7 +30578,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L61",
+      "source_location": "L62",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30567,7 +30626,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L61",
+      "source_location": "L62",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30790,7 +30849,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L53",
+      "source_location": "L54",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30814,7 +30873,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L53",
+      "source_location": "L54",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30825,7 +30884,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L79",
+      "source_location": "L80",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30836,7 +30895,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L77",
+      "source_location": "L78",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30847,7 +30906,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L82",
+      "source_location": "L83",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30859,7 +30918,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L56",
+      "source_location": "L57",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30871,7 +30930,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L56",
+      "source_location": "L57",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30883,7 +30942,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L63",
+      "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30895,7 +30954,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L63",
+      "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30907,7 +30966,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L55",
+      "source_location": "L56",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30919,7 +30978,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L55",
+      "source_location": "L56",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30931,7 +30990,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L59",
+      "source_location": "L60",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30943,7 +31002,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L59",
+      "source_location": "L60",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30955,7 +31014,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L58",
+      "source_location": "L59",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30967,7 +31026,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L58",
+      "source_location": "L59",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30979,7 +31038,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L48",
+      "source_location": "L49",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -30991,7 +31050,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L48",
+      "source_location": "L49",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31003,7 +31062,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L49",
+      "source_location": "L50",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31015,7 +31074,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L49",
+      "source_location": "L50",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31387,7 +31446,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L50",
+      "source_location": "L51",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31399,7 +31458,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L50",
+      "source_location": "L51",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31411,7 +31470,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L50",
+      "source_location": "L51",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31447,7 +31506,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L47",
+      "source_location": "L48",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31459,7 +31518,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L47",
+      "source_location": "L48",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31471,7 +31530,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L75",
+      "source_location": "L76",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31483,7 +31542,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L75",
+      "source_location": "L76",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31500,6 +31559,18 @@
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
       "target": "lib_roles",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/calendar/ShiftCalendar.tsx",
+      "source_location": "L38",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_calendar_shiftcalendar",
+      "target": "lib_roles_canaccessmanagerpage",
       "confidence_score": 1.0
     },
     {
@@ -31591,7 +31662,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L51",
+      "source_location": "L52",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31603,7 +31674,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L51",
+      "source_location": "L52",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31615,7 +31686,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L64",
+      "source_location": "L65",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31627,7 +31698,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L64",
+      "source_location": "L65",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31639,7 +31710,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L64",
+      "source_location": "L65",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31651,7 +31722,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L64",
+      "source_location": "L65",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31663,7 +31734,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L64",
+      "source_location": "L65",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31675,7 +31746,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L64",
+      "source_location": "L65",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31687,7 +31758,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L64",
+      "source_location": "L65",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31699,7 +31770,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L64",
+      "source_location": "L65",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31711,7 +31782,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L64",
+      "source_location": "L65",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31723,7 +31794,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L64",
+      "source_location": "L65",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar",
@@ -31736,7 +31807,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L834",
+      "source_location": "L837",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31748,7 +31819,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L136",
+      "source_location": "L137",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31760,7 +31831,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L138",
+      "source_location": "L139",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31772,7 +31843,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L829",
+      "source_location": "L832",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31784,7 +31855,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L187",
+      "source_location": "L188",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31796,7 +31867,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L237",
+      "source_location": "L238",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31808,7 +31879,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L781",
+      "source_location": "L784",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31820,7 +31891,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L304",
+      "source_location": "L305",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31832,7 +31903,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L252",
+      "source_location": "L253",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31844,7 +31915,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L224",
+      "source_location": "L225",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31856,7 +31927,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L290",
+      "source_location": "L291",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31868,7 +31939,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L238",
+      "source_location": "L239",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31880,7 +31951,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L268",
+      "source_location": "L269",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31892,7 +31963,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L298",
+      "source_location": "L299",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31904,7 +31975,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L618",
+      "source_location": "L621",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31916,7 +31987,19 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L623",
+      "source_location": "L627",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_calendar_shiftcalendar_shiftcalendar",
+      "target": "lib_roles_canaccessmanagerpage"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "components/calendar/ShiftCalendar.tsx",
+      "source_location": "L626",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31928,7 +32011,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L895",
+      "source_location": "L898",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31940,7 +32023,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L639",
+      "source_location": "L642",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31952,7 +32035,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L593",
+      "source_location": "L591",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31964,7 +32047,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L553",
+      "source_location": "L552",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31976,7 +32059,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L623",
+      "source_location": "L626",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -31988,7 +32071,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L583",
+      "source_location": "L581",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -32000,7 +32083,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/calendar/ShiftCalendar.tsx",
-      "source_location": "L844",
+      "source_location": "L847",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_calendar_shiftcalendar_shiftcalendar",
@@ -34536,7 +34619,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog",
@@ -34572,7 +34655,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog",
@@ -36383,7 +36466,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L15",
+      "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog",
@@ -36419,7 +36502,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L15",
+      "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog",
@@ -36502,7 +36585,18 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L27",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_manager_staffattendancedetaildialog",
+      "target": "components_manager_staffattendancedetaildialog_formathours",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
+      "source_location": "L35",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog",
@@ -36514,7 +36608,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog",
@@ -36526,7 +36620,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog",
@@ -36610,7 +36704,67 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L16",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_manager_staffattendancedetaildialog",
+      "target": "components_ui_tabs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_manager_staffattendancedetaildialog",
+      "target": "components_ui_tabs_tabs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_manager_staffattendancedetaildialog",
+      "target": "components_ui_tabs_tabscontent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_manager_staffattendancedetaildialog",
+      "target": "components_ui_tabs_tabslist",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_manager_staffattendancedetaildialog",
+      "target": "components_ui_tabs_tabstrigger",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
+      "source_location": "L17",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog",
@@ -36622,7 +36776,19 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L16",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_manager_staffattendancedetaildialog",
+      "target": "lib_attendance_buildattendanceentries",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
+      "source_location": "L17",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog",
@@ -36634,7 +36800,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L16",
+      "source_location": "L17",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog",
@@ -36646,7 +36812,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog",
@@ -36658,7 +36824,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog",
@@ -36670,7 +36836,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L18",
+      "source_location": "L19",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog",
@@ -36682,7 +36848,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L18",
+      "source_location": "L19",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog",
@@ -36694,11 +36860,35 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L18",
+      "source_location": "L19",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog",
       "target": "lib_shift_kind_tag_shift_kind_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_manager_staffattendancedetaildialog",
+      "target": "types_index",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_manager_staffattendancedetaildialog",
+      "target": "types_index_attendance",
       "confidence_score": 1.0
     },
     {
@@ -36717,9 +36907,33 @@
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
+      "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
+      "source_location": "L107",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_manager_staffattendancedetaildialog_staffattendancedetaildialog",
+      "target": "components_manager_staffattendancedetaildialog_formathours",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L45",
+      "source_location": "L75",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "components_manager_staffattendancedetaildialog_staffattendancedetaildialog",
+      "target": "lib_attendance_buildattendanceentries"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
+      "source_location": "L55",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog_staffattendancedetaildialog",
@@ -36731,7 +36945,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "components/manager/StaffAttendanceDetailDialog.tsx",
-      "source_location": "L80",
+      "source_location": "L121",
       "weight": 1.0,
       "_origin": "ast",
       "source": "components_manager_staffattendancedetaildialog_staffattendancedetaildialog",
@@ -43040,7 +43254,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/attendance.ts",
-      "source_location": "L98",
+      "source_location": "L132",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_attendance",
@@ -43051,11 +43265,33 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/attendance.ts",
-      "source_location": "L123",
+      "source_location": "L157",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_attendance",
       "target": "lib_attendance_aggregatestaffbyrole",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/attendance.ts",
+      "source_location": "L92",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "lib_attendance",
+      "target": "lib_attendance_attendanceentry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/attendance.ts",
+      "source_location": "L103",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "lib_attendance",
+      "target": "lib_attendance_buildattendanceentries",
       "confidence_score": 1.0
     },
     {
@@ -43073,7 +43309,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/attendance.ts",
-      "source_location": "L92",
+      "source_location": "L126",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_attendance",
@@ -43106,7 +43342,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/attendance.ts",
-      "source_location": "L120",
+      "source_location": "L154",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_attendance",
@@ -43206,6 +43442,18 @@
       "_origin": "ast",
       "source": "lib_requests_overview",
       "target": "lib_attendance_overviewperiod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/attendance.ts",
+      "source_location": "L109",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "lib_attendance_buildattendanceentries",
+      "target": "lib_attendance_periodrange",
       "confidence_score": 1.0
     },
     {
@@ -44965,7 +45213,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/roles.ts",
-      "source_location": "L137",
+      "source_location": "L142",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles_canapproveleavefor",
@@ -44977,7 +45225,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/roles.ts",
-      "source_location": "L178",
+      "source_location": "L183",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles_canapproveshiftrequestfor",
@@ -44989,7 +45237,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/roles.ts",
-      "source_location": "L210",
+      "source_location": "L215",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles_canapproveswaprequestfor",
@@ -45001,7 +45249,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/roles.ts",
-      "source_location": "L164",
+      "source_location": "L169",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles_cancreateshiftfor",
@@ -45013,7 +45261,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/roles.ts",
-      "source_location": "L291",
+      "source_location": "L283",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles_canmanageattendancefor",
@@ -45030,30 +45278,6 @@
       "source": "lib_permissions_getgrantedtargetrolesunion",
       "target": "lib_permissions_getgrantedtargetroles",
       "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "lib/roles.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "lib_roles",
-      "target": "lib_permissions_getgrantedtargetroles",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "lib/roles.ts",
-      "source_location": "L274",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "lib_roles_getcalendarfollowgroups",
-      "target": "lib_permissions_getgrantedtargetroles"
     },
     {
       "relation": "contains",
@@ -45513,7 +45737,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L248",
+      "source_location": "L251",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45524,7 +45748,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L252",
+      "source_location": "L255",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45535,7 +45759,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L251",
+      "source_location": "L254",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45546,7 +45770,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L250",
+      "source_location": "L253",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45557,7 +45781,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L247",
+      "source_location": "L250",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45568,7 +45792,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L249",
+      "source_location": "L252",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45579,7 +45803,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L245",
+      "source_location": "L248",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45590,7 +45814,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L107",
+      "source_location": "L110",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45601,7 +45825,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L298",
+      "source_location": "L290",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45612,7 +45836,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L135",
+      "source_location": "L140",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45623,7 +45847,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L176",
+      "source_location": "L181",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45634,7 +45858,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L202",
+      "source_location": "L207",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45645,7 +45869,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L153",
+      "source_location": "L158",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45656,7 +45880,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L162",
+      "source_location": "L167",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45667,7 +45891,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L289",
+      "source_location": "L281",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45678,7 +45902,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L115",
+      "source_location": "L120",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45689,7 +45913,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L145",
+      "source_location": "L150",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45700,7 +45924,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L262",
+      "source_location": "L263",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45711,7 +45935,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L109",
+      "source_location": "L112",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45733,7 +45957,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L168",
+      "source_location": "L173",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45744,7 +45968,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L131",
+      "source_location": "L136",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45777,7 +46001,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L188",
+      "source_location": "L193",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45788,7 +46012,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L129",
+      "source_location": "L134",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45865,7 +46089,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L223",
+      "source_location": "L228",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45876,7 +46100,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L232",
+      "source_location": "L237",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45887,7 +46111,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L181",
+      "source_location": "L186",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles",
@@ -45971,7 +46195,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L299",
+      "source_location": "L291",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles_canaccessmanagerpage",
@@ -45983,7 +46207,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/roles.ts",
-      "source_location": "L116",
+      "source_location": "L121",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles_canseeallcalendars",
@@ -45996,7 +46220,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/roles.ts",
-      "source_location": "L132",
+      "source_location": "L137",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles_isleaveapprover",
@@ -46008,7 +46232,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/roles.ts",
-      "source_location": "L154",
+      "source_location": "L159",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles_cancreateshiftdirectly",
@@ -46020,7 +46244,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/roles.ts",
-      "source_location": "L189",
+      "source_location": "L194",
       "weight": 1.0,
       "_origin": "ast",
       "source": "lib_roles_isshiftrequestapprover",
@@ -51085,6 +51309,17 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "supabase/migrations/0069_calendar_view_all_roles.sql",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "supabase_migrations_0069_calendar_view_all_roles",
+      "target": "supabase_migrations_0069_calendar_view_all_roles_public_can_view_shift_calendar",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "tsconfig.json",
       "source_location": "L2",
       "weight": 1.0,
@@ -55178,5 +55413,5 @@
       "source_file": "docs/superpowers/specs/2026-08-07-multi-branch-staff-cutover-design.md"
     }
   ],
-  "built_at_commit": "d21ae8d8f92eb4d487a4c83712e88306c9021c8f"
+  "built_at_commit": "0dd8aaccec7d64aaf5f9596f816c1edb073272b9"
 }

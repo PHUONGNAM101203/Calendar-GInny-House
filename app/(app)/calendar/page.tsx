@@ -79,7 +79,7 @@ export default async function CalendarPage({
 
   const supabase = await createClient();
   const permissions = await getGroupPermissions();
-  const canFollowAll = canSeeAllCalendars(profile.role);
+  const canFollowAll = canSeeAllCalendars();
 
   const [
     { data: shifts },

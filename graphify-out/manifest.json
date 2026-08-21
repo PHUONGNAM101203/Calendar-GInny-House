@@ -20,9 +20,9 @@
     "semantic_hash": "54ccdb729969c58033995776d500a1ae"
   },
   "actions/calendar-follows.ts": {
-    "mtime": 1786025860.8190646,
-    "ast_hash": "02ff017a4a7e28a27527443b0d88c041",
-    "semantic_hash": "02ff017a4a7e28a27527443b0d88c041"
+    "mtime": 1787298131.0406268,
+    "ast_hash": "5656a57603f0f928ae5a9ede86093213",
+    "semantic_hash": ""
   },
   "actions/custom-calendars.ts": {
     "mtime": 1786009889.6190755,
@@ -90,8 +90,8 @@
     "semantic_hash": "a3a8d0493b34ead8d823fa3156599d2c"
   },
   "app/(app)/calendar/page.tsx": {
-    "mtime": 1786896853.4928067,
-    "ast_hash": "2f716bf4f93078c7a7607b3903889331",
+    "mtime": 1787298139.5875869,
+    "ast_hash": "0de2276dbecfd8abad3848b6efa60584",
     "semantic_hash": ""
   },
   "app/(app)/layout.tsx": {
@@ -255,8 +255,8 @@
     "semantic_hash": "24a5bb12cab3e77a2753210a75a9faf6"
   },
   "components/calendar/ShiftCalendar.tsx": {
-    "mtime": 1786895749.020736,
-    "ast_hash": "6c4867b3e46d042e3366bc3c7ef497dc",
+    "mtime": 1787298155.2628536,
+    "ast_hash": "0e5865a1593200a0836fbc720bc9584f",
     "semantic_hash": ""
   },
   "components/calendar/ShiftCalendarLoader.tsx": {
@@ -510,8 +510,8 @@
     "semantic_hash": "69c05000f5b485cc4a5f2fc1b0e91c40"
   },
   "lib/attendance.ts": {
-    "mtime": 1787160574.4814248,
-    "ast_hash": "4a2f022b65402b1192ac841992c4844c",
+    "mtime": 1787187998.5730975,
+    "ast_hash": "ab53783339802ebf6c296d5646e3f4b7",
     "semantic_hash": ""
   },
   "lib/auth.ts": {
@@ -565,8 +565,8 @@
     "semantic_hash": ""
   },
   "lib/roles.ts": {
-    "mtime": 1787115442.439992,
-    "ast_hash": "2b9ba0f1e4b5a47d309590d6f4e0e4cd",
+    "mtime": 1787298143.6676764,
+    "ast_hash": "999d6d8abee7328d7a8c6f69f49256d2",
     "semantic_hash": ""
   },
   "lib/supabase/admin.ts": {
@@ -1250,18 +1250,23 @@
     "semantic_hash": ""
   },
   "components/manager/StaffAttendanceDetailDialog.tsx": {
-    "mtime": 1787160531.6696634,
-    "ast_hash": "02b9c22ee19fbfc7a2b4bf7ac1df2958",
+    "mtime": 1787197370.149424,
+    "ast_hash": "edafc33e661edc301d89d925df8a59d0",
     "semantic_hash": ""
   },
   "components/manager/StaffOverviewTable.tsx": {
-    "mtime": 1787160493.5735338,
-    "ast_hash": "b4420d44ce9bdae58f850645f3e8ca8a",
+    "mtime": 1787188051.7411,
+    "ast_hash": "f2104aea50d747f7b204a1eedebadfce",
     "semantic_hash": ""
   },
   "lib/shift-kind-tag.ts": {
     "mtime": 1787160104.0609372,
     "ast_hash": "e324386a3db56864a75b27edb0a132fb",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/0069_calendar_view_all_roles.sql": {
+    "mtime": 1787301603.8608005,
+    "ast_hash": "436cd1691aeb9f54b6847bc39d5582fa",
     "semantic_hash": ""
   }
 }

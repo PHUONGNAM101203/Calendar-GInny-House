@@ -15,7 +15,7 @@ function isValidColor(color: string): boolean {
 
 export async function followPersonAction(followeeId: string): Promise<ActionResult> {
   const profile = await requireProfile();
-  if (!canSeeAllCalendars(profile.role)) {
+  if (!canSeeAllCalendars()) {
     return { ok: false, error: "Bạn không có quyền theo dõi lịch người khác" };
   }
 
@@ -43,7 +43,7 @@ export async function updateFollowColorAction(
   color: string | null
 ): Promise<ActionResult> {
   const profile = await requireProfile();
-  if (!canSeeAllCalendars(profile.role)) {
+  if (!canSeeAllCalendars()) {
     return { ok: false, error: "Bạn không có quyền theo dõi lịch người khác" };
   }
   if (color !== null && !isValidColor(color)) {
@@ -71,7 +71,7 @@ export async function updateFollowColorAction(
 // default.
 export async function followGroupAction(followeeIds: string[]): Promise<ActionResult> {
   const profile = await requireProfile();
-  if (!canSeeAllCalendars(profile.role)) {
+  if (!canSeeAllCalendars()) {
     return { ok: false, error: "Bạn không có quyền theo dõi lịch người khác" };
   }
   if (followeeIds.length === 0) return { ok: true, data: undefined };
