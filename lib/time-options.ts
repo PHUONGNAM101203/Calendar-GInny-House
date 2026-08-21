@@ -23,9 +23,15 @@ export function normalizeTimeInput(raw: string): string | null {
   let minutes: number;
 
   if (unified.includes(":")) {
-    const [rawHours, rawMinutes = "0"] = unified.split(":");
-    hours = Number(rawHours === "" ? "0" : rawHours);
-    minutes = Number(rawMinutes === "" ? "0" : rawMinutes);
+    // Both sides must be actual digits — a bare "::" or "h" collapses to a
+    // colon with nothing on either side, and Number("") is 0, which would
+    // otherwise silently fabricate "00:00" from garbage input. Requiring
+    // \d+ also blocks non-decimal numeric literals Number() would accept,
+    // like "0x10" (hex) or "1e1" (exponential).
+    const [rawHours, rawMinutes] = unified.split(":");
+    if (!/^\d+$/.test(rawHours) || !/^\d+$/.test(rawMinutes)) return null;
+    hours = Number(rawHours);
+    minutes = Number(rawMinutes);
   } else if (/^\d{3,4}$/.test(unified)) {
     // "1920" -> 19:20, "920" -> 9:20
     hours = Number(unified.slice(0, unified.length - 2));
