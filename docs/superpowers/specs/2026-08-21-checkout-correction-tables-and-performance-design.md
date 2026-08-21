@@ -37,7 +37,8 @@ the files they touch, so they ship as one sequenced piece of work.
 | Validation on the chosen time | Basic guards only: after check-in, not in the future, same day as the shift. Manager approval remains the real gate |
 | "Ca làm việc" visibility | Kỹ thuật **only** — also hidden from COO, Giám Đốc Đào Tạo and HR, not just CEO |
 | Period tabs (Ngày/Tháng/Năm) | Become load-on-demand instead of preloading a full year |
-| Performance scope | Free-of-charge changes only; **region stays as-is**; no paid features |
+| Performance scope | Free-of-charge changes only; no paid features |
+| Deployment region | **Changed 2026-08-21 (reversal of an earlier decision):** pin Vercel functions to `hnd1` (Tokyo) to co-locate with the Supabase database. See "Region" below |
 
 ---
 
@@ -206,12 +207,30 @@ selected period, and the new registered-hours column must be scoped to the
 | RLS helper functions re-evaluate `auth.uid()` **per candidate row** | Wrap as `(select auth.uid())` — standard Supabase guidance |
 | `CalendarSidebar` (807 lines) has zero `useMemo` and re-derives every list on each render of its 917-line parent | Memoise derived lists |
 
+### Region
+
+Measured on 2026-08-21: `x-vercel-id: hkg1::iad1::…` — requests enter at the
+Hong Kong edge but functions execute in **`iad1` (Washington DC)**, while the
+Supabase database is in **`ap-northeast-1` (Tokyo)**. Every dynamic page render
+therefore crosses the Pacific 15–18 times.
+
+**Decision: pin functions to `hnd1` (Tokyo)** via `"regions": ["hnd1"]` in
+`vercel.json`.
+
+The counter-intuitive part, recorded so it is not "corrected" later by someone
+optimising for the wrong hop: the function belongs next to the **database**, not
+next to the user. One page load is *one* user round-trip but *15–18* database
+round-trips, so Singapore (physically closest to Vietnam) would be **slower**
+than Tokyo while the database stays in Tokyo. Static assets are unaffected —
+they are already served from the Hong Kong edge and remain so.
+
+Rejected: migrating the Supabase project to Singapore to shave the remaining
+user hop (~80ms → ~30ms). Supabase has no in-place region move; it requires a
+new project, a backup restore, new URL and keys, and downtime on a live system
+carrying real staff data. Not worth ~50ms.
+
 ### Explicitly out of scope
 
-- **No region change** — Supabase is in `ap-northeast-1` while functions default
-  to US East, which measurably costs latency across 15+ round-trips per page.
-  The user chose to keep the current region; recorded here so the tradeoff is not
-  silently lost.
 - **No Cache Components / PPR.** Next 16's `cacheComponents` flag would give both
   heavy pages an instant static shell, but it is a broad behavioural change
   requiring route-by-route verification. Deferred by choice.
