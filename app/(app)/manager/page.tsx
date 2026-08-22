@@ -134,6 +134,16 @@ export default async function ManagerPage({
   const attendanceWindowStart = earliest(filterStart, startOfDay(subDays(now, 14))).toISOString();
   const attendanceWindowEnd = filterEnd.toISOString();
 
+  // Floor for the four request tables. They feed both the period-scoped
+  // Tổng hợp đơn đã gửi and the always-visible approval Sections, so the
+  // window is the selected period widened to 90 days — enough recent history
+  // for the Sections to stay useful without pulling the entire lifetime of
+  // the app. Anything still `pending` is included regardless of age (see the
+  // .or() below): a 6-month-old pending request must never fall out of the
+  // approve queue.
+  const requestsFloor = earliest(periodStart, startOfDay(subDays(now, 90))).toISOString();
+  const recentOrPending = `created_at.gte."${requestsFloor}",status.eq.pending`;
+
   const [
     { data: staff },
     { data: swaps },
@@ -158,7 +168,11 @@ export default async function ManagerPage({
       // list and the TechnicalDashboard role pie chart fed by staffList.
       .eq("is_monitoring_account", false)
       .order("full_name"),
-    supabase.from("shift_swap_requests").select(SELECT).order("created_at", { ascending: false }),
+    supabase
+      .from("shift_swap_requests")
+      .select(SELECT)
+      .or(recentOrPending)
+      .order("created_at", { ascending: false }),
     getBranches(),
     supabase
       .from("shifts")
@@ -173,6 +187,7 @@ export default async function ManagerPage({
     supabase
       .from("leave_requests")
       .select("*, profile:profiles!profile_id(id, full_name, role)")
+      .or(recentOrPending)
       .order("created_at", { ascending: false }),
     // Bounded to the selected period (widened to the 14-day chart floor)
     // instead of the whole year. The OR keeps every still-open session no
@@ -188,10 +203,12 @@ export default async function ManagerPage({
     supabase
       .from("shift_requests")
       .select("*, profile:profiles!profile_id(id, full_name, role), branch:branches!branch_id(id, name)")
+      .or(recentOrPending)
       .order("created_at", { ascending: false }),
     supabase
       .from("attendance_corrections")
       .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at)")
+      .or(recentOrPending)
       .order("created_at", { ascending: false }),
     // Feeds the "Ca làm việc" section (Xoá ca) and the "Giờ đăng ký" column
     // in Tổng hợp chấm công. Windowed to exactly periodRange(?p=) — the same
