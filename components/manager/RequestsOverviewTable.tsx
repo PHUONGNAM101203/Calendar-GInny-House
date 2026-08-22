@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import StaffRequestsDetailDialog from "@/components/manager/StaffRequestsDetailDialog";
 import PeriodTabs from "@/components/manager/PeriodTabs";
 import { buildRequestsOverview } from "@/lib/requests-overview";
-import { type OverviewPeriod } from "@/lib/attendance";
+import { resolveOverviewRange, type OverviewRangeSpec } from "@/lib/attendance";
 import { getRoleLabel } from "@/lib/roles";
 import TableScroller from "@/components/manager/TableScroller";
 import type {
@@ -37,7 +37,7 @@ export default function RequestsOverviewTable({
   shiftRequests,
   attendanceCorrections,
   canRevert,
-  period,
+  spec,
 }: {
   title?: string;
   staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[];
@@ -46,15 +46,16 @@ export default function RequestsOverviewTable({
   shiftRequests: ShiftRequestDetailed[];
   attendanceCorrections: AttendanceCorrectionDetailed[];
   canRevert: boolean;
-  /** Server-owned via `?p=` — see components/manager/PeriodTabs.tsx. */
-  period: OverviewPeriod;
+  /** The page's window spec — `?p=` or `?from=`/`?to=`. */
+  spec: OverviewRangeSpec;
 }) {
   const [search, setSearch] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState<{ id: string; fullName: string } | null>(null);
+  const range = useMemo(() => resolveOverviewRange(spec), [spec]);
 
   const allRows = useMemo(
-    () => buildRequestsOverview(staff, leaveRequests, swapRequests, shiftRequests, attendanceCorrections, period),
-    [staff, leaveRequests, swapRequests, shiftRequests, attendanceCorrections, period]
+    () => buildRequestsOverview(staff, leaveRequests, swapRequests, shiftRequests, attendanceCorrections, range),
+    [staff, leaveRequests, swapRequests, shiftRequests, attendanceCorrections, range]
   );
   const rows = useMemo(() => {
     const query = normalizeForSearch(search.trim());
@@ -67,7 +68,7 @@ export default function RequestsOverviewTable({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-heading text-base font-semibold">{title}</h3>
         <div className="flex flex-wrap items-center gap-2">
-          <PeriodTabs period={period} />
+          <PeriodTabs spec={spec} />
           <div className="relative">
             <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -158,14 +159,14 @@ export default function RequestsOverviewTable({
 
       {selectedEmployee && (
         <StaffRequestsDetailDialog
-          key={`${selectedEmployee.id}-${period}`}
+          key={`${selectedEmployee.id}-${range.start.getTime()}-${range.end.getTime()}`}
           open={Boolean(selectedEmployee)}
           onOpenChange={(next) => {
             if (!next) setSelectedEmployee(null);
           }}
           employeeId={selectedEmployee.id}
           employeeName={selectedEmployee.fullName}
-          period={period}
+          range={range}
           leaveRequests={leaveRequests}
           swapRequests={swapRequests}
           shiftRequests={shiftRequests}

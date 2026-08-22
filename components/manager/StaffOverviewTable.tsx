@@ -9,9 +9,10 @@ import type { ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable"
 import {
   buildStaffOverview,
   formatHours,
-  shiftsInPeriod,
+  resolveOverviewRange,
+  shiftsInRange,
   sumShiftMinutes,
-  type OverviewPeriod,
+  type OverviewRangeSpec,
 } from "@/lib/attendance";
 import { getRoleLabel } from "@/lib/roles";
 import { cn } from "@/lib/utils";
@@ -39,21 +40,24 @@ export default function StaffOverviewTable({
   attendance,
   leaveRequests,
   shifts,
-  period,
+  spec,
 }: {
   title?: string;
   staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[];
   attendance: Attendance[];
   leaveRequests: Pick<LeaveRequest, "profile_id" | "start_date" | "end_date" | "status">[];
   shifts: ShiftOverviewRow[];
-  /** Server-owned via `?p=` — see components/manager/PeriodTabs.tsx. */
-  period: OverviewPeriod;
+  /** The page's window spec — `?p=` or `?from=`/`?to=`. */
+  spec: OverviewRangeSpec;
 }) {
   const [search, setSearch] = useState("");
+  // Resolved once for this table and handed to the popup as-is, so the
+  // Giờ đăng ký column and the popup's Tổng are provably the same window.
+  const range = useMemo(() => resolveOverviewRange(spec), [spec]);
   const [selectedEmployee, setSelectedEmployee] = useState<{ id: string; fullName: string } | null>(null);
   const allRows = useMemo(
-    () => buildStaffOverview(staff, attendance, leaveRequests, period),
-    [staff, attendance, leaveRequests, period]
+    () => buildStaffOverview(staff, attendance, leaveRequests, range),
+    [staff, attendance, leaveRequests, range]
   );
   const rows = useMemo(() => {
     const query = normalizeForSearch(search.trim());
@@ -61,27 +65,25 @@ export default function StaffOverviewTable({
     return allRows.filter((row) => normalizeForSearch(row.fullName).includes(query));
   }, [allRows, search]);
 
-  // Frozen at mount so every row shares one period boundary — a `new Date()`
-  // per row could straddle midnight mid-render.
-  const now = useMemo(() => new Date(), []);
   // Registered-shift hours per person, so a manager sees committed vs actual
   // side by side without opening each popup. Computed off the `shifts` prop
-  // that was already being forwarded to the dialog — no extra query — and via
-  // the same helpers the dialog uses, so the row and the popup always agree.
+  // that was already being forwarded to the dialog — no extra query — via the
+  // same helper AND the same `range` object the dialog gets, so the row and
+  // the popup can't disagree.
   const registeredMinutesById = useMemo(() => {
     const totals = new Map<string, number>();
     for (const row of allRows) {
-      totals.set(row.id, sumShiftMinutes(shiftsInPeriod(shifts, row.id, period, now)));
+      totals.set(row.id, sumShiftMinutes(shiftsInRange(shifts, row.id, range)));
     }
     return totals;
-  }, [allRows, shifts, period, now]);
+  }, [allRows, shifts, range]);
 
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-heading text-base font-semibold">{title}</h3>
         <div className="flex flex-wrap items-center gap-2">
-          <PeriodTabs period={period} />
+          <PeriodTabs spec={spec} />
           <div className="relative">
             <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -177,14 +179,14 @@ export default function StaffOverviewTable({
 
       {selectedEmployee && (
         <StaffAttendanceDetailDialog
-          key={`${selectedEmployee.id}-${period}`}
+          key={`${selectedEmployee.id}-${range.start.getTime()}-${range.end.getTime()}`}
           open={Boolean(selectedEmployee)}
           onOpenChange={(next) => {
             if (!next) setSelectedEmployee(null);
           }}
           employeeId={selectedEmployee.id}
           employeeName={selectedEmployee.fullName}
-          period={period}
+          range={range}
           shifts={shifts}
           attendance={attendance}
         />

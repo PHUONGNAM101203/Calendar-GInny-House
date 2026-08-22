@@ -10,7 +10,7 @@ import BrandMark from "@/components/brand/BrandMark";
 import StaffOverviewTable from "@/components/manager/StaffOverviewTable";
 import type { ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
 import RequestsOverviewTable from "@/components/manager/RequestsOverviewTable";
-import { aggregateHoursByDay, type OverviewPeriod } from "@/lib/attendance";
+import { aggregateHoursByDay, type OverviewRangeSpec } from "@/lib/attendance";
 import { cn } from "@/lib/utils";
 import type {
   Attendance,
@@ -138,7 +138,7 @@ export default function ManagerDashboard({
   attendanceCorrections,
   overviewTitle,
   shifts,
-  period,
+  spec,
 }: {
   totalStaff: number;
   unassignedStaff: number;
@@ -156,9 +156,13 @@ export default function ManagerDashboard({
   attendanceCorrections: AttendanceCorrectionDetailed[];
   overviewTitle?: string;
   shifts: ShiftOverviewRow[];
-  /** Server-owned via `?p=` — see components/manager/PeriodTabs.tsx. */
-  period: OverviewPeriod;
+  /** The page's window spec — `?p=` or `?from=`/`?to=`. */
+  spec: OverviewRangeSpec;
 }) {
+  // Deliberately NOT `range`: this chart is labelled "7 ngày qua", so it
+  // stays anchored to the last 7 days even while a past khoảng ngày is
+  // applied. The page's fetch window is widened to cover both (see the
+  // 14-day floor/ceiling in app/(app)/manager/page.tsx).
   const hoursByDay = useMemo(() => aggregateHoursByDay(attendance, 7), [attendance]);
   const peakDay = useMemo(
     () => hoursByDay.reduce((max, d) => (d.hours > max.hours ? d : max), hoursByDay[0]),
@@ -273,7 +277,7 @@ export default function ManagerDashboard({
             attendance={attendance}
             leaveRequests={leaveRequests}
             shifts={shifts}
-            period={period}
+            spec={spec}
           />
         </CardContent>
       </Card>
@@ -287,7 +291,7 @@ export default function ManagerDashboard({
             shiftRequests={shiftRequests}
             attendanceCorrections={attendanceCorrections}
             canRevert={false}
-            period={period}
+            spec={spec}
           />
         </CardContent>
       </Card>

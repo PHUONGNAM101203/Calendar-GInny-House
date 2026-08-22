@@ -13,7 +13,7 @@ import RequestsOverviewTable from "@/components/manager/RequestsOverviewTable";
 import GroupPermissionsEditor, { type ManagerHolders } from "@/components/manager/GroupPermissionsEditor";
 import CreateAttendanceManualDialog from "@/components/manager/CreateAttendanceManualDialog";
 import { GROUP_MANAGER_ROLES } from "@/lib/permissions";
-import { aggregateStaffByRole, aggregateHoursByDay, type OverviewPeriod } from "@/lib/attendance";
+import { aggregateStaffByRole, aggregateHoursByDay, type OverviewRangeSpec } from "@/lib/attendance";
 import { ROLE_LABELS } from "@/lib/roles";
 import type { GroupPermissions } from "@/lib/permissions";
 import type {
@@ -79,7 +79,7 @@ export default function TechnicalDashboard({
   staleFreeAttendance,
   branches,
   shifts,
-  period,
+  spec,
 }: {
   staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[];
   attendance: Attendance[];
@@ -92,10 +92,12 @@ export default function TechnicalDashboard({
   staleFreeAttendance: (Attendance & { profile: Pick<Profile, "id" | "full_name"> })[];
   branches: Branch[];
   shifts: ShiftOverviewRow[];
-  /** Server-owned via `?p=` — see components/manager/PeriodTabs.tsx. */
-  period: OverviewPeriod;
+  /** The page's window spec — `?p=` or `?from=`/`?to=`. */
+  spec: OverviewRangeSpec;
 }) {
   const roleCounts = aggregateStaffByRole(staff);
+  // Deliberately NOT `range`: the card says "14 ngày qua", so it stays
+  // anchored to the last 14 days even while a past khoảng ngày is applied.
   const hoursByDay = aggregateHoursByDay(attendance);
   const totalHours = Math.round(hoursByDay.reduce((sum, d) => sum + d.hours, 0));
   const peakDay = useMemo(
@@ -191,7 +193,7 @@ export default function TechnicalDashboard({
             attendance={attendance}
             leaveRequests={leaveRequests}
             shifts={shifts}
-            period={period}
+            spec={spec}
           />
         </CardContent>
       </Card>
@@ -206,7 +208,7 @@ export default function TechnicalDashboard({
             shiftRequests={shiftRequests}
             attendanceCorrections={attendanceCorrections}
             canRevert={true}
-            period={period}
+            spec={spec}
           />
         </CardContent>
       </Card>

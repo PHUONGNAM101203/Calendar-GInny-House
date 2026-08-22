@@ -1,6 +1,10 @@
-import { startOfDay, endOfDay, subDays, parse, isValid } from "date-fns";
+import { startOfDay, endOfDay, subDays, addDays, parse, isValid } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
-import { periodRange, type OverviewPeriod } from "@/lib/attendance";
+import {
+  resolveOverviewRange,
+  type OverviewPeriod,
+  type OverviewRangeSpec,
+} from "@/lib/attendance";
 import { requireManager } from "@/lib/auth";
 import { getBranches } from "@/lib/branches";
 import {
@@ -63,11 +67,38 @@ function parsePeriod(value: string | undefined): OverviewPeriod {
   return OVERVIEW_PERIODS.includes(value as OverviewPeriod) ? (value as OverviewPeriod) : "month";
 }
 
-// Earlier of two dates — used to widen a fetch window back to a floor the UI
-// needs (the 7/14-day activity charts) without ever narrowing the window the
-// selected period asked for.
+// Earlier/later of two dates — used to widen a fetch window out to the floor
+// and ceiling the UI needs (the 7/14-day activity charts) without ever
+// narrowing the window the selected period or custom range asked for.
 function earliest(a: Date, b: Date): Date {
   return a < b ? a : b;
+}
+
+function latest(a: Date, b: Date): Date {
+  return a > b ? a : b;
+}
+
+// The one place ?from=/?to= is validated, so every consumer downstream can
+// treat a non-null pair as real. parse(), not new Date(value) — see
+// app/(app)/calendar/page.tsx's comment: the latter reads "yyyy-MM-dd" as UTC
+// midnight, which drifts a day in a positive UTC-offset timezone (Vietnam).
+//
+// Custom range is a FOURTH, mutually-exclusive mode next to ngày/tháng/năm,
+// not an extra narrowing on top of one: it only counts when BOTH ends parse
+// AND they're the right way round. A half-filled, unparseable or inverted
+// range degrades to the period rather than resolving to an empty window that
+// would render every table as zeros.
+function parseCustomRange(
+  from: string | undefined,
+  to: string | undefined,
+  now: Date
+): { from: string; to: string } | null {
+  if (!from || !to) return null;
+  const parsedFrom = parse(from, "yyyy-MM-dd", now);
+  const parsedTo = parse(to, "yyyy-MM-dd", now);
+  if (!isValid(parsedFrom) || !isValid(parsedTo)) return null;
+  if (startOfDay(parsedFrom) > startOfDay(parsedTo)) return null;
+  return { from, to };
 }
 
 // A section is a titled panel — count on the right when there's something
@@ -112,36 +143,47 @@ export default async function ManagerPage({
   const todayStart = startOfDay(now).toISOString();
   const todayEnd = endOfDay(now).toISOString();
 
-  // One period drives every period-scoped table on the page (Tổng hợp chấm
-  // công / Ca làm việc / Tổng hợp đơn đã gửi), so the server can fetch just
-  // that window instead of shipping a year of rows for the client to filter.
+  // THE window for this render, described once: either the ?p= period or an
+  // explicit ?from=/?to= range, never a mix. Everything downstream — every
+  // query below, every table, every popup — resolves this one spec through
+  // resolveOverviewRange(); nothing recomputes a window of its own from
+  // `now`, because a component anchored to today can only ever clip a past
+  // custom range down to nothing.
   const period = parsePeriod(params.p);
-  const { start: periodStart, end: periodEnd } = periodRange(period, now);
+  const customRange = parseCustomRange(params.from, params.to, now);
+  const rangeSpec: OverviewRangeSpec = {
+    period,
+    from: customRange?.from ?? null,
+    to: customRange?.to ?? null,
+  };
+  const range = resolveOverviewRange(rangeSpec, now);
 
-  // parse(), not new Date(params.from) — see app/(app)/calendar/page.tsx's
-  // comment: the latter reads "yyyy-MM-dd" as UTC midnight, which drifts a
-  // day in a positive UTC-offset timezone (Vietnam). An explicit range still
-  // wins over the period; without one the period defines the window.
-  const parsedFrom = params.from ? parse(params.from, "yyyy-MM-dd", now) : null;
-  const parsedTo = params.to ? parse(params.to, "yyyy-MM-dd", now) : null;
-  const filterStart = parsedFrom && isValid(parsedFrom) ? startOfDay(parsedFrom) : periodStart;
-  const filterEnd = parsedTo && isValid(parsedTo) ? endOfDay(parsedTo) : periodEnd;
+  // Fetch bounds. A custom window is padded a day either side: the browser
+  // clips these rows to Vietnam-local boundaries while this process has no TZ
+  // set (see app/(app)/attendance/page.tsx), so an unpadded bound would cut
+  // the first ~7 hours off the range. Over-fetching costs nothing — every
+  // consumer clips. Period windows keep exactly the bounds they always had.
+  const fetchStart = range.isCustom ? subDays(range.start, 1) : range.start;
+  const fetchEnd = range.isCustom ? addDays(range.end, 1) : range.end;
 
   // LOAD-BEARING 14-day floor: ManagerDashboard renders a 7-day activity
-  // chart and TechnicalDashboard a 14-day one off this same attendance list.
-  // Without the floor, `?p=day` would fetch one day of rows and both charts
-  // would silently render flat.
-  const attendanceWindowStart = earliest(filterStart, startOfDay(subDays(now, 14))).toISOString();
-  const attendanceWindowEnd = filterEnd.toISOString();
+  // chart and TechnicalDashboard a 14-day one off this same attendance list,
+  // and both stay anchored to "the last N days" (they say so on the tin)
+  // rather than following the window. Without the floor, `?p=day` would fetch
+  // one day of rows and both charts would silently render flat. The matching
+  // ceiling exists for the same reason: a custom range ending in the past
+  // must not truncate the fetch before today and flatten the charts' tail.
+  const attendanceWindowStart = earliest(fetchStart, startOfDay(subDays(now, 14))).toISOString();
+  const attendanceWindowEnd = latest(fetchEnd, endOfDay(now)).toISOString();
 
-  // Floor for the four request tables. They feed both the period-scoped
+  // Floor for the four request tables. They feed both the window-scoped
   // Tổng hợp đơn đã gửi and the always-visible approval Sections, so the
-  // window is the selected period widened to 90 days — enough recent history
+  // window is the selected one widened to 90 days — enough recent history
   // for the Sections to stay useful without pulling the entire lifetime of
   // the app. Anything still `pending` is included regardless of age (see the
   // .or() below): a 6-month-old pending request must never fall out of the
   // approve queue.
-  const requestsFloor = earliest(periodStart, startOfDay(subDays(now, 90))).toISOString();
+  const requestsFloor = earliest(fetchStart, startOfDay(subDays(now, 90))).toISOString();
   const recentOrPending = `created_at.gte."${requestsFloor}",status.eq.pending`;
 
   const [
@@ -211,17 +253,17 @@ export default async function ManagerPage({
       .or(recentOrPending)
       .order("created_at", { ascending: false }),
     // Feeds the "Ca làm việc" section (Xoá ca) and the "Giờ đăng ký" column
-    // in Tổng hợp chấm công. Windowed to exactly periodRange(?p=) — the same
-    // boundaries shiftsInPeriod() and the table's own filter apply — instead
-    // of the old blind .limit(500), which both over-fetched (500 rows for a
-    // one-day view) and under-fetched (a busy year past 500 silently lost
-    // its oldest shifts). The limit stays purely as a runaway guard, set
+    // in Tổng hợp chấm công. Windowed to exactly the resolved range — the
+    // same boundaries shiftsInRange() and the table's own filter apply —
+    // instead of the old blind .limit(500), which both over-fetched (500 rows
+    // for a one-day view) and under-fetched (a busy year past 500 silently
+    // lost its oldest shifts). The limit stays purely as a runaway guard, set
     // high enough that at this org's scale it can never trim a real year.
     supabase
       .from("shifts")
       .select(SHIFTS_OVERVIEW_SELECT)
-      .gte("start_at", periodStart.toISOString())
-      .lte("start_at", periodEnd.toISOString())
+      .gte("start_at", fetchStart.toISOString())
+      .lte("start_at", fetchEnd.toISOString())
       .order("start_at", { ascending: false })
       .limit(2000),
     getGroupPermissions(),
@@ -328,7 +370,11 @@ export default async function ManagerPage({
         </p>
       </div>
 
-      <DateRangeFilter />
+      {/* key: clicking a period tab strips ?from=/?to= from the URL, so the
+          filter must remount to drop the two dates still sitting in its
+          local input state — a keyed remount instead of a state-syncing
+          effect (react-hooks/set-state-in-effect). */}
+      <DateRangeFilter key={`${params.from ?? ""}|${params.to ?? ""}`} spec={rangeSpec} />
 
       {isTechnical ? (
         <TechnicalDashboard
@@ -342,7 +388,7 @@ export default async function ManagerPage({
           staleFreeAttendance={staleFreeAttendanceList}
           branches={branches}
           shifts={scopedShiftsOverview}
-          period={period}
+          spec={rangeSpec}
         />
       ) : isGroupManager ? (
         <ManagerDashboard
@@ -366,7 +412,7 @@ export default async function ManagerPage({
           attendanceCorrections={scopedAttendanceCorrections}
           overviewTitle={groupMeta ? `Tổng hợp chấm công — ${groupMeta.label}` : undefined}
           shifts={scopedShiftsOverview}
-          period={period}
+          spec={rangeSpec}
         />
       ) : (
         <ManagerDashboard
@@ -385,7 +431,7 @@ export default async function ManagerPage({
           shiftRequests={shiftRequestsList}
           attendanceCorrections={attendanceCorrectionsList}
           shifts={scopedShiftsOverview}
-          period={period}
+          spec={rangeSpec}
         />
       )}
 
@@ -418,7 +464,7 @@ export default async function ManagerPage({
             shifts={scopedShiftsOverview}
             currentUserRole={manager.role}
             permissions={permissions}
-            period={period}
+            spec={rangeSpec}
           />
         </Section>
       )}

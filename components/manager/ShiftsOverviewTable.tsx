@@ -23,7 +23,7 @@ import TableScroller from "@/components/manager/TableScroller";
 import PeriodTabs from "@/components/manager/PeriodTabs";
 import { deleteShiftAction } from "@/actions/shifts";
 import { canCreateShiftFor } from "@/lib/roles";
-import { periodRange, type OverviewPeriod } from "@/lib/attendance";
+import { resolveOverviewRange, type OverviewRangeSpec } from "@/lib/attendance";
 import { SHIFT_TYPE_LABELS } from "@/lib/constants";
 import { computeShiftKind, SHIFT_KIND_LABELS } from "@/lib/shift-kind-tag";
 import type { GroupPermissions } from "@/lib/permissions";
@@ -52,18 +52,19 @@ export default function ShiftsOverviewTable({
   shifts,
   currentUserRole,
   permissions,
-  period,
+  spec,
 }: {
   shifts: ShiftOverviewRow[];
   currentUserRole: Role;
   permissions: GroupPermissions;
-  /** Server-owned via `?p=` — see components/manager/PeriodTabs.tsx. */
-  period: OverviewPeriod;
+  /** The page's window spec — `?p=` or `?from=`/`?to=`. */
+  spec: OverviewRangeSpec;
 }) {
   const [search, setSearch] = useState("");
+  const range = useMemo(() => resolveOverviewRange(spec), [spec]);
 
   const rows = useMemo(() => {
-    const { start, end } = periodRange(period, new Date());
+    const { start, end } = range;
     const query = normalizeForSearch(search.trim());
     return shifts
       .filter((s) => {
@@ -72,12 +73,12 @@ export default function ShiftsOverviewTable({
       })
       .filter((s) => !query || normalizeForSearch(s.assignee.full_name).includes(query))
       .sort((a, b) => b.start_at.localeCompare(a.start_at));
-  }, [shifts, period, search]);
+  }, [shifts, range, search]);
 
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <PeriodTabs period={period} />
+        <PeriodTabs spec={spec} />
         <div className="relative">
           <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input

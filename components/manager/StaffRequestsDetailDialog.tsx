@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo } from "react";
+import { format } from "date-fns";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import LeaveRequestCard from "@/components/leave/LeaveRequestCard";
 import SwapRequestCard from "@/components/swaps/SwapRequestCard";
 import ShiftRequestCard from "@/components/shifts/ShiftRequestCard";
 import AttendanceCorrectionCard from "@/components/attendance/AttendanceCorrectionCard";
-import { periodRange, type OverviewPeriod } from "@/lib/attendance";
+import { type OverviewRange } from "@/lib/attendance";
 import type {
   AttendanceCorrectionDetailed,
   LeaveRequestDetailed,
@@ -21,7 +22,7 @@ export default function StaffRequestsDetailDialog({
   onOpenChange,
   employeeId,
   employeeName,
-  period,
+  range,
   leaveRequests,
   swapRequests,
   shiftRequests,
@@ -32,7 +33,7 @@ export default function StaffRequestsDetailDialog({
   onOpenChange: (open: boolean) => void;
   employeeId: string;
   employeeName: string;
-  period: OverviewPeriod;
+  range: OverviewRange;
   leaveRequests: LeaveRequestDetailed[];
   swapRequests: SwapRequestDetailed[];
   shiftRequests: ShiftRequestDetailed[];
@@ -40,7 +41,7 @@ export default function StaffRequestsDetailDialog({
   canRevert: boolean;
 }) {
   const items = useMemo(() => {
-    const { start, end } = periodRange(period, new Date());
+    const { start, end } = range;
     const inRange = (createdAt: string) => {
       const t = new Date(createdAt);
       return t >= start && t <= end;
@@ -121,9 +122,15 @@ export default function StaffRequestsDetailDialog({
     }
 
     return entries.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  }, [employeeId, period, leaveRequests, swapRequests, shiftRequests, attendanceCorrections, canRevert]);
+  }, [employeeId, range, leaveRequests, swapRequests, shiftRequests, attendanceCorrections, canRevert]);
 
-  const periodLabel = period === "day" ? "Hôm nay" : period === "month" ? "Tháng này" : "Năm này";
+  const periodLabel = range.isCustom
+    ? `${format(range.start, "dd/MM/yyyy")} – ${format(range.end, "dd/MM/yyyy")}`
+    : range.period === "day"
+      ? "Hôm nay"
+      : range.period === "month"
+        ? "Tháng này"
+        : "Năm này";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

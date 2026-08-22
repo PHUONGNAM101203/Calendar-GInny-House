@@ -17,27 +17,28 @@ import type { ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable"
 import {
   buildAttendanceEntries,
   formatHours,
-  shiftsInPeriod,
+  shiftsInRange,
   sumShiftMinutes,
-  type OverviewPeriod,
+  type OverviewRange,
 } from "@/lib/attendance";
 import { SHIFT_TYPE_LABELS } from "@/lib/constants";
 import { computeShiftKind, SHIFT_KIND_LABELS } from "@/lib/shift-kind-tag";
 import type { Attendance } from "@/types";
 
-// Full list of this person's shifts within the selected period (ngày/tháng/
-// năm — same period the parent table's tabs already picked), each tagged by
-// what duty it actually was (Ca quản sinh/Ca trợ giảng/Ca lễ tân/...) — not
-// an attendance/check-in breakdown, since "Toàn hệ thống"'s own Giờ làm/
-// Trạng thái columns already cover that. CollapsibleGrid caps it at ~4
-// visible with "Xem thêm" so a busy month doesn't turn into a scroll of
-// shifts.
+// Full list of this person's shifts within the selected window — ngày/tháng/
+// năm or an explicit khoảng ngày, arriving as the very same `range` object
+// the parent table clipped its own rows with, so Giờ đăng ký and this total
+// can never drift apart. Each is tagged by what duty it actually was (Ca
+// quản sinh/Ca trợ giảng/Ca lễ tân/...) — not an attendance/check-in
+// breakdown, since "Toàn hệ thống"'s own Giờ làm/Trạng thái columns already
+// cover that. CollapsibleGrid caps it at ~4 visible with "Xem thêm" so a busy
+// month doesn't turn into a scroll of shifts.
 export default function StaffAttendanceDetailDialog({
   open,
   onOpenChange,
   employeeId,
   employeeName,
-  period,
+  range,
   shifts,
   attendance,
 }: {
@@ -45,22 +46,22 @@ export default function StaffAttendanceDetailDialog({
   onOpenChange: (open: boolean) => void;
   employeeId: string;
   employeeName: string;
-  period: OverviewPeriod;
+  range: OverviewRange;
   shifts: ShiftOverviewRow[];
   attendance: Attendance[];
 }) {
   const now = useMemo(() => new Date(), []);
 
   const personShifts = useMemo(
-    () => shiftsInPeriod(shifts, employeeId, period, now),
-    [shifts, employeeId, period, now]
+    () => shiftsInRange(shifts, employeeId, range),
+    [shifts, employeeId, range]
   );
 
   const totalShiftMinutes = useMemo(() => sumShiftMinutes(personShifts), [personShifts]);
 
   const attendanceEntries = useMemo(
-    () => buildAttendanceEntries(attendance, employeeId, period, now),
-    [attendance, employeeId, period, now]
+    () => buildAttendanceEntries(attendance, employeeId, range, now),
+    [attendance, employeeId, range, now]
   );
   const totalAttendanceMinutes = useMemo(
     () => attendanceEntries.reduce((sum, e) => sum + e.minutes, 0),
@@ -73,9 +74,13 @@ export default function StaffAttendanceDetailDialog({
         <DialogHeader>
           <DialogTitle>{employeeName}</DialogTitle>
           <DialogDescription>
-            {period === "day" && `Hôm nay · ${format(now, "dd/MM/yyyy")}`}
-            {period === "month" && `Tháng ${now.getMonth() + 1}/${now.getFullYear()}`}
-            {period === "year" && `Cả năm ${now.getFullYear()}`}
+            {range.isCustom
+              ? `${format(range.start, "dd/MM/yyyy")} – ${format(range.end, "dd/MM/yyyy")}`
+              : range.period === "day"
+                ? `Hôm nay · ${format(now, "dd/MM/yyyy")}`
+                : range.period === "month"
+                  ? `Tháng ${now.getMonth() + 1}/${now.getFullYear()}`
+                  : `Cả năm ${now.getFullYear()}`}
           </DialogDescription>
         </DialogHeader>
 
