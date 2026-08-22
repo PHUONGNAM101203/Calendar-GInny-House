@@ -1,12 +1,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireManager } from "@/lib/auth";
 import { shiftSchema } from "@/lib/validations/shift";
 import { isManagerRole, canCreateShiftFor } from "@/lib/roles";
 import { getGroupPermissions } from "@/lib/permissions-server";
 import { getRemoteBranchId } from "@/lib/branches";
+import { emitNotifications, formatShiftWindow, type NotificationDraft } from "@/lib/notifications-emit";
 import type { ActionResult, Role } from "@/types";
 
 // Defense in depth — ShiftFormDialog's picker already narrows assignee
@@ -91,23 +93,43 @@ export async function createShiftAction(input: unknown): Promise<ActionResult> {
   );
   if (assigneeError) return { ok: false, error: assigneeError };
 
-  const { error } = await supabase.from("shifts").insert({
-    assignee_id: parsed.data.assignee_id,
-    branch_id: branchId,
-    start_at: parsed.data.start_at,
-    end_at: parsed.data.end_at,
-    shift_type: parsed.data.shift_type,
-    // manager.id, not a second auth.getUser(). requireManager() above already
-    // resolved this identity; re-fetching it cost a full network round-trip to
-    // the auth server on every shift creation for a value already in hand. It
-    // also removes a `user!` non-null assertion that was only safe by accident.
-    created_by: manager.id,
-  });
+  // .select().maybeSingle() only to recover the new row's id for the
+  // notification's related_id. maybeSingle, not single: if the returning
+  // select is ever refused the insert itself still succeeded, and a missing
+  // related_id must not turn a saved shift into an error.
+  const { data: created, error } = await supabase
+    .from("shifts")
+    .insert({
+      assignee_id: parsed.data.assignee_id,
+      branch_id: branchId,
+      start_at: parsed.data.start_at,
+      end_at: parsed.data.end_at,
+      shift_type: parsed.data.shift_type,
+      // manager.id, not a second auth.getUser(). requireManager() above already
+      // resolved this identity; re-fetching it cost a full network round-trip to
+      // the auth server on every shift creation for a value already in hand. It
+      // also removes a `user!` non-null assertion that was only safe by accident.
+      created_by: manager.id,
+    })
+    .select("id")
+    .maybeSingle();
 
   if (error) return { ok: false, error: mapShiftError(error.message) };
 
   revalidatePath("/calendar");
   revalidatePath("/manager");
+  after(() =>
+    emitNotifications([
+      {
+        profileId: parsed.data.assignee_id,
+        kind: "shift_assigned",
+        title: "Ca làm việc mới",
+        body: `Bạn được xếp ca ${formatShiftWindow(parsed.data.start_at, parsed.data.end_at)}`,
+        url: "/calendar",
+        relatedId: created?.id ?? null,
+      },
+    ])
+  );
   return { ok: true, data: undefined };
 }
 
@@ -133,33 +155,121 @@ export async function updateShiftAction(
   );
   if (assigneeError) return { ok: false, error: assigneeError };
 
-  const { error } = await supabase
+  // Read the row before overwriting it: the previous assignee and the
+  // previous time window only exist until the update lands, and both are
+  // needed to tell the person who is silently losing this shift which shift
+  // they lost.
+  const { data: previous } = await supabase
     .from("shifts")
-    .update({
-      assignee_id: parsed.data.assignee_id,
-      branch_id: branchId,
-      start_at: parsed.data.start_at,
-      end_at: parsed.data.end_at,
-      shift_type: parsed.data.shift_type,
-      note: parsed.data.note || null,
-    })
+    .select("assignee_id, start_at, end_at, branch_id, shift_type")
+    .eq("id", id)
+    .maybeSingle();
+
+  const { error, count } = await supabase
+    .from("shifts")
+    .update(
+      {
+        assignee_id: parsed.data.assignee_id,
+        branch_id: branchId,
+        start_at: parsed.data.start_at,
+        end_at: parsed.data.end_at,
+        shift_type: parsed.data.shift_type,
+        note: parsed.data.note || null,
+      },
+      // Only to decide whether to notify. An RLS-denied update reports no
+      // error and touches no rows, and nobody should be told their shift
+      // moved when it did not. The action's own return value is deliberately
+      // left as it was.
+      { count: "exact" }
+    )
     .eq("id", id);
 
   if (error) return { ok: false, error: mapShiftError(error.message) };
 
   revalidatePath("/calendar");
   revalidatePath("/manager");
+
+  if (previous && count) {
+    const newWindow = formatShiftWindow(parsed.data.start_at, parsed.data.end_at);
+    const reassigned = previous.assignee_id !== parsed.data.assignee_id;
+    // A note-only edit is not worth a notification; a change of time, branch
+    // or shift type is what the person actually needs to know about.
+    const materiallyChanged =
+      previous.start_at !== parsed.data.start_at ||
+      previous.end_at !== parsed.data.end_at ||
+      previous.branch_id !== branchId ||
+      previous.shift_type !== parsed.data.shift_type;
+
+    const drafts: NotificationDraft[] = [];
+    if (reassigned) {
+      drafts.push({
+        profileId: parsed.data.assignee_id,
+        kind: "shift_assigned",
+        title: "Ca làm việc mới",
+        body: `Bạn được xếp ca ${newWindow}`,
+        url: "/calendar",
+        relatedId: id,
+      });
+      drafts.push({
+        profileId: previous.assignee_id,
+        kind: "shift_unassigned",
+        title: "Ca làm việc được chuyển",
+        body: `Ca ${formatShiftWindow(previous.start_at, previous.end_at)} không còn là ca của bạn`,
+        url: "/calendar",
+        relatedId: id,
+      });
+    } else if (materiallyChanged) {
+      drafts.push({
+        profileId: parsed.data.assignee_id,
+        kind: "shift_updated",
+        title: "Ca làm việc được cập nhật",
+        body: `Ca của bạn được đổi thành ${newWindow}`,
+        url: "/calendar",
+        relatedId: id,
+      });
+    }
+    if (drafts.length) after(() => emitNotifications(drafts));
+  }
+
   return { ok: true, data: undefined };
 }
 
 export async function deleteShiftAction(id: string): Promise<ActionResult> {
   await requireManager();
   const supabase = await createClient();
-  const { error } = await supabase.from("shifts").delete().eq("id", id);
+
+  // Read before deleting — after the delete there is nothing left to say
+  // which shift was removed, and the stored notification has to name it.
+  const { data: removed } = await supabase
+    .from("shifts")
+    .select("assignee_id, start_at, end_at")
+    .eq("id", id)
+    .maybeSingle();
+
+  // count: "exact" so an RLS-denied delete surfaces as a real error instead
+  // of a false "Đã xoá" toast — same pattern as deleteShiftRequestAction in
+  // actions/shift-requests.ts. Without it a manager outside their scope was
+  // told the shift was gone while it was still on the calendar.
+  const { error, count } = await supabase.from("shifts").delete({ count: "exact" }).eq("id", id);
 
   if (error) return { ok: false, error: "Không thể xoá ca làm việc" };
+  if (!count) return { ok: false, error: "Bạn không có quyền xoá ca làm việc này" };
 
   revalidatePath("/calendar");
   revalidatePath("/manager");
+  if (removed) {
+    after(() =>
+      emitNotifications([
+        {
+          profileId: removed.assignee_id,
+          kind: "shift_deleted",
+          title: "Ca làm việc bị xoá",
+          body: `Ca ${formatShiftWindow(removed.start_at, removed.end_at)} của bạn đã bị xoá`,
+          url: "/calendar",
+          relatedId: id,
+        },
+      ])
+    );
+  }
   return { ok: true, data: undefined };
 }
