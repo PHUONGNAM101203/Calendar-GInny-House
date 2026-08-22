@@ -10,6 +10,7 @@ import {
   correctionPreviewSchema,
 } from "@/lib/validations/attendance-correction";
 import { sendPushToLeaveApprovers, sendPushToProfile } from "@/lib/push";
+import { emitNotifications, formatShiftWindow } from "@/lib/notifications-emit";
 import type { ActionResult, Attendance, Shift } from "@/types";
 
 export type CorrectionPreview =
@@ -215,6 +216,36 @@ function revalidateAttendanceCorrectionPaths() {
   revalidatePath("/", "layout");
 }
 
+// Shape of the pre-mutation read shared by the revert and delete actions
+// below. The shifts embed is many-to-one via an explicit FK hint, so
+// PostgREST returns an object rather than an array — the untyped Supabase
+// client cannot infer that on its own (same note as actions/swaps.ts).
+type CorrectionSubject = {
+  profile_id: string;
+  status: string;
+  shift: { start_at: string; end_at: string } | null;
+};
+
+async function readCorrectionSubject(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  id: string
+): Promise<CorrectionSubject | null> {
+  const { data } = await supabase
+    .from("attendance_corrections")
+    .select("profile_id, status, shift:shifts!shift_id(start_at, end_at)")
+    .eq("id", id)
+    .maybeSingle<CorrectionSubject>();
+  return data ?? null;
+}
+
+// "ca 08:00–12:00 ngày 22/08/2026", or a bare "một ca làm việc" if the shift
+// row is somehow unreadable — the sentence still has to parse.
+function describeCorrectionShift(subject: CorrectionSubject): string {
+  return subject.shift
+    ? `ca ${formatShiftWindow(subject.shift.start_at, subject.shift.end_at)}`
+    : "một ca làm việc";
+}
+
 export type AttendanceCorrectionsBatchResult = {
   succeededCount: number;
   failed: { shift_id: string; error: string }[];
@@ -377,8 +408,12 @@ export async function respondToAttendanceCorrectionAction(
 // real authorization boundary. count: "exact" so a denied delete surfaces
 // as a real error instead of a false "Đã xoá" toast.
 export async function deleteAttendanceCorrectionAction(id: string): Promise<ActionResult> {
-  await requireManager();
+  const manager = await requireManager();
   const supabase = await createClient();
+  // Read before the delete — afterwards there is no row left to say which
+  // shift the vanished đơn was about.
+  const subject = await readCorrectionSubject(supabase, id);
+
   const { error, count } = await supabase
     .from("attendance_corrections")
     .delete({ count: "exact" })
@@ -389,6 +424,24 @@ export async function deleteAttendanceCorrectionAction(id: string): Promise<Acti
   if (!count) return { ok: false, error: "Bạn không có quyền xoá đơn này" };
 
   revalidateAttendanceCorrectionPaths();
+  // A manager may delete their own pending đơn from this same table, so the
+  // self-delete emits nothing. See requestAttendanceCorrectionsAction for why
+  // this is wrapped in after().
+  if (subject && subject.profile_id !== manager.id) {
+    const where = describeCorrectionShift(subject);
+    after(() =>
+      emitNotifications([
+        {
+          profileId: subject.profile_id,
+          kind: "attendance_correction_deleted",
+          title: "Đơn giải trình công đã bị xoá",
+          body: `${manager.full_name} đã xoá đơn giải trình công ${where} của bạn. Nếu vẫn cần giải trình ca này, vui lòng gửi lại đơn.`,
+          url: "/attendance/explain",
+          relatedId: id,
+        },
+      ])
+    );
+  }
   return { ok: true, data: undefined };
 }
 
@@ -410,13 +463,40 @@ export async function cancelAttendanceCorrectionAction(id: string): Promise<Acti
 // attendance row hasn't since been checked out or touched by another
 // approved correction.
 export async function revertAttendanceCorrectionAction(id: string): Promise<ActionResult> {
-  await requireProfile();
+  const responder = await requireProfile();
   const supabase = await createClient();
+  // Read before the RPC: it sets status back to 'pending', so reading
+  // afterwards could no longer tell whether an approval (and its attendance
+  // write) was undone or merely a rejection.
+  const subject = await readCorrectionSubject(supabase, id);
+
   const { error } = await supabase.rpc("revert_attendance_correction", { p_id: id });
 
   if (error) return { ok: false, error: mapAttendanceCorrectionError(error.message) };
 
   revalidateAttendanceCorrectionPaths();
+  // They were told the đơn was resolved; reverting it silently leaves them
+  // believing a check-in they no longer have. Technical can revert their own
+  // đơn, so the self-revert emits nothing.
+  if (subject && subject.profile_id !== responder.id) {
+    const where = describeCorrectionShift(subject);
+    const wasApproved = subject.status === "approved";
+    const body = wasApproved
+      ? `${responder.full_name} đã khôi phục đơn giải trình công ${where} của bạn về trạng thái chờ duyệt — phần chấm công đã sửa theo đơn này cũng được hoàn tác.`
+      : `${responder.full_name} đã khôi phục đơn giải trình công ${where} của bạn về trạng thái chờ duyệt.`;
+    after(() =>
+      emitNotifications([
+        {
+          profileId: subject.profile_id,
+          kind: "attendance_correction_reverted",
+          title: "Đơn giải trình công được khôi phục",
+          body,
+          url: "/attendance/explain",
+          relatedId: id,
+        },
+      ])
+    );
+  }
   return { ok: true, data: undefined };
 }
 
