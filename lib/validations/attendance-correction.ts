@@ -37,5 +37,7 @@ export type CheckoutCorrectionInput = z.infer<typeof checkoutCorrectionSchema>;
 
 export const correctionPreviewSchema = z.object({
   date: z.string().min(1, "Vui lòng chọn ngày"),
+  // Set once the user disambiguates a date carrying more than one shift.
+  shift_id: z.uuid().optional(),
 });
 export type CorrectionPreviewInput = z.infer<typeof correctionPreviewSchema>;

@@ -17,6 +17,10 @@ export type CorrectionPreview =
   | { kind: "no_discrepancy" }
   | { kind: "missed_check_in"; shift: Pick<Shift, "id" | "start_at" | "end_at"> }
   | { kind: "late_check_in"; shift: Pick<Shift, "id" | "start_at" | "end_at">; actualCheckInAt: string }
+  // More than one shift that day and the user hasn't said which — staff here
+  // routinely work a split day (08:00–12:00 and 14:00–18:00). Without the
+  // pick, only whichever shift the database returned first was correctable.
+  | { kind: "multiple_shifts"; shifts: Pick<Shift, "id" | "start_at" | "end_at">[] }
   | {
       kind: "check_out_available";
       shift: Pick<Shift, "id" | "start_at" | "end_at">;
@@ -37,6 +41,25 @@ function formatInVietnamDate(iso: string): string {
     month: "2-digit",
     day: "2-digit",
   }).format(new Date(iso));
+}
+
+// Resolve a wall-clock "HH:mm" against the shift it belongs to, as an absolute
+// instant. Overnight shifts end on the calendar day AFTER they start —
+// ShiftFormDialog rolls end_at forward when it would otherwise precede
+// start_at, and shifts_time_valid permits that — so a check-out of e.g. 02:00
+// on a 22:00→02:00 shift belongs to the next day. Anchoring it to the start
+// date would place it before the check-in and the RPC would reject every time
+// except 22:01–23:59. No upper bound is applied here on purpose: the RPC's
+// own end_at + 6h guard is the authority on how late is too late.
+// Vietnam has no DST, so +24h is exactly one calendar day.
+function resolveCheckOutInstant(shiftStartAt: string, checkOutTime: string): string {
+  const onStartDate = `${formatInVietnamDate(shiftStartAt)}T${checkOutTime}:00+07:00`;
+  if (new Date(onStartDate) > new Date(shiftStartAt)) return onStartDate;
+
+  const nextDate = formatInVietnamDate(
+    new Date(new Date(shiftStartAt).getTime() + 24 * 60 * 60_000).toISOString()
+  );
+  return `${nextDate}T${checkOutTime}:00+07:00`;
 }
 
 function mapAttendanceCorrectionError(message: string): string {
@@ -153,19 +176,26 @@ export async function requestCheckoutCorrectionAction(input: unknown): Promise<A
   // Resolve it against the shift's own date in Vietnam time — the shift is
   // what the RPC validates against, and building the timestamp from the
   // browser's clock would drift for anyone not on Asia/Ho_Chi_Minh.
-  const { data: shiftRows } = await supabase
+  const { data: shiftRows, error: shiftError } = await supabase
     .from("shifts")
     .select("start_at")
     .eq("id", parsed.data.shift_id)
     .eq("assignee_id", profile.id)
     .limit(1);
 
+  // Distinguish "the query failed" from "no such shift" — conflating them
+  // told the user their shift didn't exist after a transient RLS/network
+  // hiccup, giving them no reason to retry.
+  if (shiftError) {
+    return { ok: false, error: "Không thể xử lý đơn giải trình công" };
+  }
+
   const shift = ((shiftRows as Pick<Shift, "start_at">[]) ?? [])[0];
   if (!shift) {
     return { ok: false, error: "Không tìm thấy ca làm việc này" };
   }
 
-  const requestedCheckOutAt = `${formatInVietnamDate(shift.start_at)}T${parsed.data.check_out_time}:00+07:00`;
+  const requestedCheckOutAt = resolveCheckOutInstant(shift.start_at, parsed.data.check_out_time);
 
   const { error } = await supabase.rpc("request_attendance_correction_checkout", {
     p_shift_id: parsed.data.shift_id,
@@ -292,23 +322,52 @@ export async function getAttendanceCorrectionPreviewAction(
     .eq("assignee_id", profile.id)
     .gte("start_at", dayStart)
     .lte("start_at", dayEnd)
-    .limit(1);
+    .order("start_at");
 
-  const shift = ((shifts as Pick<Shift, "id" | "start_at" | "end_at">[]) ?? [])[0];
-  if (!shift) {
+  const shiftList = (shifts as Pick<Shift, "id" | "start_at" | "end_at">[]) ?? [];
+  if (shiftList.length === 0) {
     return { ok: true, data: { kind: "no_shift" } };
   }
 
-  const { data: attendanceRows } = await supabase
+  // A supplied id that isn't on this date is ignored rather than trusted, so
+  // a stale pick can't describe another day's shift.
+  const picked = parsed.data.shift_id
+    ? shiftList.find((s) => s.id === parsed.data.shift_id)
+    : undefined;
+  const shift = picked ?? (shiftList.length === 1 ? shiftList[0] : null);
+  if (!shift) {
+    return { ok: true, data: { kind: "multiple_shifts", shifts: shiftList } };
+  }
+
+  // Mirror the RPC's resolution order (0074): the row clock_in(p_shift_id)
+  // actually wrote for THIS shift, and only then the shiftless free-clock-in
+  // fallback for the same day. Matching by date alone — as this preview used
+  // to — is the bug 0072 fixed in the database: on a split day it happily
+  // described a session belonging to the other shift, and the check-out flow
+  // now seeds the submitted time from exactly this value.
+  const { data: byShiftRows } = await supabase
     .from("attendance")
     .select("*")
     .eq("profile_id", profile.id)
-    .gte("check_in_at", dayStart)
-    .lte("check_in_at", dayEnd)
+    .eq("shift_id", shift.id)
     .order("check_in_at", { ascending: false })
     .limit(1);
 
-  const attendance = ((attendanceRows as Attendance[]) ?? [])[0];
+  const attendanceForShift = ((byShiftRows as Attendance[]) ?? [])[0] ?? null;
+
+  const { data: shiftlessRows } = attendanceForShift
+    ? { data: null }
+    : await supabase
+        .from("attendance")
+        .select("*")
+        .eq("profile_id", profile.id)
+        .is("shift_id", null)
+        .gte("check_in_at", dayStart)
+        .lte("check_in_at", dayEnd)
+        .order("check_in_at", { ascending: false })
+        .limit(1);
+
+  const attendance = attendanceForShift ?? ((shiftlessRows as Attendance[] | null) ?? [])[0];
   if (!attendance) {
     return { ok: true, data: { kind: "missed_check_in", shift } };
   }

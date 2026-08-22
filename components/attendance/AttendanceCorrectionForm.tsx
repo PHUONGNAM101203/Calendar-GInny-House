@@ -17,6 +17,14 @@ import { TimePickerField } from "@/components/ui/time-picker-field";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { Shift } from "@/types";
 
 type CorrectionRow = {
   key: string;
@@ -24,6 +32,10 @@ type CorrectionRow = {
   preview: CorrectionPreview | null;
   previewError: string;
   loadingPreview: boolean;
+  // Populated only when the chosen date carries more than one shift; the
+  // selector stays on screen after picking so the choice can be changed.
+  shiftOptions: Pick<Shift, "id" | "start_at" | "end_at">[];
+  selectedShiftId: string;
   checkOutTime: string;
   reason: string;
   reasonError: string;
@@ -36,6 +48,8 @@ function emptyRow(key: string): CorrectionRow {
     preview: null,
     previewError: "",
     loadingPreview: false,
+    shiftOptions: [],
+    selectedShiftId: "",
     checkOutTime: "",
     reason: "",
     reasonError: "",
@@ -86,16 +100,29 @@ export default function AttendanceCorrectionForm() {
     setRows((prev) => prev.map((r) => (r.key === key ? { ...r, ...patch } : r)));
   }
 
-  async function handleDateChange(key: string, value: string) {
-    updateRow(key, { date: value, preview: null, previewError: "", loadingPreview: Boolean(value) });
-    if (!value) return;
-
-    const result = await getAttendanceCorrectionPreviewAction({ date: value });
+  async function runPreview(key: string, date: string, shiftId?: string) {
+    const result = await getAttendanceCorrectionPreviewAction(
+      shiftId ? { date, shift_id: shiftId } : { date }
+    );
     if (!result.ok) {
       updateRow(key, { previewError: result.error, loadingPreview: false });
       return;
     }
+
     const preview = result.data;
+    // Several shifts that day — offer the pick and defer the analysis until
+    // we know which shift the user means.
+    if (preview.kind === "multiple_shifts") {
+      updateRow(key, {
+        preview: null,
+        shiftOptions: preview.shifts,
+        selectedShiftId: "",
+        checkOutTime: "",
+        loadingPreview: false,
+      });
+      return;
+    }
+
     // Seed the field so the common case — nudging a recorded check-out by a
     // few minutes — starts from the real value instead of blank.
     updateRow(key, {
@@ -106,6 +133,33 @@ export default function AttendanceCorrectionForm() {
           ? formatVn(preview.actualCheckOutAt ?? preview.shift.end_at)
           : "",
     });
+  }
+
+  async function handleDateChange(key: string, value: string) {
+    updateRow(key, {
+      date: value,
+      preview: null,
+      previewError: "",
+      shiftOptions: [],
+      selectedShiftId: "",
+      checkOutTime: "",
+      reasonError: "",
+      loadingPreview: Boolean(value),
+    });
+    if (!value) return;
+    await runPreview(key, value);
+  }
+
+  async function handleShiftPick(row: CorrectionRow, shiftId: string) {
+    updateRow(row.key, {
+      selectedShiftId: shiftId,
+      preview: null,
+      previewError: "",
+      checkOutTime: "",
+      reasonError: "",
+      loadingPreview: true,
+    });
+    await runPreview(row.key, row.date, shiftId);
   }
 
   function addRow() {
@@ -238,6 +292,27 @@ export default function AttendanceCorrectionForm() {
                 </Button>
               )}
             </div>
+
+            {row.shiftOptions.length > 0 && (
+              <div className="space-y-1.5">
+                <Label htmlFor={`shift_pick_${row.key}`}>Ngày này có nhiều ca — chọn ca cần giải trình</Label>
+                <Select
+                  value={row.selectedShiftId}
+                  onValueChange={(value) => handleShiftPick(row, value)}
+                >
+                  <SelectTrigger id={`shift_pick_${row.key}`} className="w-full">
+                    <SelectValue placeholder="Chọn ca làm việc" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {row.shiftOptions.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {formatVn(s.start_at)}–{formatVn(s.end_at)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {row.loadingPreview && <p className="text-sm text-muted-foreground">Đang kiểm tra...</p>}
 

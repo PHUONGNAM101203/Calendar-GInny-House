@@ -135,8 +135,9 @@ export type AttendanceCorrection = {
   attendance_id: string | null;
   issue_type: AttendanceCorrectionIssue;
   kind: AttendanceCorrectionKind;
-  // Only the pair matching this row's kind is populated; the CHECK
-  // constraint in 0071 enforces that.
+  // attendance_corrections_time_by_issue (0071) only guarantees that the
+  // requested_* column matching this row's issue_type is NOT NULL. It says
+  // nothing about the other pair, so null-check before reading either.
   actual_check_in_at: string | null;
   requested_check_in_at: string | null;
   actual_check_out_at: string | null;
