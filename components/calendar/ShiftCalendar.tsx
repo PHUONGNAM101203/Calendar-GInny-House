@@ -34,7 +34,6 @@ import {
   type AttendanceWithProfileRole,
   type CalendarView,
 } from "@/lib/calendar";
-import { VIETNAM_HOLIDAYS } from "@/lib/holidays";
 import {
   getCalendarFollowGroups,
   isManagerRole,
@@ -67,6 +66,7 @@ import type {
   Branch,
   CustomCalendar,
   CustomEvent,
+  Holiday,
   Profile,
   Role,
   ShiftRequestDetailed,
@@ -87,6 +87,7 @@ export default function ShiftCalendar({
   leaveRequests,
   shiftRequests,
   attendanceCorrections,
+  holidays,
   branches,
   customCalendars,
   customEvents,
@@ -108,6 +109,7 @@ export default function ShiftCalendar({
   leaveRequests: LeaveRequestWithRole[];
   shiftRequests: ShiftRequestDetailed[];
   attendanceCorrections: AttendanceCorrectionDetailed[];
+  holidays: Holiday[];
   branches: Branch[];
   customCalendars: CustomCalendar[];
   customEvents: CustomEvent[];
@@ -236,8 +238,8 @@ export default function ShiftCalendar({
   const holidayEvents = useMemo(() => {
     if (!showHolidays) return [];
     const { start, end } = getVisibleRange(date, view);
-    return toHolidayEvents(VIETNAM_HOLIDAYS, start, end);
-  }, [date, view, showHolidays]);
+    return toHolidayEvents(holidays, start, end);
+  }, [holidays, date, view, showHolidays]);
   // Keyed by shift_id — used to badge the matching attendance session with
   // a "pending correction" indicator (see toAttendanceEvents). Built from
   // the raw RLS-scoped list (visibility, not approval rights) since the

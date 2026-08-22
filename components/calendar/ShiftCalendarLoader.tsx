@@ -8,6 +8,7 @@ import type {
   Branch,
   CustomCalendar,
   CustomEvent,
+  Holiday,
   Profile,
   Role,
   ShiftRequestDetailed,
@@ -45,6 +46,7 @@ export default function ShiftCalendarLoader(props: {
   leaveRequests: LeaveRequestWithRole[];
   shiftRequests: ShiftRequestDetailed[];
   attendanceCorrections: AttendanceCorrectionDetailed[];
+  holidays: Holiday[];
   branches: Branch[];
   customCalendars: CustomCalendar[];
   customEvents: CustomEvent[];

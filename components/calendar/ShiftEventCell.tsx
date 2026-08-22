@@ -21,8 +21,15 @@ const LEAVE_ICON = {
 
 export default function ShiftEventCell({ event }: EventProps<CalendarEvent>) {
   if (event.resource.kind === "holiday") {
+    const { note } = event.resource;
     return (
-      <div className="flex items-center gap-1.5 truncate">
+      // The note rides along as a native tooltip rather than a second line:
+      // a holiday banner is one row tall in every view, and /calendar is a
+      // locked surface. Hovering is enough to read "nghỉ bù thứ Hai".
+      <div
+        className="flex items-center gap-1.5 truncate"
+        title={note ? `${event.title} — ${note}` : event.title}
+      >
         <PartyPopperIcon className="size-3 shrink-0" />
         <span className="truncate">{event.title}</span>
       </div>

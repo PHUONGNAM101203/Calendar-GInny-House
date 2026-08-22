@@ -18,6 +18,7 @@ import type {
   AttendanceWithProfile,
   CustomCalendar,
   CustomEvent,
+  Holiday,
   LeaveRequestDetailed,
   Profile,
   Role,
@@ -25,7 +26,6 @@ import type {
   ShiftWithAssignee,
   SwapRequestDetailed,
 } from "@/types";
-import type { Holiday } from "@/lib/holidays";
 import { canApproveSwapRequestFor } from "@/lib/roles";
 import type { GroupPermissions } from "@/lib/permissions";
 
@@ -192,9 +192,10 @@ export type HolidayEvent = {
   id: string;
   title: string;
   start: Date;
+  // EXCLUSIVE — the day after the holiday's last day. See toHolidayEvents.
   end: Date;
   allDay: true;
-  resource: { kind: "holiday" };
+  resource: { kind: "holiday"; note: string | null };
 };
 
 export type AttendanceSession = {
@@ -325,25 +326,37 @@ export function isShiftRequestPendingEvent(event: CalendarEvent): event is Shift
 }
 
 // Holidays render as all-day banners (like Google Calendar's holiday row),
-// not real schedulable shifts — filtered to the visible range client-side
-// since the list is static, not a database query.
+// not real schedulable shifts. Rows come from the `holidays` table (0080),
+// editable by ceo/technical on /manager, and can span a range — Quốc khánh
+// "nghỉ từ 29/08 đến hết 02/09" is ONE row, not five.
+//
+// The +1 day on `end` is not a fudge. react-big-calendar computes an all-day
+// event's painted width in eventSegments() as
+// `diff(start, ceil(end, "day"), "day")`, and its `ceil` leaves a date that is
+// already exactly midnight untouched. So an end of 02/09T00:00 yields a span
+// of 4 (29, 30, 31, 01) and the 2nd is never painted — the end is EXCLUSIVE.
+// Handing it 03/09T00:00 yields 5 and covers through the 2nd, which is what
+// end_date being inclusive in the database means. Verified against
+// react-big-calendar 1.20.0's lib/utils/eventLevels.js + lib/utils/dates.js.
 export function toHolidayEvents(holidays: Holiday[], start: Date, end: Date): HolidayEvent[] {
   return holidays
-    .filter((h) => {
-      const d = new Date(`${h.date}T00:00:00`);
-      return d >= start && d <= end;
-    })
-    .map((h) => {
-      const d = new Date(`${h.date}T00:00:00`);
-      return {
-        id: `holiday-${h.date}`,
-        title: h.name,
-        start: d,
-        end: d,
-        allDay: true as const,
-        resource: { kind: "holiday" as const },
-      };
-    });
+    .map((h) => ({
+      holiday: h,
+      from: new Date(`${h.start_date}T00:00:00`),
+      endExclusive: addDays(new Date(`${h.end_date}T00:00:00`), 1),
+    }))
+    // Overlap test, not containment: a holiday that starts before the visible
+    // window and runs into it still has to render. Compared against the
+    // exclusive end so a holiday ending the day before `start` drops out.
+    .filter(({ from, endExclusive }) => from <= end && endExclusive > start)
+    .map(({ holiday, from, endExclusive }) => ({
+      id: `holiday-${holiday.id}`,
+      title: holiday.name,
+      start: from,
+      end: endExclusive,
+      allDay: true as const,
+      resource: { kind: "holiday" as const, note: holiday.note },
+    }));
 }
 
 // A viewer's own custom calendars ("Lịch khác" → "+" → "Tạo lịch mới") —

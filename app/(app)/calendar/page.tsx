@@ -16,6 +16,7 @@ import type {
   AttendanceCorrectionDetailed,
   CustomCalendar,
   CustomEvent,
+  Holiday,
   Profile,
   ShiftRequestDetailed,
   ShiftWithAssignee,
@@ -93,6 +94,7 @@ export default async function CalendarPage({
     { data: branchColorRows },
     { data: shiftRequests },
     { data: attendanceCorrections },
+    { data: holidays },
     // Joined to the batch rather than awaited above it: it depends on none of
     // these queries, so awaiting it first cost every page view an extra
     // serialized round-trip.
@@ -164,6 +166,17 @@ export default async function CalendarPage({
       .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at)")
       .eq("status", "pending")
       .order("created_at", { ascending: false }),
+    // Unfiltered on purpose. The table is ~34 rows of national holidays, so
+    // range-scoping it would save nothing measurable while introducing a real
+    // failure mode: the client re-derives its own visible range on nav, and a
+    // server-side window narrower than the client's would blank out a banner
+    // until the round trip landed. toHolidayEvents does the range filtering.
+    //
+    // Also deliberately NOT wrapped in unstable_cache the way getBranches() is
+    // — nothing in this repo ever calls revalidateTag, so a cached read would
+    // leave an edit invisible for up to an hour, which is precisely the
+    // problem this feature exists to fix.
+    supabase.from("holidays").select("*").order("start_date"),
     getGroupPermissions(),
   ]);
 
@@ -190,6 +203,7 @@ export default async function CalendarPage({
       leaveRequests={(leaveRequests as LeaveRequestWithRole[]) ?? []}
       shiftRequests={(shiftRequests as ShiftRequestDetailed[]) ?? []}
       attendanceCorrections={(attendanceCorrections as AttendanceCorrectionDetailed[]) ?? []}
+      holidays={(holidays as Holiday[]) ?? []}
       branches={branches}
       customCalendars={(customCalendars as CustomCalendar[]) ?? []}
       customEvents={(customEvents as CustomEvent[]) ?? []}
