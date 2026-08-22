@@ -6,8 +6,12 @@ import { createClient } from "@/lib/supabase/server";
 import { requireManager } from "@/lib/auth";
 import { assertAssigneeAllowed, resolveShiftBranchId } from "@/lib/shift-guards";
 import { describeSeriesRange, describeSeriesRule } from "@/lib/shift-series";
-import { shiftSeriesSchema, shiftSeriesDeleteSchema } from "@/lib/validations/shift-series";
-import { emitNotifications } from "@/lib/notifications-emit";
+import {
+  shiftSeriesSchema,
+  shiftSeriesDeleteSchema,
+  assignShiftSlotSchema,
+} from "@/lib/validations/shift-series";
+import { emitNotifications, formatShiftWindow } from "@/lib/notifications-emit";
 import type { ActionResult } from "@/types";
 
 export type SeriesSkip = { date: string; reason: string };
@@ -16,11 +20,16 @@ export type SeriesCreateSummary = {
   seriesId: string;
   created: number;
   skipped: SeriesSkip[];
+  // True when the rule was planned without anyone on it, so `created` counts
+  // empty slots rather than shifts. Drives the wording and, more importantly,
+  // suppresses the notification — an empty slot has nobody to notify.
+  unassigned: boolean;
 };
 
 export type SeriesDeleteSummary = {
   deleted: number;
   kept: number;
+  slotsDeleted: number;
   seriesRemoved: boolean;
 };
 
@@ -41,6 +50,16 @@ const KNOWN_SERIES_ERRORS = [
   "Không tìm thấy ca cố định này",
   "Vui lòng chọn khoảng ngày",
   "Phạm vi xoá không hợp lệ",
+  // Đợt 3 — ô trống (0079)
+  "Bạn không có quyền tạo ca cố định",
+  "Bạn không có quyền xoá ca cố định này",
+  "Bạn không có quyền xoá ô ca này",
+  "Vui lòng chọn nhân viên",
+  "Ô ca này không còn nữa",
+  "Nhân viên này đã có ca trùng giờ",
+  // Raised by the quản sinh trigger on `shifts` (0055), which assign_shift_slot
+  // goes through like any other write into that table.
+  "Đã có quản sinh khác trực ca bắt đầu cùng giờ này",
 ];
 
 function mapSeriesError(message: string, fallback: string): string {
@@ -57,6 +76,7 @@ function readCreateSummary(payload: unknown): SeriesCreateSummary {
     seriesId: typeof row.series_id === "string" ? row.series_id : "",
     created: typeof row.created === "number" ? row.created : 0,
     skipped: Array.isArray(row.skipped) ? (row.skipped as SeriesSkip[]) : [],
+    unassigned: row.unassigned === true,
   };
 }
 
@@ -65,6 +85,7 @@ function readDeleteSummary(payload: unknown): SeriesDeleteSummary {
   return {
     deleted: typeof row.deleted === "number" ? row.deleted : 0,
     kept: typeof row.kept === "number" ? row.kept : 0,
+    slotsDeleted: typeof row.slots_deleted === "number" ? row.slots_deleted : 0,
     seriesRemoved: row.series_removed === true,
   };
 }
@@ -86,21 +107,26 @@ export async function createShiftSeriesAction(
   const supabase = await createClient();
   const branchId = await resolveShiftBranchId(parsed.data.shift_type, parsed.data.branch_id);
 
-  const assigneeError = await assertAssigneeAllowed(
-    supabase,
-    manager.role,
-    parsed.data.assignee_id,
-    branchId,
-    parsed.data.shift_type === "remote"
-  );
-  if (assigneeError) return { ok: false, error: assigneeError };
+  // Only meaningful when a person was chosen. With no assignee there is
+  // nobody to scope against, and the RPC falls back to can_manage_shift_slots()
+  // — "may this caller schedule anyone at all" — as its own gate.
+  if (parsed.data.assignee_id) {
+    const assigneeError = await assertAssigneeAllowed(
+      supabase,
+      manager.role,
+      parsed.data.assignee_id,
+      branchId,
+      parsed.data.shift_type === "remote"
+    );
+    if (assigneeError) return { ok: false, error: assigneeError };
+  }
 
   // The whole rule goes to Postgres as weekdays + times + dates, never as a
   // list of computed instants: only the database knows to resolve them in
   // Asia/Ho_Chi_Minh, and only the database can check each occurrence against
   // the overlap constraint and the quản sinh trigger before inserting it.
   const { data, error } = await supabase.rpc("create_shift_series", {
-    p_assignee_id: parsed.data.assignee_id,
+    p_assignee_id: parsed.data.assignee_id ?? null,
     p_branch_id: branchId,
     p_shift_type: parsed.data.shift_type,
     p_weekdays: parsed.data.weekdays,
@@ -120,8 +146,11 @@ export async function createShiftSeriesAction(
   revalidateSeriesPaths();
 
   // One notification for the whole batch, not one per occurrence — a dozen
-  // identical bell rows for a single action is noise, not information.
-  if (summary.created > 0) {
+  // identical bell rows for a single action is noise, not information. Skipped
+  // entirely for an unassigned rule: it produced empty slots, which belong to
+  // nobody and which staff are not allowed to see in the first place.
+  const assigneeId = parsed.data.assignee_id;
+  if (summary.created > 0 && assigneeId) {
     const rule = describeSeriesRule({
       weekdays: parsed.data.weekdays,
       interval_weeks: parsed.data.interval_weeks,
@@ -135,7 +164,7 @@ export async function createShiftSeriesAction(
     after(() =>
       emitNotifications([
         {
-          profileId: parsed.data.assignee_id,
+          profileId: assigneeId,
           kind: "shift_assigned",
           title: "Ca cố định mới",
           body: `Bạn được xếp ${summary.created} ca: ${rule} (${range})`,
@@ -172,10 +201,13 @@ export async function deleteShiftSeriesAction(
 
   const summary = readDeleteSummary(data);
 
-  // Nothing removed and nothing kept means the scope matched no occurrence at
-  // all. Reported as a failure rather than a silent "Đã xoá" — the same
-  // false-success trap that count: "exact" fixes for the single-shift delete.
-  if (summary.deleted === 0 && summary.kept === 0) {
+  // Nothing removed, nothing kept and no empty slot touched means the scope
+  // matched no occurrence at all. Reported as a failure rather than a silent
+  // "Đã xoá" — the same false-success trap that count: "exact" fixes for the
+  // single-shift delete. slotsDeleted has to be in this test: a rule that was
+  // never assigned has only slots, so leaving it out would call a successful
+  // cleanup a failure.
+  if (summary.deleted === 0 && summary.kept === 0 && summary.slotsDeleted === 0) {
     return { ok: false, error: "Không có ca nào trong phạm vi đã chọn" };
   }
 
@@ -202,4 +234,99 @@ export async function deleteShiftSeriesAction(
   }
 
   return { ok: true, data: summary };
+}
+
+export type SlotAssignSummary = {
+  shiftId: string;
+  startAt: string;
+  endAt: string;
+};
+
+// Puts a person on an empty slot, turning it into a real shift. The RPC does
+// the conversion atomically — insert the shift, drop the slot — so a slot can
+// never survive as a duplicate of the shift it became.
+export async function assignShiftSlotAction(
+  input: unknown
+): Promise<ActionResult<SlotAssignSummary>> {
+  const manager = await requireManager();
+  const parsed = assignShiftSlotSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" };
+  }
+
+  const supabase = await createClient();
+
+  // The slot carries the branch, so the branch-membership half of this guard
+  // needs it before the RPC runs. Read separately rather than trusting the
+  // client: the slot id is the only thing that crossed the wire.
+  const { data: slot } = await supabase
+    .from("shift_slots")
+    .select("branch_id, shift_type")
+    .eq("id", parsed.data.slot_id)
+    .maybeSingle();
+  if (!slot) return { ok: false, error: "Ô ca này không còn nữa" };
+
+  const assigneeError = await assertAssigneeAllowed(
+    supabase,
+    manager.role,
+    parsed.data.assignee_id,
+    slot.branch_id,
+    slot.shift_type === "remote"
+  );
+  if (assigneeError) return { ok: false, error: assigneeError };
+
+  const { data, error } = await supabase.rpc("assign_shift_slot", {
+    p_slot_id: parsed.data.slot_id,
+    p_assignee_id: parsed.data.assignee_id,
+  });
+
+  if (error) {
+    return { ok: false, error: mapSeriesError(error.message, "Không thể gán ca cho nhân viên") };
+  }
+
+  const row = (data ?? {}) as Record<string, unknown>;
+  const summary: SlotAssignSummary = {
+    shiftId: typeof row.shift_id === "string" ? row.shift_id : "",
+    startAt: typeof row.start_at === "string" ? row.start_at : "",
+    endAt: typeof row.end_at === "string" ? row.end_at : "",
+  };
+
+  revalidateSeriesPaths();
+
+  // Now there IS someone to tell — this is the moment a plan becomes their
+  // shift, so it gets the same notification a directly-created shift gets.
+  if (summary.startAt && summary.endAt) {
+    after(() =>
+      emitNotifications([
+        {
+          profileId: parsed.data.assignee_id,
+          kind: "shift_assigned",
+          title: "Ca làm việc mới",
+          body: `Bạn được xếp ca ${formatShiftWindow(summary.startAt, summary.endAt)}`,
+          url: "/calendar",
+          relatedId: summary.shiftId || null,
+        },
+      ])
+    );
+  }
+
+  return { ok: true, data: summary };
+}
+
+// Removing a single empty slot. No notification and no attendance check: an
+// unassigned slot belongs to nobody and cannot have a clock-in against it.
+export async function deleteShiftSlotAction(slotId: string): Promise<ActionResult> {
+  await requireManager();
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.rpc("delete_shift_slot", { p_slot_id: slotId });
+  if (error) {
+    return { ok: false, error: mapSeriesError(error.message, "Không thể xoá ô ca") };
+  }
+  // The RPC returns false when the row was already gone — reported rather than
+  // toasted as success, so a stale list never claims a delete that did nothing.
+  if (data !== true) return { ok: false, error: "Ô ca này không còn nữa" };
+
+  revalidateSeriesPaths();
+  return { ok: true, data: undefined };
 }

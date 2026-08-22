@@ -21,7 +21,10 @@ function spanInDays(from: string, to: string): number {
 
 export const shiftSeriesSchema = z
   .object({
-    assignee_id: z.uuid("Vui lòng chọn nhân viên"),
+    // Optional since Đợt 3: leaving it empty plans the rule without putting
+    // anyone on it, and the RPC materialises `shift_slots` instead of
+    // `shifts`. A manager fills each slot later via assignShiftSlotAction.
+    assignee_id: z.uuid("Vui lòng chọn nhân viên").optional(),
     // Optional for the same reason as shiftSchema's: a remote series has no
     // real branch, and actions/shift-series.ts fills in the synthetic Remote
     // branch (0066). Required again for every other shift type, below.
@@ -93,3 +96,12 @@ export const shiftSeriesDeleteSchema = z
     path: ["to"],
   });
 export type ShiftSeriesDeleteInput = z.infer<typeof shiftSeriesDeleteSchema>;
+
+// Putting a person on an empty slot. assignee_id is required here even though
+// it is optional when creating the rule — this action's whole purpose is to
+// supply the name that was missing.
+export const assignShiftSlotSchema = z.object({
+  slot_id: z.uuid("Không xác định được ô ca"),
+  assignee_id: z.uuid("Vui lòng chọn nhân viên"),
+});
+export type AssignShiftSlotInput = z.infer<typeof assignShiftSlotSchema>;

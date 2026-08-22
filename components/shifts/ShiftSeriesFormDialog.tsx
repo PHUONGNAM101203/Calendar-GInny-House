@@ -42,8 +42,14 @@ const INTERVAL_OPTIONS = [1, 2, 3, 4] as const;
 // Only the three fields react-hook-form is actually useful for. Everything
 // else (weekdays, times, dates, interval, shift type) is local state, the same
 // split ShiftFormDialog uses — those controls aren't inputs and don't register.
+// Radix Select cannot hold an empty string as an item value, so "leave it
+// empty" needs a sentinel of its own rather than "".
+const NO_ASSIGNEE = "__none__";
+
 const formSchema = z.object({
-  assignee_id: z.uuid("Vui lòng chọn nhân viên"),
+  // Optional since Đợt 3 — an empty assignee plans the rule as unfilled slots
+  // that a manager assigns later. Validated as a uuid only when present.
+  assignee_id: z.union([z.uuid(), z.literal(NO_ASSIGNEE)]).optional(),
   branch_id: z.uuid("Vui lòng chọn cơ sở").optional(),
   note: z.string().max(280, "Ghi chú tối đa 280 ký tự").optional(),
 });
@@ -153,8 +159,11 @@ export default function ShiftSeriesFormDialog({
     // Times and dates are sent as they are typed — "18:00", "2026-09-01" —
     // never converted to an instant here. A rule has no instant, and this
     // browser's timezone is not the one the shifts belong to.
+    const assigneeId =
+      values.assignee_id && values.assignee_id !== NO_ASSIGNEE ? values.assignee_id : undefined;
+
     const result = await createShiftSeriesAction({
-      assignee_id: values.assignee_id,
+      assignee_id: assigneeId,
       branch_id: values.branch_id,
       shift_type: shiftType,
       weekdays,
@@ -172,7 +181,11 @@ export default function ShiftSeriesFormDialog({
     }
     setSummary(result.data);
     if (result.data.created > 0) {
-      toast.success(`Đã tạo ${result.data.created} ca cố định`);
+      toast.success(
+        result.data.unassigned
+          ? `Đã tạo ${result.data.created} ô ca chưa gán người`
+          : `Đã tạo ${result.data.created} ca cố định`
+      );
     }
   }
 
@@ -198,8 +211,14 @@ export default function ShiftSeriesFormDialog({
         {summary ? (
           <div className="space-y-4">
             <p className="text-sm">
-              Đã tạo <span className="font-semibold tabular-nums">{summary.created}</span> ca.
+              Đã tạo <span className="font-semibold tabular-nums">{summary.created}</span>{" "}
+              {summary.unassigned ? "ô ca chưa gán người." : "ca."}
             </p>
+            {summary.unassigned && summary.created > 0 && (
+              <p className="text-muted-foreground text-sm">
+                Gán người cho từng ô ở mục &ldquo;Ô ca chưa gán người&rdquo; bên dưới.
+              </p>
+            )}
             {summary.skipped.length > 0 && (
               <div className="border-input space-y-2 rounded-lg border p-3">
                 <p className="text-sm font-medium">Bỏ qua {summary.skipped.length} ngày:</p>
@@ -226,7 +245,7 @@ export default function ShiftSeriesFormDialog({
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="series_assignee_id">Nhân viên</Label>
+              <Label htmlFor="series_assignee_id">Nhân viên (không bắt buộc)</Label>
               <Controller
                 control={control}
                 name="assignee_id"
@@ -236,6 +255,7 @@ export default function ShiftSeriesFormDialog({
                       <SelectValue placeholder="Chọn nhân viên" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value={NO_ASSIGNEE}>Để trống — gán người sau</SelectItem>
                       {branchMembers.map((member) => (
                         <SelectItem key={member.id} value={member.id}>
                           {member.full_name}
@@ -248,6 +268,10 @@ export default function ShiftSeriesFormDialog({
               {errors.assignee_id && (
                 <p className="text-destructive text-sm">{errors.assignee_id.message}</p>
               )}
+              <p className="text-muted-foreground text-xs">
+                Để trống nếu chưa biết ai trực — hệ thống tạo sẵn các ô ca để gán người sau.
+                Nhân viên không nhìn thấy ô trống.
+              </p>
             </div>
 
             {shiftType !== "remote" && (

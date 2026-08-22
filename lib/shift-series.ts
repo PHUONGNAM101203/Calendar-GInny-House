@@ -54,6 +54,46 @@ export function formatSeriesDate(date: string): string {
   return `${day}/${month}/${year}`;
 }
 
+// An empty slot's window, e.g. "T2 07/09/2026 · 09:00–11:00". The zone is
+// pinned rather than left to the runtime for the same reason as
+// lib/notifications-emit.ts: this renders on the server too, and that process
+// has no TZ of its own, so a late-evening slot would land on the wrong day.
+const VN_SLOT_DATE = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Asia/Ho_Chi_Minh",
+  weekday: "short",
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
+const VN_SLOT_TIME = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Asia/Ho_Chi_Minh",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+// en-GB gives "Mon, 07/09/2026"; the app writes weekdays as T2…CN, so the
+// English name is swapped out rather than pulling in a second locale.
+const WEEKDAY_FROM_EN: Record<string, string> = {
+  Mon: "T2",
+  Tue: "T3",
+  Wed: "T4",
+  Thu: "T5",
+  Fri: "T6",
+  Sat: "T7",
+  Sun: "CN",
+};
+
+export function formatSlotWindow(startAt: string, endAt: string): string {
+  const parts = VN_SLOT_DATE.formatToParts(new Date(startAt));
+  const weekday = parts.find((part) => part.type === "weekday")?.value ?? "";
+  const day = parts.find((part) => part.type === "day")?.value ?? "";
+  const month = parts.find((part) => part.type === "month")?.value ?? "";
+  const year = parts.find((part) => part.type === "year")?.value ?? "";
+  const label = `${WEEKDAY_FROM_EN[weekday] ?? weekday} ${day}/${month}/${year}`;
+  return `${label} · ${VN_SLOT_TIME.format(new Date(startAt))}–${VN_SLOT_TIME.format(new Date(endAt))}`;
+}
+
 export function describeSeriesRange(series: Pick<ShiftSeries, "starts_on" | "ends_on">): string {
   const from = formatSeriesDate(series.starts_on);
   // ends_on null is Đợt 2's "không kết thúc" — the column already allows it,

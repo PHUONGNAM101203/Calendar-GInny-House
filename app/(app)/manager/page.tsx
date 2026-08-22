@@ -39,6 +39,7 @@ import type {
   Profile,
   ShiftRequestDetailed,
   ShiftSeriesDetailed,
+  ShiftSlotDetailed,
   SwapRequestDetailed,
 } from "@/types";
 
@@ -202,6 +203,7 @@ export default async function ManagerPage({
     { data: shiftsOverview },
     permissions,
     { data: shiftSeries },
+    { data: shiftSlots },
     // Joined to the batch rather than awaited above it: it depends on none of
     // these queries, so awaiting it first cost every page view an extra
     // serialized round-trip.
@@ -281,6 +283,16 @@ export default async function ManagerPage({
         "*, assignee:profiles!assignee_id(id, full_name, role), branch:branches!branch_id(id, name)"
       )
       .order("created_at", { ascending: false }),
+    // Ô ca trống chưa gán người (0079). Only rows from today onward: a slot in
+    // the past can no longer be filled by anyone, and listing them would bury
+    // the ones a manager can still act on. RLS gives staff no policy at all
+    // here, so this returns nothing for them even if the query ever ran.
+    supabase
+      .from("shift_slots")
+      .select("*, branch:branches!branch_id(id, name)")
+      .gte("start_at", todayStart)
+      .order("start_at")
+      .limit(500),
   ]);
 
   type StaffQueryRow = Pick<
@@ -314,6 +326,7 @@ export default async function ManagerPage({
   // generated DB types supabase-js models the embedded assignee/branch as
   // arrays, though each series has exactly one of each.
   const shiftSeriesList = (shiftSeries as unknown as ShiftSeriesDetailed[]) ?? [];
+  const shiftSlotsList = (shiftSlots as unknown as ShiftSlotDetailed[]) ?? [];
 
   const isTechnical = manager.role === "technical";
 
@@ -376,8 +389,11 @@ export default async function ManagerPage({
   const scopedShiftsOverview = rosterRoles
     ? shiftsOverviewList.filter((s) => scopedStaffIds.has(s.assignee.id))
     : shiftsOverviewList;
+  // An unassigned rule (Đợt 3) has nobody to scope against, so it stays
+  // visible to every manager who may schedule at all — RLS already refused it
+  // to anyone else before it reached this page.
   const scopedShiftSeries = rosterRoles
-    ? shiftSeriesList.filter((s) => scopedStaffIds.has(s.assignee.id))
+    ? shiftSeriesList.filter((s) => !s.assignee || scopedStaffIds.has(s.assignee.id))
     : shiftSeriesList;
   // The assignee picker for a new series: the people this manager may schedule,
   // minus anyone deactivated — a fixed weekly shift for someone who has left is
@@ -501,6 +517,7 @@ export default async function ManagerPage({
         <Section id="shift-series" title="Ca cố định" count={scopedShiftSeries.length}>
           <ShiftSeriesSection
             series={scopedShiftSeries}
+            slots={shiftSlotsList}
             branchMembers={seriesAssignees}
             branches={branches}
           />

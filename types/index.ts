@@ -71,7 +71,10 @@ export type Shift = {
 export type ShiftSeries = {
   id: string;
   branch_id: string;
-  assignee_id: string;
+  // Null once Đợt 3 (0079) allowed a rule to be planned before anyone is put
+  // on it. A null-assignee series materialises into `shift_slots`, not
+  // `shifts`, so nothing downstream ever reads a shift without an assignee.
+  assignee_id: string | null;
   shift_type: ShiftType;
   note: string | null;
   weekdays: number[];
@@ -85,7 +88,28 @@ export type ShiftSeries = {
 };
 
 export type ShiftSeriesDetailed = ShiftSeries & {
-  assignee: Pick<Profile, "id" | "full_name" | "role">;
+  // Null in step with assignee_id — an unassigned rule has nobody to join to.
+  assignee: Pick<Profile, "id" | "full_name" | "role"> | null;
+  branch: Pick<Branch, "id" | "name">;
+};
+
+// An occurrence of a rule that nobody is on yet — Đợt 3, table `shift_slots`
+// (0079). Deliberately NOT a `shifts` row with a null assignee: see the long
+// note at the top of that migration. Staff never see these; RLS gives them no
+// policy at all, so they are invisible below the app layer too.
+export type ShiftSlot = {
+  id: string;
+  branch_id: string;
+  series_id: string | null;
+  shift_type: ShiftType;
+  note: string | null;
+  start_at: string;
+  end_at: string;
+  created_by: string | null;
+  created_at: string;
+};
+
+export type ShiftSlotDetailed = ShiftSlot & {
   branch: Pick<Branch, "id" | "name">;
 };
 
@@ -246,6 +270,25 @@ export type NotificationRow = {
   related_id: string | null;
   read_at: string | null;
   created_at: string;
+};
+
+// A Vietnamese public holiday, table `holidays` (0080). Both ends are
+// INCLUSIVE — Quốc khánh running 29/08 "đến hết" 02/09 is start_date
+// 2025-08-29, end_date 2025-09-02. toHolidayEvents() in lib/calendar.ts is
+// the one place that converts this to react-big-calendar's exclusive end.
+//
+// Display-only: no business rule (leave validation, shift creation, late
+// detection, either cron route) reads holidays, and none should start to
+// without a deliberate decision.
+export type Holiday = {
+  id: string;
+  name: string;
+  start_date: string;
+  end_date: string;
+  note: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
 export type ActionResult<T = undefined> =
