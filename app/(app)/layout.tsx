@@ -1,7 +1,12 @@
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { isManagerRole } from "@/lib/roles";
-import { buildNotifications } from "@/lib/notifications";
+import {
+  buildNotifications,
+  mapStoredNotifications,
+  mergeNotifications,
+  type StoredNotification,
+} from "@/lib/notifications";
 import { getGroupPermissions } from "@/lib/permissions-server";
 import AppHeader from "@/components/layout/AppHeader";
 import type {
@@ -25,6 +30,7 @@ export default async function AppShellLayout({
     { data: leaves },
     { data: shiftRequests },
     { data: attendanceCorrections },
+    { data: storedNotifications },
     // Joined to the batch rather than awaited after it: buildNotifications
     // needs it, but the query itself depends on none of these, so awaiting it
     // separately cost every page view an extra serialized round-trip.
@@ -52,17 +58,31 @@ export default async function AppShellLayout({
       .select("*, profile:profiles!profile_id(id, full_name)")
       .order("created_at", { ascending: false })
       .limit(15),
+    // The stored half of the bell (0077) — shift assigned/changed/deleted and
+    // the two attendance-cron events, which no request table can express.
+    // The .eq is belt-and-braces: policy notifications_select_own already
+    // makes it impossible to read anyone else's rows, and that policy is the
+    // actual boundary — this only makes the intent obvious at the call site.
+    supabase
+      .from("notifications")
+      .select("id, title, body, url, created_at")
+      .eq("profile_id", profile.id)
+      .order("created_at", { ascending: false })
+      .limit(15),
     getGroupPermissions(),
   ]);
 
-  const notifications = buildNotifications({
-    profile,
-    swaps: (swaps as SwapRequestDetailed[]) ?? [],
-    leaves: (leaves as LeaveRequestDetailed[]) ?? [],
-    shiftRequests: (shiftRequests as ShiftRequestDetailed[]) ?? [],
-    attendanceCorrections: (attendanceCorrections as AttendanceCorrectionDetailed[]) ?? [],
-    permissions,
-  });
+  const notifications = mergeNotifications(
+    buildNotifications({
+      profile,
+      swaps: (swaps as SwapRequestDetailed[]) ?? [],
+      leaves: (leaves as LeaveRequestDetailed[]) ?? [],
+      shiftRequests: (shiftRequests as ShiftRequestDetailed[]) ?? [],
+      attendanceCorrections: (attendanceCorrections as AttendanceCorrectionDetailed[]) ?? [],
+      permissions,
+    }),
+    mapStoredNotifications((storedNotifications as StoredNotification[]) ?? [])
+  );
 
   return (
     // min-h-0 below is load-bearing, not tidying. A flex item defaults to

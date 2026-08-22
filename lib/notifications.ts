@@ -1,6 +1,6 @@
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
-import { isManagerRole, canApproveShiftRequestFor } from "@/lib/roles";
+import { isManagerRole, isLeaveApprover, canApproveShiftRequestFor } from "@/lib/roles";
 import type { GroupPermissions } from "@/lib/permissions";
 import type {
   AttendanceCorrectionDetailed,
@@ -38,6 +38,12 @@ export function buildNotifications({
   permissions: GroupPermissions;
 }): AppNotification[] {
   const isManager = isManagerRole(profile.role);
+  // Leave and giải trình công are the two things HR actually approves
+  // (isLeaveApprover covers both — see its comment in lib/roles.ts), but HR
+  // is not manager-tier, so gating those two branches on isManagerRole alone
+  // hid from HR the very requests it is responsible for. Swap and shift
+  // requests keep gating on isManager, which is correct for them.
+  const seesPendingApprovals = isManager || isLeaveApprover(profile.role);
   const recentCutoff = Date.now() - 3 * 24 * 60 * 60 * 1000;
   const items: AppNotification[] = [];
 
@@ -72,7 +78,7 @@ export function buildNotifications({
 
   for (const l of leaves) {
     const isMine = l.profile_id === profile.id;
-    if (l.status === "pending" && isManager) {
+    if (l.status === "pending" && seesPendingApprovals) {
       items.push({
         id: `leave-${l.id}`,
         text: `${l.profile.full_name} gửi đơn xin nghỉ phép đang chờ duyệt`,
@@ -120,7 +126,7 @@ export function buildNotifications({
 
   for (const c of attendanceCorrections) {
     const isMine = c.profile_id === profile.id;
-    if (c.status === "pending" && isManager) {
+    if (c.status === "pending" && seesPendingApprovals) {
       items.push({
         id: `attendance-correction-${c.id}`,
         text: `${c.profile.full_name} gửi đơn giải trình công đang chờ duyệt`,
@@ -148,6 +154,43 @@ export function buildNotifications({
   }
 
   return items.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime()).slice(0, 10);
+}
+
+// A stored row from the notifications table (0077), as the bell needs it.
+export type StoredNotification = {
+  id: string;
+  title: string;
+  body: string;
+  url: string | null;
+  created_at: string;
+};
+
+// The second source. buildNotifications() derives its items from the four
+// request tables and cannot represent an event whose row is gone (a deleted
+// shift, a reassigned one); those arrive here instead, already composed in
+// Vietnamese at write time.
+export function mapStoredNotifications(rows: StoredNotification[]): AppNotification[] {
+  return rows.map((row) => ({
+    // Namespaced so a stored row's uuid can never collide with a derived
+    // item's `swap-<id>` / `leave-<id>` key.
+    id: `stored-${row.id}`,
+    text: row.body,
+    href: row.url ?? "/calendar",
+    at: row.created_at,
+    // Phase A emits informational events only — nothing here is an approval
+    // waiting on the recipient.
+    needsAction: false,
+  }));
+}
+
+// Two sources, one shape. Kept identical to buildNotifications()'s own final
+// sort-and-take-10 so the bell shows the ten most recent items overall
+// regardless of which source they came from.
+export function mergeNotifications(...groups: AppNotification[][]): AppNotification[] {
+  return groups
+    .flat()
+    .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+    .slice(0, 10);
 }
 
 export function formatNotificationTime(at: string): string {
