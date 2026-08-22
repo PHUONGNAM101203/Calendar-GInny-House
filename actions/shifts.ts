@@ -176,20 +176,27 @@ export async function updateShiftAction(
         shift_type: parsed.data.shift_type,
         note: parsed.data.note || null,
       },
-      // Only to decide whether to notify. An RLS-denied update reports no
-      // error and touches no rows, and nobody should be told their shift
-      // moved when it did not. The action's own return value is deliberately
-      // left as it was.
+      // An RLS-denied update reports no error and touches no rows. Without
+      // this the action returned ok and the dialog toasted "Đã cập nhật ca
+      // làm việc" for a shift that never moved — the same bug fixed in
+      // deleteShiftAction below, so it is fixed the same way here.
       { count: "exact" }
     )
     .eq("id", id);
 
   if (error) return { ok: false, error: mapShiftError(error.message) };
+  // Strictly `=== 0`, not falsy. postgrest-js parses count from the
+  // content-range header in PostgrestBuilder, shared by every verb — verified
+  // against the live database that a zero-match PATCH really does return the
+  // number 0 (not null), even on a 204. Should that ever stop holding, null
+  // means "unknown", and an unknown must not be read as a refusal: that would
+  // fail every legitimate edit.
+  if (count === 0) return { ok: false, error: "Bạn không có quyền sửa ca làm việc này" };
 
   revalidatePath("/calendar");
   revalidatePath("/manager");
 
-  if (previous && count) {
+  if (previous) {
     const newWindow = formatShiftWindow(parsed.data.start_at, parsed.data.end_at);
     const reassigned = previous.assignee_id !== parsed.data.assignee_id;
     // A note-only edit is not worth a notification; a change of time, branch
