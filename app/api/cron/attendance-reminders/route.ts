@@ -73,7 +73,7 @@ export async function GET(request: Request) {
   // which nothing did before. Both ride the SAME de-duplication — the
   // notified_at stamp below — so nobody is told twice about one shift.
   if (late.length) {
-    await emitNotifications(
+    const stored = await emitNotifications(
       late.map((s) => ({
         profileId: s.profile_id,
         kind: "missed_check_in" as const,
@@ -83,13 +83,21 @@ export async function GET(request: Request) {
         relatedId: s.shift_id,
       }))
     );
-    await supabaseAdmin
-      .from("shifts")
-      .update({ late_checkin_notified_at: new Date().toISOString() })
-      .in(
-        "id",
-        late.map((s) => s.shift_id)
-      );
+    // Only stamp once the rows are actually stored. Stamping regardless would
+    // burn the one-shot flag on a failed insert and lose these events
+    // permanently; leaving it unstamped means the next hourly run retries
+    // them. The cost is that Kỹ thuật may see its digest twice for the same
+    // shift while the insert keeps failing — recoverable noise, and a louder
+    // signal than silence.
+    if (stored) {
+      await supabaseAdmin
+        .from("shifts")
+        .update({ late_checkin_notified_at: new Date().toISOString() })
+        .in(
+          "id",
+          late.map((s) => s.shift_id)
+        );
+    }
   }
 
   if (technicalIds.length && stale.length) {
@@ -105,7 +113,7 @@ export async function GET(request: Request) {
   }
   // Per-person half, as above — same rows, same one-shot stamp.
   if (stale.length) {
-    await emitNotifications(
+    const stored = await emitNotifications(
       stale.map((s) => ({
         profileId: s.profile_id,
         kind: "stale_check_out" as const,
@@ -115,13 +123,16 @@ export async function GET(request: Request) {
         relatedId: s.attendance_id,
       }))
     );
-    await supabaseAdmin
-      .from("attendance")
-      .update({ stale_checkout_notified_at: new Date().toISOString() })
-      .in(
-        "id",
-        stale.map((s) => s.attendance_id)
-      );
+    // Same retry-over-silent-loss tradeoff as the late-check-in stamp above.
+    if (stored) {
+      await supabaseAdmin
+        .from("attendance")
+        .update({ stale_checkout_notified_at: new Date().toISOString() })
+        .in(
+          "id",
+          stale.map((s) => s.attendance_id)
+        );
+    }
   }
 
   return NextResponse.json({
