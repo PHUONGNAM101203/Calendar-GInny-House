@@ -38,9 +38,14 @@ export const ATTENDANCE_CORRECTION_STATUS_LABELS: Record<
   cancelled: "Đã huỷ",
 };
 
-export const ATTENDANCE_CORRECTION_ISSUE_LABELS: Record<"missed_check_in" | "late_check_in", string> = {
+export const ATTENDANCE_CORRECTION_ISSUE_LABELS: Record<
+  "missed_check_in" | "late_check_in" | "missed_check_out" | "adjust_check_out",
+  string
+> = {
   missed_check_in: "Quên chấm công",
   late_check_in: "Chấm công trễ",
+  missed_check_out: "Quên chấm công ra",
+  adjust_check_out: "Sửa giờ ra ca",
 };
 
 export const LEAVE_REQUEST_TYPE_LABELS: Record<

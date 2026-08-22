@@ -93,7 +93,12 @@ export default function CreateAttendanceManualDialog({
       setServerError(result.error);
       return;
     }
-    toast.success("Đã tạo chấm công thủ công");
+    // Names the date on purpose: this tool is mostly used to backfill a past
+    // session, while every attendance table opens on the "Theo ngày" (today)
+    // tab. A bare success message left people staring at a table filtered to
+    // a different day, concluding nothing had been created — and creating it
+    // again, which is how a duplicate pair reached production on 2026-08-22.
+    toast.success(`Đã tạo chấm công thủ công cho ${format(date, "dd/MM/yyyy")}`);
     setOpen(false);
   }
 

@@ -31,6 +31,8 @@ import type { AttendanceCorrectionDetailed } from "@/types";
 const ISSUE_ICON = {
   missed_check_in: AlarmClockOffIcon,
   late_check_in: ClockAlertIcon,
+  missed_check_out: AlarmClockOffIcon,
+  adjust_check_out: ClockAlertIcon,
 };
 
 export default function AttendanceCorrectionCard({
@@ -125,11 +127,25 @@ export default function AttendanceCorrectionCard({
           </p>
           <p className="text-xs text-muted-foreground">
             {ATTENDANCE_CORRECTION_ISSUE_LABELS[request.issue_type]}
-            {request.issue_type === "late_check_in" && request.actual_check_in_at && (
-              <> · Chấm công lúc {format(new Date(request.actual_check_in_at), "HH:mm")}</>
+            {request.kind === "check_out" ? (
+              <>
+                {request.actual_check_out_at && (
+                  <> · Chấm công ra lúc {format(new Date(request.actual_check_out_at), "HH:mm")}</>
+                )}
+                {request.requested_check_out_at && (
+                  <> · Sửa về {format(new Date(request.requested_check_out_at), "HH:mm")}</>
+                )}
+              </>
+            ) : (
+              <>
+                {request.issue_type === "late_check_in" && request.actual_check_in_at && (
+                  <> · Chấm công lúc {format(new Date(request.actual_check_in_at), "HH:mm")}</>
+                )}
+                {request.requested_check_in_at && (
+                  <> · Sửa về {format(new Date(request.requested_check_in_at), "HH:mm")}</>
+                )}
+              </>
             )}
-            {" · Sửa về "}
-            {format(new Date(request.requested_check_in_at), "HH:mm")}
           </p>
           <p className="text-sm text-muted-foreground italic">“{request.reason}”</p>
         </div>

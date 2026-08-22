@@ -387,8 +387,11 @@ export function toAttendanceEvents(
   records: AttendanceWithProfileRole[],
   branchNames: Map<string, string>,
   colorFor: (profileId: string) => string,
-  // Keyed by shift_id — at most one pending correction per shift (DB has a
-  // partial unique index enforcing this), so a 1:1 lookup is enough.
+  // Keyed by shift_id. Since 0071 a shift can hold one pending correction
+  // per kind (check_in and check_out), so this is a lossy 1:1 view of a
+  // 1:many relation — deliberately, since it only drives the informational
+  // "has a pending correction" badge and the inline detail beside it. See
+  // ShiftCalendar.tsx for how the surviving entry is chosen.
   pendingCorrectionsByShiftId: Map<string, AttendanceCorrectionDetailed> = new Map()
 ): AttendanceCalendarEvent[] {
   const now = new Date();
