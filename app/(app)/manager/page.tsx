@@ -1,6 +1,6 @@
-import { startOfDay, endOfDay, startOfYear, parse, isValid } from "date-fns";
+import { startOfDay, endOfDay, subDays, parse, isValid } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
-import { type OverviewPeriod } from "@/lib/attendance";
+import { periodRange, type OverviewPeriod } from "@/lib/attendance";
 import { requireManager } from "@/lib/auth";
 import { getBranches } from "@/lib/branches";
 import {
@@ -63,6 +63,13 @@ function parsePeriod(value: string | undefined): OverviewPeriod {
   return OVERVIEW_PERIODS.includes(value as OverviewPeriod) ? (value as OverviewPeriod) : "month";
 }
 
+// Earlier of two dates — used to widen a fetch window back to a floor the UI
+// needs (the 7/14-day activity charts) without ever narrowing the window the
+// selected period asked for.
+function earliest(a: Date, b: Date): Date {
+  return a < b ? a : b;
+}
+
 // A section is a titled panel — count on the right when there's something
 // to count — so the page reads as one continuous dashboard grid instead of
 // a stack of unrelated blocks (per the reference: everything is a card in
@@ -109,17 +116,23 @@ export default async function ManagerPage({
   // công / Ca làm việc / Tổng hợp đơn đã gửi), so the server can fetch just
   // that window instead of shipping a year of rows for the client to filter.
   const period = parsePeriod(params.p);
+  const { start: periodStart, end: periodEnd } = periodRange(period, now);
 
   // parse(), not new Date(params.from) — see app/(app)/calendar/page.tsx's
   // comment: the latter reads "yyyy-MM-dd" as UTC midnight, which drifts a
-  // day in a positive UTC-offset timezone (Vietnam). Falls back to the
-  // original whole-year window when no filter is set, so existing behavior
-  // is unchanged unless the user explicitly picks a range.
-  const parsedFrom = params.from ? parse(params.from, "yyyy-MM-dd", new Date()) : null;
-  const parsedTo = params.to ? parse(params.to, "yyyy-MM-dd", new Date()) : null;
-  const attendanceWindowStart =
-    parsedFrom && isValid(parsedFrom) ? startOfDay(parsedFrom).toISOString() : startOfYear(new Date()).toISOString();
-  const attendanceWindowEnd = parsedTo && isValid(parsedTo) ? endOfDay(parsedTo).toISOString() : null;
+  // day in a positive UTC-offset timezone (Vietnam). An explicit range still
+  // wins over the period; without one the period defines the window.
+  const parsedFrom = params.from ? parse(params.from, "yyyy-MM-dd", now) : null;
+  const parsedTo = params.to ? parse(params.to, "yyyy-MM-dd", now) : null;
+  const filterStart = parsedFrom && isValid(parsedFrom) ? startOfDay(parsedFrom) : periodStart;
+  const filterEnd = parsedTo && isValid(parsedTo) ? endOfDay(parsedTo) : periodEnd;
+
+  // LOAD-BEARING 14-day floor: ManagerDashboard renders a 7-day activity
+  // chart and TechnicalDashboard a 14-day one off this same attendance list.
+  // Without the floor, `?p=day` would fetch one day of rows and both charts
+  // would silently render flat.
+  const attendanceWindowStart = earliest(filterStart, startOfDay(subDays(now, 14))).toISOString();
+  const attendanceWindowEnd = filterEnd.toISOString();
 
   const [
     { data: staff },
@@ -128,7 +141,7 @@ export default async function ManagerPage({
     { data: shiftsTodayRows },
     { data: clockedIn },
     { data: leaves },
-    { data: yearAttendance },
+    { data: windowAttendance },
     { data: shiftRequests },
     { data: attendanceCorrections },
     { data: shiftsOverview },
@@ -161,11 +174,17 @@ export default async function ManagerPage({
       .from("leave_requests")
       .select("*, profile:profiles!profile_id(id, full_name, role)")
       .order("created_at", { ascending: false }),
-    (() => {
-      let query = supabase.from("attendance").select("*").gte("check_in_at", attendanceWindowStart);
-      if (attendanceWindowEnd) query = query.lte("check_in_at", attendanceWindowEnd);
-      return query.order("check_in_at", { ascending: false });
-    })(),
+    // Bounded to the selected period (widened to the 14-day chart floor)
+    // instead of the whole year. The OR keeps every still-open session no
+    // matter how old it is: a Trợ giảng free clock-in has no shift to
+    // auto-checkout against (0056), and dropping it would flip that person's
+    // "Đang trong ca" badge to "Chưa chấm công" in Tổng hợp chấm công.
+    supabase
+      .from("attendance")
+      .select("*")
+      .or(`check_out_at.is.null,check_in_at.gte."${attendanceWindowStart}"`)
+      .lte("check_in_at", attendanceWindowEnd)
+      .order("check_in_at", { ascending: false }),
     supabase
       .from("shift_requests")
       .select("*, profile:profiles!profile_id(id, full_name, role), branch:branches!branch_id(id, name)")
@@ -203,7 +222,7 @@ export default async function ManagerPage({
   const swapsList = (swaps as SwapRequestDetailed[]) ?? [];
   const leavesList = (leaves as (LeaveRequestDetailed & { profile: ProfileRoleRef })[]) ?? [];
   const clockedInList = (clockedIn as (AttendanceWithProfile & { profile: ProfileRoleRef })[]) ?? [];
-  const attendanceList = (yearAttendance as Attendance[]) ?? [];
+  const attendanceList = (windowAttendance as Attendance[]) ?? [];
   const shiftRequestsList = (shiftRequests as ShiftRequestDetailed[]) ?? [];
   const attendanceCorrectionsList = (attendanceCorrections as AttendanceCorrectionDetailed[]) ?? [];
   const shiftsTodayList = (shiftsTodayRows as Pick<{ assignee_id: string }, "assignee_id">[]) ?? [];
