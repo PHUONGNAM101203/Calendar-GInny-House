@@ -10,6 +10,7 @@ import type { Branch, Profile, ShiftSeriesDetailed, ShiftSlotDetailed } from "@/
 import ShiftSeriesFormDialog from "@/components/shifts/ShiftSeriesFormDialog";
 import ShiftSeriesDeleteDialog from "@/components/shifts/ShiftSeriesDeleteDialog";
 import ShiftSlotAssignDialog from "@/components/shifts/ShiftSlotAssignDialog";
+import CollapsibleGrid from "@/components/manager/CollapsibleGrid";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -61,7 +62,7 @@ export default function ShiftSeriesSection({
           Chưa có ca cố định nào. Tạo một ca để khỏi phải xếp lại cùng một lịch mỗi tuần.
         </p>
       ) : (
-        <div className="grid gap-3 lg:grid-cols-2">
+        <CollapsibleGrid className="grid gap-3 lg:grid-cols-2">
           {series.map((row) => (
             <Card key={row.id}>
               <CardContent className="flex items-start justify-between gap-3">
@@ -99,7 +100,7 @@ export default function ShiftSeriesSection({
               </CardContent>
             </Card>
           ))}
-        </div>
+        </CollapsibleGrid>
       )}
 
       {/* Only rendered when there is something to fill. An always-visible

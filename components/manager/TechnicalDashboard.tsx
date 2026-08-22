@@ -12,6 +12,7 @@ import type { ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable"
 import RequestsOverviewTable from "@/components/manager/RequestsOverviewTable";
 import GroupPermissionsEditor, { type ManagerHolders } from "@/components/manager/GroupPermissionsEditor";
 import CreateAttendanceManualDialog from "@/components/manager/CreateAttendanceManualDialog";
+import CollapsibleGrid from "@/components/manager/CollapsibleGrid";
 import { GROUP_MANAGER_ROLES } from "@/lib/permissions";
 import { aggregateStaffByRole, aggregateHoursByDay, type OverviewRangeSpec } from "@/lib/attendance";
 import { ROLE_LABELS } from "@/lib/roles";
@@ -126,11 +127,11 @@ export default function TechnicalDashboard({
           <CreateAttendanceManualDialog staff={staff} branches={branches} />
         </div>
         {staleFreeAttendance.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Không có phiên nào đang mở quá lâu.</p>
+          <p className="text-sm text-muted-foreground">Không có phiên nào đang mở.</p>
         ) : (
-          <ul className="space-y-2">
+          <CollapsibleGrid className="space-y-2">
             {staleFreeAttendance.map((a) => (
-              <li
+              <div
                 key={a.id}
                 className="flex items-center gap-3 rounded-xl border border-gold/40 bg-gold/10 px-4 py-2.5 text-sm"
               >
@@ -139,9 +140,9 @@ export default function TechnicalDashboard({
                 <span className="text-muted-foreground">
                   vào lúc {format(new Date(a.check_in_at), "HH:mm dd/MM/yyyy", { locale: vi })}, chưa chấm ra
                 </span>
-              </li>
+              </div>
             ))}
-          </ul>
+          </CollapsibleGrid>
         )}
       </div>
 
