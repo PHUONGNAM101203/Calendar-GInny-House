@@ -297,7 +297,7 @@ export default function ShiftFormDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="note">Ghi chú</Label>
+            <Label htmlFor="note">Ghi chú (không bắt buộc)</Label>
             <Textarea id="note" rows={2} {...register("note")} />
           </div>
 

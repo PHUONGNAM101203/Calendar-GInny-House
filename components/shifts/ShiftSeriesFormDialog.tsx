@@ -355,7 +355,10 @@ export default function ShiftSeriesFormDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="series_note">Ghi chú</Label>
+              {/* The only optional field in this form — every other one is
+                  enforced by shiftSeriesSchema. Wording matches the label in
+                  ShiftRequestDialog/LeaveRequestDialog/SwapRequestDialog. */}
+              <Label htmlFor="series_note">Ghi chú (không bắt buộc)</Label>
               <Textarea id="series_note" rows={2} {...register("note")} />
             </div>
 
