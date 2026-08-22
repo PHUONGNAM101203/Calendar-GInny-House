@@ -78,7 +78,6 @@ export default async function CalendarPage({
   const { start, end } = getVisibleRange(date, view);
 
   const supabase = await createClient();
-  const permissions = await getGroupPermissions();
   const canFollowAll = canSeeAllCalendars();
 
   const [
@@ -94,6 +93,10 @@ export default async function CalendarPage({
     { data: branchColorRows },
     { data: shiftRequests },
     { data: attendanceCorrections },
+    // Joined to the batch rather than awaited above it: it depends on none of
+    // these queries, so awaiting it first cost every page view an extra
+    // serialized round-trip.
+    permissions,
   ] = await Promise.all([
     supabase
       .from("shifts")
@@ -161,6 +164,7 @@ export default async function CalendarPage({
       .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at)")
       .eq("status", "pending")
       .order("created_at", { ascending: false }),
+    getGroupPermissions(),
   ]);
 
   const followRows =

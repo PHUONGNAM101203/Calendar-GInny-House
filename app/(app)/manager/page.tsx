@@ -87,7 +87,6 @@ export default async function ManagerPage({
 }) {
   const manager = await requireManager();
   const supabase = await createClient();
-  const permissions = await getGroupPermissions();
   const params = await searchParams;
   const todayStart = startOfDay(new Date()).toISOString();
   const todayEnd = endOfDay(new Date()).toISOString();
@@ -114,6 +113,10 @@ export default async function ManagerPage({
     { data: shiftRequests },
     { data: attendanceCorrections },
     { data: shiftsOverview },
+    permissions,
+    // Joined to the batch rather than awaited above it: it depends on none of
+    // these queries, so awaiting it first cost every page view an extra
+    // serialized round-trip.
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -160,6 +163,7 @@ export default async function ManagerPage({
       .select(SHIFTS_OVERVIEW_SELECT)
       .order("start_at", { ascending: false })
       .limit(500),
+    getGroupPermissions(),
   ]);
 
   type StaffQueryRow = Pick<

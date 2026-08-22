@@ -20,33 +20,41 @@ export default async function AppShellLayout({
   const isManager = isManagerRole(profile.role);
   const supabase = await createClient();
 
-  const [{ data: swaps }, { data: leaves }, { data: shiftRequests }, { data: attendanceCorrections }] =
-    await Promise.all([
-      supabase
-        .from("shift_swap_requests")
-        .select(
-          "*, requester:profiles!requester_id(id, full_name), target:profiles!target_id(id, full_name), requester_shift:shifts!requester_shift_id(id, start_at, end_at), target_shift:shifts!target_shift_id(id, start_at, end_at)"
-        )
-        .order("created_at", { ascending: false })
-        .limit(15),
-      supabase
-        .from("leave_requests")
-        .select("*, profile:profiles!profile_id(id, full_name)")
-        .order("created_at", { ascending: false })
-        .limit(15),
-      supabase
-        .from("shift_requests")
-        .select("*, profile:profiles!profile_id(id, full_name)")
-        .order("created_at", { ascending: false })
-        .limit(15),
-      supabase
-        .from("attendance_corrections")
-        .select("*, profile:profiles!profile_id(id, full_name)")
-        .order("created_at", { ascending: false })
-        .limit(15),
-    ]);
+  const [
+    { data: swaps },
+    { data: leaves },
+    { data: shiftRequests },
+    { data: attendanceCorrections },
+    // Joined to the batch rather than awaited after it: buildNotifications
+    // needs it, but the query itself depends on none of these, so awaiting it
+    // separately cost every page view an extra serialized round-trip.
+    permissions,
+  ] = await Promise.all([
+    supabase
+      .from("shift_swap_requests")
+      .select(
+        "*, requester:profiles!requester_id(id, full_name), target:profiles!target_id(id, full_name), requester_shift:shifts!requester_shift_id(id, start_at, end_at), target_shift:shifts!target_shift_id(id, start_at, end_at)"
+      )
+      .order("created_at", { ascending: false })
+      .limit(15),
+    supabase
+      .from("leave_requests")
+      .select("*, profile:profiles!profile_id(id, full_name)")
+      .order("created_at", { ascending: false })
+      .limit(15),
+    supabase
+      .from("shift_requests")
+      .select("*, profile:profiles!profile_id(id, full_name)")
+      .order("created_at", { ascending: false })
+      .limit(15),
+    supabase
+      .from("attendance_corrections")
+      .select("*, profile:profiles!profile_id(id, full_name)")
+      .order("created_at", { ascending: false })
+      .limit(15),
+    getGroupPermissions(),
+  ]);
 
-  const permissions = await getGroupPermissions();
   const notifications = buildNotifications({
     profile,
     swaps: (swaps as SwapRequestDetailed[]) ?? [],
