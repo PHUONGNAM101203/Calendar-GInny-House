@@ -16,6 +16,17 @@ export type AppNotification = {
   href: string;
   at: string;
   needsAction: boolean;
+  /**
+   * The `notifications.id` behind this item, for the stored half only.
+   *
+   * Derived items (the five kinds buildNotifications() computes off the four
+   * request tables) have no row anywhere and therefore nothing to stamp a
+   * `read_at` on — they stay `undefined` and keep working exactly as before,
+   * via `profiles.notifications_seen_at`. The bell uses the presence of this
+   * field, and nothing else, to decide whether an item can be dismissed
+   * individually.
+   */
+  storedId?: string;
 };
 
 // Was 10, back when the bell only ever showed the five derived kinds. The
@@ -222,6 +233,9 @@ export function mapStoredNotifications(rows: StoredNotification[]): AppNotificat
     // Phase A emits informational events only — nothing here is an approval
     // waiting on the recipient.
     needsAction: false,
+    // The un-namespaced uuid, which is what the mark-read action needs to
+    // address the row. `id` above stays prefixed because it is a React key.
+    storedId: row.id,
   }));
 }
 

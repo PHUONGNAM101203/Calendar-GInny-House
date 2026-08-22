@@ -63,10 +63,25 @@ export default async function AppShellLayout({
     // The .eq is belt-and-braces: policy notifications_select_own already
     // makes it impossible to read anyone else's rows, and that policy is the
     // actual boundary — this only makes the intent obvious at the call site.
+    //
+    // Read rows are excluded here rather than merely ranked below unread.
+    // Ranking would leave them competing for the fixed number of slots
+    // forever: the derived half self-expires (a request resolves, or its
+    // three-day window passes) but this table has no age cutoff at all, so a
+    // row a person has explicitly dismissed would otherwise sit in the bell
+    // until something newer pushed it out. Excluding is also the cheaper of
+    // the two — `notifications_profile_created_idx` already covers
+    // (profile_id, created_at), and this fetches strictly less.
+    //
+    // The rows themselves are kept, not deleted: read_at is an audit trail of
+    // what was sent and when it was acknowledged, which is worth having the
+    // first time someone says "I was never told". At ~17 staff the volume
+    // does not justify a retention job yet.
     supabase
       .from("notifications")
       .select("id, title, body, url, created_at")
       .eq("profile_id", profile.id)
+      .is("read_at", null)
       .order("created_at", { ascending: false })
       .limit(15),
     getGroupPermissions(),
