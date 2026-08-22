@@ -58,11 +58,29 @@ export function formatVietnamMoment(iso: string): string {
   return `${VN_TIME.format(new Date(iso))} ngày ${VN_DATE.format(new Date(iso))}`;
 }
 
-export async function emitNotifications(drafts: NotificationDraft[]): Promise<void> {
-  if (!drafts.length) return;
+// Returns whether the rows were actually stored. Callers that own a
+// "already notified" flag MUST check it before stamping that flag — see the
+// attendance-reminders cron. Never throws: a caller that ignores the result
+// still cannot be broken by a notification failure.
+export async function emitNotifications(drafts: NotificationDraft[]): Promise<boolean> {
+  if (!drafts.length) return true;
 
+  // Enough context to identify what was lost without dumping message bodies
+  // into the logs. Recipients are ids, not names.
+  const context = {
+    count: drafts.length,
+    kinds: [...new Set(drafts.map((draft) => draft.kind))],
+    recipients: drafts.map((draft) => draft.profileId),
+  };
+
+  let stored = false;
   try {
-    await supabaseAdmin.from("notifications").insert(
+    // Supabase resolves with { error } instead of throwing, so this has to be
+    // inspected explicitly. Discarding it meant a kind typo, a dropped column
+    // or a rotated service-role key would silently break every notification
+    // in the app with nothing in the logs — the first signal being a staff
+    // member saying they were never told.
+    const { error } = await supabaseAdmin.from("notifications").insert(
       drafts.map((draft) => ({
         profile_id: draft.profileId,
         kind: draft.kind,
@@ -72,12 +90,19 @@ export async function emitNotifications(drafts: NotificationDraft[]): Promise<vo
         related_id: draft.relatedId ?? null,
       }))
     );
-  } catch {
-    // Swallowed on purpose — see the module comment. The push below is still
-    // worth attempting: a failed insert is no reason to also drop the push.
+    if (error) {
+      console.error("[notifications] insert failed", { ...context, code: error.code, message: error.message });
+    } else {
+      stored = true;
+    }
+  } catch (error) {
+    // Network-level failure — the client rejected rather than resolving.
+    console.error("[notifications] insert threw", { ...context, error });
   }
 
   try {
+    // Attempted even when the insert failed: a lost row is no reason to also
+    // drop the push, which may be the only channel that still reaches them.
     await Promise.all(
       drafts.map((draft) =>
         sendPushToProfile(draft.profileId, {
@@ -90,11 +115,13 @@ export async function emitNotifications(drafts: NotificationDraft[]): Promise<vo
         })
       )
     );
-  } catch {
-    // Same contract as above.
+  } catch (error) {
+    console.error("[notifications] push failed", { ...context, error });
   }
+
+  return stored;
 }
 
-export async function emitNotification(draft: NotificationDraft): Promise<void> {
-  await emitNotifications([draft]);
+export async function emitNotification(draft: NotificationDraft): Promise<boolean> {
+  return emitNotifications([draft]);
 }
