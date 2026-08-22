@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
   MenuIcon,
@@ -276,7 +276,10 @@ function ColorMenu({
 
 function PersonRow({ person, canFollowAll }: { person: Person; canFollowAll: boolean }) {
   const [isPending, startTransition] = useTransition();
-  const colorVar = getPersonColorVar(person.id, person.color);
+  // Hashes every character of the uuid to pick an auto color. Cheap once,
+  // but this row is rendered per person and re-rendered on every parent
+  // render, and the answer only changes when the person does.
+  const colorVar = useMemo(() => getPersonColorVar(person.id, person.color), [person.id, person.color]);
 
   function toggleFollow() {
     startTransition(async () => {
@@ -533,15 +536,15 @@ function GroupSection({ group, canFollowAll }: { group: PersonGroup; canFollowAl
   const [collapsed, setCollapsed] = usePersistentCollapse(`group-${group.key}`);
   const [isPending, startTransition] = useTransition();
 
-  const followedCount = group.people.filter((p) => p.followed).length;
-  const triState: "all" | "some" | "none" =
-    group.people.length === 0
-      ? "none"
-      : followedCount === group.people.length
-        ? "all"
-        : followedCount === 0
-          ? "none"
-          : "some";
+  // A full pass over the group's members, re-run on every parent render even
+  // though only `group` can change the answer.
+  const triState: "all" | "some" | "none" = useMemo(() => {
+    const followedCount = group.people.filter((p) => p.followed).length;
+    if (group.people.length === 0) return "none";
+    if (followedCount === group.people.length) return "all";
+    if (followedCount === 0) return "none";
+    return "some";
+  }, [group.people]);
 
   function toggleGroup() {
     const ids = group.people.map((p) => p.id);
