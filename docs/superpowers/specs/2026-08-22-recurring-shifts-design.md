@@ -1,7 +1,11 @@
 # Ca cố định (Recurring Shifts) — Design
 
 **Date:** 2026-08-22
-**Status:** Phase 1 approved; Phases 2–4 outlined
+**Status:** Phase 1 shipped 2026-08-22; Phases 2–4 outlined
+
+> Phase 1 landed as migration `0078_shift_series.sql`, not `0077` — that number
+> went to the notifications table in the same session. Everything else in the
+> Phase 1 section below is as built.
 
 ## Context
 
