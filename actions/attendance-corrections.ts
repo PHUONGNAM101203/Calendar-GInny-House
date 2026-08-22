@@ -99,13 +99,31 @@ async function resolveAttendanceForShift(
 // from the client: a caller claiming a late check-in could otherwise push the
 // resolved day forward and slip a many-hour session past the shiftless branch.
 //
-// Never rolls into the future — a rolled instant later than now() cannot be a
-// check-out that already happened, and declining to roll leaves the clearer
-// "Giờ ra phải sau giờ vào" for a time typed earlier than the check-in.
+// Two guards bound the roll. Both only ever turn a roll into a non-roll, and
+// the un-rolled instant then falls through to the RPC — neither can turn a
+// rejection into an acceptance.
 //
-// No upper bound is applied here on purpose: the RPC's end_at + 6h guard is
-// the authority on how late is too late. Vietnam has no DST, so +24h is
-// exactly one calendar day.
+//  1. Never roll into the future: a rolled instant later than now() cannot be
+//     a check-out that already happened. This is a wash for message quality
+//     rather than a pure win — a same-day user who typed a time earlier than
+//     their check-in now gets the accurate "Giờ ra phải sau giờ vào", but a
+//     prompt overnight filer (declaring 02:00 at 01:55) gets that same message
+//     for a time that genuinely IS after their check-in, with no hint that
+//     waiting five minutes would work. Both paths reject either way, so this
+//     trades one misleading message for another rather than removing one.
+//  2. Never roll past a 16-hour session. Every legitimate roll is an overnight
+//     session, and no real session — shift-tied or free — runs 16 hours. This
+//     is what bounds the shiftless branch: 0074 skips both shift-anchored
+//     gates there and 0073's approval re-check only re-tests > check_in_at, so
+//     without this a free 06:00 clock-in could have a 05:30 typo rolled to the
+//     next day and approved as a 23.5-hour session. The shift-tied branch is
+//     already capped near 10h by end_at + 6h, so 16h is a generous outer bound
+//     that still kills that case.
+//
+// No upper bound on lateness is applied here on purpose: the RPC's
+// end_at + 6h guard is the authority on how late is too late. Vietnam has no
+// DST, so +24h is exactly one calendar day.
+const MAX_ROLLED_SESSION_MS = 16 * 60 * 60_000;
 function resolveCheckOutInstant(
   shiftStartAt: string,
   checkOutTime: string,
@@ -124,7 +142,12 @@ function resolveCheckOutInstant(
     new Date(new Date(shiftStartAt).getTime() + 24 * 60 * 60_000).toISOString()
   );
   const rolled = `${nextDate}T${checkOutTime}:00+07:00`;
-  return new Date(rolled) > new Date() ? onShiftDate : rolled;
+  const rolledAt = new Date(rolled);
+  if (rolledAt > new Date()) return onShiftDate;
+  if (rolledAt.getTime() - new Date(checkInAt).getTime() > MAX_ROLLED_SESSION_MS) {
+    return onShiftDate;
+  }
+  return rolled;
 }
 
 function mapAttendanceCorrectionError(message: string): string {
