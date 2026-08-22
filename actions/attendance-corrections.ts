@@ -50,11 +50,16 @@ function formatInVietnamDate(iso: string): string {
 // Shared by the preview and the request action so the time the user is shown
 // and the time the roll-forward anchors on are resolved identically — they
 // used to be able to disagree.
+// usedShiftlessFallback mirrors 0074's v_used_shiftless_fallback: it records
+// which branch produced the row, because the shift-anchored bounds only apply
+// when the session actually belongs to the named shift.
+type ResolvedAttendance = { attendance: Attendance; usedShiftlessFallback: boolean };
+
 async function resolveAttendanceForShift(
   supabase: Awaited<ReturnType<typeof createClient>>,
   profileId: string,
   shift: Pick<Shift, "id" | "start_at">
-): Promise<Attendance | null> {
+): Promise<ResolvedAttendance | null> {
   const { data: byShiftRows } = await supabase
     .from("attendance")
     .select("*")
@@ -64,7 +69,7 @@ async function resolveAttendanceForShift(
     .limit(1);
 
   const forShift = ((byShiftRows as Attendance[]) ?? [])[0] ?? null;
-  if (forShift) return forShift;
+  if (forShift) return { attendance: forShift, usedShiftlessFallback: false };
 
   const shiftDate = formatInVietnamDate(shift.start_at);
   const { data: shiftlessRows } = await supabase
@@ -77,7 +82,8 @@ async function resolveAttendanceForShift(
     .order("check_in_at", { ascending: false })
     .limit(1);
 
-  return ((shiftlessRows as Attendance[]) ?? [])[0] ?? null;
+  const shiftless = ((shiftlessRows as Attendance[]) ?? [])[0] ?? null;
+  return shiftless ? { attendance: shiftless, usedShiftlessFallback: true } : null;
 }
 
 // Resolve a wall-clock "HH:mm" into an absolute instant.
@@ -111,24 +117,36 @@ async function resolveAttendanceForShift(
 //     for a time that genuinely IS after their check-in, with no hint that
 //     waiting five minutes would work. Both paths reject either way, so this
 //     trades one misleading message for another rather than removing one.
-//  2. Never roll past a 16-hour session. Every legitimate roll is an overnight
-//     session, and no real session — shift-tied or free — runs 16 hours. This
-//     is what bounds the shiftless branch: 0074 skips both shift-anchored
-//     gates there and 0073's approval re-check only re-tests > check_in_at, so
-//     without this a free 06:00 clock-in could have a 05:30 typo rolled to the
-//     next day and approved as a 23.5-hour session. The shift-tied branch is
-//     already capped near 10h by end_at + 6h, so 16h is a generous outer bound
-//     that still kills that case.
+//  2. Never roll past a plausible session length. This exists to bound the
+//     SHIFTLESS branch, which 0074 deliberately leaves unbounded: it skips
+//     both shift-anchored gates there and 0073's approval re-check only
+//     re-tests > check_in_at, so without this a free 06:00 clock-in could have
+//     a 05:30 typo rolled to the next day and approved as a 23.5-hour session.
+//     On that branch the bound is a flat 16h — there is no shift to defer to,
+//     and no real free session runs that long.
+//
+//     On the shift-tied branch the database DOES have an opinion, so the cap
+//     defers to it: max(16h, (end_at + 6h) − check_in_at). Without the max, a
+//     long shift would be capped more tightly by this app-side guard than by
+//     the RPC's own authority — a 12h shift (07:00–19:00) permits a check-out
+//     up to 01:00 next day, 18h past check-in, which a flat 16h would refuse
+//     with a misleading "phải sau giờ vào" for a genuine late check-out.
+//     The point is to bound what the database leaves unbounded, never to
+//     second-guess it where it has a rule.
 //
 // No upper bound on lateness is applied here on purpose: the RPC's
 // end_at + 6h guard is the authority on how late is too late. Vietnam has no
 // DST, so +24h is exactly one calendar day.
-const MAX_ROLLED_SESSION_MS = 16 * 60 * 60_000;
+const MIN_ROLLED_SESSION_CAP_MS = 16 * 60 * 60_000;
+const RPC_CHECKOUT_SLACK_MS = 6 * 60 * 60_000;
+
 function resolveCheckOutInstant(
-  shiftStartAt: string,
+  shift: Pick<Shift, "start_at" | "end_at">,
   checkOutTime: string,
-  checkInAt: string | null
+  checkInAt: string | null,
+  usedShiftlessFallback: boolean
 ): string {
+  const shiftStartAt = shift.start_at;
   const onShiftDate = `${formatInVietnamDate(shiftStartAt)}T${checkOutTime}:00+07:00`;
   // With no session resolved there is nothing to anchor to; leave it alone and
   // let the RPC raise "Ca này chưa có giờ vào — vui lòng giải trình giờ vào trước".
@@ -144,9 +162,15 @@ function resolveCheckOutInstant(
   const rolled = `${nextDate}T${checkOutTime}:00+07:00`;
   const rolledAt = new Date(rolled);
   if (rolledAt > new Date()) return onShiftDate;
-  if (rolledAt.getTime() - new Date(checkInAt).getTime() > MAX_ROLLED_SESSION_MS) {
-    return onShiftDate;
-  }
+
+  // On the shift-tied branch let the RPC's own end_at + 6h window win wherever
+  // it is more generous than the flat floor.
+  const rpcPermittedMs = usedShiftlessFallback
+    ? 0
+    : new Date(shift.end_at).getTime() + RPC_CHECKOUT_SLACK_MS - new Date(checkInAt).getTime();
+  const capMs = Math.max(MIN_ROLLED_SESSION_CAP_MS, rpcPermittedMs);
+
+  if (rolledAt.getTime() - new Date(checkInAt).getTime() > capMs) return onShiftDate;
   return rolled;
 }
 
@@ -266,7 +290,7 @@ export async function requestCheckoutCorrectionAction(input: unknown): Promise<A
   // browser's clock would drift for anyone not on Asia/Ho_Chi_Minh.
   const { data: shiftRows, error: shiftError } = await supabase
     .from("shifts")
-    .select("id, start_at")
+    .select("id, start_at, end_at")
     .eq("id", parsed.data.shift_id)
     .eq("assignee_id", profile.id)
     .limit(1);
@@ -278,7 +302,7 @@ export async function requestCheckoutCorrectionAction(input: unknown): Promise<A
     return { ok: false, error: "Không thể xử lý đơn giải trình công" };
   }
 
-  const shift = ((shiftRows as Pick<Shift, "id" | "start_at">[]) ?? [])[0];
+  const shift = ((shiftRows as Pick<Shift, "id" | "start_at" | "end_at">[]) ?? [])[0];
   if (!shift) {
     return { ok: false, error: "Không tìm thấy ca làm việc này" };
   }
@@ -286,12 +310,13 @@ export async function requestCheckoutCorrectionAction(input: unknown): Promise<A
   // Resolved here rather than taken from the client: this anchors the
   // roll-forward, so trusting a caller-supplied check-in would let them push
   // the resolved day forward past the shiftless branch's missing bounds.
-  const attendance = await resolveAttendanceForShift(supabase, profile.id, shift);
+  const resolved = await resolveAttendanceForShift(supabase, profile.id, shift);
 
   const requestedCheckOutAt = resolveCheckOutInstant(
-    shift.start_at,
+    shift,
     parsed.data.check_out_time,
-    attendance?.check_in_at ?? null
+    resolved?.attendance.check_in_at ?? null,
+    resolved?.usedShiftlessFallback ?? false
   );
 
   const { error } = await supabase.rpc("request_attendance_correction_checkout", {
@@ -438,7 +463,7 @@ export async function getAttendanceCorrectionPreviewAction(
 
   // Same resolution the request action uses, so the time shown here is the
   // time the roll-forward will anchor on.
-  const attendance = await resolveAttendanceForShift(supabase, profile.id, shift);
+  const attendance = (await resolveAttendanceForShift(supabase, profile.id, shift))?.attendance;
   if (!attendance) {
     return { ok: true, data: { kind: "missed_check_in", shift } };
   }
