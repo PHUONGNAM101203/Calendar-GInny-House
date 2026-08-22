@@ -46,6 +46,24 @@ async function assertAssigneeAllowed(
   return isMember ? null : "Nhân viên này không thuộc cơ sở đã chọn";
 }
 
+// "chuyển từ Cơ sở 1 sang Cơ sở 2", for a notification body — or null if
+// neither name resolves, so the caller can fall back rather than print a uuid
+// at a staff member. Queried directly rather than via getBranches(), which
+// filters out the synthetic Remote branch (0066) — a shift genuinely can move
+// to or from Remote, and that move is exactly what needs describing.
+async function describeBranchMove(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  fromId: string,
+  toId: string
+): Promise<string | null> {
+  const { data } = await supabase.from("branches").select("id, name").in("id", [fromId, toId]);
+  const nameOf = (branchId: string) => data?.find((branch) => branch.id === branchId)?.name;
+  const from = nameOf(fromId);
+  const to = nameOf(toId);
+  if (!to) return null;
+  return from ? `chuyển từ ${from} sang ${to}` : `chuyển sang ${to}`;
+}
+
 async function resolveBranchId(shiftType: string, branchId: string | undefined): Promise<string> {
   if (branchId) return branchId;
   if (shiftType === "remote") return getRemoteBranchId();
@@ -226,11 +244,32 @@ export async function updateShiftAction(
         relatedId: id,
       });
     } else if (materiallyChanged) {
+      const timeChanged =
+        previous.start_at !== parsed.data.start_at || previous.end_at !== parsed.data.end_at;
+      const branchChanged = previous.branch_id !== branchId;
+      const oldWindow = formatShiftWindow(previous.start_at, previous.end_at);
+      const move = branchChanged ? await describeBranchMove(supabase, previous.branch_id, branchId) : null;
+
+      // The body has to name what actually changed. Always quoting only the
+      // new window meant a branch-only move read "Ca của bạn được đổi thành
+      // <the exact window they already had>" — the staff member concludes
+      // nothing changed and turns up at the wrong cơ sở. Quoting the old
+      // window also disambiguates which shift moved for anyone working two
+      // that day.
+      const body =
+        timeChanged && move
+          ? `Ca ${oldWindow} của bạn được đổi thành ${newWindow}, ${move}`
+          : timeChanged
+            ? `Ca ${oldWindow} của bạn được đổi thành ${newWindow}`
+            : move
+              ? `Ca ${newWindow} của bạn được ${move}`
+              : `Ca ${newWindow} của bạn vừa được cập nhật`;
+
       drafts.push({
         profileId: parsed.data.assignee_id,
         kind: "shift_updated",
-        title: "Ca làm việc được cập nhật",
-        body: `Ca của bạn được đổi thành ${newWindow}`,
+        title: branchChanged && !timeChanged ? "Ca làm việc đổi cơ sở" : "Ca làm việc được cập nhật",
+        body,
         url: "/calendar",
         relatedId: id,
       });
