@@ -8,6 +8,7 @@ import { vi } from "date-fns/locale";
 import { deleteHolidayAction } from "@/actions/holidays";
 import type { Holiday } from "@/types";
 import HolidayFormDialog from "@/components/manager/HolidayFormDialog";
+import CollapsibleGrid from "@/components/manager/CollapsibleGrid";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -60,7 +61,7 @@ export default function HolidaysSection({ holidays }: { holidays: Holiday[] }) {
           Chưa có ngày lễ nào. Thêm một ngày để nó hiện lên lịch của cả trung tâm.
         </p>
       ) : (
-        <div className="grid gap-2 lg:grid-cols-2">
+        <CollapsibleGrid className="grid gap-2 lg:grid-cols-2">
           {holidays.map((holiday) => (
             <Card key={holiday.id}>
               <CardContent className="flex items-start justify-between gap-3 py-3">
@@ -120,7 +121,7 @@ export default function HolidaysSection({ holidays }: { holidays: Holiday[] }) {
               </CardContent>
             </Card>
           ))}
-        </div>
+        </CollapsibleGrid>
       )}
 
       <HolidayFormDialog open={createOpen} onOpenChange={setCreateOpen} />
