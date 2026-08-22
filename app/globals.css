@@ -530,12 +530,22 @@
 .rbc-day-slot .rbc-background-event.shift-event--holiday .rbc-event-label {
   display: none;
 }
-/* All-day banners (holiday, and any future all-day event type) sit in
-   RBC's own row directly under the day header — give it a rule + top
-   padding so it reads as its own row instead of crowding the date number
-   above it (see hallmark audit, 2026-08). */
+/* All-day row (leave/custom events that span a whole day) sits in RBC's own
+   row directly under the day header — keep the top padding so it doesn't
+   crowd the date number above it.
+
+   The 1px rule that used to be here is deliberately gone: "chỉ không cho cái
+   đường gạch ngang chắn giữa các số ngày này thôi". It was the only border
+   drawn immediately beneath the row of day numbers — RBC's own
+   .rbc-row.rbc-time-header-cell has no bottom border, and
+   `.rbc-time-header > .rbc-row:first-child` never matches this DOM (the
+   header's first child is .rbc-time-header-gutter, not a .rbc-row). Nothing
+   else changes: .rbc-time-content still keeps its 2px top border separating
+   the header block from the grid, .rbc-time-header-content keeps its
+   border-left, the per-day column borders from
+   `.rbc-time-content > * + * > *` are untouched, and the header's per-cell
+   vertical dividers were already off (see the rule above). */
 .rbc-time-header-content .rbc-allday-cell {
-  border-top: 1px solid var(--calendar-grid);
   padding-top: 4px;
 }
 /* "Lịch chấm công" — a dashed outline in the person's color over a light
