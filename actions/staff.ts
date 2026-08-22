@@ -1,8 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireManager } from "@/lib/auth";
+import { emitNotifications } from "@/lib/notifications-emit";
 import type { ActionResult, Role } from "@/types";
 
 export async function updateStaffBranchesAction(
@@ -118,5 +120,36 @@ export async function deactivateStaffAction(
   if (error) return { ok: false, error: "Không thể cập nhật trạng thái tài khoản" };
 
   revalidatePath("/manager");
+  // Deactivation is the one event here the bell cannot actually deliver:
+  // requireProfile() (lib/auth.ts) bounces a deactivated profile to
+  // /auth/deactivated, so they can never open the header that renders it.
+  // The row is still written — emitNotifications mirrors it as a web push in
+  // the same call, and push is the only channel that still reaches them; the
+  // stored row costs nothing and becomes readable the moment they are
+  // reactivated, which is exactly when they want to see why they were locked
+  // out. Self-deactivation is already refused above, so actor and subject can
+  // never be the same person on either branch.
+  // See actions/leave.ts's requestLeaveAction for why after() is required.
+  after(() =>
+    emitNotifications([
+      deactivate
+        ? {
+            profileId,
+            kind: "account_deactivated",
+            title: "Tài khoản của bạn đã bị vô hiệu hoá",
+            body: `${manager.full_name} đã vô hiệu hoá tài khoản của bạn. Bạn sẽ không thể đăng nhập cho đến khi tài khoản được kích hoạt lại — vui lòng liên hệ quản lý nếu cần hỗ trợ.`,
+            // No url: there is nothing in the app they can open right now.
+            relatedId: profileId,
+          }
+        : {
+            profileId,
+            kind: "account_reactivated",
+            title: "Tài khoản của bạn đã được kích hoạt lại",
+            body: `${manager.full_name} đã kích hoạt lại tài khoản của bạn. Bạn có thể đăng nhập và sử dụng ứng dụng như bình thường.`,
+            url: "/calendar",
+            relatedId: profileId,
+          },
+    ])
+  );
   return { ok: true, data: undefined };
 }
