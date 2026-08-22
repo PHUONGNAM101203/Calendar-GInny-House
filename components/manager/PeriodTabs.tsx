@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2Icon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import type { OverviewPeriod } from "@/lib/attendance";
+import { isCustomSpec, type OverviewRangeSpec } from "@/lib/attendance";
 
 const OPTIONS = [
   { value: "day", label: "Theo ngày" },
@@ -21,15 +21,24 @@ const OPTIONS = [
 //
 // Switching period is now a real round-trip, so the pending state is not
 // optional: without it the tabs look frozen while the RSC refetches.
-export default function PeriodTabs({ period }: { period: OverviewPeriod }) {
+//
+// The `?from=`/`?to=` range is the mutually-exclusive fourth mode: while it's
+// applied no tab is active (value=""), and picking a tab drops both params —
+// one selector at a time, always.
+export default function PeriodTabs({ spec }: { spec: OverviewRangeSpec }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const isCustom = isCustomSpec(spec);
 
   function select(next: string) {
-    if (next === period) return;
+    // In custom mode even the "current" period is a real change: it's what
+    // takes the page back out of the range.
+    if (!isCustom && next === spec.period) return;
     const params = new URLSearchParams(searchParams.toString());
     params.set("p", next);
+    params.delete("from");
+    params.delete("to");
     startTransition(() => {
       // scroll: false — the tabs can sit far down the page; jumping to the top
       // on every period switch would lose the manager's place.
@@ -39,7 +48,7 @@ export default function PeriodTabs({ period }: { period: OverviewPeriod }) {
 
   return (
     <div className="flex items-center gap-2" aria-busy={isPending}>
-      <Tabs value={period} onValueChange={select}>
+      <Tabs value={isCustom ? "" : spec.period} onValueChange={select}>
         <TabsList
           className={cn("transition-opacity", isPending && "pointer-events-none opacity-60")}
         >
