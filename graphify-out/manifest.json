@@ -1,7 +1,7 @@
 {
   "actions/attendance-corrections.ts": {
-    "mtime": 1786623132.5740347,
-    "ast_hash": "7dcb7afc3e427f398ba3c0ad58bf3402",
+    "mtime": 1787360782.018141,
+    "ast_hash": "9a34ad92d035ec872a1f1f75afcb2e17",
     "semantic_hash": ""
   },
   "actions/attendance.ts": {
@@ -90,7 +90,7 @@
     "semantic_hash": "a3a8d0493b34ead8d823fa3156599d2c"
   },
   "app/(app)/calendar/page.tsx": {
-    "mtime": 1787298139.5875869,
+    "mtime": 1787378853.927306,
     "ast_hash": "0de2276dbecfd8abad3848b6efa60584",
     "semantic_hash": ""
   },
@@ -165,13 +165,13 @@
     "semantic_hash": ""
   },
   "components/attendance/AttendanceCorrectionCard.tsx": {
-    "mtime": 1786617510.2076857,
-    "ast_hash": "f54cf1698222eba14b9484617594c93c",
+    "mtime": 1787333323.820877,
+    "ast_hash": "ca8cac5911a7104bb71d752436e9cef6",
     "semantic_hash": ""
   },
   "components/attendance/AttendanceCorrectionForm.tsx": {
-    "mtime": 1787065551.670921,
-    "ast_hash": "6e9b279f2735ccd58d550e22d1dd9698",
+    "mtime": 1787359503.418412,
+    "ast_hash": "f36d29dbccb2bae1f53eb27cc522d62c",
     "semantic_hash": ""
   },
   "components/attendance/AttendanceHistory.tsx": {
@@ -255,8 +255,8 @@
     "semantic_hash": "24a5bb12cab3e77a2753210a75a9faf6"
   },
   "components/calendar/ShiftCalendar.tsx": {
-    "mtime": 1787298155.2628536,
-    "ast_hash": "0e5865a1593200a0836fbc720bc9584f",
+    "mtime": 1787358702.7629304,
+    "ast_hash": "917093748aefdcc30b4007d7f45e50b1",
     "semantic_hash": ""
   },
   "components/calendar/ShiftCalendarLoader.tsx": {
@@ -485,8 +485,8 @@
     "semantic_hash": "d448d2a90e48542e51b93a1189127bf2"
   },
   "components/ui/time-picker-field.tsx": {
-    "mtime": 1786345997.931174,
-    "ast_hash": "ae063dcdbf79a2c7036513797093c65e",
+    "mtime": 1787330575.131319,
+    "ast_hash": "4fa46d98d52b2e67b2261dd615e0c7d1",
     "semantic_hash": ""
   },
   "eslint.config.mjs": {
@@ -525,8 +525,8 @@
     "semantic_hash": ""
   },
   "lib/calendar.ts": {
-    "mtime": 1786895688.3568451,
-    "ast_hash": "461b56197380dce9d69cbd8107ce1dd4",
+    "mtime": 1787358708.4927518,
+    "ast_hash": "fd308647f96a913edabebe7d94d927c1",
     "semantic_hash": ""
   },
   "lib/color.ts": {
@@ -535,9 +535,9 @@
     "semantic_hash": "fc1b76c5b04f03b61d917bd291a280e8"
   },
   "lib/constants.ts": {
-    "mtime": 1786009889.6306858,
-    "ast_hash": "368a9d2667fbe358a2cd2525e505ae75",
-    "semantic_hash": "368a9d2667fbe358a2cd2525e505ae75"
+    "mtime": 1787333246.0095544,
+    "ast_hash": "6eae10b9af600136440c1de3c0c508a1",
+    "semantic_hash": ""
   },
   "lib/holidays.ts": {
     "mtime": 1786009889.6307597,
@@ -595,9 +595,9 @@
     "semantic_hash": "56833c8610f2764c6e59df429c8376df"
   },
   "lib/time-options.ts": {
-    "mtime": 1786009889.631492,
-    "ast_hash": "4ca4ff28105b87e3832b4a128af28ef6",
-    "semantic_hash": "4ca4ff28105b87e3832b4a128af28ef6"
+    "mtime": 1787330946.5698075,
+    "ast_hash": "21b9422479ca330cb339a10886f30400",
+    "semantic_hash": ""
   },
   "lib/utils.ts": {
     "mtime": 1786009889.6315718,
@@ -605,9 +605,9 @@
     "semantic_hash": "5a6fd53fdcf2be529e9cc0b718fde352"
   },
   "lib/validations/attendance-correction.ts": {
-    "mtime": 1786098178.0626626,
-    "ast_hash": "10f421ddfe8517df80d2d3a04c73cb44",
-    "semantic_hash": "10f421ddfe8517df80d2d3a04c73cb44"
+    "mtime": 1787359438.3004236,
+    "ast_hash": "abf7008101ada1fa392150f9b3615b36",
+    "semantic_hash": ""
   },
   "lib/validations/auth.ts": {
     "mtime": 1786067706.3110657,
@@ -895,8 +895,8 @@
     "semantic_hash": "02fc19ad21338c2ab820a70136310db4"
   },
   "types/index.ts": {
-    "mtime": 1787115414.393661,
-    "ast_hash": "0c2ba8790140a5f1570fb00794e7611d",
+    "mtime": 1787359455.8078887,
+    "ast_hash": "5f84a08ed11b1df5dd45584e12d9c827",
     "semantic_hash": ""
   },
   "AGENTS.md": {
@@ -1150,8 +1150,8 @@
     "semantic_hash": ""
   },
   "components/manager/CreateAttendanceManualDialog.tsx": {
-    "mtime": 1786624511.5354497,
-    "ast_hash": "ada9f0ad4bcd8b78a307bf88d6047d22",
+    "mtime": 1787377613.355767,
+    "ast_hash": "4a60896ae71d3263d7f056f4680d927c",
     "semantic_hash": ""
   },
   "supabase/migrations/0055_revert_shift_duty_role.sql": {
@@ -1165,8 +1165,8 @@
     "semantic_hash": ""
   },
   "vercel.json": {
-    "mtime": 1787110351.1724374,
-    "ast_hash": "2d4ce88976c88e10347eb6b699ff6b76",
+    "mtime": 1787329155.3308277,
+    "ast_hash": "38832068a5b9c73fa2cf2a61cf8709d8",
     "semantic_hash": ""
   },
   "docs/superpowers/specs/2026-08-13-request-status-revert-design.md": {
@@ -1267,6 +1267,41 @@
   "supabase/migrations/0069_calendar_view_all_roles.sql": {
     "mtime": 1787301603.8608005,
     "ast_hash": "436cd1691aeb9f54b6847bc39d5582fa",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/specs/2026-08-21-checkout-correction-tables-and-performance-design.md": {
+    "mtime": 1787329175.5626657,
+    "ast_hash": "2571146bce64315c666e8553574af36c",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/plans/2026-08-21-checkout-correction.md": {
+    "mtime": 1787330234.578873,
+    "ast_hash": "b3edbfaa8f540ddc3cca41b63144b5d1",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/0070_attendance_correction_checkout_enum.sql": {
+    "mtime": 1787331207.3521106,
+    "ast_hash": "e1103af0699f05afb8f52b20ab142e11",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/0071_attendance_correction_checkout.sql": {
+    "mtime": 1787331418.5190268,
+    "ast_hash": "0886535403a943a5b9f72aedd4361495",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/0072_fix_checkout_correction_targeting.sql": {
+    "mtime": 1787332046.2101111,
+    "ast_hash": "0dcdf3291063979487e4a2e5d64d2383",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/0073_tighten_checkout_correction_bounds.sql": {
+    "mtime": 1787332625.5994947,
+    "ast_hash": "da1d1872db2f150f4f9351746098093f",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/0074_fix_shiftless_fallback_flag.sql": {
+    "mtime": 1787332964.2538364,
+    "ast_hash": "c5de5ef9229bf00046df379e0b25679f",
     "semantic_hash": ""
   }
 }
