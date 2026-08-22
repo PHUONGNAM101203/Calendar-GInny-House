@@ -290,3 +290,12 @@ export function canManageAttendanceFor(viewerRole: Role, targetRole: Role, permi
 export function canAccessManagerPage(role: Role): boolean {
   return isManagerRole(role) || role === "hr";
 }
+
+// Who edits the national-holiday list (table `holidays`, 0080). Deliberately
+// narrower than isManagerRole(): a holiday is a company-wide, calendar-wide
+// fact, not a per-group one, so COO/Giám Đốc Đào Tạo/HR get no say. Mirrors
+// the holidays_write_ceo_technical RLS policy in 0080_holidays.sql — keep
+// both in sync.
+export function canManageHolidays(role: Role): boolean {
+  return role === "ceo" || role === "technical";
+}

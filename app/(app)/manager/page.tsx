@@ -15,6 +15,7 @@ import {
   isShiftRequestApprover,
   canApproveSwapRequestFor,
   canCreateShiftDirectly,
+  canManageHolidays,
   isManagerRole,
 } from "@/lib/roles";
 import { getGrantedTargetRolesUnion, getGrantedTargetRoles } from "@/lib/permissions";
@@ -25,6 +26,7 @@ import TechnicalDashboard from "@/components/manager/TechnicalDashboard";
 import StaffTable from "@/components/manager/StaffTable";
 import ShiftsOverviewTable, { type ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
 import ShiftSeriesSection from "@/components/manager/ShiftSeriesSection";
+import HolidaysSection from "@/components/manager/HolidaysSection";
 import DateRangeFilter from "@/components/manager/DateRangeFilter";
 import SwapRequestCard from "@/components/swaps/SwapRequestCard";
 import LeaveRequestCard from "@/components/leave/LeaveRequestCard";
@@ -35,6 +37,7 @@ import type {
   Attendance,
   AttendanceCorrectionDetailed,
   AttendanceWithProfile,
+  Holiday,
   LeaveRequestDetailed,
   Profile,
   ShiftRequestDetailed,
@@ -204,6 +207,7 @@ export default async function ManagerPage({
     permissions,
     { data: shiftSeries },
     { data: shiftSlots },
+    { data: holidays },
     // Joined to the batch rather than awaited above it: it depends on none of
     // these queries, so awaiting it first cost every page view an extra
     // serialized round-trip.
@@ -293,6 +297,11 @@ export default async function ManagerPage({
       .gte("start_at", todayStart)
       .order("start_at")
       .limit(500),
+    // Ngày lễ (0080). Fetched for everyone who can open this page even though
+    // only ceo/technical see the section — it is ~34 rows and skipping it for
+    // other roles would mean branching the Promise.all, which costs more
+    // complexity than the query costs time. RLS allows the read to all.
+    supabase.from("holidays").select("*").order("start_date"),
   ]);
 
   type StaffQueryRow = Pick<
@@ -327,6 +336,8 @@ export default async function ManagerPage({
   // arrays, though each series has exactly one of each.
   const shiftSeriesList = (shiftSeries as unknown as ShiftSeriesDetailed[]) ?? [];
   const shiftSlotsList = (shiftSlots as unknown as ShiftSlotDetailed[]) ?? [];
+
+  const holidaysList = (holidays as Holiday[]) ?? [];
 
   const isTechnical = manager.role === "technical";
 
@@ -521,6 +532,18 @@ export default async function ManagerPage({
             branchMembers={seriesAssignees}
             branches={branches}
           />
+        </Section>
+      )}
+
+      {/* Ngày lễ — Tổng Giám Đốc + Kỹ thuật only, a narrower gate than any
+          other section here. A holiday is a company-wide fact, not a
+          per-group one, so COO/Giám Đốc Đào Tạo/HR get no say. Display gate
+          only: holidaysList is fetched for every role, and RLS
+          (holidays_write_ceo_technical, 0080) is what actually refuses the
+          write if someone reaches the action another way. */}
+      {canManageHolidays(manager.role) && (
+        <Section id="holidays" title="Ngày lễ" count={holidaysList.length}>
+          <HolidaysSection holidays={holidaysList} />
         </Section>
       )}
 
