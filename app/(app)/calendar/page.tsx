@@ -170,18 +170,6 @@ export default async function CalendarPage({
   const followColors = Object.fromEntries(
     followRows.filter((f) => f.color).map((f) => [f.followee_id, f.color as string])
   );
-  // Absence of a row means "followed"; only an explicit followed=false hides
-  // someone. This inverted default is load-bearing. ShiftCalendar filters the
-  // grid to `{self} ∪ followedIds` for anyone with canFollowAll — which, since
-  // the 2026-08 universal-calendar change, is every role. Under the old
-  // "no row = not followed" reading that filter turned every colleague
-  // invisible until the viewer ticked them one by one: on 2026-08-22, 4 of 17
-  // staff followed nobody and so opened an empty calendar, and every new
-  // signup would have started there too. Ticking is how you narrow a shared
-  // calendar, not how you assemble one from nothing.
-  const explicitlyUnfollowed = new Set(
-    followRows.filter((f) => !f.followed).map((f) => f.followee_id)
-  );
   const branchColors = Object.fromEntries(
     ((branchColorRows as { branch_key: string; color: string }[] | null) ?? []).map((r) => [
       r.branch_key,
@@ -219,11 +207,7 @@ export default async function CalendarPage({
         branch_ids: m.profile_branches.map((pb) => pb.branch_id),
       }))}
       canFollowAll={canFollowAll}
-      followedIds={(
-        (branchMembers as { id: string }[] | null) ?? []
-      )
-        .map((m) => m.id)
-        .filter((id) => !explicitlyUnfollowed.has(id))}
+      followedIds={followRows.filter((f) => f.followed).map((f) => f.followee_id)}
       followColors={followColors}
       branchColors={branchColors}
       permissions={permissions}
