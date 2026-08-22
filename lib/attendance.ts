@@ -123,6 +123,47 @@ export function buildAttendanceEntries(
     .sort((a, b) => b.checkInAt.localeCompare(a.checkInAt));
 }
 
+// Structural, not `ShiftOverviewRow` — lib/ must never import from
+// components/, and these three fields are all the shift-hours math needs.
+type ShiftLike = { start_at: string; end_at: string; assignee: { id: string } };
+
+// The shifts one person is REGISTERED for in the period, newest first.
+// Deliberately NOT the overlap-clipping math buildStaffOverview uses for
+// attendance: a shift is a commitment, so it counts for its full scheduled
+// length. Shared by the "Giờ đăng ký" column and the per-person popup so the
+// row total and the popup total can never drift apart.
+export function shiftsInPeriod<T extends ShiftLike>(
+  shifts: T[],
+  profileId: string,
+  period: OverviewPeriod,
+  now: Date = new Date()
+): T[] {
+  const { start, end } = periodRange(period, now);
+  return shifts
+    .filter((s) => s.assignee.id === profileId)
+    .filter((s) => {
+      const t = new Date(s.start_at);
+      return t >= start && t <= end;
+    })
+    .sort((a, b) => b.start_at.localeCompare(a.start_at));
+}
+
+export function sumShiftMinutes(shifts: ShiftLike[]): number {
+  return shifts.reduce(
+    (sum, s) => sum + (new Date(s.end_at).getTime() - new Date(s.start_at).getTime()) / 60000,
+    0
+  );
+}
+
+// "41g 37p", dropping the minutes when it lands on the hour ("8g"). Lives here
+// because the overview table and the detail popup both render totals and had
+// drifted into two identical private copies.
+export function formatHours(totalMinutes: number): string {
+  const h = Math.floor(totalMinutes / 60);
+  const m = Math.round(totalMinutes % 60);
+  return m > 0 ? `${h}g ${m}p` : `${h}g`;
+}
+
 export type DayHours = { date: string; label: string; hours: number };
 
 // System-wide hours-worked-per-day, last N days — feeds the line chart in

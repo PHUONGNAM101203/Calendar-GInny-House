@@ -6,7 +6,13 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import StaffAttendanceDetailDialog from "@/components/manager/StaffAttendanceDetailDialog";
 import type { ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
-import { buildStaffOverview, type OverviewPeriod } from "@/lib/attendance";
+import {
+  buildStaffOverview,
+  formatHours,
+  shiftsInPeriod,
+  sumShiftMinutes,
+  type OverviewPeriod,
+} from "@/lib/attendance";
 import { getRoleLabel } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 import TableScroller from "@/components/manager/TableScroller";
@@ -19,12 +25,6 @@ function normalizeForSearch(value: string): string {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
-}
-
-function formatHours(totalMinutes: number) {
-  const h = Math.floor(totalMinutes / 60);
-  const m = Math.round(totalMinutes % 60);
-  return m > 0 ? `${h}g ${m}p` : `${h}g`;
 }
 
 const STATUS_LABEL = {
@@ -58,6 +58,21 @@ export default function StaffOverviewTable({
     if (!query) return allRows;
     return allRows.filter((row) => normalizeForSearch(row.fullName).includes(query));
   }, [allRows, search]);
+
+  // Frozen at mount so every row shares one period boundary — a `new Date()`
+  // per row could straddle midnight mid-render.
+  const now = useMemo(() => new Date(), []);
+  // Registered-shift hours per person, so a manager sees committed vs actual
+  // side by side without opening each popup. Computed off the `shifts` prop
+  // that was already being forwarded to the dialog — no extra query — and via
+  // the same helpers the dialog uses, so the row and the popup always agree.
+  const registeredMinutesById = useMemo(() => {
+    const totals = new Map<string, number>();
+    for (const row of allRows) {
+      totals.set(row.id, sumShiftMinutes(shiftsInPeriod(shifts, row.id, period, now)));
+    }
+    return totals;
+  }, [allRows, shifts, period, now]);
 
   return (
     <div className="space-y-3">
@@ -93,6 +108,7 @@ export default function StaffOverviewTable({
               <th className="border-b border-r px-3 py-2 font-medium">Nhân viên</th>
               <th className="hidden border-b border-r px-3 py-2 font-medium lg:table-cell">Vai trò</th>
               <th className="border-b border-r px-3 py-2 font-medium">Giờ làm</th>
+              <th className="border-b border-r px-3 py-2 font-medium">Giờ đăng ký</th>
               <th className="border-b border-r px-3 py-2 font-medium">Trạng thái</th>
               <th className="hidden border-b px-3 py-2 font-medium lg:table-cell">Nghỉ phép hôm nay</th>
             </tr>
@@ -117,6 +133,9 @@ export default function StaffOverviewTable({
                 </td>
                 <td className="border-b border-r px-3 py-2 tabular-nums">
                   {formatHours(row.totalMinutes)}
+                </td>
+                <td className="border-b border-r px-3 py-2 tabular-nums">
+                  {formatHours(registeredMinutesById.get(row.id) ?? 0)}
                 </td>
                 <td className="border-b border-r px-3 py-2">
                   <span
@@ -151,7 +170,7 @@ export default function StaffOverviewTable({
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-3 py-6 text-center text-muted-foreground">
+                <td colSpan={6} className="px-3 py-6 text-center text-muted-foreground">
                   {search.trim() ? "Không tìm thấy nhân viên phù hợp." : "Chưa có dữ liệu."}
                 </td>
               </tr>

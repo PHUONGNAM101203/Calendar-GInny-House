@@ -14,16 +14,16 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import CollapsibleGrid from "@/components/manager/CollapsibleGrid";
 import type { ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
-import { periodRange, buildAttendanceEntries, type OverviewPeriod } from "@/lib/attendance";
+import {
+  buildAttendanceEntries,
+  formatHours,
+  shiftsInPeriod,
+  sumShiftMinutes,
+  type OverviewPeriod,
+} from "@/lib/attendance";
 import { SHIFT_TYPE_LABELS } from "@/lib/constants";
 import { computeShiftKind, SHIFT_KIND_LABELS } from "@/lib/shift-kind-tag";
 import type { Attendance } from "@/types";
-
-function formatHours(totalMinutes: number) {
-  const h = Math.floor(totalMinutes / 60);
-  const m = Math.round(totalMinutes % 60);
-  return m > 0 ? `${h}g ${m}p` : `${h}g`;
-}
 
 // Full list of this person's shifts within the selected period (ngày/tháng/
 // năm — same period the parent table's tabs already picked), each tagged by
@@ -51,25 +51,12 @@ export default function StaffAttendanceDetailDialog({
 }) {
   const now = useMemo(() => new Date(), []);
 
-  const personShifts = useMemo(() => {
-    const { start, end } = periodRange(period, now);
-    return shifts
-      .filter((s) => s.assignee.id === employeeId)
-      .filter((s) => {
-        const t = new Date(s.start_at);
-        return t >= start && t <= end;
-      })
-      .sort((a, b) => b.start_at.localeCompare(a.start_at));
-  }, [shifts, employeeId, period, now]);
-
-  const totalShiftMinutes = useMemo(
-    () =>
-      personShifts.reduce(
-        (sum, s) => sum + (new Date(s.end_at).getTime() - new Date(s.start_at).getTime()) / 60000,
-        0
-      ),
-    [personShifts]
+  const personShifts = useMemo(
+    () => shiftsInPeriod(shifts, employeeId, period, now),
+    [shifts, employeeId, period, now]
   );
+
+  const totalShiftMinutes = useMemo(() => sumShiftMinutes(personShifts), [personShifts]);
 
   const attendanceEntries = useMemo(
     () => buildAttendanceEntries(attendance, employeeId, period, now),
