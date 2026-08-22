@@ -43,23 +43,88 @@ function formatInVietnamDate(iso: string): string {
   }).format(new Date(iso));
 }
 
-// Resolve a wall-clock "HH:mm" against the shift it belongs to, as an absolute
-// instant. Overnight shifts end on the calendar day AFTER they start —
-// ShiftFormDialog rolls end_at forward when it would otherwise precede
-// start_at, and shifts_time_valid permits that — so a check-out of e.g. 02:00
-// on a 22:00→02:00 shift belongs to the next day. Anchoring it to the start
-// date would place it before the check-in and the RPC would reject every time
-// except 22:01–23:59. No upper bound is applied here on purpose: the RPC's
-// own end_at + 6h guard is the authority on how late is too late.
-// Vietnam has no DST, so +24h is exactly one calendar day.
-function resolveCheckOutInstant(shiftStartAt: string, checkOutTime: string): string {
-  const onStartDate = `${formatInVietnamDate(shiftStartAt)}T${checkOutTime}:00+07:00`;
-  if (new Date(onStartDate) > new Date(shiftStartAt)) return onStartDate;
+// Mirrors request_attendance_correction_checkout's resolution order (0074):
+// the row clock_in(p_shift_id) actually wrote for THIS shift, and only then
+// the shiftless free-clock-in fallback restricted to the shift's own Vietnam
+// date. Matching by date alone would grab an unrelated same-day session.
+// Shared by the preview and the request action so the time the user is shown
+// and the time the roll-forward anchors on are resolved identically — they
+// used to be able to disagree.
+async function resolveAttendanceForShift(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  profileId: string,
+  shift: Pick<Shift, "id" | "start_at">
+): Promise<Attendance | null> {
+  const { data: byShiftRows } = await supabase
+    .from("attendance")
+    .select("*")
+    .eq("profile_id", profileId)
+    .eq("shift_id", shift.id)
+    .order("check_in_at", { ascending: false })
+    .limit(1);
 
+  const forShift = ((byShiftRows as Attendance[]) ?? [])[0] ?? null;
+  if (forShift) return forShift;
+
+  const shiftDate = formatInVietnamDate(shift.start_at);
+  const { data: shiftlessRows } = await supabase
+    .from("attendance")
+    .select("*")
+    .eq("profile_id", profileId)
+    .is("shift_id", null)
+    .gte("check_in_at", `${shiftDate}T00:00:00+07:00`)
+    .lte("check_in_at", `${shiftDate}T23:59:59+07:00`)
+    .order("check_in_at", { ascending: false })
+    .limit(1);
+
+  return ((shiftlessRows as Attendance[]) ?? [])[0] ?? null;
+}
+
+// Resolve a wall-clock "HH:mm" into an absolute instant.
+//
+// Overnight shifts end on the calendar day AFTER they start — ShiftFormDialog
+// rolls end_at forward when it would otherwise precede start_at, and
+// shifts_time_valid permits that — so a check-out of e.g. 02:00 on a
+// 22:00→02:00 shift belongs to the next day.
+//
+// The roll anchors on the resolved session's check_in_at, NOT on
+// shift.start_at. On 0074's shiftless-fallback branch the shift describes a
+// session the row was never tied to, and both shift-anchored gates are
+// skipped there — so anchoring on the shift would roll a legitimate
+// 06:00→07:30 free session's check-out to the next day and record a 25-hour
+// session that the RPC has no bound left to reject. check_in_at is the one
+// gate 0074 applies on both branches, which makes it the safe anchor.
+//
+// The check_in_at is resolved server-side by the caller and never accepted
+// from the client: a caller claiming a late check-in could otherwise push the
+// resolved day forward and slip a many-hour session past the shiftless branch.
+//
+// Never rolls into the future — a rolled instant later than now() cannot be a
+// check-out that already happened, and declining to roll leaves the clearer
+// "Giờ ra phải sau giờ vào" for a time typed earlier than the check-in.
+//
+// No upper bound is applied here on purpose: the RPC's end_at + 6h guard is
+// the authority on how late is too late. Vietnam has no DST, so +24h is
+// exactly one calendar day.
+function resolveCheckOutInstant(
+  shiftStartAt: string,
+  checkOutTime: string,
+  checkInAt: string | null
+): string {
+  const onShiftDate = `${formatInVietnamDate(shiftStartAt)}T${checkOutTime}:00+07:00`;
+  // With no session resolved there is nothing to anchor to; leave it alone and
+  // let the RPC raise "Ca này chưa có giờ vào — vui lòng giải trình giờ vào trước".
+  if (!checkInAt) return onShiftDate;
+  if (new Date(onShiftDate) > new Date(checkInAt)) return onShiftDate;
+
+  // The rolled date advances from the SHIFT's day, not the check-in's: a late
+  // check-in that already landed after midnight is itself on day+1, and
+  // advancing from it would overshoot to day+2.
   const nextDate = formatInVietnamDate(
     new Date(new Date(shiftStartAt).getTime() + 24 * 60 * 60_000).toISOString()
   );
-  return `${nextDate}T${checkOutTime}:00+07:00`;
+  const rolled = `${nextDate}T${checkOutTime}:00+07:00`;
+  return new Date(rolled) > new Date() ? onShiftDate : rolled;
 }
 
 function mapAttendanceCorrectionError(message: string): string {
@@ -178,7 +243,7 @@ export async function requestCheckoutCorrectionAction(input: unknown): Promise<A
   // browser's clock would drift for anyone not on Asia/Ho_Chi_Minh.
   const { data: shiftRows, error: shiftError } = await supabase
     .from("shifts")
-    .select("start_at")
+    .select("id, start_at")
     .eq("id", parsed.data.shift_id)
     .eq("assignee_id", profile.id)
     .limit(1);
@@ -190,12 +255,21 @@ export async function requestCheckoutCorrectionAction(input: unknown): Promise<A
     return { ok: false, error: "Không thể xử lý đơn giải trình công" };
   }
 
-  const shift = ((shiftRows as Pick<Shift, "start_at">[]) ?? [])[0];
+  const shift = ((shiftRows as Pick<Shift, "id" | "start_at">[]) ?? [])[0];
   if (!shift) {
     return { ok: false, error: "Không tìm thấy ca làm việc này" };
   }
 
-  const requestedCheckOutAt = resolveCheckOutInstant(shift.start_at, parsed.data.check_out_time);
+  // Resolved here rather than taken from the client: this anchors the
+  // roll-forward, so trusting a caller-supplied check-in would let them push
+  // the resolved day forward past the shiftless branch's missing bounds.
+  const attendance = await resolveAttendanceForShift(supabase, profile.id, shift);
+
+  const requestedCheckOutAt = resolveCheckOutInstant(
+    shift.start_at,
+    parsed.data.check_out_time,
+    attendance?.check_in_at ?? null
+  );
 
   const { error } = await supabase.rpc("request_attendance_correction_checkout", {
     p_shift_id: parsed.data.shift_id,
@@ -339,35 +413,9 @@ export async function getAttendanceCorrectionPreviewAction(
     return { ok: true, data: { kind: "multiple_shifts", shifts: shiftList } };
   }
 
-  // Mirror the RPC's resolution order (0074): the row clock_in(p_shift_id)
-  // actually wrote for THIS shift, and only then the shiftless free-clock-in
-  // fallback for the same day. Matching by date alone — as this preview used
-  // to — is the bug 0072 fixed in the database: on a split day it happily
-  // described a session belonging to the other shift, and the check-out flow
-  // now seeds the submitted time from exactly this value.
-  const { data: byShiftRows } = await supabase
-    .from("attendance")
-    .select("*")
-    .eq("profile_id", profile.id)
-    .eq("shift_id", shift.id)
-    .order("check_in_at", { ascending: false })
-    .limit(1);
-
-  const attendanceForShift = ((byShiftRows as Attendance[]) ?? [])[0] ?? null;
-
-  const { data: shiftlessRows } = attendanceForShift
-    ? { data: null }
-    : await supabase
-        .from("attendance")
-        .select("*")
-        .eq("profile_id", profile.id)
-        .is("shift_id", null)
-        .gte("check_in_at", dayStart)
-        .lte("check_in_at", dayEnd)
-        .order("check_in_at", { ascending: false })
-        .limit(1);
-
-  const attendance = attendanceForShift ?? ((shiftlessRows as Attendance[] | null) ?? [])[0];
+  // Same resolution the request action uses, so the time shown here is the
+  // time the roll-forward will anchor on.
+  const attendance = await resolveAttendanceForShift(supabase, profile.id, shift);
   if (!attendance) {
     return { ok: true, data: { kind: "missed_check_in", shift } };
   }
