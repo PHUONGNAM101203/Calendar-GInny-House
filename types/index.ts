@@ -235,7 +235,23 @@ export type CustomCalendar = {
   owner_id: string;
   name: string;
   color: string;
+  /** Owner opted this calendar into "Duyệt lịch có sẵn trong công ty" (0081). */
+  is_shared: boolean;
   created_at: string;
+};
+
+// Shape returned by the list_shared_custom_calendars() RPC (0081) — a plain
+// embedded join to profiles would lose the owner's name for anyone the viewer
+// cannot see under profiles_select_branch, so the browse dialog reads this
+// SECURITY DEFINER view of the shared set instead.
+export type SharedCustomCalendar = {
+  id: string;
+  owner_id: string;
+  owner_name: string;
+  name: string;
+  color: string;
+  created_at: string;
+  is_subscribed: boolean;
 };
 
 export type CustomEvent = {
