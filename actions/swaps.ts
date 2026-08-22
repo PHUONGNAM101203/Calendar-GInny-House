@@ -14,6 +14,18 @@ import type { ActionResult } from "@/types";
 // null for an open swap, which has no target_shift_id), not an array — the
 // untyped Supabase client cannot infer that on its own.
 type SwapShiftWindow = { start_at: string; end_at: string };
+
+// The same read, widened, for the two manager-side actions at the bottom of
+// this file: they need the requester's name (to address the target), the
+// status (to know whether shifts actually moved) and both windows.
+type SwapSubject = {
+  requester_id: string;
+  target_id: string | null;
+  status: string;
+  requester: { full_name: string } | null;
+  requester_shift: SwapShiftWindow | null;
+};
+
 type SwapResponseContext = {
   requester_id: string;
   // null on an open swap — nobody was named when it was raised.
@@ -53,6 +65,30 @@ function revalidateSwapPaths() {
   // See actions/leave.ts's revalidateLeavePaths for why this is needed —
   // the notification bell is in the shared app/(app)/layout.tsx.
   revalidatePath("/", "layout");
+}
+
+// Read before the manager-side mutations below, never after: a delete leaves
+// no row at all, and a revert rewrites the status the copy depends on.
+async function readSwapSubject(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  requestId: string
+): Promise<SwapSubject | null> {
+  const { data } = await supabase
+    .from("shift_swap_requests")
+    .select(
+      "requester_id, target_id, status, requester:profiles!requester_id(full_name), requester_shift:shifts!requester_shift_id(start_at, end_at)"
+    )
+    .eq("id", requestId)
+    .maybeSingle<SwapSubject>();
+  return data ?? null;
+}
+
+// "ca 08:00–12:00 ngày 22/08/2026" — baked into the body so it still names
+// the right shift once the request row (and possibly the shift) is gone.
+function describeSwapShift(subject: SwapSubject): string {
+  return subject.requester_shift
+    ? `ca ${formatShiftWindow(subject.requester_shift.start_at, subject.requester_shift.end_at)}`
+    : "một ca làm việc";
 }
 
 export async function createSwapRequestAction(input: unknown): Promise<ActionResult> {
@@ -196,8 +232,10 @@ export async function cancelSwapRequestAction(requestId: string): Promise<Action
 // real authorization boundary. count: "exact" so a denied delete surfaces
 // as a real error instead of a false "Đã xoá" toast.
 export async function deleteSwapRequestAction(requestId: string): Promise<ActionResult> {
-  await requireManager();
+  const manager = await requireManager();
   const supabase = await createClient();
+  const subject = await readSwapSubject(supabase, requestId);
+
   const { error, count } = await supabase
     .from("shift_swap_requests")
     .delete({ count: "exact" })
@@ -209,6 +247,40 @@ export async function deleteSwapRequestAction(requestId: string): Promise<Action
   if (!count) return { ok: false, error: "Bạn không có quyền xoá đơn này" };
 
   revalidateSwapPaths();
+  // Both sides were waiting on this request and it has just vanished from
+  // their lists with no trace. Only ever pending here, so no shift moved —
+  // the copy says so rather than leaving them guessing who holds the ca. A
+  // manager may delete a request they raised or were the target of, so the
+  // actor is filtered out of the recipients.
+  if (subject) {
+    const where = describeSwapShift(subject);
+    const requesterName = subject.requester?.full_name ?? "đồng nghiệp";
+    const drafts = [
+      {
+        profileId: subject.requester_id,
+        kind: "swap_deleted" as const,
+        title: "Yêu cầu đổi ca đã bị xoá",
+        body: `${manager.full_name} đã xoá yêu cầu đổi ${where} của bạn. Ca này vẫn thuộc về bạn.`,
+        url: "/swaps",
+        relatedId: requestId,
+      },
+      ...(subject.target_id
+        ? [
+            {
+              profileId: subject.target_id,
+              kind: "swap_deleted" as const,
+              title: "Yêu cầu đổi ca đã bị xoá",
+              body: `${manager.full_name} đã xoá yêu cầu đổi ${where} mà ${requesterName} gửi cho bạn. Bạn không cần phản hồi nữa.`,
+              url: "/swaps",
+              relatedId: requestId,
+            },
+          ]
+        : []),
+    ].filter((draft) => draft.profileId !== manager.id);
+
+    // See actions/leave.ts's requestLeaveAction for why after() is required.
+    after(() => emitNotifications(drafts));
+  }
   return { ok: true, data: undefined };
 }
 
@@ -218,12 +290,54 @@ export async function deleteSwapRequestAction(requestId: string): Promise<Action
 // again since. Auto-cancelled sibling swaps from the original accept's
 // cascade are deliberately left cancelled (see design spec §Phạm vi).
 export async function revertSwapRequestAction(requestId: string): Promise<ActionResult> {
-  await requireProfile();
+  const responder = await requireProfile();
   const supabase = await createClient();
+  // Before the RPC: it sets status back to 'pending', so a later read could
+  // no longer tell whether shifts were actually moved back (accepted) or the
+  // revert merely undid a từ chối/huỷ click.
+  const subject = await readSwapSubject(supabase, requestId);
+
   const { error } = await supabase.rpc("revert_swap_request", { p_request_id: requestId });
 
   if (error) return { ok: false, error: mapSwapError(error.message) };
 
   revalidateSwapPaths();
+  if (subject) {
+    const where = describeSwapShift(subject);
+    const wasAccepted = subject.status === "accepted";
+    const requesterName = subject.requester?.full_name ?? "đồng nghiệp";
+    const movedBack = wasAccepted
+      ? " Các ca liên quan đã được trả về như trước khi đổi."
+      : "";
+    const drafts = [
+      {
+        profileId: subject.requester_id,
+        kind: "swap_reverted" as const,
+        title: "Yêu cầu đổi ca được khôi phục",
+        body: `${responder.full_name} đã khôi phục yêu cầu đổi ${where} của bạn về trạng thái chờ duyệt.${movedBack}`,
+        url: "/swaps",
+        relatedId: requestId,
+      },
+      // The target is only told when the accept was undone: that is the case
+      // where a shift they were holding has just moved off their calendar.
+      // On a reverted từ chối nothing of theirs changed except a request
+      // reappearing in their list, which /swaps already shows.
+      ...(wasAccepted && subject.target_id
+        ? [
+            {
+              profileId: subject.target_id,
+              kind: "swap_reverted" as const,
+              title: "Yêu cầu đổi ca được khôi phục",
+              body: `${responder.full_name} đã khôi phục yêu cầu đổi ${where} của ${requesterName} về trạng thái chờ duyệt. Các ca liên quan đã được trả về như trước khi đổi.`,
+              url: "/swaps",
+              relatedId: requestId,
+            },
+          ]
+        : []),
+    ].filter((draft) => draft.profileId !== responder.id);
+
+    // See actions/leave.ts's requestLeaveAction for why after() is required.
+    after(() => emitNotifications(drafts));
+  }
   return { ok: true, data: undefined };
 }
