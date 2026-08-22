@@ -1,10 +1,16 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 import { canManageAttendanceFor } from "@/lib/roles";
 import { getGroupPermissions } from "@/lib/permissions-server";
+import {
+  emitNotifications,
+  formatShiftWindow,
+  formatVietnamMoment,
+} from "@/lib/notifications-emit";
 import type { ActionResult, Attendance, Role } from "@/types";
 
 function mapAttendanceError(message: string): string {
@@ -38,30 +44,49 @@ function revalidateAttendanceManagePaths() {
   revalidatePath("/attendance");
 }
 
+// The row as the permission check and the notification copy both need it.
+// Read once, before the mutation: these are the values the staff member is
+// being told changed, and re-reading afterwards would describe the new state
+// (or, for a delete, nothing at all).
+type ManageableAttendanceRow = {
+  profile_id: string;
+  check_in_at: string;
+  check_out_at: string | null;
+};
+
 // Two-step lookup (not a join) — an embedded profiles() select infers as an
 // array without generated Supabase types, matching the pattern already used
 // in actions/shifts.ts's assertBranchAllowed().
-async function canCurrentUserManageAttendanceRow(
+async function loadManageableAttendanceRow(
   supabase: Awaited<ReturnType<typeof createClient>>,
   viewerRole: Role,
   attendanceId: string
-): Promise<boolean> {
+): Promise<ManageableAttendanceRow | null> {
   const { data: row } = await supabase
     .from("attendance")
-    .select("profile_id")
+    .select("profile_id, check_in_at, check_out_at")
     .eq("id", attendanceId)
-    .single();
-  if (!row) return false;
+    .single<ManageableAttendanceRow>();
+  if (!row) return null;
 
   const { data: target } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", row.profile_id)
     .single();
-  if (!target) return false;
+  if (!target) return null;
 
   const permissions = await getGroupPermissions();
-  return canManageAttendanceFor(viewerRole, target.role, permissions);
+  return canManageAttendanceFor(viewerRole, target.role, permissions) ? row : null;
+}
+
+// "08:00–12:00 ngày 22/08/2026", or the check-in alone when the session was
+// never closed. Baked into the stored body so the notification still names
+// the right session after the row it describes has been edited or deleted.
+function formatAttendanceWindow(checkInAt: string, checkOutAt: string | null): string {
+  return checkOutAt
+    ? formatShiftWindow(checkInAt, checkOutAt)
+    : `${formatVietnamMoment(checkInAt)} (chưa có giờ ra)`;
 }
 
 export async function updateAttendanceAction(
@@ -71,7 +96,8 @@ export async function updateAttendanceAction(
   const profile = await requireProfile();
   const supabase = await createClient();
 
-  if (!(await canCurrentUserManageAttendanceRow(supabase, profile.role, id))) {
+  const row = await loadManageableAttendanceRow(supabase, profile.role, id);
+  if (!row) {
     return { ok: false, error: "Bạn không có quyền sửa chấm công này" };
   }
 
@@ -83,6 +109,27 @@ export async function updateAttendanceAction(
   if (error) return { ok: false, error: "Không thể cập nhật chấm công" };
 
   revalidateAttendanceManagePaths();
+  // This changes the hours the person is paid for, so they are told what it
+  // was and what it became. ceo/technical may manage their own row
+  // (canManageAttendanceFor returns true for any target), so skip the
+  // self-edit — nobody needs "your attendance was edited" for their own
+  // click. See actions/leave.ts's requestLeaveAction for why after() is used.
+  if (row.profile_id !== profile.id) {
+    const before = formatAttendanceWindow(row.check_in_at, row.check_out_at);
+    const now = formatAttendanceWindow(input.check_in_at, input.check_out_at);
+    after(() =>
+      emitNotifications([
+        {
+          profileId: row.profile_id,
+          kind: "attendance_updated",
+          title: "Chấm công của bạn đã được sửa",
+          body: `${profile.full_name} đã sửa chấm công ${before} của bạn thành ${now}.`,
+          url: "/attendance",
+          relatedId: id,
+        },
+      ])
+    );
+  }
   return { ok: true, data: undefined };
 }
 
@@ -90,7 +137,8 @@ export async function deleteAttendanceAction(id: string): Promise<ActionResult> 
   const profile = await requireProfile();
   const supabase = await createClient();
 
-  if (!(await canCurrentUserManageAttendanceRow(supabase, profile.role, id))) {
+  const row = await loadManageableAttendanceRow(supabase, profile.role, id);
+  if (!row) {
     return { ok: false, error: "Bạn không có quyền xoá chấm công này" };
   }
 
@@ -98,6 +146,24 @@ export async function deleteAttendanceAction(id: string): Promise<ActionResult> 
   if (error) return { ok: false, error: "Không thể xoá chấm công" };
 
   revalidateAttendanceManagePaths();
+  // Same reasoning as updateAttendanceAction: the deleted session is hours
+  // they no longer get paid for. The window has to come from the pre-delete
+  // read — after the delete there is nothing left to describe.
+  if (row.profile_id !== profile.id) {
+    const window = formatAttendanceWindow(row.check_in_at, row.check_out_at);
+    after(() =>
+      emitNotifications([
+        {
+          profileId: row.profile_id,
+          kind: "attendance_deleted",
+          title: "Chấm công của bạn đã bị xoá",
+          body: `${profile.full_name} đã xoá bản ghi chấm công ${window} của bạn.`,
+          url: "/attendance",
+          relatedId: id,
+        },
+      ])
+    );
+  }
   return { ok: true, data: undefined };
 }
 

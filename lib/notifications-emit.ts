@@ -12,14 +12,27 @@
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { sendPushToProfile } from "@/lib/push";
 
+// Free text in the table (0077) on purpose — a new kind ships without a
+// migration, and nothing in SQL or in the bell branches on the value.
 export type NotificationKind =
   | "shift_assigned"
   | "shift_updated"
   | "shift_unassigned"
   | "shift_deleted"
   | "swap_accepted"
+  | "swap_reverted"
+  | "swap_deleted"
   | "missed_check_in"
-  | "stale_check_out";
+  | "stale_check_out"
+  | "attendance_updated"
+  | "attendance_deleted"
+  | "attendance_correction_reverted"
+  | "attendance_correction_deleted"
+  | "account_deactivated"
+  | "account_reactivated"
+  | "role_changed"
+  | "secondary_role_changed"
+  | "branches_changed";
 
 export type NotificationDraft = {
   profileId: string;
