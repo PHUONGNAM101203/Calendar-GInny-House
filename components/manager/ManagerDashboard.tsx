@@ -1,20 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ArrowRightIcon } from "lucide-react";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  ReferenceDot,
-  Label,
-} from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import BrandMark from "@/components/brand/BrandMark";
 import StaffOverviewTable from "@/components/manager/StaffOverviewTable";
 import type { ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
@@ -29,6 +20,16 @@ import type {
   ShiftRequestDetailed,
   SwapRequestDetailed,
 } from "@/types";
+
+// recharts is ~300KB and this chart sits below the fold, so shipping it in
+// the initial bundle delayed the numbers a manager actually opens this page
+// for. ssr: false for the same reason ShiftCalendarLoader forces it — the
+// chart measures its own container to lay out, which the server has no DOM to
+// do; SSR'ing it only produced markup that was thrown away on hydration.
+const HoursAreaChart = dynamic(() => import("@/components/manager/HoursAreaChart"), {
+  ssr: false,
+  loading: () => <Skeleton className="size-full" />,
+});
 
 /* Băng điều hành — một tấm panel navy duy nhất thay cho 5 card rời rạc.
    Trên nền tối, con số nào cần hành động thì tự phát sáng (vàng = chờ
@@ -223,64 +224,13 @@ export default function ManagerDashboard({
               </p>
             </div>
             <div className="h-56">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={hoursByDay} margin={{ top: 28, right: 8, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="hoursFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.28} />
-                      <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--calendar-grid)" vertical={false} />
-                  <XAxis
-                    dataKey="label"
-                    tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                    width={28}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip
-                    formatter={(value) => [`${value} giờ`, "Tổng giờ làm"]}
-                    contentStyle={{
-                      background: "var(--popover)",
-                      border: "1px solid var(--border)",
-                      borderRadius: "var(--radius-md)",
-                      fontSize: 12,
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="hours"
-                    stroke="var(--primary)"
-                    strokeWidth={2.5}
-                    fill="url(#hoursFill)"
-                    dot={false}
-                    activeDot={{ r: 4 }}
-                  />
-                  {peakDay.hours > 0 && (
-                    <ReferenceDot
-                      x={peakDay.label}
-                      y={peakDay.hours}
-                      r={4}
-                      fill="var(--primary)"
-                      stroke="var(--card)"
-                      strokeWidth={2}
-                    >
-                      <Label
-                        value={`${peakDay.hours} giờ`}
-                        position="top"
-                        offset={10}
-                        style={{ fill: "var(--foreground)", fontSize: 12, fontWeight: 600 }}
-                      />
-                    </ReferenceDot>
-                  )}
-                </AreaChart>
-              </ResponsiveContainer>
+              <HoursAreaChart
+                data={hoursByDay}
+                gradientId="hoursFill"
+                peakDay={peakDay}
+                showAxisLines={false}
+                yAxisWidth={28}
+              />
             </div>
           </CardContent>
         </Card>

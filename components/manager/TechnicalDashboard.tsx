@@ -1,24 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  ReferenceDot,
-  Label,
-} from "recharts";
+import dynamic from "next/dynamic";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { AlertTriangleIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import StaffOverviewTable from "@/components/manager/StaffOverviewTable";
 import type { ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
 import RequestsOverviewTable from "@/components/manager/RequestsOverviewTable";
@@ -51,6 +39,20 @@ function ChartCardHeader({ title, total }: { title: string; total?: string }) {
     </div>
   );
 }
+
+// recharts is ~300KB and both charts sit below the fold, behind the stale
+// check-out list and the permissions editor a technical user actually comes
+// here for. ssr: false for the same reason ShiftCalendarLoader forces it —
+// these charts measure their own container to lay out, which the server has
+// no DOM to do, so SSR only produced markup that hydration threw away.
+const RolePieChart = dynamic(() => import("@/components/manager/RolePieChart"), {
+  ssr: false,
+  loading: () => <Skeleton className="size-full" />,
+});
+const HoursAreaChart = dynamic(() => import("@/components/manager/HoursAreaChart"), {
+  ssr: false,
+  loading: () => <Skeleton className="size-full" />,
+});
 
 // Same 6-hue set the calendar already uses for people, reused here so the
 // dashboard doesn't introduce a second, unrelated color language.
@@ -148,34 +150,7 @@ export default function TechnicalDashboard({
           <CardContent>
             <ChartCardHeader title="Nhân sự theo vai trò" total={`${staff.length} người`} />
             <div className="relative h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={roleCounts}
-                    dataKey="count"
-                    nameKey="role"
-                    innerRadius={50}
-                    outerRadius={90}
-                    paddingAngle={2}
-                  >
-                    {roleCounts.map((entry, i) => (
-                      <Cell key={entry.role} fill={ROLE_PIE_COLORS[i % ROLE_PIE_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value, _name, item) => [
-                      `${value} người`,
-                      ROLE_LABELS[(item?.payload as { role: keyof typeof ROLE_LABELS }).role],
-                    ]}
-                    contentStyle={{
-                      background: "var(--popover)",
-                      border: "1px solid var(--border)",
-                      borderRadius: "var(--radius-md)",
-                      fontSize: 12,
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+              <RolePieChart data={roleCounts} colors={ROLE_PIE_COLORS} />
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
                 <span className="font-heading text-2xl font-semibold tabular-nums">{staff.length}</span>
                 <span className="text-xs text-muted-foreground">người</span>
@@ -199,54 +174,7 @@ export default function TechnicalDashboard({
           <CardContent>
             <ChartCardHeader title="Giờ làm toàn hệ thống · 14 ngày qua" total={`${totalHours} giờ`} />
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={hoursByDay} margin={{ top: 28, right: 8, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="techHoursFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.28} />
-                      <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--calendar-grid)" vertical={false} />
-                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
-                  <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} width={32} />
-                  <Tooltip
-                    formatter={(value) => [`${value} giờ`, "Tổng giờ làm"]}
-                    contentStyle={{
-                      background: "var(--popover)",
-                      border: "1px solid var(--border)",
-                      borderRadius: "var(--radius-md)",
-                      fontSize: 12,
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="hours"
-                    stroke="var(--primary)"
-                    strokeWidth={2.5}
-                    fill="url(#techHoursFill)"
-                    dot={false}
-                    activeDot={{ r: 4 }}
-                  />
-                  {peakDay.hours > 0 && (
-                    <ReferenceDot
-                      x={peakDay.label}
-                      y={peakDay.hours}
-                      r={4}
-                      fill="var(--primary)"
-                      stroke="var(--card)"
-                      strokeWidth={2}
-                    >
-                      <Label
-                        value={`${peakDay.hours} giờ`}
-                        position="top"
-                        offset={10}
-                        style={{ fill: "var(--foreground)", fontSize: 12, fontWeight: 600 }}
-                      />
-                    </ReferenceDot>
-                  )}
-                </AreaChart>
-              </ResponsiveContainer>
+              <HoursAreaChart data={hoursByDay} gradientId="techHoursFill" peakDay={peakDay} />
             </div>
           </CardContent>
         </Card>
