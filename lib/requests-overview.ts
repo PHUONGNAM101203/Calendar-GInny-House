@@ -6,7 +6,7 @@ import type {
   ShiftRequest,
   SwapRequest,
 } from "@/types";
-import { periodRange, type OverviewPeriod } from "@/lib/attendance";
+import { type DateRange } from "@/lib/attendance";
 
 export type RequestsOverviewRow = {
   id: string;
@@ -39,7 +39,7 @@ function countByProfile<T extends { created_at: string }>(
 // One row per employee — mirrors buildStaffOverview's shape/intent
 // (lib/attendance.ts), but for "how many requests did each person submit"
 // instead of "how many hours did each person work". Counts every request
-// submitted in the period regardless of status (pending/approved/rejected/
+// submitted in the window regardless of status (pending/approved/rejected/
 // cancelled) — this is an activity overview, not an approval queue (that's
 // "Cần xử lý" and the per-type Sections further down /manager).
 export function buildRequestsOverview(
@@ -48,10 +48,9 @@ export function buildRequestsOverview(
   swapRequests: Pick<SwapRequest, "requester_id" | "created_at">[],
   shiftRequests: Pick<ShiftRequest, "profile_id" | "created_at">[],
   attendanceCorrections: Pick<AttendanceCorrection, "profile_id" | "created_at">[],
-  period: OverviewPeriod,
-  now: Date = new Date()
+  range: DateRange
 ): RequestsOverviewRow[] {
-  const { start, end } = periodRange(period, now);
+  const { start, end } = range;
 
   const leaveCounts = countByProfile(leaveRequests, (r) => r.profile_id, start, end);
   const swapCounts = countByProfile(swapRequests, (r) => r.requester_id, start, end);

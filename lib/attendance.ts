@@ -1,7 +1,63 @@
-import { startOfDay, endOfDay, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays, format } from "date-fns";
+import { startOfDay, endOfDay, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays, format, parse } from "date-fns";
 import type { Attendance, LeaveRequest, Profile, Role } from "@/types";
 
 export type OverviewPeriod = "day" | "month" | "year";
+
+/** Plain start/end pair — every period-scoped helper below clips to one. */
+export type DateRange = { start: Date; end: Date };
+
+// What the URL asked /manager to show. Built once, on the server, from
+// `?p=`/`?from=`/`?to=` — `from`/`to` are "yyyy-MM-dd" and are non-null ONLY
+// as a validated, correctly-ordered pair, so nothing downstream has to
+// re-check them.
+export type OverviewRangeSpec = {
+  period: OverviewPeriod;
+  from: string | null;
+  to: string | null;
+};
+
+// The ONE window /manager is looking at, resolved from the spec. Threaded
+// down as a prop — no table, popup or helper may derive a window of its own
+// from `now`, which is exactly what used to fetch a past ?from=/?to= range
+// and then clip it away, rendering every table as zeros.
+export type OverviewRange = DateRange & {
+  /** The `?p=` tab. Still the active tab unless `isCustom`. */
+  period: OverviewPeriod;
+  /** True when a valid ?from=/?to= pair produced this window. */
+  isCustom: boolean;
+};
+
+/** Whether the spec puts the page in custom-range mode (tabs go inactive). */
+export function isCustomSpec(spec: OverviewRangeSpec): boolean {
+  return spec.from !== null && spec.to !== null;
+}
+
+// The single definition of "the window I am looking at". Deliberately
+// evaluated in BOTH execution contexts rather than resolved once on the
+// server and shipped as instants: this app is Vietnam-only but the server
+// process has no TZ set (see app/(app)/attendance/page.tsx), so server-side
+// startOfDay()/startOfMonth() land on UTC boundaries while the browser's
+// land on Vietnam ones. Shipping the server's instants would silently move
+// every ngày/tháng/năm window by 7 hours. Same input spec + same function =
+// one definition either way, each side using the calendar it should.
+//
+// Custom range is a FOURTH, mutually-exclusive mode next to ngày/tháng/năm —
+// when it's set, `now` doesn't enter into the window at all, which is what
+// finally lets a past range render its own data instead of zeros.
+export function resolveOverviewRange(
+  spec: OverviewRangeSpec,
+  now: Date = new Date()
+): OverviewRange {
+  if (spec.from && spec.to) {
+    return {
+      start: startOfDay(parse(spec.from, "yyyy-MM-dd", now)),
+      end: endOfDay(parse(spec.to, "yyyy-MM-dd", now)),
+      period: spec.period,
+      isCustom: true,
+    };
+  }
+  return { ...periodRange(spec.period, now), period: spec.period, isCustom: false };
+}
 
 export type StaffOverviewRow = {
   id: string;
@@ -13,9 +69,10 @@ export type StaffOverviewRow = {
   onLeaveToday: boolean;
 };
 
-// Exported so drill-down UI (StaffAttendanceDetailDialog) and the requests
-// overview (lib/requests-overview.ts) compute the exact same day/month/year
-// boundaries as this table — one definition of "what does 'theo tháng' mean".
+// The day/month/year boundaries behind the ?p= tabs. Called in exactly one
+// place now (app/(app)/manager/page.tsx, to resolve the page's window);
+// still exported because CollapsibleGrid's own local period filter and any
+// future caller need the same definition of "what does 'theo tháng' mean".
 export function periodRange(period: OverviewPeriod, now: Date) {
   switch (period) {
     case "month":
@@ -29,19 +86,20 @@ export function periodRange(period: OverviewPeriod, now: Date) {
 }
 
 // One row per employee — the "mỗi tính năng 1 table" dashboard view: for the
-// selected period, how many minutes did they actually work, are they
+// selected window, how many minutes did they actually work, are they
 // currently clocked in or already checked out, and are they on approved/
 // pending leave today. Built client-side off one broad attendance fetch (see
 // app/(app)/manager/page.tsx) so switching Ngày/Tháng/Năm is instant, no
-// refetch.
+// refetch. `range` is the page's resolved window; `now` is only "right now"
+// (open sessions, nghỉ phép hôm nay) and never defines the window.
 export function buildStaffOverview(
   staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[],
   attendance: Attendance[],
   leaveRequests: Pick<LeaveRequest, "profile_id" | "start_date" | "end_date" | "status">[],
-  period: OverviewPeriod,
+  range: DateRange,
   now: Date = new Date()
 ): StaffOverviewRow[] {
-  const { start, end } = periodRange(period, now);
+  const { start, end } = range;
 
   const minutesByProfile = new Map<string, number>();
   const openByProfile = new Set<string>();
@@ -97,16 +155,17 @@ export type AttendanceEntry = {
 };
 
 // Per-session breakdown for the "Chấm công" tab of the per-person popup —
-// same overlap-with-period math as buildStaffOverview's totalMinutes (so the
+// same overlap-with-range math as buildStaffOverview's totalMinutes (so the
 // tab's sum matches the table's Giờ làm column), just kept per-record
-// instead of collapsed into one total.
+// instead of collapsed into one total. Takes the same resolved `range` the
+// table got, so the two can't disagree.
 export function buildAttendanceEntries(
   attendance: Pick<Attendance, "id" | "profile_id" | "check_in_at" | "check_out_at">[],
   profileId: string,
-  period: OverviewPeriod,
+  range: DateRange,
   now: Date = new Date()
 ): AttendanceEntry[] {
-  const { start, end } = periodRange(period, now);
+  const { start, end } = range;
 
   return attendance
     .filter((r) => r.profile_id === profileId)
@@ -127,18 +186,18 @@ export function buildAttendanceEntries(
 // components/, and these three fields are all the shift-hours math needs.
 type ShiftLike = { start_at: string; end_at: string; assignee: { id: string } };
 
-// The shifts one person is REGISTERED for in the period, newest first.
+// The shifts one person is REGISTERED for in the window, newest first.
 // Deliberately NOT the overlap-clipping math buildStaffOverview uses for
 // attendance: a shift is a commitment, so it counts for its full scheduled
-// length. Shared by the "Giờ đăng ký" column and the per-person popup so the
-// row total and the popup total can never drift apart.
-export function shiftsInPeriod<T extends ShiftLike>(
+// length. Shared by the "Giờ đăng ký" column and the per-person popup — both
+// are handed the SAME resolved `range`, so the row total and the popup total
+// can never drift apart.
+export function shiftsInRange<T extends ShiftLike>(
   shifts: T[],
   profileId: string,
-  period: OverviewPeriod,
-  now: Date = new Date()
+  range: DateRange
 ): T[] {
-  const { start, end } = periodRange(period, now);
+  const { start, end } = range;
   return shifts
     .filter((s) => s.assignee.id === profileId)
     .filter((s) => {
