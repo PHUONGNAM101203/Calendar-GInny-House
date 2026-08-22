@@ -1,5 +1,6 @@
 import { startOfDay, endOfDay, startOfYear, parse, isValid } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
+import { type OverviewPeriod } from "@/lib/attendance";
 import { requireManager } from "@/lib/auth";
 import { getBranches } from "@/lib/branches";
 import {
@@ -52,6 +53,16 @@ const SHIFTS_OVERVIEW_SELECT =
 
 type ProfileRoleRef = Pick<Profile, "id" | "full_name" | "role">;
 
+const OVERVIEW_PERIODS = ["day", "month", "year"] as const;
+
+// Same defensive shape as the `?from=`/`?to=` parsing below: anything that
+// isn't one of the three literals falls back to the default rather than
+// being cast through. "month" is the shared default for all three period
+// tables on this page — see components/manager/PeriodTabs.tsx.
+function parsePeriod(value: string | undefined): OverviewPeriod {
+  return OVERVIEW_PERIODS.includes(value as OverviewPeriod) ? (value as OverviewPeriod) : "month";
+}
+
 // A section is a titled panel — count on the right when there's something
 // to count — so the page reads as one continuous dashboard grid instead of
 // a stack of unrelated blocks (per the reference: everything is a card in
@@ -83,13 +94,21 @@ function Section({
 export default async function ManagerPage({
   searchParams,
 }: {
-  searchParams: Promise<{ from?: string; to?: string }>;
+  searchParams: Promise<{ from?: string; to?: string; p?: string }>;
 }) {
   const manager = await requireManager();
   const supabase = await createClient();
   const params = await searchParams;
-  const todayStart = startOfDay(new Date()).toISOString();
-  const todayEnd = endOfDay(new Date()).toISOString();
+  // One `now` for the whole render so every window below shares a single
+  // boundary — a per-call `new Date()` could straddle midnight mid-render.
+  const now = new Date();
+  const todayStart = startOfDay(now).toISOString();
+  const todayEnd = endOfDay(now).toISOString();
+
+  // One period drives every period-scoped table on the page (Tổng hợp chấm
+  // công / Ca làm việc / Tổng hợp đơn đã gửi), so the server can fetch just
+  // that window instead of shipping a year of rows for the client to filter.
+  const period = parsePeriod(params.p);
 
   // parse(), not new Date(params.from) — see app/(app)/calendar/page.tsx's
   // comment: the latter reads "yyyy-MM-dd" as UTC midnight, which drifts a
@@ -281,6 +300,7 @@ export default async function ManagerPage({
           staleFreeAttendance={staleFreeAttendanceList}
           branches={branches}
           shifts={scopedShiftsOverview}
+          period={period}
         />
       ) : isGroupManager ? (
         <ManagerDashboard
@@ -304,6 +324,7 @@ export default async function ManagerPage({
           attendanceCorrections={scopedAttendanceCorrections}
           overviewTitle={groupMeta ? `Tổng hợp chấm công — ${groupMeta.label}` : undefined}
           shifts={scopedShiftsOverview}
+          period={period}
         />
       ) : (
         <ManagerDashboard
@@ -322,6 +343,7 @@ export default async function ManagerPage({
           shiftRequests={shiftRequestsList}
           attendanceCorrections={attendanceCorrectionsList}
           shifts={scopedShiftsOverview}
+          period={period}
         />
       )}
 
@@ -354,6 +376,7 @@ export default async function ManagerPage({
             shifts={scopedShiftsOverview}
             currentUserRole={manager.role}
             permissions={permissions}
+            period={period}
           />
         </Section>
       )}

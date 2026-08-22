@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { SearchIcon, TrashIcon } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,6 +20,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import TableScroller from "@/components/manager/TableScroller";
+import PeriodTabs from "@/components/manager/PeriodTabs";
 import { deleteShiftAction } from "@/actions/shifts";
 import { canCreateShiftFor } from "@/lib/roles";
 import { periodRange, type OverviewPeriod } from "@/lib/attendance";
@@ -52,12 +52,14 @@ export default function ShiftsOverviewTable({
   shifts,
   currentUserRole,
   permissions,
+  period,
 }: {
   shifts: ShiftOverviewRow[];
   currentUserRole: Role;
   permissions: GroupPermissions;
+  /** Server-owned via `?p=` — see components/manager/PeriodTabs.tsx. */
+  period: OverviewPeriod;
 }) {
-  const [period, setPeriod] = useState<OverviewPeriod>("month");
   const [search, setSearch] = useState("");
 
   const rows = useMemo(() => {
@@ -75,13 +77,7 @@ export default function ShiftsOverviewTable({
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Tabs value={period} onValueChange={(v) => setPeriod(v as OverviewPeriod)}>
-          <TabsList>
-            <TabsTrigger value="day">Theo ngày</TabsTrigger>
-            <TabsTrigger value="month">Theo tháng</TabsTrigger>
-            <TabsTrigger value="year">Theo năm</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <PeriodTabs period={period} />
         <div className="relative">
           <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input

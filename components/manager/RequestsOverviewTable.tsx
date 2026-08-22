@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { SearchIcon } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import StaffRequestsDetailDialog from "@/components/manager/StaffRequestsDetailDialog";
+import PeriodTabs from "@/components/manager/PeriodTabs";
 import { buildRequestsOverview } from "@/lib/requests-overview";
 import { type OverviewPeriod } from "@/lib/attendance";
 import { getRoleLabel } from "@/lib/roles";
@@ -37,6 +37,7 @@ export default function RequestsOverviewTable({
   shiftRequests,
   attendanceCorrections,
   canRevert,
+  period,
 }: {
   title?: string;
   staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[];
@@ -45,8 +46,9 @@ export default function RequestsOverviewTable({
   shiftRequests: ShiftRequestDetailed[];
   attendanceCorrections: AttendanceCorrectionDetailed[];
   canRevert: boolean;
+  /** Server-owned via `?p=` — see components/manager/PeriodTabs.tsx. */
+  period: OverviewPeriod;
 }) {
-  const [period, setPeriod] = useState<OverviewPeriod>("month");
   const [search, setSearch] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState<{ id: string; fullName: string } | null>(null);
 
@@ -65,13 +67,7 @@ export default function RequestsOverviewTable({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-heading text-base font-semibold">{title}</h3>
         <div className="flex flex-wrap items-center gap-2">
-          <Tabs value={period} onValueChange={(v) => setPeriod(v as OverviewPeriod)}>
-            <TabsList>
-              <TabsTrigger value="day">Theo ngày</TabsTrigger>
-              <TabsTrigger value="month">Theo tháng</TabsTrigger>
-              <TabsTrigger value="year">Theo năm</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <PeriodTabs period={period} />
           <div className="relative">
             <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input

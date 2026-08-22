@@ -13,7 +13,7 @@ import RequestsOverviewTable from "@/components/manager/RequestsOverviewTable";
 import GroupPermissionsEditor, { type ManagerHolders } from "@/components/manager/GroupPermissionsEditor";
 import CreateAttendanceManualDialog from "@/components/manager/CreateAttendanceManualDialog";
 import { GROUP_MANAGER_ROLES } from "@/lib/permissions";
-import { aggregateStaffByRole, aggregateHoursByDay } from "@/lib/attendance";
+import { aggregateStaffByRole, aggregateHoursByDay, type OverviewPeriod } from "@/lib/attendance";
 import { ROLE_LABELS } from "@/lib/roles";
 import type { GroupPermissions } from "@/lib/permissions";
 import type {
@@ -79,6 +79,7 @@ export default function TechnicalDashboard({
   staleFreeAttendance,
   branches,
   shifts,
+  period,
 }: {
   staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[];
   attendance: Attendance[];
@@ -91,6 +92,8 @@ export default function TechnicalDashboard({
   staleFreeAttendance: (Attendance & { profile: Pick<Profile, "id" | "full_name"> })[];
   branches: Branch[];
   shifts: ShiftOverviewRow[];
+  /** Server-owned via `?p=` — see components/manager/PeriodTabs.tsx. */
+  period: OverviewPeriod;
 }) {
   const roleCounts = aggregateStaffByRole(staff);
   const hoursByDay = aggregateHoursByDay(attendance);
@@ -188,6 +191,7 @@ export default function TechnicalDashboard({
             attendance={attendance}
             leaveRequests={leaveRequests}
             shifts={shifts}
+            period={period}
           />
         </CardContent>
       </Card>
@@ -202,6 +206,7 @@ export default function TechnicalDashboard({
             shiftRequests={shiftRequests}
             attendanceCorrections={attendanceCorrections}
             canRevert={true}
+            period={period}
           />
         </CardContent>
       </Card>

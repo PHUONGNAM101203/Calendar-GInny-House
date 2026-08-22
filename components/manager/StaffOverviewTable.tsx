@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { SearchIcon } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import StaffAttendanceDetailDialog from "@/components/manager/StaffAttendanceDetailDialog";
+import PeriodTabs from "@/components/manager/PeriodTabs";
 import type { ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
 import {
   buildStaffOverview,
@@ -39,14 +39,16 @@ export default function StaffOverviewTable({
   attendance,
   leaveRequests,
   shifts,
+  period,
 }: {
   title?: string;
   staff: Pick<Profile, "id" | "full_name" | "role" | "secondary_role">[];
   attendance: Attendance[];
   leaveRequests: Pick<LeaveRequest, "profile_id" | "start_date" | "end_date" | "status">[];
   shifts: ShiftOverviewRow[];
+  /** Server-owned via `?p=` — see components/manager/PeriodTabs.tsx. */
+  period: OverviewPeriod;
 }) {
-  const [period, setPeriod] = useState<OverviewPeriod>("day");
   const [search, setSearch] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState<{ id: string; fullName: string } | null>(null);
   const allRows = useMemo(
@@ -79,13 +81,7 @@ export default function StaffOverviewTable({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-heading text-base font-semibold">{title}</h3>
         <div className="flex flex-wrap items-center gap-2">
-          <Tabs value={period} onValueChange={(v) => setPeriod(v as OverviewPeriod)}>
-            <TabsList>
-              <TabsTrigger value="day">Theo ngày</TabsTrigger>
-              <TabsTrigger value="month">Theo tháng</TabsTrigger>
-              <TabsTrigger value="year">Theo năm</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <PeriodTabs period={period} />
           <div className="relative">
             <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input

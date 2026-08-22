@@ -10,7 +10,7 @@ import BrandMark from "@/components/brand/BrandMark";
 import StaffOverviewTable from "@/components/manager/StaffOverviewTable";
 import type { ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
 import RequestsOverviewTable from "@/components/manager/RequestsOverviewTable";
-import { aggregateHoursByDay } from "@/lib/attendance";
+import { aggregateHoursByDay, type OverviewPeriod } from "@/lib/attendance";
 import { cn } from "@/lib/utils";
 import type {
   Attendance,
@@ -138,6 +138,7 @@ export default function ManagerDashboard({
   attendanceCorrections,
   overviewTitle,
   shifts,
+  period,
 }: {
   totalStaff: number;
   unassignedStaff: number;
@@ -155,6 +156,8 @@ export default function ManagerDashboard({
   attendanceCorrections: AttendanceCorrectionDetailed[];
   overviewTitle?: string;
   shifts: ShiftOverviewRow[];
+  /** Server-owned via `?p=` — see components/manager/PeriodTabs.tsx. */
+  period: OverviewPeriod;
 }) {
   const hoursByDay = useMemo(() => aggregateHoursByDay(attendance, 7), [attendance]);
   const peakDay = useMemo(
@@ -270,6 +273,7 @@ export default function ManagerDashboard({
             attendance={attendance}
             leaveRequests={leaveRequests}
             shifts={shifts}
+            period={period}
           />
         </CardContent>
       </Card>
@@ -283,6 +287,7 @@ export default function ManagerDashboard({
             shiftRequests={shiftRequests}
             attendanceCorrections={attendanceCorrections}
             canRevert={false}
+            period={period}
           />
         </CardContent>
       </Card>
