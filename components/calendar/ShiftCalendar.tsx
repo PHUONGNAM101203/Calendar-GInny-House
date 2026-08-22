@@ -56,6 +56,7 @@ import { CalendarSidebar, CalendarMobileMenu, type PendingApprovalItem } from "@
 import RealtimeClock from "@/components/layout/RealtimeClock";
 import ShiftEventCell from "@/components/calendar/ShiftEventCell";
 import CalendarDayHeader from "@/components/calendar/CalendarDayHeader";
+import CalendarTimeGutterHeader from "@/components/calendar/CalendarTimeGutterHeader";
 import ShiftFormDialog from "@/components/shifts/ShiftFormDialog";
 import ShiftDetailDialog from "@/components/shifts/ShiftDetailDialog";
 import AttendanceDetailDialog from "@/components/calendar/AttendanceDetailDialog";
@@ -875,6 +876,9 @@ export default function ShiftCalendar({
           components={{
             event: ShiftEventCell,
             toolbar: isMobile ? MobileDayStrip : CalendarToolbar,
+            // Week/day only — RBC mounts this from TimeGridHeader, which
+            // month and agenda never render.
+            timeGutterHeader: CalendarTimeGutterHeader,
             week: { header: CalendarDayHeader },
             day: { header: CalendarDayHeader },
           }}

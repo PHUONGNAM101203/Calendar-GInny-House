@@ -548,6 +548,28 @@
 .rbc-time-header-content .rbc-allday-cell {
   padding-top: 4px;
 }
+/* …but it must not reserve that space when it has nothing in it ("phần đấy
+   trống mà nó lại vẫn bị to quá làm chiếm diện tích lịch mất").
+
+   The band is ~40px tall even when empty because react-big-calendar's
+   TimeGridHeader hard-codes `minRows: 2` on the all-day DateContentRow — no
+   prop exposes it — so two filler <div class="rbc-row"> levels always render,
+   each 20px from RBC's own `.rbc-time-view .rbc-row { min-height: 20px }`.
+
+   The row is NOT dead, so it must not be display:none'd: full-day leave still
+   lands here (toLeaveEvents sets allDay for request_type "full_day", see
+   lib/calendar.ts) and so do custom events created with all_day. Only
+   holidays left, when they moved to backgroundEvents. Hence :empty — a filler
+   level with zero segments collapses, a level holding an event keeps its full
+   height, and the band grows back on its own the moment there is something to
+   show.
+
+   Scoped to .rbc-time-view (week/day). Month view's rows live under
+   .rbc-month-view > .rbc-month-row and agenda under .rbc-agenda-view; neither
+   emits .rbc-allday-cell at all, so both are untouched. */
+.rbc-time-view .rbc-allday-cell .rbc-row:empty {
+  min-height: 0;
+}
 /* "Lịch chấm công" — a dashed outline in the person's color over a light
    tint, distinct from the solid shift chip it usually sits alongside. */
 .rbc-event.shift-event--attendance {
