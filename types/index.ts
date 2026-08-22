@@ -301,6 +301,14 @@ export type Holiday = {
   name: string;
   start_date: string;
   end_date: string;
+  // half_day = false is the default and what every pre-0082 row is: the
+  // calendar shades the whole visible day. half_day = true pairs with a
+  // start_time ("HH:MM:SS") and shades only from that hour onward — on the
+  // FIRST day of the range, the remaining days staying full (see
+  // toHolidayBackgroundEvents in lib/calendar.ts). The pairing is enforced by
+  // holidays_half_day_time_valid in 0082.
+  half_day: boolean;
+  start_time: string | null;
   note: string | null;
   created_by: string | null;
   created_at: string;

@@ -8,6 +8,7 @@ import {
   calendarMessages,
   calendarFormats,
   toCalendarEvents,
+  toHolidayBackgroundEvents,
   toHolidayEvents,
   toAttendanceEvents,
   toLeaveEvents,
@@ -238,11 +239,22 @@ export default function ShiftCalendar({
       ),
     [visibleShifts, currentUserId, currentUserRole, permissions, pendingSwaps, colorFor, branchNames]
   );
+  // Week and day view have an hour grid to shade, so a holiday paints there
+  // as a pale full-column block behind the shifts (backgroundEvents, below).
+  // Month and agenda have no grid — they keep the range-spanning all-day
+  // banner, which is already the right shape for them and is not what the
+  // owner asked to change.
+  const isTimeGridView = view === "week" || view === "day";
   const holidayEvents = useMemo(() => {
-    if (!showHolidays) return [];
+    if (!showHolidays || isTimeGridView) return [];
     const { start, end } = getVisibleRange(date, view);
     return toHolidayEvents(holidays, start, end);
-  }, [holidays, date, view, showHolidays]);
+  }, [holidays, date, view, showHolidays, isTimeGridView]);
+  const holidayBackgroundEvents = useMemo(() => {
+    if (!showHolidays || !isTimeGridView) return [];
+    const { start, end } = getVisibleRange(date, view);
+    return toHolidayBackgroundEvents(holidays, start, end);
+  }, [holidays, date, view, showHolidays, isTimeGridView]);
   // Keyed by shift_id — used to badge the matching attendance session with
   // a "pending correction" indicator (see toAttendanceEvents). Built from
   // the raw RLS-scoped list (visibility, not approval rights) since the
@@ -781,6 +793,10 @@ export default function ShiftCalendar({
         <Calendar
           localizer={localizer}
           events={events}
+          // Holidays in week/day view only — see holidayBackgroundEvents.
+          // react-big-calendar lays these out separately from `events`, so
+          // they never narrow a real shift's column.
+          backgroundEvents={holidayBackgroundEvents}
           date={date}
           view={view as View}
           onNavigate={(newDate) => navigate(newDate)}

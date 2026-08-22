@@ -488,11 +488,47 @@
   outline-offset: 1px;
 }
 /* Matches the sidebar's "Ngày lễ ở Việt Nam" checkbox, which uses
-   --success — badge and toggle should read as the same calendar. */
+   --success — badge and toggle should read as the same calendar. Month and
+   agenda view only; week/day use the full-column block below. */
 .rbc-event.shift-event--holiday {
   background-color: color-mix(in oklch, var(--success) 20%, var(--card));
   color: var(--success);
   font-weight: 600;
+}
+/* Week/day view: a holiday is a pale block filling the day column, behind the
+   real shifts ("hiện màu nhạt như kiểu là ca làm mà kéo hết ngày luôn").
+
+   Paler than the month banner above on purpose — this thing is up to 17 hours
+   tall, so at the banner's 20% tint it would dominate the column and make the
+   shifts on top harder to read. It is a backdrop, not a chip.
+
+   pointer-events:none is what stops it stealing clicks. react-big-calendar
+   still hands background events a role="button" + onClick, and the block
+   covers the entire day; without this, every click on empty grid inside a
+   holiday would hit the holiday instead of opening "Tạo ca". Removing the
+   element from hit-testing also leaves drag-to-create intact, because RBC's
+   Selection.isEvent() only ever looks for .rbc-event — .rbc-background-event
+   was never blocking slot selection to begin with. Stacking needs no z-index:
+   DayColumn renders background events first, real events after, both
+   absolutely positioned in the same container. */
+.rbc-day-slot .rbc-background-event.shift-event--holiday {
+  background-color: color-mix(in oklch, var(--success) 10%, var(--card));
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--success);
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 4px 6px;
+  /* RBC's own .rbc-day-slot .rbc-background-event sets 0.75 — the tint above
+     already carries the paleness, and fading it further washed the holiday
+     name out below readable contrast. */
+  opacity: 1;
+  pointer-events: none;
+}
+/* The "06:00 – 23:00" time label RBC prepends to every timed event is noise on
+   a block whose whole point is "this day is a holiday". */
+.rbc-day-slot .rbc-background-event.shift-event--holiday .rbc-event-label {
+  display: none;
 }
 /* All-day banners (holiday, and any future all-day event type) sit in
    RBC's own row directly under the day header — give it a rule + top

@@ -22,6 +22,24 @@ const LEAVE_ICON = {
 export default function ShiftEventCell({ event }: EventProps<CalendarEvent>) {
   if (event.resource.kind === "holiday") {
     const { note } = event.resource;
+    // Week/day view paints the holiday as a tall block filling the day column
+    // (allDay false — see toHolidayBackgroundEvents), so there is room to put
+    // the note on its own line underneath the name instead of squeezing it in
+    // as a suffix. Month/agenda keep the one-row banner below unchanged.
+    if (event.allDay !== true) {
+      return (
+        <div
+          className="flex flex-col gap-0.5 overflow-hidden"
+          title={note ? `${event.title} — ${note}` : event.title}
+        >
+          <div className="flex items-center gap-1.5 truncate">
+            <PartyPopperIcon className="size-3 shrink-0" />
+            <span className="truncate">{event.title}</span>
+          </div>
+          {note ? <span className="truncate pl-[18px] text-[10px] opacity-80">{note}</span> : null}
+        </div>
+      );
+    }
     return (
       // The note stays on the SAME row as the name — a holiday banner is one
       // row tall in every view — rendered as a dimmed "· ghi chú" suffix so it

@@ -142,11 +142,16 @@ export default function HolidaysSection({ holidays }: { holidays: Holiday[] }) {
 const VALUE_FORMAT = "yyyy-MM-dd";
 
 // Both stored dates are inclusive, so a single-day holiday reads as one date
-// rather than "29/08 – 29/08".
+// rather than "29/08 – 29/08". A half-day says so inline, since that changes
+// what the calendar actually paints (from start_time on the first day only).
 function describeRange(holiday: Holiday): string {
   const from = formatDate(holiday.start_date);
-  if (holiday.start_date === holiday.end_date) return from;
-  return `${from} – hết ${formatDate(holiday.end_date)}`;
+  const range =
+    holiday.start_date === holiday.end_date
+      ? from
+      : `${from} – hết ${formatDate(holiday.end_date)}`;
+  if (!holiday.half_day || !holiday.start_time) return range;
+  return `${range} · nửa ngày từ ${holiday.start_time.slice(0, 5)}`;
 }
 
 function formatDate(value: string): string {

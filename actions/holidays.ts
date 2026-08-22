@@ -19,6 +19,9 @@ function mapHolidayError(message: string): string {
   if (message.includes("holidays_name_not_blank")) {
     return "Vui lòng nhập tên ngày lễ";
   }
+  if (message.includes("holidays_half_day_time_valid")) {
+    return "Nghỉ nửa ngày cần chọn giờ bắt đầu";
+  }
   return "Không thể lưu ngày lễ, vui lòng thử lại";
 }
 
@@ -46,6 +49,11 @@ export async function createHolidayAction(input: unknown): Promise<ActionResult>
     name: parsed.data.name,
     start_date: parsed.data.start_date,
     end_date: parsed.data.end_date,
+    half_day: parsed.data.half_day,
+    // Cleared whenever the holiday is full-day, so switching "nửa ngày" back
+    // to "nguyên ngày" can't leave a stale time behind — that pairing is also
+    // what holidays_half_day_time_valid (0082) enforces.
+    start_time: parsed.data.half_day ? (parsed.data.start_time ?? null) : null,
     note: parsed.data.note || null,
     created_by: profile.id,
   });
@@ -79,6 +87,8 @@ export async function updateHolidayAction(input: unknown): Promise<ActionResult>
       name: values.name,
       start_date: values.start_date,
       end_date: values.end_date,
+      half_day: values.half_day,
+      start_time: values.half_day ? (values.start_time ?? null) : null,
       note: values.note || null,
     })
     .eq("id", id);

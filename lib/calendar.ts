@@ -12,7 +12,11 @@ import {
   addDays,
 } from "date-fns";
 import { vi } from "date-fns/locale";
-import { LEAVE_REQUEST_TYPE_LABELS } from "@/lib/constants";
+import {
+  CALENDAR_MAX_HOUR,
+  CALENDAR_MIN_HOUR,
+  LEAVE_REQUEST_TYPE_LABELS,
+} from "@/lib/constants";
 import type {
   AttendanceCorrectionDetailed,
   AttendanceWithProfile,
@@ -192,9 +196,12 @@ export type HolidayEvent = {
   id: string;
   title: string;
   start: Date;
-  // EXCLUSIVE — the day after the holiday's last day. See toHolidayEvents.
+  // When allDay is true this is EXCLUSIVE — the day after the holiday's last
+  // day (see toHolidayEvents). When it's false the event is a real timed
+  // block inside one day (see toHolidayBackgroundEvents) and `end` means what
+  // it says.
   end: Date;
-  allDay: true;
+  allDay?: boolean;
   resource: { kind: "holiday"; note: string | null };
 };
 
@@ -337,10 +344,12 @@ export function isShiftRequestPendingEvent(event: CalendarEvent): event is Shift
   return event.resource.kind === "shift_request_pending";
 }
 
-// Holidays render as all-day banners (like Google Calendar's holiday row),
-// not real schedulable shifts. Rows come from the `holidays` table (0080),
-// editable by ceo/technical on /manager, and can span a range — Quốc khánh
-// "nghỉ từ 29/08 đến hết 02/09" is ONE row, not five.
+// MONTH/AGENDA ONLY since 0082. Holidays render as all-day banners (like
+// Google Calendar's holiday row) in the views that have no hour grid to shade.
+// Week and day view use toHolidayBackgroundEvents below instead. Rows come
+// from the `holidays` table (0080), editable by ceo/technical on /manager, and
+// can span a range — Quốc khánh "nghỉ từ 29/08 đến hết 02/09" is ONE row, not
+// five.
 //
 // The +1 day on `end` is not a fudge. react-big-calendar computes an all-day
 // event's painted width in eventSegments() as
@@ -369,6 +378,81 @@ export function toHolidayEvents(holidays: Holiday[], start: Date, end: Date): Ho
       allDay: true as const,
       resource: { kind: "holiday" as const, note: holiday.note },
     }));
+}
+
+// WEEK/DAY ONLY. The owner's ask: "nghỉ lễ ... hiện màu nhạt như kiểu là ca
+// làm mà kéo hết ngày luôn ... chứ không để nó hiển nhỏ nhỏ như vậy nữa" —
+// so instead of a one-row banner above the grid, a holiday paints as a pale
+// block filling the day column from CALENDAR_MIN_HOUR to CALENDAR_MAX_HOUR
+// (exactly the grid's visible range, so "cả ngày" reads correctly without
+// stretching the grid).
+//
+// These are handed to react-big-calendar's `backgroundEvents` prop, NOT
+// `events`. That matters for two reasons, both verified against
+// react-big-calendar 1.20.0:
+//   1. DayColumn.render() lays background events out in their OWN
+//      getStyledEvents() pass and renders them BEFORE the real events inside
+//      the same .rbc-events-container — so a holiday never squeezes a shift
+//      into a narrower column, and the shift always paints on top.
+//   2. They get class .rbc-background-event, not .rbc-event, which is what
+//      Selection.isEvent() looks for — so with pointer-events:none in
+//      globals.css the block swallows nothing: clicks land on the shift above
+//      it, and drag-to-create on empty grid still works underneath it.
+//
+// One event PER DAY of the range rather than one spanning event: a timed
+// multi-day event gets clipped per column by slotMetrics in ways that are
+// easy to get subtly wrong, and per-day rows are also what lets the half-day
+// rule below apply to just one of them.
+//
+// HALF-DAY ON A MULTI-DAY RANGE: start_time applies to the FIRST day only;
+// every later day of the same holiday is full. That's what "bắt đầu nghỉ lễ
+// là nửa ngày 1/9" describes — the holiday *begins* mid-day and then runs
+// whole days after that. A holiday that also ends mid-day would need a
+// second column; nobody has asked for one.
+export function toHolidayBackgroundEvents(
+  holidays: Holiday[],
+  rangeStart: Date,
+  rangeEnd: Date
+): HolidayEvent[] {
+  const from = startOfDay(rangeStart);
+  const to = endOfDay(rangeEnd);
+  const events: HolidayEvent[] = [];
+
+  for (const holiday of holidays) {
+    const firstDay = new Date(`${holiday.start_date}T00:00:00`);
+    const lastDay = new Date(`${holiday.end_date}T00:00:00`);
+
+    for (let day = firstDay; day <= lastDay; day = addDays(day, 1)) {
+      if (day < from || day > to) continue;
+
+      const blockStart = new Date(day);
+      blockStart.setHours(CALENDAR_MIN_HOUR, 0, 0, 0);
+      const blockEnd = new Date(day);
+      blockEnd.setHours(CALENDAR_MAX_HOUR, 0, 0, 0);
+
+      const isFirstDay = day.getTime() === firstDay.getTime();
+      if (holiday.half_day && holiday.start_time && isFirstDay) {
+        const halfDayStart = parse(holiday.start_time.slice(0, 5), "HH:mm", day);
+        // Clamped both ways. The form already rejects a time outside the
+        // grid's window, but a row edited straight in the database must not
+        // produce an inverted or invisible block.
+        if (halfDayStart > blockStart && halfDayStart < blockEnd) {
+          blockStart.setHours(halfDayStart.getHours(), halfDayStart.getMinutes(), 0, 0);
+        }
+      }
+
+      events.push({
+        id: `holiday-block-${holiday.id}-${format(day, "yyyy-MM-dd")}`,
+        title: holiday.name,
+        start: blockStart,
+        end: blockEnd,
+        allDay: false,
+        resource: { kind: "holiday" as const, note: holiday.note },
+      });
+    }
+  }
+
+  return events;
 }
 
 // A viewer's own custom calendars ("Lịch khác" → "+" → "Tạo lịch mới") plus
