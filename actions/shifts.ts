@@ -5,46 +5,14 @@ import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireManager } from "@/lib/auth";
 import { shiftSchema } from "@/lib/validations/shift";
-import { isManagerRole, canCreateShiftFor } from "@/lib/roles";
-import { getGroupPermissions } from "@/lib/permissions-server";
-import { getRemoteBranchId } from "@/lib/branches";
+import { assertAssigneeAllowed, resolveShiftBranchId } from "@/lib/shift-guards";
 import { emitNotifications, formatShiftWindow, type NotificationDraft } from "@/lib/notifications-emit";
-import type { ActionResult, Role } from "@/types";
+import type { ActionResult } from "@/types";
 
-// Defense in depth — ShiftFormDialog's picker already narrows assignee
-// options to the caller's group and branch, but a manager could still
-// bypass the client. Looks up the assignee's role once and checks both
-// group-scoping (canCreateShiftFor) and branch membership off that single
-// lookup. A management-tier assignee has no profile_branches rows by design
-// and is exempt from the branch check (they cover every branch), matching
-// that convention everywhere else in the app. isRemote skips the branch
-// check entirely — nobody is really a "member" of the synthetic Remote
-// branch (0066_remote_branch.sql), so membership can't apply there.
-async function assertAssigneeAllowed(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  callerRole: Role,
-  assigneeId: string,
-  branchId: string,
-  isRemote: boolean
-): Promise<string | null> {
-  const { data: assignee } = await supabase
-    .from("profiles")
-    .select("role, secondary_role")
-    .eq("id", assigneeId)
-    .single();
-  if (!assignee) return "Không tìm thấy nhân viên này";
-  const permissions = await getGroupPermissions();
-  if (!canCreateShiftFor(callerRole, assignee.role, permissions)) {
-    return "Bạn không có quyền xếp ca cho nhân viên này";
-  }
-  if (isManagerRole(assignee.role) || isRemote) return null;
-
-  const { data: isMember } = await supabase.rpc("is_branch_member", {
-    p_profile_id: assigneeId,
-    p_branch_id: branchId,
-  });
-  return isMember ? null : "Nhân viên này không thuộc cơ sở đã chọn";
-}
+// assertAssigneeAllowed and resolveShiftBranchId used to live here as private
+// helpers. They moved to lib/shift-guards.ts when ca cố định (0078) added a
+// second write path into `shifts` that has to apply the identical checks —
+// see the module comment there.
 
 // "chuyển từ Cơ sở 1 sang Cơ sở 2", for a notification body — or null if
 // neither name resolves, so the caller can fall back rather than print a uuid
@@ -62,12 +30,6 @@ async function describeBranchMove(
   const to = nameOf(toId);
   if (!to) return null;
   return from ? `chuyển từ ${from} sang ${to}` : `chuyển sang ${to}`;
-}
-
-async function resolveBranchId(shiftType: string, branchId: string | undefined): Promise<string> {
-  if (branchId) return branchId;
-  if (shiftType === "remote") return getRemoteBranchId();
-  throw new Error("Vui lòng chọn cơ sở");
 }
 
 function mapShiftError(message: string): string {
@@ -100,7 +62,7 @@ export async function createShiftAction(input: unknown): Promise<ActionResult> {
   }
 
   const supabase = await createClient();
-  const branchId = await resolveBranchId(parsed.data.shift_type, parsed.data.branch_id);
+  const branchId = await resolveShiftBranchId(parsed.data.shift_type, parsed.data.branch_id);
 
   const assigneeError = await assertAssigneeAllowed(
     supabase,
@@ -162,7 +124,7 @@ export async function updateShiftAction(
   }
 
   const supabase = await createClient();
-  const branchId = await resolveBranchId(parsed.data.shift_type, parsed.data.branch_id);
+  const branchId = await resolveShiftBranchId(parsed.data.shift_type, parsed.data.branch_id);
 
   const assigneeError = await assertAssigneeAllowed(
     supabase,

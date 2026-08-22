@@ -57,6 +57,36 @@ export type Shift = {
   note: string | null;
   created_by: string | null;
   shift_type: ShiftType;
+  // Set when the shift was materialised from a "ca cố định" rule (0078).
+  // Nullable both because most shifts aren't recurring and because the rule
+  // can be deleted out from under an occurrence (ON DELETE SET NULL).
+  series_id: string | null;
+};
+
+// The recurrence RULE, not its occurrences — see shift_series in
+// 0078_shift_series.sql. weekdays uses 0 = Chủ nhật … 6 = Thứ Bảy, matching
+// both Postgres's extract(dow) and JS's getDay(). start_time/end_time are
+// local Vietnam wall-clock times ("18:00:00"); end_time <= start_time means
+// the shift ends the next day, the same convention ShiftFormDialog uses.
+export type ShiftSeries = {
+  id: string;
+  branch_id: string;
+  assignee_id: string;
+  shift_type: ShiftType;
+  note: string | null;
+  weekdays: number[];
+  interval_weeks: number;
+  start_time: string;
+  end_time: string;
+  starts_on: string;
+  ends_on: string | null;
+  created_by: string | null;
+  created_at: string;
+};
+
+export type ShiftSeriesDetailed = ShiftSeries & {
+  assignee: Pick<Profile, "id" | "full_name" | "role">;
+  branch: Pick<Branch, "id" | "name">;
 };
 
 export type ShiftWithAssignee = Shift & {

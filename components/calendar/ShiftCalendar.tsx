@@ -465,6 +465,9 @@ export default function ShiftCalendar({
       note: null,
       created_by: null,
       shift_type: "morning",
+      // A stand-in built from a swap request, not a row read from `shifts` —
+      // it belongs to no ca cố định, so no scoped-delete choice applies to it.
+      series_id: null,
       assignee: {
         id: request.requester_id,
         full_name: request.requester.full_name,
