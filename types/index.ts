@@ -203,6 +203,21 @@ export type PushSubscriptionRow = {
   created_at: string;
 };
 
+// Mirrors public.notifications (0077). Written only by the service-role
+// client via lib/notifications-emit.ts; read back by the recipient alone,
+// enforced by policy notifications_select_own.
+export type NotificationRow = {
+  id: string;
+  profile_id: string;
+  kind: string;
+  title: string;
+  body: string;
+  url: string | null;
+  related_id: string | null;
+  read_at: string | null;
+  created_at: string;
+};
+
 export type ActionResult<T = undefined> =
   | { ok: true; data: T }
   | { ok: false; error: string };
