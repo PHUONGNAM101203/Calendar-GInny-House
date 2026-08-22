@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { sendPushToProfiles } from "@/lib/push";
+import { emitNotifications, formatVietnamMoment } from "@/lib/notifications-emit";
 
 type LateCheckinRow = { shift_id: string; profile_id: string; full_name: string; start_at: string };
 type StaleCheckoutRow = {
@@ -67,7 +68,21 @@ export async function GET(request: Request) {
       tag: "attendance-late-checkin",
     });
   }
+  // The per-person half of the same detection. The digest above is oversight
+  // tooling for Kỹ thuật and stays; this tells the staff member themselves,
+  // which nothing did before. Both ride the SAME de-duplication — the
+  // notified_at stamp below — so nobody is told twice about one shift.
   if (late.length) {
+    await emitNotifications(
+      late.map((s) => ({
+        profileId: s.profile_id,
+        kind: "missed_check_in" as const,
+        title: "Bạn chưa chấm công vào ca",
+        body: `Ca ${formatVietnamMoment(s.start_at)} đã bắt đầu nhưng bạn chưa chấm công vào`,
+        url: "/attendance",
+        relatedId: s.shift_id,
+      }))
+    );
     await supabaseAdmin
       .from("shifts")
       .update({ late_checkin_notified_at: new Date().toISOString() })
@@ -88,7 +103,18 @@ export async function GET(request: Request) {
       tag: "attendance-stale-checkout",
     });
   }
+  // Per-person half, as above — same rows, same one-shot stamp.
   if (stale.length) {
+    await emitNotifications(
+      stale.map((s) => ({
+        profileId: s.profile_id,
+        kind: "stale_check_out" as const,
+        title: "Bạn chưa chấm công ra",
+        body: `Bạn đã chấm công vào lúc ${formatVietnamMoment(s.check_in_at)} nhưng chưa chấm công ra`,
+        url: "/attendance",
+        relatedId: s.attendance_id,
+      }))
+    );
     await supabaseAdmin
       .from("attendance")
       .update({ stale_checkout_notified_at: new Date().toISOString() })
