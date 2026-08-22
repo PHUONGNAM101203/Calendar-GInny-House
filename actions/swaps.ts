@@ -16,6 +16,8 @@ import type { ActionResult } from "@/types";
 type SwapShiftWindow = { start_at: string; end_at: string };
 type SwapResponseContext = {
   requester_id: string;
+  // null on an open swap — nobody was named when it was raised.
+  target: { full_name: string } | null;
   requester_shift: SwapShiftWindow | null;
   target_shift: SwapShiftWindow | null;
 };
@@ -93,7 +95,7 @@ export async function respondToSwapRequestAction(
   requestId: string,
   accept: boolean
 ): Promise<ActionResult> {
-  await requireProfile();
+  const responder = await requireProfile();
   const supabase = await createClient();
   // Read the request AND both shift windows before the RPC runs. Deliberately
   // before: respond_to_swap_request moves assignee_id on the shift(s), so the
@@ -103,7 +105,7 @@ export async function respondToSwapRequestAction(
   const { data: existing } = await supabase
     .from("shift_swap_requests")
     .select(
-      "requester_id, requester_shift:shifts!requester_shift_id(start_at, end_at), target_shift:shifts!target_shift_id(start_at, end_at)"
+      "requester_id, target:profiles!target_id(full_name), requester_shift:shifts!requester_shift_id(start_at, end_at), target_shift:shifts!target_shift_id(start_at, end_at)"
     )
     .eq("id", requestId)
     .single<SwapResponseContext>();
@@ -126,11 +128,19 @@ export async function respondToSwapRequestAction(
       // once the shift rows have moved on or been deleted.
       const given = existing.requester_shift;
       const received = existing.target_shift;
+      // Who actually ends up holding the shift — NOT necessarily the caller.
+      // This mirrors respond_to_swap_request's own `v_taker`: on a targeted
+      // request the taker is target_id, and a manager holding `approve_swap`
+      // (can_approve_swap_request, 0055) may accept on their behalf, so naming
+      // the caller there would name someone who received nothing. Only on an
+      // open swap (target_id null) is the taker the caller, and the RPC
+      // forbids the requester claiming their own shift, so it is never "you".
+      const taker = existing.target?.full_name ?? responder.full_name ?? "đồng nghiệp";
       const body = !given
         ? "Yêu cầu đổi ca của bạn đã được chấp nhận"
         : received
-          ? `Ca ${formatShiftWindow(given.start_at, given.end_at)} của bạn đã được chuyển cho đồng nghiệp. Đổi lại, bạn nhận ca ${formatShiftWindow(received.start_at, received.end_at)}.`
-          : `Ca ${formatShiftWindow(given.start_at, given.end_at)} của bạn đã được chuyển cho đồng nghiệp.`;
+          ? `Ca ${formatShiftWindow(given.start_at, given.end_at)} của bạn đã được chuyển cho ${taker}. Đổi lại, bạn nhận ca ${formatShiftWindow(received.start_at, received.end_at)}.`
+          : `Ca ${formatShiftWindow(given.start_at, given.end_at)} của bạn đã được chuyển cho ${taker}.`;
 
       // emitNotifications mirrors the row as a push itself, so this replaces
       // the old sendPushToProfile on this branch rather than joining it —
