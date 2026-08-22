@@ -23,15 +23,18 @@ export default function ShiftEventCell({ event }: EventProps<CalendarEvent>) {
   if (event.resource.kind === "holiday") {
     const { note } = event.resource;
     return (
-      // The note rides along as a native tooltip rather than a second line:
-      // a holiday banner is one row tall in every view, and /calendar is a
-      // locked surface. Hovering is enough to read "nghỉ bù thứ Hai".
+      // The note stays on the SAME row as the name — a holiday banner is one
+      // row tall in every view — rendered as a dimmed "· ghi chú" suffix so it
+      // reads as secondary next to the holiday's name. Touch devices get no
+      // hover, so a tooltip alone made the note invisible for most staff; the
+      // full text still rides along in `title` for desktop hover.
       <div
         className="flex items-center gap-1.5 truncate"
         title={note ? `${event.title} — ${note}` : event.title}
       >
         <PartyPopperIcon className="size-3 shrink-0" />
         <span className="truncate">{event.title}</span>
+        {note ? <span className="truncate text-[10px] opacity-80">· {note}</span> : null}
       </div>
     );
   }
