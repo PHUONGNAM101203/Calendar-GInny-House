@@ -193,14 +193,20 @@ export default async function ManagerPage({
       .from("attendance_corrections")
       .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at)")
       .order("created_at", { ascending: false }),
-    // Feeds the new "Ca làm việc" section (Xoá ca) — capped to the last
-    // 500 to keep the payload bounded; the period tabs in the table filter
-    // client-side from this set the same way RequestsOverviewTable does.
+    // Feeds the "Ca làm việc" section (Xoá ca) and the "Giờ đăng ký" column
+    // in Tổng hợp chấm công. Windowed to exactly periodRange(?p=) — the same
+    // boundaries shiftsInPeriod() and the table's own filter apply — instead
+    // of the old blind .limit(500), which both over-fetched (500 rows for a
+    // one-day view) and under-fetched (a busy year past 500 silently lost
+    // its oldest shifts). The limit stays purely as a runaway guard, set
+    // high enough that at this org's scale it can never trim a real year.
     supabase
       .from("shifts")
       .select(SHIFTS_OVERVIEW_SELECT)
+      .gte("start_at", periodStart.toISOString())
+      .lte("start_at", periodEnd.toISOString())
       .order("start_at", { ascending: false })
-      .limit(500),
+      .limit(2000),
     getGroupPermissions(),
   ]);
 
