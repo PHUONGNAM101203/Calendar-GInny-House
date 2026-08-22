@@ -189,9 +189,9 @@ export default function AttendanceDetailDialog({
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <p className="font-medium tabular-nums">
-                        {format(new Date(s.checkInAt), "h:mm a")}
+                        {format(new Date(s.checkInAt), "HH:mm")}
                         <span className="mx-1.5 text-muted-foreground">–</span>
-                        {s.checkOutAt ? format(new Date(s.checkOutAt), "h:mm a") : "đang làm"}
+                        {s.checkOutAt ? format(new Date(s.checkOutAt), "HH:mm") : "đang làm"}
                       </p>
                       <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                         <MapPinIcon className="size-3 shrink-0" />

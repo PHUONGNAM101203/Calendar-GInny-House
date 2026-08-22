@@ -91,9 +91,9 @@ export default function ShiftDetailDialog({
               </div>
             </div>
             <p className="font-heading text-lg font-semibold tabular-nums">
-              {format(new Date(shift.start_at), "h:mm a")}
+              {format(new Date(shift.start_at), "HH:mm")}
               <span className="mx-1.5 text-muted-foreground">–</span>
-              {format(new Date(shift.end_at), "h:mm a")}
+              {format(new Date(shift.end_at), "HH:mm")}
             </p>
           </DialogHeader>
 

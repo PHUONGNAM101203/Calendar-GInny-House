@@ -29,9 +29,9 @@ import type { ShiftWithAssignee } from "@/types";
 function formatRange(shift: Pick<ShiftWithAssignee, "start_at" | "end_at">) {
   const start = new Date(shift.start_at);
   const end = new Date(shift.end_at);
-  return `${format(start, "EEEE dd/MM", { locale: vi })} · ${format(start, "h:mm a")}–${format(
+  return `${format(start, "EEEE dd/MM", { locale: vi })} · ${format(start, "HH:mm")}–${format(
     end,
-    "h:mm a"
+    "HH:mm"
   )}`;
 }
 

@@ -31,7 +31,7 @@ import type { ShiftRequestDetailed } from "@/types";
 function formatRange(startAt: string, endAt: string) {
   const start = new Date(startAt);
   const end = new Date(endAt);
-  return `${format(start, "EEEE dd/MM/yyyy", { locale: vi })} · ${format(start, "h:mm a")} – ${format(end, "h:mm a")}`;
+  return `${format(start, "EEEE dd/MM/yyyy", { locale: vi })} · ${format(start, "HH:mm")} – ${format(end, "HH:mm")}`;
 }
 
 export default function ShiftRequestCard({

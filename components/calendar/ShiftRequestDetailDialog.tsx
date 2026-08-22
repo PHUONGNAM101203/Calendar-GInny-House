@@ -83,9 +83,9 @@ export default function ShiftRequestDetailDialog({
             </div>
           </div>
           <p className="font-heading text-lg font-semibold tabular-nums">
-            {format(new Date(request.start_at), "h:mm a")}
+            {format(new Date(request.start_at), "HH:mm")}
             <span className="mx-1.5 text-muted-foreground">–</span>
-            {format(new Date(request.end_at), "h:mm a")}
+            {format(new Date(request.end_at), "HH:mm")}
           </p>
         </DialogHeader>
 

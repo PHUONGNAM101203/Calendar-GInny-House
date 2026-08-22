@@ -43,7 +43,7 @@ function formatRange(startDate: string, endDate: string) {
 }
 
 function formatTimeOfDay(value: string) {
-  return format(parse(value.slice(0, 5), "HH:mm", new Date()), "h:mm a");
+  return format(parse(value.slice(0, 5), "HH:mm", new Date()), "HH:mm");
 }
 
 function formatTypeDetail(request: LeaveRequestDetailed) {

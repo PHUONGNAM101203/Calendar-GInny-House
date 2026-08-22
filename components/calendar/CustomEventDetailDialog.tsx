@@ -59,7 +59,7 @@ export default function CustomEventDetailDialog({
         <p className="text-sm text-muted-foreground">
           {event.allDay
             ? format(event.start, "EEEE dd/MM/yyyy", { locale: vi })
-            : `${format(event.start, "EEEE dd/MM/yyyy", { locale: vi })} · ${format(event.start, "h:mm a")} – ${format(event.end, "h:mm a")}`}
+            : `${format(event.start, "EEEE dd/MM/yyyy", { locale: vi })} · ${format(event.start, "HH:mm")} – ${format(event.end, "HH:mm")}`}
         </p>
 
         <DialogFooter>

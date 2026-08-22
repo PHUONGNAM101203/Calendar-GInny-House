@@ -95,13 +95,14 @@ export const calendarMessages: Messages = {
   showMore: (total) => `+${total} ca khác`,
 };
 
-// 12h "a" (AM/PM) clock throughout the calendar grid — matches how the team
-// already reads their Google Calendar side by side with this app, so the
-// two don't disagree on what "8" means.
-const TIME_FORMAT = "h:mm a";
+// 24h clock throughout the calendar grid. Vietnamese staff read shift times
+// as "19h00", and the shared TimePickerField already enters/edits times in
+// 24h — keeping the grid on 12h AM/PM made the same shift read two different
+// ways in the same screen. Display only: stored values are untouched.
+const TIME_FORMAT = "HH:mm";
 
 export const calendarFormats: Formats = {
-  timeGutterFormat: "h a",
+  timeGutterFormat: "HH:mm",
   eventTimeRangeFormat: ({ start, end }) =>
     `${format(start, TIME_FORMAT)} – ${format(end, TIME_FORMAT)}`,
   agendaTimeRangeFormat: ({ start, end }) =>
