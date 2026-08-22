@@ -17,6 +17,7 @@ export type NotificationKind =
   | "shift_updated"
   | "shift_unassigned"
   | "shift_deleted"
+  | "swap_accepted"
   | "missed_check_in"
   | "stale_check_out";
 

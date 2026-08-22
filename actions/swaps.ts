@@ -6,7 +6,19 @@ import { createClient } from "@/lib/supabase/server";
 import { requireProfile, requireManager } from "@/lib/auth";
 import { swapRequestSchema } from "@/lib/validations/swap";
 import { sendPushToProfile } from "@/lib/push";
+import { emitNotifications, formatShiftWindow } from "@/lib/notifications-emit";
 import type { ActionResult } from "@/types";
+
+// Shape of the pre-RPC read in respondToSwapRequestAction. The embeds are
+// many-to-one via an explicit FK hint, so PostgREST returns an object (or
+// null for an open swap, which has no target_shift_id), not an array — the
+// untyped Supabase client cannot infer that on its own.
+type SwapShiftWindow = { start_at: string; end_at: string };
+type SwapResponseContext = {
+  requester_id: string;
+  requester_shift: SwapShiftWindow | null;
+  target_shift: SwapShiftWindow | null;
+};
 
 function mapSwapError(message: string): string {
   const known = [
@@ -83,11 +95,18 @@ export async function respondToSwapRequestAction(
 ): Promise<ActionResult> {
   await requireProfile();
   const supabase = await createClient();
+  // Read the request AND both shift windows before the RPC runs. Deliberately
+  // before: respond_to_swap_request moves assignee_id on the shift(s), so the
+  // same read afterwards would describe the post-swap world and attribute the
+  // wrong shift to the wrong person. One round trip — the embeds ride along
+  // with the requester_id this select already needed.
   const { data: existing } = await supabase
     .from("shift_swap_requests")
-    .select("requester_id")
+    .select(
+      "requester_id, requester_shift:shifts!requester_shift_id(start_at, end_at), target_shift:shifts!target_shift_id(start_at, end_at)"
+    )
     .eq("id", requestId)
-    .single();
+    .single<SwapResponseContext>();
 
   const { error } = await supabase.rpc("respond_to_swap_request", {
     p_request_id: requestId,
@@ -99,14 +118,49 @@ export async function respondToSwapRequestAction(
   revalidateSwapPaths();
   if (existing) {
     const requesterId = existing.requester_id;
-    after(() =>
-      sendPushToProfile(requesterId, {
-        title: accept ? "Yêu cầu đổi ca được chấp nhận" : "Yêu cầu đổi ca bị từ chối",
-        body: accept ? "Đồng nghiệp đã đồng ý đổi ca với bạn" : "Yêu cầu đổi ca của bạn đã bị từ chối",
-        url: "/swaps",
-        tag: "swap",
-      })
-    );
+    if (accept) {
+      // Acceptance is the only branch that gets a stored notification: the
+      // requester's shift has just changed hands and, on a two-way swap, they
+      // silently now own a shift they never registered for. Windows are baked
+      // into the body (formatShiftWindow) so the text still reads correctly
+      // once the shift rows have moved on or been deleted.
+      const given = existing.requester_shift;
+      const received = existing.target_shift;
+      const body = !given
+        ? "Yêu cầu đổi ca của bạn đã được chấp nhận"
+        : received
+          ? `Ca ${formatShiftWindow(given.start_at, given.end_at)} của bạn đã được chuyển cho đồng nghiệp. Đổi lại, bạn nhận ca ${formatShiftWindow(received.start_at, received.end_at)}.`
+          : `Ca ${formatShiftWindow(given.start_at, given.end_at)} của bạn đã được chuyển cho đồng nghiệp.`;
+
+      // emitNotifications mirrors the row as a push itself, so this replaces
+      // the old sendPushToProfile on this branch rather than joining it —
+      // emitting both would land two OS notifications for one event, under
+      // different tags, seconds apart. The push survives, with better copy.
+      // See actions/leave.ts's requestLeaveAction for why after() is required.
+      after(() =>
+        emitNotifications([
+          {
+            profileId: requesterId,
+            kind: "swap_accepted",
+            title: "Đổi ca thành công",
+            body,
+            // /calendar, not /swaps: the request is resolved and what the
+            // requester needs to look at now is the shift they hold.
+            url: "/calendar",
+            relatedId: requestId,
+          },
+        ])
+      );
+    } else {
+      after(() =>
+        sendPushToProfile(requesterId, {
+          title: "Yêu cầu đổi ca bị từ chối",
+          body: "Yêu cầu đổi ca của bạn đã bị từ chối",
+          url: "/swaps",
+          tag: "swap",
+        })
+      );
+    }
   }
   return { ok: true, data: undefined };
 }
