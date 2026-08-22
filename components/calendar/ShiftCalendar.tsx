@@ -66,6 +66,7 @@ import type {
   Branch,
   CustomCalendar,
   CustomEvent,
+  SharedCustomCalendar,
   Holiday,
   Profile,
   Role,
@@ -90,6 +91,7 @@ export default function ShiftCalendar({
   holidays,
   branches,
   customCalendars,
+  sharedCalendars,
   customEvents,
   currentUserId,
   currentUserName,
@@ -112,6 +114,7 @@ export default function ShiftCalendar({
   holidays: Holiday[];
   branches: Branch[];
   customCalendars: CustomCalendar[];
+  sharedCalendars: SharedCustomCalendar[];
   customEvents: CustomEvent[];
   currentUserId: string;
   currentUserName: string;
@@ -303,8 +306,8 @@ export default function ShiftCalendar({
     [customCalendars, hiddenCustomCalendarIds]
   );
   const customCalendarEvents = useMemo(
-    () => toCustomEvents(customEvents, visibleCustomCalendars),
-    [customEvents, visibleCustomCalendars]
+    () => toCustomEvents(customEvents, visibleCustomCalendars, currentUserId),
+    [customEvents, visibleCustomCalendars, currentUserId]
   );
   // Self-service shift requests still awaiting a CEO/HR decision, and
   // giải trình công requests with no attendance row yet — both grouped
@@ -731,6 +734,8 @@ export default function ShiftCalendar({
     onEventTogglesChange: setEventToggles,
     pendingApprovals,
     customCalendars,
+    sharedCalendars,
+    currentUserId,
     hiddenCustomCalendarIds,
     onToggleCustomCalendar: (calendarId: string, visible: boolean) =>
       setHiddenCustomCalendarIds((prev) => {

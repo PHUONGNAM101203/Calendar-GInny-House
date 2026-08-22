@@ -8,6 +8,7 @@ import type {
   Branch,
   CustomCalendar,
   CustomEvent,
+  SharedCustomCalendar,
   Holiday,
   Profile,
   Role,
@@ -49,6 +50,7 @@ export default function ShiftCalendarLoader(props: {
   holidays: Holiday[];
   branches: Branch[];
   customCalendars: CustomCalendar[];
+  sharedCalendars: SharedCustomCalendar[];
   customEvents: CustomEvent[];
   currentUserId: string;
   currentUserName: string;

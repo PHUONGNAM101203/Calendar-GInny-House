@@ -252,7 +252,19 @@ export type CustomCalendarEvent = {
   start: Date;
   end: Date;
   allDay?: boolean;
-  resource: { kind: "custom"; calendarId: string; calendarName: string; colorVar: string; eventId: string };
+  resource: {
+    kind: "custom";
+    calendarId: string;
+    calendarName: string;
+    colorVar: string;
+    eventId: string;
+    /**
+     * False for an event on a colleague's shared calendar the viewer merely
+     * subscribed to — the detail dialog hides its delete button in that case.
+     * Cosmetic only; custom_events_delete (0081) is the real boundary.
+     */
+    canDelete: boolean;
+  };
 };
 
 // Self-service "Đăng ký ca làm" rows still awaiting a CEO/HR decision — no
@@ -359,13 +371,16 @@ export function toHolidayEvents(holidays: Holiday[], start: Date, end: Date): Ho
     }));
 }
 
-// A viewer's own custom calendars ("Lịch khác" → "+" → "Tạo lịch mới") —
-// personal events they added themself, each tagged with which calendar it
-// belongs to so the sidebar can toggle a whole calendar's events on/off at
-// once.
+// A viewer's own custom calendars ("Lịch khác" → "+" → "Tạo lịch mới") plus
+// any colleague's calendar they subscribed to via "Duyệt lịch có sẵn trong
+// công ty" — each event tagged with which calendar it belongs to so the
+// sidebar can toggle a whole calendar's events on/off at once, and with
+// whether the viewer owns that calendar so a subscribed one renders
+// read-only.
 export function toCustomEvents(
   events: CustomEvent[],
-  calendars: CustomCalendar[]
+  calendars: CustomCalendar[],
+  currentUserId: string
 ): CustomCalendarEvent[] {
   const byId = new Map(calendars.map((c) => [c.id, c]));
   return events
@@ -384,6 +399,7 @@ export function toCustomEvents(
           calendarName: calendar.name,
           colorVar: calendar.color,
           eventId: e.id,
+          canDelete: calendar.owner_id === currentUserId,
         },
       };
     });

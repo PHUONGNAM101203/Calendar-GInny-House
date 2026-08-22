@@ -12,6 +12,8 @@ import {
   Trash2Icon,
   LinkIcon,
   LayoutGridIcon,
+  Share2Icon,
+  XIcon,
   CalendarClockIcon,
   ClockAlertIcon,
   RepeatIcon,
@@ -31,12 +33,18 @@ import {
   unfollowGroupAction,
 } from "@/actions/calendar-follows";
 import { updateBranchColorAction } from "@/actions/branch-colors";
-import { createCustomCalendarAction, deleteCustomCalendarAction } from "@/actions/custom-calendars";
+import {
+  createCustomCalendarAction,
+  deleteCustomCalendarAction,
+  setCustomCalendarSharedAction,
+  unsubscribeCustomCalendarAction,
+} from "@/actions/custom-calendars";
 import ShiftRequestDialog from "@/components/shifts/ShiftRequestDialog";
 import MiniMonth from "@/components/calendar/MiniMonth";
 import CustomEventFormDialog from "@/components/calendar/CustomEventFormDialog";
 import ColorPickerDialog from "@/components/calendar/ColorPickerDialog";
-import type { ActionResult, Branch, CustomCalendar } from "@/types";
+import BrowseSharedCalendarsDialog from "@/components/calendar/BrowseSharedCalendarsDialog";
+import type { ActionResult, Branch, CustomCalendar, SharedCustomCalendar } from "@/types";
 
 type Person = { id: string; name: string; followed: boolean; color: string | null };
 type PersonGroup = { key: string; label: string; people: Person[] };
@@ -72,7 +80,11 @@ type SidebarProps = {
   eventToggles: EventTypeToggles;
   onEventTogglesChange: (next: EventTypeToggles) => void;
   pendingApprovals: PendingApprovalItem[];
+  /** The viewer's own calendars plus any colleague's they subscribed to. */
   customCalendars: CustomCalendar[];
+  /** Everything shared company-wide, for the browse dialog. */
+  sharedCalendars: SharedCustomCalendar[];
+  currentUserId: string;
   hiddenCustomCalendarIds: Set<string>;
   onToggleCustomCalendar: (calendarId: string, visible: boolean) => void;
   branches: Branch[];
@@ -329,12 +341,19 @@ function PersonRow({ person, canFollowAll }: { person: Person; canFollowAll: boo
   );
 }
 
+// One row under "Lịch khác". A calendar the viewer OWNS gets add-event,
+// share and delete affordances; one they merely SUBSCRIBED to via "Duyệt
+// lịch có sẵn trong công ty" gets only unsubscribe — deleting it would
+// destroy a colleague's calendar, so that button must never appear there.
+// (custom_calendars_delete in 0081 rejects it server-side either way.)
 function CustomCalendarRow({
   calendar,
+  isOwn,
   visible,
   onToggle,
 }: {
   calendar: CustomCalendar;
+  isOwn: boolean;
   visible: boolean;
   onToggle: (next: boolean) => void;
 }) {
@@ -345,6 +364,26 @@ function CustomCalendarRow({
     if (!window.confirm(`Xoá lịch "${calendar.name}" cùng toàn bộ sự kiện trong đó?`)) return;
     startTransition(async () => {
       const result = await deleteCustomCalendarAction(calendar.id);
+      if (!result.ok) toast.error(result.error);
+    });
+  }
+
+  function handleToggleShared() {
+    startTransition(async () => {
+      const result = await setCustomCalendarSharedAction(calendar.id, !calendar.is_shared);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success(
+        calendar.is_shared ? "Đã ngừng chia sẻ lịch" : "Đã chia sẻ lịch với công ty"
+      );
+    });
+  }
+
+  function handleUnsubscribe() {
+    startTransition(async () => {
+      const result = await unsubscribeCustomCalendarAction(calendar.id);
       if (!result.ok) toast.error(result.error);
     });
   }
@@ -368,41 +407,83 @@ function CustomCalendarRow({
         </span>
         <span className="truncate">{calendar.name}</span>
       </button>
-      <button
-        type="button"
-        onClick={() => setAddEventOpen(true)}
-        aria-label={`Thêm sự kiện vào ${calendar.name}`}
-        className="ml-auto shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover/custom:opacity-100"
-      >
-        <PlusIcon className="size-3.5" />
-      </button>
-      <button
-        type="button"
-        onClick={handleDelete}
-        disabled={isPending}
-        aria-label={`Xoá lịch ${calendar.name}`}
-        className="shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-destructive group-hover/custom:opacity-100 disabled:opacity-50"
-      >
-        <Trash2Icon className="size-3.5" />
-      </button>
+      {isOwn ? (
+        <>
+          <button
+            type="button"
+            onClick={() => setAddEventOpen(true)}
+            aria-label={`Thêm sự kiện vào ${calendar.name}`}
+            className="ml-auto shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover/custom:opacity-100"
+          >
+            <PlusIcon className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={handleToggleShared}
+            disabled={isPending}
+            aria-label={
+              calendar.is_shared
+                ? `Ngừng chia sẻ lịch ${calendar.name}`
+                : `Chia sẻ lịch ${calendar.name} với công ty`
+            }
+            title={calendar.is_shared ? "Đang chia sẻ với công ty" : "Chia sẻ với công ty"}
+            className={`shrink-0 rounded p-0.5 transition-opacity hover:bg-accent hover:text-foreground disabled:opacity-50 ${
+              calendar.is_shared
+                ? "text-foreground opacity-100"
+                : "text-muted-foreground opacity-0 group-hover/custom:opacity-100"
+            }`}
+          >
+            <Share2Icon className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={isPending}
+            aria-label={`Xoá lịch ${calendar.name}`}
+            className="shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-destructive group-hover/custom:opacity-100 disabled:opacity-50"
+          >
+            <Trash2Icon className="size-3.5" />
+          </button>
+        </>
+      ) : (
+        <button
+          type="button"
+          onClick={handleUnsubscribe}
+          disabled={isPending}
+          aria-label={`Bỏ đăng ký lịch ${calendar.name}`}
+          title="Bỏ đăng ký"
+          className="ml-auto shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover/custom:opacity-100 disabled:opacity-50"
+        >
+          <XIcon className="size-3.5" />
+        </button>
+      )}
 
-      <CustomEventFormDialog
-        open={addEventOpen}
-        onOpenChange={setAddEventOpen}
-        calendarId={calendar.id}
-        calendarName={calendar.name}
-      />
+      {isOwn && (
+        <CustomEventFormDialog
+          open={addEventOpen}
+          onOpenChange={setAddEventOpen}
+          calendarId={calendar.id}
+          calendarName={calendar.name}
+        />
+      )}
     </li>
   );
 }
 
-// The "+" next to "Lịch khác" — "Tạo lịch mới" is the only path built so
-// far; "Từ URL / file" and "Duyệt lịch có sẵn" are placeholders reserving
-// their spot in the menu for later (see hallmark audit, 2026-08).
-function AddOtherCalendarMenu() {
+// The "+" next to "Lịch khác". "Tạo lịch mới" and "Duyệt lịch có sẵn trong
+// công ty" are both live; "Từ URL / file" is still a placeholder reserving
+// its spot in the menu — it needs an ICS parser that does not exist yet.
+function AddOtherCalendarMenu({
+  sharedCalendars,
+  currentUserId,
+}: {
+  sharedCalendars: SharedCustomCalendar[];
+  currentUserId: string;
+}) {
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState("");
   const [color, setColor] = useState<string>(EVENT_COLOR_SWATCHES[0].var);
+  const [browseOpen, setBrowseOpen] = useState(false);
 
   function handleCreate() {
     const trimmed = name.trim();
@@ -455,14 +536,25 @@ function AddOtherCalendarMenu() {
           </button>
           <button
             type="button"
-            disabled
-            className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-sm text-muted-foreground/50"
+            onClick={() => setBrowseOpen(true)}
+            className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-sm transition-colors hover:bg-accent"
           >
             <LayoutGridIcon className="size-3.5 shrink-0" />
             Duyệt lịch có sẵn trong công ty
-            <span className="ml-auto text-[10px]">Sắp có</span>
+            {sharedCalendars.length > 0 && (
+              <span className="ml-auto text-[10px] text-muted-foreground">
+                {sharedCalendars.length}
+              </span>
+            )}
           </button>
         </div>
+
+        <BrowseSharedCalendarsDialog
+          open={browseOpen}
+          onOpenChange={setBrowseOpen}
+          calendars={sharedCalendars}
+          currentUserId={currentUserId}
+        />
       </PopoverContent>
     </Popover>
   );
@@ -618,6 +710,8 @@ function SidebarContent({
   onEventTogglesChange,
   pendingApprovals,
   customCalendars,
+  sharedCalendars,
+  currentUserId,
   hiddenCustomCalendarIds,
   onToggleCustomCalendar,
   branches,
@@ -758,7 +852,9 @@ function SidebarContent({
           label="Lịch khác"
           collapsed={otherCalendarsCollapsed}
           onToggle={() => setOtherCalendarsCollapsed(!otherCalendarsCollapsed)}
-          trailing={<AddOtherCalendarMenu />}
+          trailing={
+            <AddOtherCalendarMenu sharedCalendars={sharedCalendars} currentUserId={currentUserId} />
+          }
         />
         {!otherCalendarsCollapsed && (
           <ul id="sidebar-section-other-calendars" className="space-y-1.5 text-sm">
@@ -772,6 +868,7 @@ function SidebarContent({
               <CustomCalendarRow
                 key={calendar.id}
                 calendar={calendar}
+                isOwn={calendar.owner_id === currentUserId}
                 visible={!hiddenCustomCalendarIds.has(calendar.id)}
                 onToggle={(next) => onToggleCustomCalendar(calendar.id, next)}
               />

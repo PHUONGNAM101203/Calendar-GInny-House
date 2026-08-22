@@ -18,6 +18,7 @@ import type {
   CustomEvent,
   Holiday,
   Profile,
+  SharedCustomCalendar,
   ShiftRequestDetailed,
   ShiftWithAssignee,
   SwapRequestDetailed,
@@ -90,6 +91,7 @@ export default async function CalendarPage({
     { data: leaveRequests },
     branches,
     { data: customCalendars },
+    { data: sharedCalendars },
     { data: customEvents },
     { data: branchColorRows },
     { data: shiftRequests },
@@ -141,8 +143,14 @@ export default async function CalendarPage({
       .gte("end_date", format(start, "yyyy-MM-dd")),
     getBranches(),
     supabase.from("custom_calendars").select("*").eq("owner_id", profile.id),
-    // RLS (custom_events_owner) already scopes this to the viewer's own
-    // calendars — no need to filter by owner here too.
+    // Every calendar shared company-wide, with its owner's name and whether
+    // the viewer already subscribed — feeds both the browse dialog and the
+    // subscribed-calendar rows in the sidebar. A SECURITY DEFINER RPC rather
+    // than a profiles join, see 0081.
+    supabase.rpc("list_shared_custom_calendars"),
+    // custom_events_select (0081) is owner-OR-shared, so this returns events
+    // from every shared calendar, not just the viewer's own. Narrowed to
+    // own ∪ subscribed below — an unsubscribed shared calendar must not paint.
     supabase
       .from("custom_events")
       .select("*")
@@ -187,6 +195,27 @@ export default async function CalendarPage({
   const followColors = Object.fromEntries(
     followRows.filter((f) => f.color).map((f) => [f.followee_id, f.color as string])
   );
+  // A subscribed calendar sits in the same "Lịch khác" list as an owned one
+  // and honours the same show/hide checkbox; CustomCalendarRow tells the two
+  // apart by owner_id to decide which affordances to render.
+  const sharedRows = (sharedCalendars as SharedCustomCalendar[] | null) ?? [];
+  const ownedCalendars = (customCalendars as CustomCalendar[] | null) ?? [];
+  const subscribedCalendars: CustomCalendar[] = sharedRows
+    .filter((c) => c.is_subscribed && c.owner_id !== profile.id)
+    .map((c) => ({
+      id: c.id,
+      owner_id: c.owner_id,
+      name: c.name,
+      color: c.color,
+      is_shared: true,
+      created_at: c.created_at,
+    }));
+  const visibleCalendars = [...ownedCalendars, ...subscribedCalendars];
+  const visibleCalendarIds = new Set(visibleCalendars.map((c) => c.id));
+  const visibleCustomEvents = ((customEvents as CustomEvent[] | null) ?? []).filter((e) =>
+    visibleCalendarIds.has(e.calendar_id)
+  );
+
   const branchColors = Object.fromEntries(
     ((branchColorRows as { branch_key: string; color: string }[] | null) ?? []).map((r) => [
       r.branch_key,
@@ -205,8 +234,9 @@ export default async function CalendarPage({
       attendanceCorrections={(attendanceCorrections as AttendanceCorrectionDetailed[]) ?? []}
       holidays={(holidays as Holiday[]) ?? []}
       branches={branches}
-      customCalendars={(customCalendars as CustomCalendar[]) ?? []}
-      customEvents={(customEvents as CustomEvent[]) ?? []}
+      customCalendars={visibleCalendars}
+      sharedCalendars={sharedRows}
+      customEvents={visibleCustomEvents}
       currentUserId={profile.id}
       currentUserName={profile.full_name}
       currentUserRole={profile.role}

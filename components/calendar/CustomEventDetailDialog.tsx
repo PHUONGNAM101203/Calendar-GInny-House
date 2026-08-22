@@ -62,12 +62,16 @@ export default function CustomEventDetailDialog({
             : `${format(event.start, "EEEE dd/MM/yyyy", { locale: vi })} · ${format(event.start, "HH:mm")} – ${format(event.end, "HH:mm")}`}
         </p>
 
-        <DialogFooter>
-          <Button variant="outline" disabled={pending} onClick={handleDelete} className="gap-2">
-            <Trash2Icon className="size-4" />
-            Xoá sự kiện
-          </Button>
-        </DialogFooter>
+        {/* A subscribed colleague's calendar is read-only — no delete button.
+            custom_events_delete (0081) enforces this server-side regardless. */}
+        {event.resource.canDelete && (
+          <DialogFooter>
+            <Button variant="outline" disabled={pending} onClick={handleDelete} className="gap-2">
+              <Trash2Icon className="size-4" />
+              Xoá sự kiện
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );
