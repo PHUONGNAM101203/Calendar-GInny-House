@@ -105,7 +105,10 @@ export default function CreateAttendanceManualDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1.5">
+        {/* Filled, not outline — this is the section's own create action, the
+            same role "Tạo ca cố định" plays in ShiftSeriesSection, so the two
+            section headers on /manager read as one pattern. Keep them in sync. */}
+        <Button type="button" size="sm">
           <PlusIcon className="size-4" />
           Tạo chấm công thủ công
         </Button>
