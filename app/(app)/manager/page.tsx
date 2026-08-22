@@ -14,6 +14,7 @@ import {
   canApproveShiftRequestFor,
   isShiftRequestApprover,
   canApproveSwapRequestFor,
+  canCreateShiftDirectly,
   isManagerRole,
 } from "@/lib/roles";
 import { getGrantedTargetRolesUnion, getGrantedTargetRoles } from "@/lib/permissions";
@@ -23,6 +24,7 @@ import ManagerDashboard from "@/components/manager/ManagerDashboard";
 import TechnicalDashboard from "@/components/manager/TechnicalDashboard";
 import StaffTable from "@/components/manager/StaffTable";
 import ShiftsOverviewTable, { type ShiftOverviewRow } from "@/components/manager/ShiftsOverviewTable";
+import ShiftSeriesSection from "@/components/manager/ShiftSeriesSection";
 import DateRangeFilter from "@/components/manager/DateRangeFilter";
 import SwapRequestCard from "@/components/swaps/SwapRequestCard";
 import LeaveRequestCard from "@/components/leave/LeaveRequestCard";
@@ -36,6 +38,7 @@ import type {
   LeaveRequestDetailed,
   Profile,
   ShiftRequestDetailed,
+  ShiftSeriesDetailed,
   SwapRequestDetailed,
 } from "@/types";
 
@@ -198,6 +201,7 @@ export default async function ManagerPage({
     { data: attendanceCorrections },
     { data: shiftsOverview },
     permissions,
+    { data: shiftSeries },
     // Joined to the batch rather than awaited above it: it depends on none of
     // these queries, so awaiting it first cost every page view an extra
     // serialized round-trip.
@@ -267,6 +271,16 @@ export default async function ManagerPage({
       .order("start_at", { ascending: false })
       .limit(2000),
     getGroupPermissions(),
+    // Ca cố định (0078). Deliberately NOT windowed by the selected range: this
+    // is the list of rules, not of occurrences, and a rule whose date range
+    // starts next month must still be visible (and deletable) today. RLS
+    // already narrows it to the people this manager may schedule.
+    supabase
+      .from("shift_series")
+      .select(
+        "*, assignee:profiles!assignee_id(id, full_name, role), branch:branches!branch_id(id, name)"
+      )
+      .order("created_at", { ascending: false }),
   ]);
 
   type StaffQueryRow = Pick<
@@ -296,6 +310,10 @@ export default async function ManagerPage({
   // arrays — cast through unknown since the runtime shape (verified via the
   // query above) is genuinely one assignee/branch per shift row.
   const shiftsOverviewList = (shiftsOverview as unknown as ShiftOverviewRow[]) ?? [];
+  // Same cast-through-unknown reason as shiftsOverviewList above: without
+  // generated DB types supabase-js models the embedded assignee/branch as
+  // arrays, though each series has exactly one of each.
+  const shiftSeriesList = (shiftSeries as unknown as ShiftSeriesDetailed[]) ?? [];
 
   const isTechnical = manager.role === "technical";
 
@@ -358,6 +376,13 @@ export default async function ManagerPage({
   const scopedShiftsOverview = rosterRoles
     ? shiftsOverviewList.filter((s) => scopedStaffIds.has(s.assignee.id))
     : shiftsOverviewList;
+  const scopedShiftSeries = rosterRoles
+    ? shiftSeriesList.filter((s) => scopedStaffIds.has(s.assignee.id))
+    : shiftSeriesList;
+  // The assignee picker for a new series: the people this manager may schedule,
+  // minus anyone deactivated — a fixed weekly shift for someone who has left is
+  // the one mistake this feature makes expensive, since it creates dozens of rows.
+  const seriesAssignees = scopedStaff.filter((s) => !s.deactivated_at);
 
   return (
     <div className="mx-auto w-full max-w-6xl flex-1 space-y-8 overflow-y-auto p-4 sm:p-6">
@@ -465,6 +490,19 @@ export default async function ManagerPage({
             currentUserRole={manager.role}
             permissions={permissions}
             spec={rangeSpec}
+          />
+        </Section>
+      )}
+
+      {/* Ca cố định — quản lý / giám đốc / kỹ thuật only, the same gate that
+          opens the direct-create-shift UI. Staff never set fixed schedules;
+          they still send "Đăng ký ca làm" one day at a time. */}
+      {canCreateShiftDirectly(manager.role) && (
+        <Section id="shift-series" title="Ca cố định" count={scopedShiftSeries.length}>
+          <ShiftSeriesSection
+            series={scopedShiftSeries}
+            branchMembers={seriesAssignees}
+            branches={branches}
           />
         </Section>
       )}

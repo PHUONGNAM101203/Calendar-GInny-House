@@ -11,6 +11,7 @@ import { createShiftAction, deleteShiftAction, updateShiftAction } from "@/actio
 import { SHIFT_TYPE_LABELS, detectShiftType } from "@/lib/constants";
 import { SHIFT_TYPES } from "@/lib/validations/shift";
 import { isManagerRole } from "@/lib/roles";
+import ShiftSeriesDeleteDialog from "@/components/shifts/ShiftSeriesDeleteDialog";
 import type { ShiftType } from "@/types";
 import { Button } from "@/components/ui/button";
 import { DatePickerField } from "@/components/ui/date-picker-field";
@@ -84,6 +85,9 @@ export default function ShiftFormDialog({
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("11:00");
   const [shiftType, setShiftType] = useState<ShiftType>("morning");
+  // Only reachable for an occurrence of a ca cố định — a one-off shift keeps
+  // the plain confirm, because two of the three scopes would mean nothing.
+  const [scopeDeleteOpen, setScopeDeleteOpen] = useState(false);
 
   function handleStartTimeChange(value: string) {
     setStartTime(value);
@@ -131,6 +135,7 @@ export default function ShiftFormDialog({
     setWasOpen(open);
     if (open) {
       setServerError("");
+      setScopeDeleteOpen(false);
       if (shift) {
         reset({ assignee_id: shift.assignee_id, branch_id: shift.branch_id, note: shift.note ?? "" });
         setDate(startOfDay(new Date(shift.start_at)));
@@ -299,7 +304,11 @@ export default function ShiftFormDialog({
           {serverError && <p className="text-sm text-destructive">{serverError}</p>}
 
           <DialogFooter className="items-center sm:justify-between">
-            {isEdit ? (
+            {isEdit && shift?.series_id ? (
+              <Button type="button" variant="destructive" onClick={() => setScopeDeleteOpen(true)}>
+                Xoá ca
+              </Button>
+            ) : isEdit ? (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button type="button" variant="destructive">
@@ -329,6 +338,18 @@ export default function ShiftFormDialog({
             </Button>
           </DialogFooter>
         </form>
+
+        {shift?.series_id && (
+          <ShiftSeriesDeleteDialog
+            open={scopeDeleteOpen}
+            onOpenChange={setScopeDeleteOpen}
+            seriesId={shift.series_id}
+            shiftId={shift.id}
+            // Closes the edit dialog too — whichever scope ran, the shift this
+            // form was editing is either gone or no longer the thing on screen.
+            onDeleted={() => onOpenChange(false)}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );
