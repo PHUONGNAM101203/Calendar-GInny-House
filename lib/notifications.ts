@@ -18,6 +18,44 @@ export type AppNotification = {
   needsAction: boolean;
 };
 
+// Was 10, back when the bell only ever showed the five derived kinds. The
+// stored half (0077) since added roughly a dozen purely informational kinds
+// (shift assigned/changed/deleted, missed check-in, stale check-out,
+// attendance edited, role changed, ...), any one of which can fire several
+// times a day. Ten slots no longer covers a normal day's traffic, so a person
+// opening the bell saw only the last few hours of it. Fifteen matches the
+// per-source `.limit(15)` in app/(app)/layout.tsx, so the cap is now the same
+// number everywhere in the pipeline instead of two different ones.
+const NOTIFICATION_LIMIT = 15;
+
+// Actionable items must never be pushed out by informational ones.
+//
+// The bug this fixes: the list was capped purely by recency, so a manager who
+// also works shifts would accumulate ten informational notifications over a
+// couple of days and a leave request that had been pending for five days —
+// old by `created_at`, and therefore last in a recency sort — fell off the
+// bell entirely and stopped being chased. The longer something waits for
+// approval the more it matters, and the further down a recency sort it goes.
+//
+// So: keep every actionable item first, then fill whatever slots remain with
+// the most recent informational ones. Each group stays newest-first
+// internally, which is what people expect when they read down the list.
+//
+// If actionable items alone ever exceed the cap the oldest are still cut —
+// unavoidable with a fixed-size list — but at ~17 staff and 15 rows fetched
+// per source that would take an approval queue far past the point where a
+// bell is the right tool anyway.
+function prioritiseNotifications(items: AppNotification[], limit: number): AppNotification[] {
+  const byNewest = (a: AppNotification, b: AppNotification) =>
+    new Date(b.at).getTime() - new Date(a.at).getTime();
+  const actionable = items.filter((n) => n.needsAction).sort(byNewest);
+  const informational = items.filter((n) => !n.needsAction).sort(byNewest);
+  return [...actionable, ...informational.slice(0, Math.max(0, limit - actionable.length))].slice(
+    0,
+    limit
+  );
+}
+
 // Computed straight off data already fetched for other pages — no read/
 // unread table. A notification only exists while its underlying row still
 // matches (pending-for-you, or resolved-recently-for-you); it naturally
@@ -153,7 +191,11 @@ export function buildNotifications({
     }
   }
 
-  return items.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime()).slice(0, 10);
+  // Prioritised here as well as in mergeNotifications(), not only there: this
+  // function used to truncate to the ten most recent before the merge ever
+  // saw the items, so a long-pending approval was already gone by the time
+  // the two sources met. Both truncation points now use the same rule.
+  return prioritiseNotifications(items, NOTIFICATION_LIMIT);
 }
 
 // A stored row from the notifications table (0077), as the bell needs it.
@@ -184,13 +226,10 @@ export function mapStoredNotifications(rows: StoredNotification[]): AppNotificat
 }
 
 // Two sources, one shape. Kept identical to buildNotifications()'s own final
-// sort-and-take-10 so the bell shows the ten most recent items overall
-// regardless of which source they came from.
+// truncation so the same item wins a slot regardless of which source it came
+// from — actionable first, then the most recent informational ones.
 export function mergeNotifications(...groups: AppNotification[][]): AppNotification[] {
-  return groups
-    .flat()
-    .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
-    .slice(0, 10);
+  return prioritiseNotifications(groups.flat(), NOTIFICATION_LIMIT);
 }
 
 export function formatNotificationTime(at: string): string {
