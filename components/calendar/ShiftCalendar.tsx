@@ -242,9 +242,22 @@ export default function ShiftCalendar({
   // a "pending correction" indicator (see toAttendanceEvents). Built from
   // the raw RLS-scoped list (visibility, not approval rights) since the
   // badge is informational, not an approve/reject gate.
+  // Since 0071 the unique index is (shift_id, kind), so one shift can hold a
+  // pending check-in AND a pending check-out correction at once. This lookup
+  // stays 1:1 because it only feeds an informational badge — "something is
+  // pending here" is true either way — but the winner is picked explicitly
+  // rather than by row order, so the inline detail in AttendanceDetailDialog
+  // doesn't flip between the two. check_in wins: it's the older surface and
+  // the only kind any pre-0071 row can be. Neither correction becomes
+  // unreachable — the "Cần xét duyệt" list iterates the full array below.
   const pendingCorrectionsByShiftId = useMemo(() => {
     const map = new Map<string, AttendanceCorrectionDetailed>();
-    for (const c of attendanceCorrections) map.set(c.shift_id, c);
+    for (const c of attendanceCorrections) {
+      const existing = map.get(c.shift_id);
+      if (!existing || (existing.kind !== "check_in" && c.kind === "check_in")) {
+        map.set(c.shift_id, c);
+      }
+    }
     return map;
   }, [attendanceCorrections]);
   const attendanceEvents = useMemo(

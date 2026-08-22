@@ -120,7 +120,13 @@ export type AttendanceWithProfile = Attendance & {
 };
 
 export type AttendanceCorrectionStatus = "pending" | "approved" | "rejected" | "cancelled";
-export type AttendanceCorrectionIssue = "missed_check_in" | "late_check_in";
+export type AttendanceCorrectionIssue =
+  | "missed_check_in"
+  | "late_check_in"
+  | "missed_check_out"
+  | "adjust_check_out";
+// Generated in Postgres from issue_type (0071) — never set from the client.
+export type AttendanceCorrectionKind = "check_in" | "check_out";
 
 export type AttendanceCorrection = {
   id: string;
@@ -128,8 +134,13 @@ export type AttendanceCorrection = {
   shift_id: string;
   attendance_id: string | null;
   issue_type: AttendanceCorrectionIssue;
+  kind: AttendanceCorrectionKind;
+  // Only the pair matching this row's kind is populated; the CHECK
+  // constraint in 0071 enforces that.
   actual_check_in_at: string | null;
-  requested_check_in_at: string;
+  requested_check_in_at: string | null;
+  actual_check_out_at: string | null;
+  requested_check_out_at: string | null;
   reason: string;
   status: AttendanceCorrectionStatus;
   responder_id: string | null;
