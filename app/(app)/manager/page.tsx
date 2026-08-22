@@ -339,13 +339,20 @@ export default async function ManagerPage({
         </Card>
       </Section>
 
-      <Section id="shifts" title="Ca làm việc" count={scopedShiftsOverview.length}>
-        <ShiftsOverviewTable
-          shifts={scopedShiftsOverview}
-          currentUserRole={manager.role}
-          permissions={permissions}
-        />
-      </Section>
+      {/* Kỹ thuật only. Xoá ca is a maintenance tool, not a reporting view —
+          CEO/COO/Giám Đốc Đào Tạo/HR read shift totals from the "Giờ đăng ký"
+          column in Tổng hợp chấm công instead, so the raw per-shift list just
+          added noise to their dashboard. Display gate only: scopedShiftsOverview
+          is still computed and still fed to both dashboards. */}
+      {isTechnical && (
+        <Section id="shifts" title="Ca làm việc" count={scopedShiftsOverview.length}>
+          <ShiftsOverviewTable
+            shifts={scopedShiftsOverview}
+            currentUserRole={manager.role}
+            permissions={permissions}
+          />
+        </Section>
+      )}
 
       {isShiftRequestApprover(manager.role) && (
         <Section id="shift-requests" title="Đăng ký ca" count={scopedShiftRequests.length}>
