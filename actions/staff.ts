@@ -5,14 +5,60 @@ import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireManager } from "@/lib/auth";
 import { emitNotifications } from "@/lib/notifications-emit";
+import { ROLE_LABELS } from "@/lib/roles";
 import type { ActionResult, Role } from "@/types";
+
+// Every notification in this file is addressed to the staff member whose
+// profile changed, never to the manager who changed it — a manager editing
+// their own row (all three actions below allow it) would otherwise be told
+// about their own click. Each emit site checks profileId !== manager.id.
+const STAFF_PROFILE_URL = "/account";
+
+// Branch membership lives in profile_branches, which set_profile_branches
+// replaces wholesale — so the previous set has to be read BEFORE the RPC
+// runs; afterwards it is gone. Names, not ids, are baked into the body so it
+// still reads correctly to a human.
+async function readBranchState(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  profileId: string
+): Promise<{ currentIds: string[]; nameById: Map<string, string> }> {
+  const [memberships, branches] = await Promise.all([
+    supabase.from("profile_branches").select("branch_id").eq("profile_id", profileId),
+    // Queried directly rather than through lib/branches.ts's getBranches(),
+    // which filters out the synthetic REMOTE row — this is a name lookup, so
+    // it must resolve whatever id is actually on the row.
+    supabase.from("branches").select("id, name"),
+  ]);
+
+  return {
+    currentIds: ((memberships.data as { branch_id: string }[]) ?? []).map((m) => m.branch_id),
+    nameById: new Map(
+      ((branches.data as { id: string; name: string }[]) ?? []).map((b) => [b.id, b.name])
+    ),
+  };
+}
+
+function listBranchNames(ids: string[], nameById: Map<string, string>): string {
+  const names = ids
+    .map((id) => nameById.get(id) ?? "cơ sở không xác định")
+    .sort((a, b) => a.localeCompare(b, "vi"));
+  return names.length ? names.join(", ") : "chưa có cơ sở nào";
+}
+
+function sameBranchSet(a: string[], b: string[]): boolean {
+  const left = [...new Set(a)].sort();
+  const right = [...new Set(b)].sort();
+  return left.length === right.length && left.every((id, i) => id === right[i]);
+}
 
 export async function updateStaffBranchesAction(
   profileId: string,
   branchIds: string[]
 ): Promise<ActionResult> {
-  await requireManager();
+  const manager = await requireManager();
   const supabase = await createClient();
+  const before = await readBranchState(supabase, profileId);
+
   const { error } = await supabase.rpc("set_profile_branches", {
     p_profile_id: profileId,
     p_branch_ids: branchIds,
@@ -22,6 +68,25 @@ export async function updateStaffBranchesAction(
 
   revalidatePath("/manager");
   revalidatePath("/calendar");
+  // Where someone is expected to show up for work — silent until now.
+  // A no-op save (the picker re-submitting the same set) emits nothing.
+  if (profileId !== manager.id && !sameBranchSet(before.currentIds, branchIds)) {
+    const from = listBranchNames(before.currentIds, before.nameById);
+    const to = listBranchNames(branchIds, before.nameById);
+    // See actions/leave.ts's requestLeaveAction for why after() is required.
+    after(() =>
+      emitNotifications([
+        {
+          profileId,
+          kind: "branches_changed",
+          title: "Cơ sở làm việc của bạn đã thay đổi",
+          body: `${manager.full_name} đã đổi cơ sở làm việc của bạn từ ${from} sang ${to}.`,
+          url: STAFF_PROFILE_URL,
+          relatedId: profileId,
+        },
+      ])
+    );
+  }
   return { ok: true, data: undefined };
 }
 
@@ -29,8 +94,15 @@ export async function updateStaffRoleAction(
   profileId: string,
   role: Role
 ): Promise<ActionResult> {
-  await requireManager();
+  const manager = await requireManager();
   const supabase = await createClient();
+  // Read before the update: afterwards the old role is gone, and a message
+  // that only names the new one tells the person nothing they can act on.
+  const { data: before } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", profileId)
+    .maybeSingle<{ role: Role }>();
   // Same "read the row back" requirement as updateStaffBranchAction above —
   // a manager changing someone else's role also goes through the
   // profiles_update_manager RLS policy, and a bare .update() would silently
@@ -52,6 +124,23 @@ export async function updateStaffRoleAction(
 
   revalidatePath("/manager");
   revalidatePath("/calendar");
+  // A role change moves what this person may do, whose leave they approve and
+  // which shifts they can be given — they are entitled to hear it named.
+  if (profileId !== manager.id && before && before.role !== role) {
+    const previousRole = before.role;
+    after(() =>
+      emitNotifications([
+        {
+          profileId,
+          kind: "role_changed",
+          title: "Vai trò của bạn đã thay đổi",
+          body: `${manager.full_name} đã đổi vai trò của bạn từ ${ROLE_LABELS[previousRole]} sang ${ROLE_LABELS[role]}.`,
+          url: STAFF_PROFILE_URL,
+          relatedId: profileId,
+        },
+      ])
+    );
+  }
   return { ok: true, data: undefined };
 }
 
@@ -68,12 +157,34 @@ function mapStaffSecondaryRoleError(message: string): string {
   return "Không thể cập nhật vai trò kiêm nhiệm";
 }
 
+// Null when nothing changed — the picker re-submitting the same value emits
+// nothing. Added/removed/swapped each read differently, so they get their own
+// sentence rather than one "X → Y" template with an empty side.
+function describeSecondaryRoleChange(
+  previous: Role | null,
+  next: Role | null,
+  actorName: string
+): string | null {
+  if (previous === next) return null;
+  if (!next) {
+    return previous ? `${actorName} đã gỡ vai trò kiêm nhiệm ${ROLE_LABELS[previous]} của bạn.` : null;
+  }
+  if (!previous) return `${actorName} đã thêm vai trò kiêm nhiệm ${ROLE_LABELS[next]} cho bạn.`;
+  return `${actorName} đã đổi vai trò kiêm nhiệm của bạn từ ${ROLE_LABELS[previous]} sang ${ROLE_LABELS[next]}.`;
+}
+
 export async function updateStaffSecondaryRoleAction(
   profileId: string,
   secondaryRole: Role | null
 ): Promise<ActionResult> {
-  await requireManager();
+  const manager = await requireManager();
   const supabase = await createClient();
+  const { data: before } = await supabase
+    .from("profiles")
+    .select("secondary_role")
+    .eq("id", profileId)
+    .maybeSingle<{ secondary_role: Role | null }>();
+
   const { data, error } = await supabase
     .from("profiles")
     .update({ secondary_role: secondaryRole })
@@ -91,6 +202,26 @@ export async function updateStaffSecondaryRoleAction(
 
   revalidatePath("/manager");
   revalidatePath("/calendar");
+  // Kiêm nhiệm decides, among other things, whether attendance reminders
+  // apply to them (isReceptionistExempt) — worth naming in both directions.
+  const body =
+    profileId === manager.id || !before
+      ? null
+      : describeSecondaryRoleChange(before.secondary_role, secondaryRole, manager.full_name);
+  if (body) {
+    after(() =>
+      emitNotifications([
+        {
+          profileId,
+          kind: "secondary_role_changed",
+          title: "Vai trò kiêm nhiệm của bạn đã thay đổi",
+          body,
+          url: STAFF_PROFILE_URL,
+          relatedId: profileId,
+        },
+      ])
+    );
+  }
   return { ok: true, data: undefined };
 }
 
