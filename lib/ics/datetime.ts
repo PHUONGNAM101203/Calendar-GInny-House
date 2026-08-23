@@ -7,18 +7,20 @@
 // UTC instant silently drifts by an hour across a DST boundary in any zone
 // that has one. lib/ics/rrule.ts therefore expands over WallClock values and
 // calls wallClockToUtc() once per occurrence.
+//
+// The zone primitives live in lib/timezone.ts because they are not
+// ICS-specific — actions/custom-calendars.ts needs the same conversion for
+// hand-entered events. They are re-exported here so this module stays the one
+// import site for everything under lib/ics/.
+import {
+  APP_TIME_ZONE,
+  isValidTimeZone,
+  wallClockToUtc,
+  type WallClock,
+} from "@/lib/timezone";
 
-/** The only zone this app displays in — see the timezone note in AGENTS.md. */
-export const APP_TIME_ZONE = "Asia/Ho_Chi_Minh";
-
-export type WallClock = {
-  year: number;
-  month: number; // 1-12
-  day: number;
-  hour: number;
-  minute: number;
-  second: number;
-};
+export { APP_TIME_ZONE, isValidTimeZone, wallClockToUtc };
+export type { WallClock };
 
 export type IcsMoment = {
   clock: WallClock;
@@ -27,70 +29,6 @@ export type IcsMoment = {
   /** DTSTART;VALUE=DATE — a whole calendar day, not an instant. */
   dateOnly: boolean;
 };
-
-export function isValidTimeZone(zone: string): boolean {
-  try {
-    new Intl.DateTimeFormat("en-US", { timeZone: zone });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// Offset of `zone` from UTC at instant `at`, in milliseconds, positive east of
-// Greenwich. Derived by asking Intl what the wall clock reads there and
-// subtracting the instant — there is no direct API that takes a zone and a
-// date and hands back an offset.
-function zoneOffsetMs(at: Date, zone: string): number {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: zone,
-    hour12: false,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  }).formatToParts(at);
-
-  const read: Record<string, string> = {};
-  for (const part of parts) {
-    if (part.type !== "literal") read[part.type] = part.value;
-  }
-
-  // hour12:false renders midnight as "24" in some ICU builds, which would
-  // throw the offset a full day out.
-  const hour = read.hour === "24" ? 0 : Number(read.hour);
-  const asUtc = Date.UTC(
-    Number(read.year),
-    Number(read.month) - 1,
-    Number(read.day),
-    hour,
-    Number(read.minute),
-    Number(read.second)
-  );
-  return asUtc - at.getTime();
-}
-
-// A wall-clock reading in `zone` → the UTC instant it names.
-//
-// Two passes, because the offset depends on the instant we are still solving
-// for: the first uses the offset at the naive guess, the second the offset at
-// the resulting instant. That converges everywhere except inside the one
-// ambiguous or skipped hour of a DST transition, where any answer is a
-// judgement call and this picks a stable one rather than throwing.
-export function wallClockToUtc(clock: WallClock, zone: string): Date {
-  const naive = Date.UTC(
-    clock.year,
-    clock.month - 1,
-    clock.day,
-    clock.hour,
-    clock.minute,
-    clock.second
-  );
-  const firstPass = new Date(naive - zoneOffsetMs(new Date(naive), zone));
-  return new Date(naive - zoneOffsetMs(firstPass, zone));
-}
 
 export function icsMomentToUtc(moment: IcsMoment): Date {
   return wallClockToUtc(moment.clock, moment.zone);

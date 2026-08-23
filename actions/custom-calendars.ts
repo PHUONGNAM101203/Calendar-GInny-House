@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 import { EVENT_COLOR_SWATCHES, isCustomHexColor } from "@/lib/calendar";
 import { customEventSchema } from "@/lib/validations/custom-event";
-import { parse } from "date-fns";
+import { vietnamInstant } from "@/lib/timezone";
 import type { ActionResult } from "@/types";
 
 const VALID_COLORS: Set<string> = new Set(EVENT_COLOR_SWATCHES.map((c) => c.var));
@@ -134,12 +134,24 @@ export async function createCustomEventAction(
   }
   const v = parsed.data;
 
-  const startAt = v.all_day
-    ? parse(v.start_date, "yyyy-MM-dd", new Date())
-    : parse(`${v.start_date} ${v.start_time}`, "yyyy-MM-dd HH:mm", new Date());
-  const endAt = v.all_day
-    ? parse(v.end_date, "yyyy-MM-dd", new Date())
-    : parse(`${v.end_date} ${v.end_time}`, "yyyy-MM-dd HH:mm", new Date());
+  // Read as Vietnam wall-clock time, NOT as the runtime's zone.
+  //
+  // This used date-fns parse(), which builds a Date in whatever zone the
+  // process runs in. Vercel's Node runtime is UTC and nothing in this repo
+  // pins TZ, so "08:00" was stored as 08:00Z and rendered back through
+  // toCustomEvents() as 15:00 to every Vietnamese user — a silent seven-hour
+  // shift. Nothing here may infer the zone; vietnamInstant names it.
+  //
+  // Caught while building the ICS importer, with custom_events still empty in
+  // production, so there was no stored data to migrate.
+  const startAt = vietnamInstant(v.start_date, v.all_day ? undefined : v.start_time);
+  const endAt = vietnamInstant(v.end_date, v.all_day ? undefined : v.end_time);
+  // The schema guarantees these are present and ordered, not that they parse —
+  // an Invalid Date would otherwise throw on .toISOString() and surface as a
+  // 500 rather than a field error.
+  if (!startAt || !endAt) {
+    return { ok: false, error: "Ngày hoặc giờ không hợp lệ" };
+  }
 
   const supabase = await createClient();
   const ownerError = await assertOwnsCalendar(supabase, calendarId, profile.id);
