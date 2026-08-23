@@ -453,11 +453,32 @@
 /* Hour labels ("6 AM", "7 AM"…) — smaller and lighter so the time gutter
    reads as a quiet ruler, not a second column of headings; this is most of
    what makes the whole week grid feel slimmer at a glance. */
+/* Hour labels sit ON their gridline, not hanging below it.
+   TimeGutter.js:86-93 renders each label as a bare <span class="rbc-label">
+   inside the FIRST .rbc-time-slot of its group, and RBC's own CSS gives
+   .rbc-label horizontal padding only — so the text box's TOP edge lands on
+   the hour gridline and the glyphs hang downward from it. An event ending at
+   12:00 therefore stops level with the TOP of the "12:00" text, which reads
+   as finishing early ("vẫn hụt ... mặc dù ca đấy kết thúc lúc 12h") even
+   though its bottom edge is exactly on the line. Pulling each label up by
+   half its own line box centres it on its gridline the way Google Calendar
+   draws it, so a card edge and its hour text line up.
+
+   translateY needs a non-inline box to apply, hence inline-block; the
+   gutter's `text-align: right` / `white-space: nowrap` still hold.
+
+   The first group is exempt: its gridline IS the top edge of the scroller,
+   so a raised label would be clipped by .rbc-time-content's overflow-y. */
 .rbc-time-gutter .rbc-label {
   font-size: 0.7rem;
   font-weight: 500;
   color: var(--muted-foreground);
   padding: 0 8px;
+  display: inline-block;
+  transform: translateY(-50%);
+}
+.rbc-time-gutter .rbc-timeslot-group:first-child .rbc-label {
+  transform: none;
 }
 /* The hour row pitch. This MUST stay on `.rbc-time-view .rbc-timeslot-group`
    and never be narrowed back to `.rbc-time-gutter …` — that is what made
