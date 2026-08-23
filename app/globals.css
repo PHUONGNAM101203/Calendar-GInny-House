@@ -459,7 +459,37 @@
   color: var(--muted-foreground);
   padding: 0 8px;
 }
-.rbc-time-gutter .rbc-timeslot-group {
+/* The hour row pitch. This MUST stay on `.rbc-time-view .rbc-timeslot-group`
+   and never be narrowed back to `.rbc-time-gutter …` — that is what made
+   event blocks drift off the hour labels ("8-12h mà lại chỉ kéo tới 11h
+   thôi", "phần 22h chưa đồng bộ với các giờ khác").
+
+   Why: `.rbc-time-content` is `display: flex` with `align-items: flex-start`
+   (RBC's own CSS), so the gutter and each day column are siblings that size
+   to their own content instead of stretching to a shared height. Both are
+   `.rbc-time-column` — TimeGutter.js:97 emits `rbc-time-gutter
+   rbc-time-column`, DayColumn.js:387 emits `rbc-day-slot rbc-time-column` —
+   and each stacks one `.rbc-timeslot-group` per hour. Raising only the
+   gutter's groups to 44px while the columns kept RBC's default 40px
+   (react-big-calendar.css `.rbc-timeslot-group { min-height: 40px }`) gave
+   the two a different total height: with CALENDAR_MIN_HOUR 6 / MAX 23 there
+   are 17 groups, so 17x44 = 748px of ruler beside 17x40 = 680px of grid.
+
+   Events are positioned in *percentages* of the day column
+   (TimeGridEvent.js:57-58 writes `top`/`height` as `%` inside
+   `.rbc-events-container`, which is inset-0 of `.rbc-day-slot`), so a block
+   was laid out correctly against a column that was 68px too short — a 10%
+   error that grows with the hour, not a constant offset. 08:00-12:00 landed
+   at 80-240px against labels at 88px and 264px, i.e. ending at ~11:27; and
+   the 22:00 label at 704px sat entirely below the columns' 680px bottom
+   edge, which is why that last row looked unpaired. Matching the pitch on
+   both makes each column 748px and every block land on its gridline.
+
+   Scoped to `.rbc-time-view` (week/day). `TimeSlotGroup` is rendered only by
+   `TimeGutter` and `DayColumn`, both of which mount only under TimeGrid's
+   `.rbc-time-view` (TimeGrid.js:335), so `.rbc-month-view` and
+   `.rbc-agenda-view` emit no `.rbc-timeslot-group` at all and are untouched. */
+.rbc-time-view .rbc-timeslot-group {
   min-height: 44px;
 }
 .rbc-event.shift-event {
