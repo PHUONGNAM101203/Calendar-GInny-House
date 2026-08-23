@@ -5,7 +5,8 @@ import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile, requireManager } from "@/lib/auth";
 import { leaveRequestSchema } from "@/lib/validations/leave";
-import { sendPushToLeaveApprovers, sendPushToProfile } from "@/lib/push";
+import { sendPushToLeaveApprovers } from "@/lib/push";
+import { emitNotifications } from "@/lib/notifications-emit";
 import type { ActionResult } from "@/types";
 
 function mapLeaveError(message: string): string {
@@ -88,13 +89,23 @@ export async function respondToLeaveRequestAction(
   revalidateLeavePaths();
   if (data) {
     const targetId = (data as { profile_id: string }).profile_id;
+    // emitNotifications replaces the bare sendPushToProfile that used to sit
+    // here: it stores a row AND mirrors it as a push, so this is the same one
+    // push as before plus a bell entry that outlives the three-day window the
+    // derived half was limited to. See requestLeaveAction for why after().
     after(() =>
-      sendPushToProfile(targetId, {
-        title: approve ? "Đơn nghỉ phép đã được duyệt" : "Đơn nghỉ phép bị từ chối",
-        body: approve ? "Đơn xin nghỉ phép của bạn đã được duyệt" : "Đơn xin nghỉ phép của bạn đã bị từ chối",
-        url: "/leave",
-        tag: "leave",
-      })
+      emitNotifications([
+        {
+          profileId: targetId,
+          kind: approve ? "leave_approved" : "leave_rejected",
+          title: approve ? "Đơn nghỉ phép đã được duyệt" : "Đơn nghỉ phép bị từ chối",
+          body: approve
+            ? "Đơn xin nghỉ phép của bạn đã được duyệt"
+            : "Đơn xin nghỉ phép của bạn đã bị từ chối",
+          url: "/leave",
+          relatedId: requestId,
+        },
+      ])
     );
   }
   return { ok: true, data: undefined };

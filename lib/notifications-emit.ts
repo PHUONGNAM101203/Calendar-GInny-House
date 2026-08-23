@@ -20,8 +20,21 @@ export type NotificationKind =
   | "shift_unassigned"
   | "shift_deleted"
   | "swap_accepted"
+  | "swap_rejected"
   | "swap_reverted"
   | "swap_deleted"
+  // The four "your request was resolved" kinds. Phase B moved these off
+  // buildNotifications()'s derived half, which could only show them for three
+  // days after resolved_at and could not be dismissed one at a time. Emitting
+  // them here also removed a duplicate: an accepted swap used to produce BOTH
+  // a stored swap_accepted row and a derived swap-resolved item, so the
+  // requester saw one event twice in the bell.
+  | "leave_approved"
+  | "leave_rejected"
+  | "shift_request_approved"
+  | "shift_request_rejected"
+  | "attendance_correction_approved"
+  | "attendance_correction_rejected"
   | "missed_check_in"
   | "stale_check_out"
   | "attendance_updated"

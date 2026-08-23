@@ -7,7 +7,8 @@ import { requireProfile, requireManager } from "@/lib/auth";
 import { isShiftRequestApprover } from "@/lib/roles";
 import { getRemoteBranchId } from "@/lib/branches";
 import { shiftRequestSchema } from "@/lib/validations/shift-request";
-import { sendPushToShiftRequestApprovers, sendPushToProfile } from "@/lib/push";
+import { sendPushToShiftRequestApprovers } from "@/lib/push";
+import { emitNotifications } from "@/lib/notifications-emit";
 import type { ActionResult } from "@/types";
 
 function mapShiftRequestError(message: string): string {
@@ -136,13 +137,21 @@ export async function respondToShiftRequestAction(
   revalidateShiftRequestPaths();
   if (data) {
     const targetId = (data as { profile_id: string }).profile_id;
+    // Stored row + push, replacing the push-only call that used to be here —
+    // see the same change in actions/leave.ts.
     after(() =>
-      sendPushToProfile(targetId, {
-        title: approve ? "Đăng ký ca làm đã được duyệt" : "Đăng ký ca làm bị từ chối",
-        body: approve ? "Đăng ký ca làm của bạn đã được duyệt" : "Đăng ký ca làm của bạn đã bị từ chối",
-        url: "/calendar",
-        tag: "shift-request",
-      })
+      emitNotifications([
+        {
+          profileId: targetId,
+          kind: approve ? "shift_request_approved" : "shift_request_rejected",
+          title: approve ? "Đăng ký ca làm đã được duyệt" : "Đăng ký ca làm bị từ chối",
+          body: approve
+            ? "Đăng ký ca làm của bạn đã được duyệt"
+            : "Đăng ký ca làm của bạn đã bị từ chối",
+          url: "/calendar",
+          relatedId: id,
+        },
+      ])
     );
   }
   return { ok: true, data: undefined };

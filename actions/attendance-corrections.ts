@@ -9,7 +9,7 @@ import {
   checkoutCorrectionSchema,
   correctionPreviewSchema,
 } from "@/lib/validations/attendance-correction";
-import { sendPushToLeaveApprovers, sendPushToProfile } from "@/lib/push";
+import { sendPushToLeaveApprovers } from "@/lib/push";
 import { emitNotifications, formatShiftWindow } from "@/lib/notifications-emit";
 import type { ActionResult, Attendance, Shift } from "@/types";
 
@@ -390,13 +390,21 @@ export async function respondToAttendanceCorrectionAction(
   revalidateAttendanceCorrectionPaths();
   if (data) {
     const targetId = (data as { profile_id: string }).profile_id;
+    // Stored row + push, replacing the push-only call that used to be here —
+    // see the same change in actions/leave.ts.
     after(() =>
-      sendPushToProfile(targetId, {
-        title: approve ? "Đơn giải trình công đã được duyệt" : "Đơn giải trình công bị từ chối",
-        body: approve ? "Đơn giải trình công của bạn đã được duyệt" : "Đơn giải trình công của bạn đã bị từ chối",
-        url: "/attendance/explain",
-        tag: "attendance-correction",
-      })
+      emitNotifications([
+        {
+          profileId: targetId,
+          kind: approve ? "attendance_correction_approved" : "attendance_correction_rejected",
+          title: approve ? "Đơn giải trình công đã được duyệt" : "Đơn giải trình công bị từ chối",
+          body: approve
+            ? "Đơn giải trình công của bạn đã được duyệt"
+            : "Đơn giải trình công của bạn đã bị từ chối",
+          url: "/attendance/explain",
+          relatedId: id,
+        },
+      ])
     );
   }
   return { ok: true, data: undefined };

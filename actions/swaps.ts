@@ -198,13 +198,20 @@ export async function respondToSwapRequestAction(
         ])
       );
     } else {
+      // Rejection stores a row too now, for the same reason acceptance does:
+      // the derived swap-resolved item that used to carry this text is gone
+      // (Phase B), so push alone would leave the bell silent about it.
       after(() =>
-        sendPushToProfile(requesterId, {
-          title: "Yêu cầu đổi ca bị từ chối",
-          body: "Yêu cầu đổi ca của bạn đã bị từ chối",
-          url: "/swaps",
-          tag: "swap",
-        })
+        emitNotifications([
+          {
+            profileId: requesterId,
+            kind: "swap_rejected",
+            title: "Yêu cầu đổi ca bị từ chối",
+            body: "Yêu cầu đổi ca của bạn đã bị từ chối",
+            url: "/swaps",
+            relatedId: requestId,
+          },
+        ])
       );
     }
   }

@@ -19,12 +19,13 @@ export type AppNotification = {
   /**
    * The `notifications.id` behind this item, for the stored half only.
    *
-   * Derived items (the five kinds buildNotifications() computes off the four
-   * request tables) have no row anywhere and therefore nothing to stamp a
-   * `read_at` on — they stay `undefined` and keep working exactly as before,
-   * via `profiles.notifications_seen_at`. The bell uses the presence of this
-   * field, and nothing else, to decide whether an item can be dismissed
-   * individually.
+   * Derived items — since Phase B, the pending-approval kinds
+   * buildNotifications() computes off the four request tables — have no row
+   * anywhere and therefore nothing to stamp a `read_at` on. They stay
+   * `undefined` and keep working via `profiles.notifications_seen_at`, which
+   * is correct for them: an approval should clear when it is acted on, not
+   * when it is dismissed. The bell uses the presence of this field, and
+   * nothing else, to decide whether an item can be dismissed individually.
    */
   storedId?: string;
 };
@@ -67,10 +68,27 @@ function prioritiseNotifications(items: AppNotification[], limit: number): AppNo
   );
 }
 
-// Computed straight off data already fetched for other pages — no read/
-// unread table. A notification only exists while its underlying row still
-// matches (pending-for-you, or resolved-recently-for-you); it naturally
-// disappears once the next page load re-derives the list.
+// PENDING APPROVALS ONLY, since Phase B. Computed straight off data already
+// fetched for other pages: an item exists exactly while its request is still
+// pending and the viewer can still act on it, and disappears on the next page
+// load once that stops being true.
+//
+// The "your request was resolved" half used to live here too and was moved to
+// the notifications table (see the resolution kinds in lib/notifications-emit.ts).
+// It was a poor fit for derivation — it could only be shown for three days
+// after resolved_at, could not be dismissed one at a time, and duplicated the
+// stored swap_accepted row that actions/swaps.ts already wrote.
+//
+// The pending half deliberately stays derived, and is the reason this function
+// still exists rather than being retired outright:
+//   - it must vanish the moment the request is resolved. Derivation gives that
+//     for free; stored rows would need a cleanup path on every resolve, cancel,
+//     delete and revert, and one missed path leaves a permanent phantom
+//     "đang chờ duyệt" that nothing can clear.
+//   - its recipients follow whoever holds approval rights *right now*
+//     (canApproveShiftRequestFor / isLeaveApprover). A stored row fixes the
+//     recipient at write time, so a permission change — or an approver added
+//     afterwards — would silently see nothing.
 export function buildNotifications({
   profile,
   swaps,
@@ -93,11 +111,9 @@ export function buildNotifications({
   // hid from HR the very requests it is responsible for. Swap and shift
   // requests keep gating on isManager, which is correct for them.
   const seesPendingApprovals = isManager || isLeaveApprover(profile.role);
-  const recentCutoff = Date.now() - 3 * 24 * 60 * 60 * 1000;
   const items: AppNotification[] = [];
 
   for (const s of swaps) {
-    const isMine = s.requester_id === profile.id;
     const targetedAtMe = s.target_id === profile.id;
     if (s.status === "pending" && (targetedAtMe || isManager)) {
       items.push({
@@ -109,24 +125,10 @@ export function buildNotifications({
         at: s.created_at,
         needsAction: true,
       });
-    } else if (isMine && s.status !== "pending" && s.resolved_at && new Date(s.resolved_at).getTime() > recentCutoff) {
-      items.push({
-        id: `swap-resolved-${s.id}`,
-        text:
-          s.status === "accepted"
-            ? "Yêu cầu đổi ca của bạn đã được nhận"
-            : s.status === "rejected"
-              ? "Yêu cầu đổi ca của bạn đã bị từ chối"
-              : "Yêu cầu đổi ca của bạn đã bị huỷ",
-        href: "/swaps",
-        at: s.resolved_at,
-        needsAction: false,
-      });
     }
   }
 
   for (const l of leaves) {
-    const isMine = l.profile_id === profile.id;
     if (l.status === "pending" && seesPendingApprovals) {
       items.push({
         id: `leave-${l.id}`,
@@ -135,22 +137,10 @@ export function buildNotifications({
         at: l.created_at,
         needsAction: true,
       });
-    } else if (isMine && l.status !== "pending" && l.resolved_at && new Date(l.resolved_at).getTime() > recentCutoff) {
-      items.push({
-        id: `leave-resolved-${l.id}`,
-        text:
-          l.status === "approved"
-            ? "Đơn xin nghỉ phép của bạn đã được duyệt"
-            : "Đơn xin nghỉ phép của bạn đã bị từ chối",
-        href: "/leave",
-        at: l.resolved_at,
-        needsAction: false,
-      });
     }
   }
 
   for (const r of shiftRequests) {
-    const isMine = r.profile_id === profile.id;
     if (r.status === "pending" && canApproveShiftRequestFor(profile.role, r.profile.role, permissions)) {
       items.push({
         id: `shift-request-${r.id}`,
@@ -159,22 +149,10 @@ export function buildNotifications({
         at: r.created_at,
         needsAction: true,
       });
-    } else if (isMine && r.status !== "pending" && r.resolved_at && new Date(r.resolved_at).getTime() > recentCutoff) {
-      items.push({
-        id: `shift-request-resolved-${r.id}`,
-        text:
-          r.status === "approved"
-            ? "Đăng ký ca làm của bạn đã được duyệt"
-            : "Đăng ký ca làm của bạn đã bị từ chối",
-        href: "/calendar",
-        at: r.resolved_at,
-        needsAction: false,
-      });
     }
   }
 
   for (const c of attendanceCorrections) {
-    const isMine = c.profile_id === profile.id;
     if (c.status === "pending" && seesPendingApprovals) {
       items.push({
         id: `attendance-correction-${c.id}`,
@@ -182,22 +160,6 @@ export function buildNotifications({
         href: "/manager",
         at: c.created_at,
         needsAction: true,
-      });
-    } else if (
-      isMine &&
-      c.status !== "pending" &&
-      c.resolved_at &&
-      new Date(c.resolved_at).getTime() > recentCutoff
-    ) {
-      items.push({
-        id: `attendance-correction-resolved-${c.id}`,
-        text:
-          c.status === "approved"
-            ? "Đơn giải trình công của bạn đã được duyệt"
-            : "Đơn giải trình công của bạn đã bị từ chối",
-        href: "/attendance/explain",
-        at: c.resolved_at,
-        needsAction: false,
       });
     }
   }
