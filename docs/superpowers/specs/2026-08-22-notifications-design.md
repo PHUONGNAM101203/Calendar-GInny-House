@@ -119,12 +119,38 @@ item's timestamp works for both sources, so Phase A does not touch it.
 ceo/coo/training_director/technical. But HR *is* a real approver for both. The
 bell and the approval rights disagree; align them.
 
-## Phase B — later
+## Phase B — shipped 2026-08-23
 
-Move the four derived kinds into the table and retire `buildNotifications()`,
-then add per-notification read state and the long tail (attendance edited by a
-manager, correction reverted, role changed, deactivated). Deferred so Phase A
-ships without touching notifications that work today.
+Done, with one deliberate departure from the original sketch.
+
+**As planned:** per-notification read state (`markNotificationReadAction` /
+`markAllNotificationsReadAction`), the long tail (attendance edited by a
+manager, attendance deleted, correction reverted or deleted, role and
+secondary-role changes, branches changed, account deactivated/reactivated),
+and the four "your request was resolved" kinds moved into the table
+(`leave_approved`/`leave_rejected`,
+`shift_request_approved`/`shift_request_rejected`,
+`attendance_correction_approved`/`attendance_correction_rejected`,
+`swap_rejected` — `swap_accepted` already existed).
+
+That move also fixed a duplicate nobody had reported: an accepted swap wrote a
+stored `swap_accepted` row *and* matched the derived `swap-resolved` branch, so
+the requester saw one event twice in the bell.
+
+**Not done, on purpose: `buildNotifications()` was not retired.** Its
+pending-approval half stays derived, because a stored row is the wrong shape
+for it:
+
+- a pending item must vanish the moment its request resolves. Derivation gives
+  that for free; stored rows need a cleanup path on every resolve, cancel,
+  delete and revert, and one missed path leaves a permanent phantom "đang chờ
+  duyệt" that nothing can clear.
+- its recipients follow whoever holds approval rights *now*
+  (`canApproveShiftRequestFor` / `isLeaveApprover`). A stored row fixes the
+  recipient at write time, so a permission change — or an approver added
+  afterwards — would silently receive nothing.
+
+No migration was needed: `notifications.kind` is free text by design.
 
 ## Out of scope
 
