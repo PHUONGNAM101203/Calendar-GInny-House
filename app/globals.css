@@ -648,6 +648,21 @@
 }
 /* A viewer's own custom calendars ("Lịch khác" → "+") — solid fill like a
    normal shift chip, just in whatever color that calendar was given. */
+/* Ô ca trống — a "ca cố định" occurrence with nobody assigned yet (0079).
+   Deliberately the only event card drawn as an outline rather than a fill:
+   every other kind represents something that exists, this one represents a
+   hole in the roster, and it has no person to take a colour from. The dashed
+   border and transparent interior are what make it read as unfinished at a
+   glance rather than as a washed-out shift. */
+.rbc-event.shift-event--slot {
+  background-color: transparent;
+  border: 1px dashed var(--muted-foreground);
+  color: var(--muted-foreground);
+  font-weight: 600;
+}
+.rbc-event.shift-event--slot:hover {
+  background-color: color-mix(in oklch, var(--muted-foreground) 8%, transparent);
+}
 .rbc-event.shift-event--custom {
   background-color: var(--event-color, var(--chart-1));
   color: white;

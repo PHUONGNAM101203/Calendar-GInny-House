@@ -13,6 +13,7 @@ import type {
   Profile,
   Role,
   ShiftRequestDetailed,
+  ShiftSlotDetailed,
   ShiftWithAssignee,
   SwapRequestDetailed,
 } from "@/types";
@@ -48,6 +49,7 @@ export default function ShiftCalendarLoader(props: {
   shiftRequests: ShiftRequestDetailed[];
   attendanceCorrections: AttendanceCorrectionDetailed[];
   holidays: Holiday[];
+  shiftSlots: ShiftSlotDetailed[];
   branches: Branch[];
   customCalendars: CustomCalendar[];
   sharedCalendars: SharedCustomCalendar[];

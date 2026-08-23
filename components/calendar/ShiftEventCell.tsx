@@ -8,6 +8,7 @@ import {
   StarIcon,
   CalendarClockIcon,
   AlertCircleIcon,
+  UserPlusIcon,
 } from "lucide-react";
 import type { EventProps } from "react-big-calendar";
 import { resolveColor, type CalendarEvent } from "@/lib/calendar";
@@ -108,6 +109,24 @@ export default function ShiftEventCell({ event }: EventProps<CalendarEvent>) {
       <div className="flex items-center gap-1.5 truncate">
         <CalendarClockIcon className="size-3 shrink-0" />
         <span className="truncate">{event.title}</span>
+      </div>
+    );
+  }
+
+  // Must come before the destructure below, which assumes a shift. An empty
+  // slot has no assignee, no swap state and no person colour, so it shares
+  // none of those fields.
+  if (event.resource.kind === "shift_slot") {
+    const { slot } = event.resource;
+    return (
+      <div className="flex flex-col truncate">
+        <div className="flex items-center gap-1.5 truncate">
+          <UserPlusIcon className="size-3 shrink-0" />
+          <span className="truncate">{event.title}</span>
+        </div>
+        {slot.note && (
+          <span className="truncate pl-[18px] text-[10px] opacity-80">Ghi chú: {slot.note}</span>
+        )}
       </div>
     );
   }

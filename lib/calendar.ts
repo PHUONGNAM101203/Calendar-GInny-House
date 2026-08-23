@@ -27,6 +27,7 @@ import type {
   Profile,
   Role,
   ShiftRequestDetailed,
+  ShiftSlotDetailed,
   ShiftWithAssignee,
   SwapRequestDetailed,
 } from "@/types";
@@ -291,6 +292,31 @@ export type ShiftRequestPendingEvent = {
   };
 };
 
+// An unassigned slot from a "ca cố định" rule (0079) — a planned shift with
+// nobody in it yet. Deliberately its OWN card type rather than a shift with an
+// empty assignee: shifts.assignee_id is NOT NULL and load-bearing in the RLS
+// policies, in the shifts_no_overlap constraint and in every UI that reads
+// shift.assignee.full_name (see the recurring-shifts design doc).
+//
+// Carries no colorVar because there is no person to colour it by; the styling
+// is a fixed dashed outline that reads as "chưa có ai" at a glance.
+//
+// Managers are the only ones who ever receive these rows —
+// shift_slots_select_manager (0079) gates SELECT on can_manage_shift_slots(),
+// so a staff member's query returns nothing no matter what the UI asks for.
+// The database is the boundary here, not this module.
+export type ShiftSlotEvent = {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  allDay?: false;
+  resource: {
+    kind: "shift_slot";
+    slot: ShiftSlotDetailed;
+  };
+};
+
 // A giải trình công (attendance correction) request that has no matching
 // attendance row yet (missed check-in — attendance_id is null). Corrections
 // that DO reference a real attendance row are badged onto that row's normal
@@ -316,7 +342,8 @@ export type CalendarEvent =
   | LeaveCalendarEvent
   | CustomCalendarEvent
   | ShiftRequestPendingEvent
-  | AttendanceCorrectionPendingEvent;
+  | AttendanceCorrectionPendingEvent
+  | ShiftSlotEvent;
 
 export function isShiftEvent(event: CalendarEvent): event is ShiftEvent {
   return event.resource.kind === "shift";
@@ -342,6 +369,24 @@ export function isAttendanceCorrectionPendingEvent(
 
 export function isShiftRequestPendingEvent(event: CalendarEvent): event is ShiftRequestPendingEvent {
   return event.resource.kind === "shift_request_pending";
+}
+
+export function isShiftSlotEvent(event: CalendarEvent): event is ShiftSlotEvent {
+  return event.resource.kind === "shift_slot";
+}
+
+// Unassigned slots as calendar cards. No filtering: the caller only ever holds
+// rows RLS already let through, and a slot stops existing the moment somebody
+// is assigned to it (assign_shift_slot deletes the slot and inserts a real
+// shifts row), so there is no "filled" state to exclude here.
+export function toShiftSlotEvents(slots: ShiftSlotDetailed[]): ShiftSlotEvent[] {
+  return slots.map((slot) => ({
+    id: `shift-slot-${slot.id}`,
+    title: `Ca trống · ${slot.branch.name}`,
+    start: new Date(slot.start_at),
+    end: new Date(slot.end_at),
+    resource: { kind: "shift_slot" as const, slot },
+  }));
 }
 
 // MONTH/AGENDA ONLY since 0082. Holidays render as all-day banners (like

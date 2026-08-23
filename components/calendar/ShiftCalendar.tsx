@@ -15,6 +15,7 @@ import {
   toCustomEvents,
   toShiftRequestPendingEvents,
   toAttendanceCorrectionPendingEvents,
+  toShiftSlotEvents,
   getEventTextColorVar,
   getPersonColorVar,
   resolveColor,
@@ -25,6 +26,7 @@ import {
   isCustomEvent,
   isShiftRequestPendingEvent,
   isAttendanceCorrectionPendingEvent,
+  isShiftSlotEvent,
   type ShiftEvent,
   type AttendanceCalendarEvent,
   type LeaveCalendarEvent,
@@ -63,6 +65,7 @@ import AttendanceDetailDialog from "@/components/calendar/AttendanceDetailDialog
 import LeaveDetailDialog from "@/components/calendar/LeaveDetailDialog";
 import CustomEventDetailDialog from "@/components/calendar/CustomEventDetailDialog";
 import ShiftRequestDetailDialog from "@/components/calendar/ShiftRequestDetailDialog";
+import ShiftSlotAssignDialog from "@/components/shifts/ShiftSlotAssignDialog";
 import type {
   AttendanceCorrectionDetailed,
   Branch,
@@ -73,6 +76,7 @@ import type {
   Profile,
   Role,
   ShiftRequestDetailed,
+  ShiftSlotDetailed,
   ShiftWithAssignee,
   SwapRequestDetailed,
 } from "@/types";
@@ -93,6 +97,7 @@ export default function ShiftCalendar({
   shiftRequests,
   attendanceCorrections,
   holidays,
+  shiftSlots,
   branches,
   customCalendars,
   sharedCalendars,
@@ -116,6 +121,7 @@ export default function ShiftCalendar({
   shiftRequests: ShiftRequestDetailed[];
   attendanceCorrections: AttendanceCorrectionDetailed[];
   holidays: Holiday[];
+  shiftSlots: ShiftSlotDetailed[];
   branches: Branch[];
   customCalendars: CustomCalendar[];
   sharedCalendars: SharedCustomCalendar[];
@@ -339,6 +345,12 @@ export default function ShiftCalendar({
         : [],
     [attendanceCorrections, colorFor, eventToggles.showPendingApprovals]
   );
+  // Unassigned "ca cố định" slots (0079). Not behind the showPendingApprovals
+  // toggle: a slot is not waiting on anyone's approval, it is a hole in the
+  // roster, and hiding it under a toggle aimed at approvals is where it would
+  // stop being noticed. Staff receive an empty array — the page only queries
+  // for roles that can act, and RLS refuses the rest regardless.
+  const shiftSlotEvents = useMemo(() => toShiftSlotEvents(shiftSlots), [shiftSlots]);
   const events = useMemo(
     () => [
       ...holidayEvents,
@@ -347,6 +359,7 @@ export default function ShiftCalendar({
       ...lateArrivalEvents,
       ...pendingLeaveEvents,
       ...customCalendarEvents,
+      ...shiftSlotEvents,
       ...shiftEvents,
       ...shiftRequestPendingEvents,
       ...attendanceCorrectionPendingEvents,
@@ -358,6 +371,7 @@ export default function ShiftCalendar({
       lateArrivalEvents,
       pendingLeaveEvents,
       customCalendarEvents,
+      shiftSlotEvents,
       shiftEvents,
       shiftRequestPendingEvents,
       attendanceCorrectionPendingEvents,
@@ -370,6 +384,7 @@ export default function ShiftCalendar({
     range: { start: Date; end: Date } | null;
   }>({ open: false, shift: null, range: null });
 
+  const [slotToAssign, setSlotToAssign] = useState<ShiftSlotDetailed | null>(null);
   const [detailEvent, setDetailEvent] = useState<ShiftEvent | null>(null);
   const [attendanceDetail, setAttendanceDetail] = useState<AttendanceCalendarEvent | null>(null);
   const [leaveDetail, setLeaveDetail] = useState<LeaveCalendarEvent | null>(null);
@@ -409,6 +424,13 @@ export default function ShiftCalendar({
     }
     if (isAttendanceCorrectionPendingEvent(event)) {
       openAttendanceCorrectionDetail(event.resource.correction);
+      return;
+    }
+    if (isShiftSlotEvent(event)) {
+      // Straight to the assign dialog: filling the hole is the only thing
+      // anyone does with a slot, and the same dialog already backs the
+      // "Ca cố định" section in /manager.
+      setSlotToAssign(event.resource.slot);
       return;
     }
     if (!isShiftEvent(event)) return;
@@ -844,6 +866,11 @@ export default function ShiftCalendar({
                 style: { "--event-color": resolveColor(event.resource.colorVar) } as React.CSSProperties,
               };
             }
+            // No --event-color: an empty slot has no person to be coloured by,
+            // and the dashed outline is the whole point of the card.
+            if (event.resource.kind === "shift_slot") {
+              return { className: "shift-event shift-event--slot" };
+            }
             if (event.resource.kind === "shift_request_pending") {
               return {
                 className: "shift-event shift-event--shift-request-pending",
@@ -954,6 +981,19 @@ export default function ShiftCalendar({
             open={Boolean(customDetail)}
             onOpenChange={(open) => !open && setCustomDetail(null)}
             event={customDetail}
+          />
+        )}
+
+        {/* The same dialog the "Ca cố định" section in /manager opens, so a
+            slot is filled identically from either place. It deletes the slot
+            and inserts a real shifts row, then revalidates — the card simply
+            stops being a slot on the next render. */}
+        {slotToAssign && (
+          <ShiftSlotAssignDialog
+            open={Boolean(slotToAssign)}
+            onOpenChange={(open) => !open && setSlotToAssign(null)}
+            slot={slotToAssign}
+            branchMembers={branchMembers}
           />
         )}
       </div>

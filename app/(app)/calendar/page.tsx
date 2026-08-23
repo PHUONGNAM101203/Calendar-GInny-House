@@ -20,6 +20,7 @@ import type {
   Profile,
   SharedCustomCalendar,
   ShiftRequestDetailed,
+  ShiftSlotDetailed,
   ShiftWithAssignee,
   SwapRequestDetailed,
 } from "@/types";
@@ -97,6 +98,7 @@ export default async function CalendarPage({
     { data: shiftRequests },
     { data: attendanceCorrections },
     { data: holidays },
+    { data: shiftSlots },
     // Joined to the batch rather than awaited above it: it depends on none of
     // these queries, so awaiting it first cost every page view an extra
     // serialized round-trip.
@@ -185,6 +187,18 @@ export default async function CalendarPage({
     // leave an edit invisible for up to an hour, which is precisely the
     // problem this feature exists to fix.
     supabase.from("holidays").select("*").order("start_date"),
+    // Ô ca trống chưa gán người (0079). Skipped entirely for anyone who cannot
+    // act on them: shift_slots_select_manager would return an empty set for
+    // staff anyway, so this saves the round trip rather than adding a security
+    // check — the RLS policy remains the boundary.
+    canCreateShiftDirectly(profile.role)
+      ? supabase
+          .from("shift_slots")
+          .select("*, branch:branches!branch_id(id, name)")
+          .gte("start_at", start.toISOString())
+          .lte("start_at", end.toISOString())
+          .order("start_at")
+      : Promise.resolve({ data: [] }),
     getGroupPermissions(),
   ]);
 
@@ -233,6 +247,7 @@ export default async function CalendarPage({
       shiftRequests={(shiftRequests as ShiftRequestDetailed[]) ?? []}
       attendanceCorrections={(attendanceCorrections as AttendanceCorrectionDetailed[]) ?? []}
       holidays={(holidays as Holiday[]) ?? []}
+      shiftSlots={(shiftSlots as unknown as ShiftSlotDetailed[]) ?? []}
       branches={branches}
       customCalendars={visibleCalendars}
       sharedCalendars={sharedRows}
