@@ -44,6 +44,7 @@ import MiniMonth from "@/components/calendar/MiniMonth";
 import CustomEventFormDialog from "@/components/calendar/CustomEventFormDialog";
 import ColorPickerDialog from "@/components/calendar/ColorPickerDialog";
 import BrowseSharedCalendarsDialog from "@/components/calendar/BrowseSharedCalendarsDialog";
+import ImportIcsDialog from "@/components/calendar/ImportIcsDialog";
 import type { ActionResult, Branch, CustomCalendar, SharedCustomCalendar } from "@/types";
 
 type Person = { id: string; name: string; followed: boolean; color: string | null };
@@ -470,13 +471,15 @@ function CustomCalendarRow({
   );
 }
 
-// The "+" next to "Lịch khác". "Tạo lịch mới" and "Duyệt lịch có sẵn trong
-// công ty" are both live; "Từ URL / file" is still a placeholder reserving
-// its spot in the menu — it needs an ICS parser that does not exist yet.
+// The "+" next to "Lịch khác". All three entries are live: "Tạo lịch mới",
+// "Nhập từ URL / file" (ImportIcsDialog, backed by the parser in lib/ics/) and
+// "Duyệt lịch có sẵn trong công ty".
 function AddOtherCalendarMenu({
+  customCalendars,
   sharedCalendars,
   currentUserId,
 }: {
+  customCalendars: CustomCalendar[];
   sharedCalendars: SharedCustomCalendar[];
   currentUserId: string;
 }) {
@@ -484,6 +487,12 @@ function AddOtherCalendarMenu({
   const [name, setName] = useState("");
   const [color, setColor] = useState<string>(EVENT_COLOR_SWATCHES[0].var);
   const [browseOpen, setBrowseOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+
+  // Import writes events, and a subscribed colleague's calendar is read-only
+  // (0081 splits select from write), so only owned calendars are offered —
+  // importIcsAction would reject the rest anyway.
+  const ownedCalendars = customCalendars.filter((c) => c.owner_id === currentUserId);
 
   function handleCreate() {
     const trimmed = name.trim();
@@ -527,12 +536,11 @@ function AddOtherCalendarMenu({
         <div className="space-y-1 border-t pt-2">
           <button
             type="button"
-            disabled
-            className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-sm text-muted-foreground/50"
+            onClick={() => setImportOpen(true)}
+            className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-sm transition-colors hover:bg-accent"
           >
             <LinkIcon className="size-3.5 shrink-0" />
             Nhập từ URL / file
-            <span className="ml-auto text-[10px]">Sắp có</span>
           </button>
           <button
             type="button"
@@ -548,6 +556,12 @@ function AddOtherCalendarMenu({
             )}
           </button>
         </div>
+
+        <ImportIcsDialog
+          open={importOpen}
+          onOpenChange={setImportOpen}
+          calendars={ownedCalendars}
+        />
 
         <BrowseSharedCalendarsDialog
           open={browseOpen}
@@ -853,7 +867,11 @@ function SidebarContent({
           collapsed={otherCalendarsCollapsed}
           onToggle={() => setOtherCalendarsCollapsed(!otherCalendarsCollapsed)}
           trailing={
-            <AddOtherCalendarMenu sharedCalendars={sharedCalendars} currentUserId={currentUserId} />
+            <AddOtherCalendarMenu
+              customCalendars={customCalendars}
+              sharedCalendars={sharedCalendars}
+              currentUserId={currentUserId}
+            />
           }
         />
         {!otherCalendarsCollapsed && (
