@@ -472,18 +472,22 @@
    and each stacks one `.rbc-timeslot-group` per hour. Raising only the
    gutter's groups to 44px while the columns kept RBC's default 40px
    (react-big-calendar.css `.rbc-timeslot-group { min-height: 40px }`) gave
-   the two a different total height: with CALENDAR_MIN_HOUR 6 / MAX 23 there
-   are 17 groups, so 17x44 = 748px of ruler beside 17x40 = 680px of grid.
+   the two a different total height: the grid runs 06:00 to 24:00 (see
+   calendarGridEnd in lib/constants.ts), i.e. 18 groups, so 18x44 = 792px of
+   ruler stood beside 18x40 = 720px of grid.
 
    Events are positioned in *percentages* of the day column
    (TimeGridEvent.js:57-58 writes `top`/`height` as `%` inside
    `.rbc-events-container`, which is inset-0 of `.rbc-day-slot`), so a block
-   was laid out correctly against a column that was 68px too short — a 10%
-   error that grows with the hour, not a constant offset. 08:00-12:00 landed
-   at 80-240px against labels at 88px and 264px, i.e. ending at ~11:27; and
-   the 22:00 label at 704px sat entirely below the columns' 680px bottom
-   edge, which is why that last row looked unpaired. Matching the pitch on
-   both makes each column 748px and every block land on its gridline.
+   was laid out correctly against a column 72px too short — a ~9% error that
+   grows with the hour, not a constant offset. 08:00-12:00 landed at
+   80-240px against labels at 88px and 264px, i.e. ending at ~11:27, and the
+   tail of the ruler hung below the columns' shorter bottom edge, which is
+   why the last row looked unpaired. Matching the pitch on both makes each
+   column 792px and every block land on its gridline: RBC sizes events as a
+   percentage of `step * numSlots` minutes (utils/TimeSlots.js getRange),
+   which for 06:00-24:00 at step=30/timeslots=2 is exactly 1080 — so 12:00
+   is 360/1080 = 33.33% = 264px = six whole 44px rows.
 
    Scoped to `.rbc-time-view` (week/day). `TimeSlotGroup` is rendered only by
    `TimeGutter` and `DayColumn`, both of which mount only under TimeGrid's

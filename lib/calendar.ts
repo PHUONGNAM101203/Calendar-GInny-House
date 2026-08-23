@@ -13,9 +13,9 @@ import {
 } from "date-fns";
 import { vi } from "date-fns/locale";
 import {
-  CALENDAR_MAX_HOUR,
   CALENDAR_MIN_HOUR,
   LEAVE_REQUEST_TYPE_LABELS,
+  calendarGridEnd,
 } from "@/lib/constants";
 import type {
   AttendanceCorrectionDetailed,
@@ -383,9 +383,10 @@ export function toHolidayEvents(holidays: Holiday[], start: Date, end: Date): Ho
 // WEEK/DAY ONLY. The owner's ask: "nghỉ lễ ... hiện màu nhạt như kiểu là ca
 // làm mà kéo hết ngày luôn ... chứ không để nó hiển nhỏ nhỏ như vậy nữa" —
 // so instead of a one-row banner above the grid, a holiday paints as a pale
-// block filling the day column from CALENDAR_MIN_HOUR to CALENDAR_MAX_HOUR
-// (exactly the grid's visible range, so "cả ngày" reads correctly without
-// stretching the grid).
+// block filling the day column from CALENDAR_MIN_HOUR to calendarGridEnd()
+// (exactly the grid's visible range — note that is the END of
+// CALENDAR_MAX_HOUR, not its start, so the tint covers the final 23:00 row
+// too and "cả ngày" reads correctly without stretching the grid).
 //
 // These are handed to react-big-calendar's `backgroundEvents` prop, NOT
 // `events`. That matters for two reasons, both verified against
@@ -427,8 +428,7 @@ export function toHolidayBackgroundEvents(
 
       const blockStart = new Date(day);
       blockStart.setHours(CALENDAR_MIN_HOUR, 0, 0, 0);
-      const blockEnd = new Date(day);
-      blockEnd.setHours(CALENDAR_MAX_HOUR, 0, 0, 0);
+      const blockEnd = calendarGridEnd(day);
 
       const isFirstDay = day.getTime() === firstDay.getTime();
       if (holiday.half_day && holiday.start_time && isFirstDay) {

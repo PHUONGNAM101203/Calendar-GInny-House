@@ -3,10 +3,12 @@ import { CALENDAR_MAX_HOUR, CALENDAR_MIN_HOUR } from "@/lib/constants";
 
 const HH_MM = /^([01]\d|2[0-3]):[0-5]\d$/;
 
-// The calendar only draws between CALENDAR_MIN_HOUR and CALENDAR_MAX_HOUR, so
-// a half-day starting outside that window would shade nothing at all (or the
-// whole day, which is what "nguyên ngày" is for). Reject it here rather than
-// letting someone save an invisible holiday.
+// The calendar's first labelled row is CALENDAR_MIN_HOUR and its last is
+// CALENDAR_MAX_HOUR, so a half-day starting outside that window would shade
+// nothing at all (or the whole day, which is what "nguyên ngày" is for).
+// Reject it here rather than letting someone save an invisible holiday. The
+// upper bound stays exclusive: a half-day beginning in the final row would
+// tint a single hour and read as a mistake.
 const MIN_TIME = `${String(CALENDAR_MIN_HOUR).padStart(2, "0")}:00`;
 const MAX_TIME = `${String(CALENDAR_MAX_HOUR).padStart(2, "0")}:00`;
 

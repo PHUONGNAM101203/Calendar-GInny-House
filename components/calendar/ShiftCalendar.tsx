@@ -48,7 +48,7 @@ import {
 import { scopeToOwnOrApprovable } from "@/lib/pending-approvals";
 import { useCalendarNav } from "@/hooks/use-calendar-nav";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { CALENDAR_MAX_HOUR, CALENDAR_MIN_HOUR } from "@/lib/constants";
+import { CALENDAR_MIN_HOUR, calendarGridEnd } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import CalendarToolbar from "@/components/calendar/CalendarToolbar";
 import MobileDayStrip from "@/components/calendar/MobileDayStrip";
@@ -80,8 +80,10 @@ import type { GroupPermissions } from "@/lib/permissions";
 
 const minTime = new Date();
 minTime.setHours(CALENDAR_MIN_HOUR, 0, 0, 0);
-const maxTime = new Date();
-maxTime.setHours(CALENDAR_MAX_HOUR, 0, 0, 0);
+// The grid's bottom edge, not its last label — calendarGridEnd() explains why
+// that is the END of CALENDAR_MAX_HOUR, which is what gives 23:00 a row of its
+// own for an overtime check-out to render in.
+const maxTime = calendarGridEnd(new Date());
 
 export default function ShiftCalendar({
   shifts,
