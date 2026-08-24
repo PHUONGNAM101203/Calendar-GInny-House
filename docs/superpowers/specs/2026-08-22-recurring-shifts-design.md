@@ -1,8 +1,8 @@
 # Ca cố định (Recurring Shifts) — Design
 
 **Date:** 2026-08-22
-**Status:** Phases 1–3 shipped (1 on 2026-08-22, 3 on 2026-08-23, 2 on
-2026-08-24). Phase 4 (scoped edit) is the only one left.
+**Status:** Complete. Phase 1 shipped 2026-08-22, Phase 3 on 2026-08-23,
+Phases 2 and 4 on 2026-08-24.
 
 > Phase 1 landed as migration `0078_shift_series.sql`, not `0077` — that number
 > went to the notifications table in the same session. Everything else in the
@@ -140,9 +140,22 @@ series with their rule in plain Vietnamese ("Thứ 2, 4, 6 · 18:00–22:00 · C
   section landed 2026-08-22, and the calendar card that was the whole point of
   giving slots their own table landed 2026-08-23. They render as the only
   outline card on the grid and open the assign dialog on click.
-- **Phase 4 — Scoped edit.** The same three scopes as delete. Larger than it
-  looks: editing "all" has to re-materialise future occurrences, re-run the
-  conflict check, and leave occurrences that already have attendance alone.
+- **Phase 4 — Scoped edit. Shipped 2026-08-24** (`0084`,
+  `update_shift_series_occurrences`). It was indeed larger than it looked, and
+  two scoping calls are worth recording:
+  - **"range" does not touch the rule.** Weekdays and interval describe the
+    whole rule; there is no coherent way to make one fortnight of a Monday
+    series run on Tuesdays. So "range" rewrites the occurrences inside the
+    chosen dates — times, branch, assignee, type, note — and leaves the rule
+    alone. Only "all" edits the rule and re-lays the future.
+  - **"Chỉ sửa ca này" is not offered in this dialog.** A single occurrence is
+    edited by clicking it on `/calendar`, which already handles the one-row
+    write, its RLS refusal and its notification.
+
+  `starts_on` stays uneditable: it is the rule's week anchor, so changing it
+  would re-phase every future occurrence unpredictably. Conflicts are
+  pre-checked rather than caught, for the same `DEFERRABLE INITIALLY DEFERRED`
+  reason as the create path, and are reported alongside the kept count.
 
 ## Out of scope
 
