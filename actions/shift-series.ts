@@ -134,7 +134,9 @@ export async function createShiftSeriesAction(
     p_start_time: parsed.data.start_time,
     p_end_time: parsed.data.end_time,
     p_starts_on: parsed.data.starts_on,
-    p_ends_on: parsed.data.ends_on,
+    // "" is the form's "Không kết thúc"; the column and the RPC both want null.
+    // Passing "" through would be a date-parse error, not an open-ended rule.
+    p_ends_on: parsed.data.ends_on || null,
     p_note: parsed.data.note || null,
   });
 
@@ -159,7 +161,9 @@ export async function createShiftSeriesAction(
     });
     const range = describeSeriesRange({
       starts_on: parsed.data.starts_on,
-      ends_on: parsed.data.ends_on,
+      // Same "" → null mapping as the RPC call above, so an open-ended rule
+      // reads "Từ 01/09/2026" in the notification instead of a bare dash.
+      ends_on: parsed.data.ends_on || null,
     });
     after(() =>
       emitNotifications([

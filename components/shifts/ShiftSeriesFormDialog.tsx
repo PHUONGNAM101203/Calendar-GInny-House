@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { DatePickerField } from "@/components/ui/date-picker-field";
 import { TimePickerField } from "@/components/ui/time-picker-field";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -78,6 +79,12 @@ export default function ShiftSeriesFormDialog({
   const [endsOn, setEndsOn] = useState(() =>
     format(addDays(startOfDay(new Date()), DEFAULT_SPAN_DAYS), DATE_FORMAT)
   );
+  // "Không kết thúc" (Đợt 2). Its own flag rather than inferred from
+  // endsOn === "": toggling it back off has to restore a sensible date, which
+  // is only possible if the previous value survives somewhere. The submitted
+  // payload sends "" while this is on, which actions/shift-series.ts maps to a
+  // null p_ends_on.
+  const [openEnded, setOpenEnded] = useState(false);
   // Set once the RPC has run. Its presence swaps the form out for the report —
   // the skipped weeks are the whole point of the "bỏ qua rồi báo lại" design
   // and would be lost if the dialog just closed on success.
@@ -171,7 +178,7 @@ export default function ShiftSeriesFormDialog({
       start_time: startTime,
       end_time: endTime,
       starts_on: startsOn,
-      ends_on: endsOn,
+      ends_on: openEnded ? "" : endsOn,
       note: values.note || undefined,
     });
 
@@ -353,12 +360,48 @@ export default function ShiftSeriesFormDialog({
                   value={startsOn}
                   onChange={setStartsOn}
                 />
-                <DatePickerField
-                  id="series_ends_on"
-                  label="Đến ngày"
-                  value={endsOn}
-                  onChange={setEndsOn}
-                />
+                {openEnded ? (
+                  <div className="space-y-1.5">
+                    <Label className="text-muted-foreground text-xs tracking-wide uppercase">
+                      Đến ngày
+                    </Label>
+                    <div className="border-input text-muted-foreground flex h-9 items-center rounded-md border border-dashed px-3 text-sm">
+                      Không kết thúc
+                    </div>
+                  </div>
+                ) : (
+                  <DatePickerField
+                    id="series_ends_on"
+                    label="Đến ngày"
+                    value={endsOn}
+                    onChange={setEndsOn}
+                  />
+                )}
+              </div>
+
+              {/* A pill rather than a checkbox: this repo has no checkbox
+                  primitive, and WeekdayPills right above uses exactly this
+                  aria-pressed toggle idiom. */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  aria-pressed={openEnded}
+                  onClick={() => setOpenEnded((previous) => !previous)}
+                  className={cn(
+                    "h-8 rounded-full border px-3 text-xs font-medium transition-colors",
+                    "focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none",
+                    openEnded
+                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                      : "border-input bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  )}
+                >
+                  Không kết thúc
+                </button>
+                {openEnded && (
+                  <span className="text-muted-foreground text-xs">
+                    Tạo trước 12 tuần, tự động gia hạn mỗi đêm.
+                  </span>
+                )}
               </div>
             </div>
 

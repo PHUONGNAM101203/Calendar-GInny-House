@@ -8,6 +8,10 @@
     {
       "path": "/api/cron/weekly-summary",
       "schedule": "0 14 * * 0"
+    },
+    {
+      "path": "/api/cron/shift-series-extend",
+      "schedule": "0 17 * * *"
     }
   ]
 }

@@ -42,9 +42,15 @@ export const shiftSeriesSchema = z
     start_time: z.string().regex(TIME_PATTERN, "Giờ bắt đầu không hợp lệ"),
     end_time: z.string().regex(TIME_PATTERN, "Giờ kết thúc không hợp lệ"),
     starts_on: z.string().regex(DATE_PATTERN, "Vui lòng chọn ngày bắt đầu"),
-    // Đợt 1 requires an end date. The column is nullable and the "Không kết
-    // thúc" case is Đợt 2's, once a cron exists to keep topping the series up.
-    ends_on: z.string().regex(DATE_PATTERN, "Vui lòng chọn ngày kết thúc"),
+    // Empty means "Không kết thúc" (Đợt 2). The RPC then materialises 12 weeks
+    // ahead and the nightly cron (/api/cron/shift-series-extend) keeps topping
+    // it up, which is what makes an endless rule safe to allow at all.
+    //
+    // "" rather than undefined: the field is a controlled DatePickerField that
+    // starts empty and is cleared back to "", so allowing undefined too would
+    // let an untouched form and a deliberately-cleared one differ in type for
+    // no gain. actions/shift-series.ts maps "" to null at the RPC boundary.
+    ends_on: z.union([z.literal(""), z.string().regex(DATE_PATTERN, "Ngày kết thúc không hợp lệ")]),
     note: z.string().max(280, "Ghi chú tối đa 280 ký tự").optional(),
   })
   // Equal times would produce a zero-length shift, which shifts_time_valid
@@ -56,11 +62,14 @@ export const shiftSeriesSchema = z
   // "yyyy-MM-dd" sorts lexicographically the same way it sorts chronologically,
   // so comparing the strings avoids parsing them into Date and picking up the
   // browser's timezone in the process.
-  .refine((v) => v.ends_on >= v.starts_on, {
+  // Both range rules skip the open-ended case: there is no end to compare
+  // against, and the 1-year cap is meaningless for a rule the cron keeps
+  // extending 12 weeks at a time.
+  .refine((v) => !v.ends_on || v.ends_on >= v.starts_on, {
     message: "Ngày kết thúc phải sau ngày bắt đầu",
     path: ["ends_on"],
   })
-  .refine((v) => spanInDays(v.starts_on, v.ends_on) <= MAX_SPAN_DAYS, {
+  .refine((v) => !v.ends_on || spanInDays(v.starts_on, v.ends_on) <= MAX_SPAN_DAYS, {
     message: "Ca cố định chỉ được lặp tối đa 1 năm",
     path: ["ends_on"],
   })
