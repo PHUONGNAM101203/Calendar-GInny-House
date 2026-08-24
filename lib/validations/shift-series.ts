@@ -106,6 +106,57 @@ export const shiftSeriesDeleteSchema = z
   });
 export type ShiftSeriesDeleteInput = z.infer<typeof shiftSeriesDeleteSchema>;
 
+// Đợt 4 — sửa theo phạm vi. Only two scopes reach this RPC, for the same
+// reason delete has only two: "Chỉ sửa ca này" is the existing single-shift
+// ShiftFormDialog, which already handles RLS refusal and the per-shift
+// notification.
+//
+// weekdays / interval_weeks / ends_on are meaningful only for scope "all" —
+// they describe the whole rule, and there is no coherent way to make one
+// fortnight of a Monday series run on Tuesdays. The RPC ignores them for
+// "range".
+export const shiftSeriesUpdateSchema = z
+  .object({
+    series_id: z.uuid("Không xác định được ca cố định"),
+    scope: z.enum(BULK_DELETE_SCOPES, "Vui lòng chọn phạm vi sửa"),
+    shift_type: z.enum(SHIFT_TYPES, "Vui lòng chọn loại ca"),
+    branch_id: z.uuid("Vui lòng chọn cơ sở").optional(),
+    assignee_id: z.uuid("Vui lòng chọn nhân viên").optional(),
+    weekdays: z.array(z.number().int().min(0).max(6)).max(7, "Chỉ có 7 ngày trong tuần"),
+    interval_weeks: z
+      .number()
+      .int()
+      .min(1, "Số tuần lặp tối thiểu là 1")
+      .max(8, "Số tuần lặp tối đa là 8"),
+    start_time: z.string().regex(TIME_PATTERN, "Giờ bắt đầu không hợp lệ"),
+    end_time: z.string().regex(TIME_PATTERN, "Giờ kết thúc không hợp lệ"),
+    ends_on: z.union([z.literal(""), z.string().regex(DATE_PATTERN, "Ngày kết thúc không hợp lệ")]),
+    note: z.string().max(280, "Ghi chú tối đa 280 ký tự").optional(),
+    from: z.string().regex(DATE_PATTERN, "Ngày bắt đầu không hợp lệ").optional(),
+    to: z.string().regex(DATE_PATTERN, "Ngày kết thúc không hợp lệ").optional(),
+  })
+  .refine((v) => v.start_time !== v.end_time, {
+    message: "Giờ kết thúc phải khác giờ bắt đầu",
+    path: ["end_time"],
+  })
+  .refine((v) => v.scope !== "all" || v.weekdays.length > 0, {
+    message: "Vui lòng chọn ít nhất một ngày trong tuần",
+    path: ["weekdays"],
+  })
+  .refine((v) => v.scope !== "range" || (!!v.from && !!v.to), {
+    message: "Vui lòng chọn khoảng ngày",
+    path: ["from"],
+  })
+  .refine((v) => v.scope !== "range" || !v.from || !v.to || v.to >= v.from, {
+    message: "Ngày kết thúc phải sau ngày bắt đầu",
+    path: ["to"],
+  })
+  .refine((v) => v.shift_type === "remote" || !!v.branch_id, {
+    message: "Vui lòng chọn cơ sở",
+    path: ["branch_id"],
+  });
+export type ShiftSeriesUpdateInput = z.infer<typeof shiftSeriesUpdateSchema>;
+
 // Putting a person on an empty slot. assignee_id is required here even though
 // it is optional when creating the rule — this action's whole purpose is to
 // supply the name that was missing.

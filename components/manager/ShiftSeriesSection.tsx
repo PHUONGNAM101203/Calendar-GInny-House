@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { PlusIcon, Trash2Icon, UserPlusIcon } from "lucide-react";
+import { PencilIcon, PlusIcon, Trash2Icon, UserPlusIcon } from "lucide-react";
 import { describeSeriesRange, describeSeriesRule, formatSlotWindow } from "@/lib/shift-series";
 import { SHIFT_TYPE_LABELS } from "@/lib/constants";
 import { deleteShiftSlotAction } from "@/actions/shift-series";
 import type { Branch, Profile, ShiftSeriesDetailed, ShiftSlotDetailed } from "@/types";
 import ShiftSeriesFormDialog from "@/components/shifts/ShiftSeriesFormDialog";
 import ShiftSeriesDeleteDialog from "@/components/shifts/ShiftSeriesDeleteDialog";
+import ShiftSeriesEditDialog from "@/components/shifts/ShiftSeriesEditDialog";
 import ShiftSlotAssignDialog from "@/components/shifts/ShiftSlotAssignDialog";
 import CollapsibleGrid from "@/components/manager/CollapsibleGrid";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +32,13 @@ export default function ShiftSeriesSection({
   // dialog seeds its scope from props on mount, so a shared instance would
   // carry the previous rule's answer over to the next one.
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  // Same id-not-boolean reasoning as deletingId above: the edit dialog seeds
+  // every field from the series on mount, so a shared instance would show the
+  // previously-opened rule's values.
+  const [editingId, setEditingId] = useState<string | null>(null);
+  // Resolved from the live list rather than stashed in state, so the dialog
+  // reopens against fresh data after a revalidate rather than a stale copy.
+  const editingSeries = series.find((row) => row.id === editingId) ?? null;
   const [assigningSlot, setAssigningSlot] = useState<ShiftSlotDetailed | null>(null);
   const [removingSlotId, setRemovingSlotId] = useState<string | null>(null);
 
@@ -84,19 +92,34 @@ export default function ShiftSeriesSection({
                   </p>
                   {row.note && <p className="text-muted-foreground text-xs">{row.note}</p>}
                 </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  aria-label={
-                    row.assignee
-                      ? `Xoá ca cố định của ${row.assignee.full_name}`
-                      : "Xoá ca cố định chưa gán người"
-                  }
-                  onClick={() => setDeletingId(row.id)}
-                >
-                  <Trash2Icon className="size-4" />
-                </Button>
+                <div className="flex shrink-0 items-center">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label={
+                      row.assignee
+                        ? `Sửa ca cố định của ${row.assignee.full_name}`
+                        : "Sửa ca cố định chưa gán người"
+                    }
+                    onClick={() => setEditingId(row.id)}
+                  >
+                    <PencilIcon className="size-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label={
+                      row.assignee
+                        ? `Xoá ca cố định của ${row.assignee.full_name}`
+                        : "Xoá ca cố định chưa gán người"
+                    }
+                    onClick={() => setDeletingId(row.id)}
+                  >
+                    <Trash2Icon className="size-4" />
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -163,6 +186,19 @@ export default function ShiftSeriesSection({
             if (!open) setDeletingId(null);
           }}
           seriesId={deletingId}
+        />
+      )}
+
+      {editingSeries && (
+        <ShiftSeriesEditDialog
+          key={editingSeries.id}
+          open
+          onOpenChange={(open) => {
+            if (!open) setEditingId(null);
+          }}
+          series={editingSeries}
+          branchMembers={branchMembers}
+          branches={branches}
         />
       )}
 
