@@ -1,7 +1,8 @@
 # Ca cố định (Recurring Shifts) — Design
 
 **Date:** 2026-08-22
-**Status:** Phase 1 shipped 2026-08-22; Phases 2–4 outlined
+**Status:** Phases 1–3 shipped (1 on 2026-08-22, 3 on 2026-08-23, 2 on
+2026-08-24). Phase 4 (scoped edit) is the only one left.
 
 > Phase 1 landed as migration `0078_shift_series.sql`, not `0077` — that number
 > went to the notifications table in the same session. Everything else in the
@@ -123,11 +124,22 @@ series with their rule in plain Vietnamese ("Thứ 2, 4, 6 · 18:00–22:00 · C
 
 ## Phases 2–4
 
-- **Phase 2 — "Không kết thúc".** `ends_on` null; a nightly cron tops every open
-  series up to 12 weeks ahead, skipping conflicts the same way. The app already
-  runs `pg_cron` and two Vercel crons, so this follows an established pattern.
-- **Phase 3 — Unassigned slots.** Their own table, rendered as a distinct
-  calendar card; assigning a person converts a slot into a `shifts` row.
+- **Phase 2 — "Không kết thúc". Shipped 2026-08-24** (`0083`,
+  `/api/cron/shift-series-extend`, daily at 17:00 UTC = midnight Vietnam).
+  `ends_on` null is now accepted; the occurrence loop moved out of
+  `create_shift_series` into a shared `materialise_shift_series()` so creating
+  and extending run one implementation. Two things to keep in mind if this is
+  ever touched: the week counter anchors on `series.starts_on`, never on the
+  window being filled (otherwise an "every 2 weeks" rule re-phases on each
+  run), and progress lives in a new `shift_series.materialised_through` column
+  rather than being derived from `max(shifts.start_at)` (derived, deleting the
+  last occurrence would have the cron recreate it the next night).
+  `extend_shift_series()` is granted to `service_role` only — it skips every
+  per-user check, which it must, having no session.
+- **Phase 3 — Unassigned slots. Shipped**; the table, actions and `/manager`
+  section landed 2026-08-22, and the calendar card that was the whole point of
+  giving slots their own table landed 2026-08-23. They render as the only
+  outline card on the grid and open the assign dialog on click.
 - **Phase 4 — Scoped edit.** The same three scopes as delete. Larger than it
   looks: editing "all" has to re-materialise future occurrences, re-run the
   conflict check, and leave occurrences that already have attendance alone.
