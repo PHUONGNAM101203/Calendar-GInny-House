@@ -129,6 +129,15 @@ export default function SwapRequestDialog({
               rows={2}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
+              // Ctrl/⌘+Enter sends; plain Enter stays a newline. This is a
+              // message box, and a lời nhắn people cannot break into lines
+              // would be worse than having no keyboard shortcut at all.
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && !submitting) {
+                  e.preventDefault();
+                  void onSubmit();
+                }
+              }}
             />
           </div>
 
@@ -136,7 +145,7 @@ export default function SwapRequestDialog({
         </div>
 
         <DialogFooter>
-          <Button onClick={onSubmit} disabled={submitting}>
+          <Button type="button" onClick={onSubmit} disabled={submitting}>
             {submitting ? "Đang gửi..." : "Gửi yêu cầu"}
           </Button>
         </DialogFooter>

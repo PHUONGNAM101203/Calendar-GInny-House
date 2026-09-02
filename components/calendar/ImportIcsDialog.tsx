@@ -166,45 +166,67 @@ export default function ImportIcsDialog({
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="url" className="space-y-3 pt-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="ics-url">Đường dẫn .ics</Label>
-                  <Input
-                    id="ics-url"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    placeholder="https://calendar.google.com/.../basic.ics"
-                    autoComplete="off"
-                  />
-                </div>
-                <Button
-                  className="w-full"
-                  disabled={isPending || !url.trim() || !calendarId}
-                  onClick={() => submit({ source: "url", calendar_id: calendarId, url: url.trim() })}
+              <TabsContent value="url" className="pt-3">
+                {/* A real <form> rather than an onKeyDown handler: Enter in a
+                    single-input form is native browser behaviour, and routing
+                    through submit also picks up the disabled-button guard and
+                    the implicit-submission accessibility semantics for free. */}
+                <form
+                  className="space-y-3"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    submit({ source: "url", calendar_id: calendarId, url: url.trim() });
+                  }}
                 >
-                  {isPending ? "Đang nhập…" : "Nhập từ đường dẫn"}
-                </Button>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="ics-url">Đường dẫn .ics</Label>
+                    <Input
+                      id="ics-url"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      placeholder="https://calendar.google.com/.../basic.ics"
+                      autoComplete="off"
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isPending || !url.trim() || !calendarId}
+                  >
+                    {isPending ? "Đang nhập…" : "Nhập từ đường dẫn"}
+                  </Button>
+                </form>
               </TabsContent>
 
-              <TabsContent value="file" className="space-y-3 pt-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="ics-file">File .ics</Label>
-                  <Input
-                    id="ics-file"
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".ics,text/calendar"
-                    onChange={handleFileChange}
-                  />
-                  {fileName && <p className="text-xs text-muted-foreground">Đã chọn: {fileName}</p>}
-                </div>
-                <Button
-                  className="w-full"
-                  disabled={isPending || !fileText || !calendarId}
-                  onClick={() => submit({ source: "file", calendar_id: calendarId, text: fileText })}
+              <TabsContent value="file" className="pt-3">
+                <form
+                  className="space-y-3"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    submit({ source: "file", calendar_id: calendarId, text: fileText });
+                  }}
                 >
-                  {isPending ? "Đang nhập…" : "Nhập từ file"}
-                </Button>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="ics-file">File .ics</Label>
+                    <Input
+                      id="ics-file"
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".ics,text/calendar"
+                      onChange={handleFileChange}
+                    />
+                    {fileName && (
+                      <p className="text-xs text-muted-foreground">Đã chọn: {fileName}</p>
+                    )}
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isPending || !fileText || !calendarId}
+                  >
+                    {isPending ? "Đang nhập…" : "Nhập từ file"}
+                  </Button>
+                </form>
               </TabsContent>
             </Tabs>
           </div>
@@ -213,7 +235,15 @@ export default function ImportIcsDialog({
         {error && <p className="text-sm text-destructive">{error}</p>}
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
+          {/* Explicitly type="button": shadcn's Button sets no default type, so
+              inside the forms above it would inherit "submit" and close-on-Enter
+              would instead fire an import. */}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+          >
             Đóng
           </Button>
         </DialogFooter>

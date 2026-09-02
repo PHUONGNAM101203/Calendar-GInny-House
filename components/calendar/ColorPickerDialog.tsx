@@ -94,6 +94,15 @@ export default function ColorPickerDialog({
     if (HEX_RE.test(value)) setHsv(hexToHsv(value));
   }
 
+  // Shared by the Lưu button and the Enter key so the two can never disagree
+  // about what "save" means — including the validity check, which Enter has to
+  // repeat because a keypress has no disabled state to lean on.
+  function saveColor() {
+    if (!HEX_RE.test(hexInput)) return;
+    onSave(hexInput.toUpperCase());
+    onOpenChange(false);
+  }
+
   async function handleEyeDropper() {
     try {
       // EyeDropper is Chrome/Edge-only and not yet in TS's lib.dom types.
@@ -175,22 +184,25 @@ export default function ColorPickerDialog({
             id="custom-hex"
             value={hexInput}
             onChange={(e) => handleHexChange(e.target.value)}
+            // Typing a hex code and pressing Enter is the obvious way to use
+            // this field. Guarded by the same HEX_RE the Lưu button is disabled
+            // on, so a half-typed "#3B8" does nothing rather than saving junk.
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                saveColor();
+              }
+            }}
             placeholder="#3B82F6"
             className="h-9 w-full rounded-md border bg-background px-3 text-sm"
           />
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
             Huỷ
           </Button>
-          <Button
-            disabled={!HEX_RE.test(hexInput)}
-            onClick={() => {
-              onSave(hexInput.toUpperCase());
-              onOpenChange(false);
-            }}
-          >
+          <Button type="button" disabled={!HEX_RE.test(hexInput)} onClick={saveColor}>
             Lưu
           </Button>
         </DialogFooter>

@@ -88,7 +88,8 @@ export default function ShiftSeriesEditDialog({
 
   const isRange = scope === "range";
 
-  async function onConfirm() {
+  async function onConfirm(event?: React.FormEvent) {
+    event?.preventDefault();
     setError("");
     setPending(true);
     try {
@@ -131,7 +132,14 @@ export default function ShiftSeriesEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] space-y-4 overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        {/* Wrapped in a real <form> so Enter saves, the way every other form in
+            the app behaves. Safe here because every control inside is either
+            type="button" (scope options, the "Không kết thúc" pill, Huỷ,
+            DatePickerField's trigger, WeekdayPills) or swallows Enter itself —
+            TimePickerField calls preventDefault(), so Enter in a time field
+            commits the time and stops there rather than also saving. */}
+        <form className="space-y-4" onSubmit={onConfirm}>
         <DialogHeader>
           <DialogTitle>Sửa ca cố định</DialogTitle>
           <DialogDescription>
@@ -324,10 +332,11 @@ export default function ShiftSeriesEditDialog({
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
             Huỷ
           </Button>
-          <Button type="button" disabled={pending} onClick={onConfirm}>
+          <Button type="submit" disabled={pending}>
             {pending ? "Đang lưu..." : "Lưu thay đổi"}
           </Button>
         </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
