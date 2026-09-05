@@ -25,6 +25,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { usePersistentCollapse } from "@/hooks/use-persistent-collapse";
 import { getPersonColorVar, resolveColor, isCustomHexColor, EVENT_COLOR_SWATCHES } from "@/lib/calendar";
 import { formatNotificationTime } from "@/lib/notifications";
+import { ROLE_LABELS } from "@/lib/roles";
 import {
   followPersonAction,
   unfollowPersonAction,
@@ -56,6 +57,9 @@ type EventTypeToggles = {
   showLateArrival: boolean;
   showSwapIndicator: boolean;
   showPendingApprovals: boolean;
+  /** Lọc theo vai trò của ca — xem nhóm "Vai trò ca" bên dưới. */
+  showStudentAffairsShifts: boolean;
+  showReceptionShifts: boolean;
 };
 
 export type PendingApprovalItem = {
@@ -735,6 +739,7 @@ function SidebarContent({
   branchColors,
 }: SidebarProps) {
   const [eventTypesCollapsed, setEventTypesCollapsed] = usePersistentCollapse("event-types");
+  const [shiftRolesCollapsed, setShiftRolesCollapsed] = usePersistentCollapse("shift-roles");
   const [branchesCollapsed, setBranchesCollapsed] = usePersistentCollapse("branches");
   const [otherCalendarsCollapsed, setOtherCalendarsCollapsed] = usePersistentCollapse("other-calendars");
 
@@ -812,6 +817,38 @@ function SidebarContent({
               checked={eventToggles.showPendingApprovals}
               onChange={(v) => onEventTogglesChange({ ...eventToggles, showPendingApprovals: v })}
               colorVar="--chart-2"
+            />
+          </ul>
+        )}
+      </div>
+
+      {/* Nhóm riêng, không nhét vào "Loại sự kiện": mấy cái trên lọc theo LOẠI
+          sự kiện (chấm công, nghỉ phép…), còn hai cái này lọc ca làm việc theo
+          VAI TRÒ. Gộp chung sẽ khiến "Quản sinh" trông như một loại sự kiện
+          ngang hàng với "Nghỉ phép". Chỉ có hai vai trò vì đó là hai vai trò
+          một người có thể cùng lúc đảm nhiệm. */}
+      <div>
+        <CollapsibleSectionHeader
+          storageKey="shift-roles"
+          label="Vai trò ca"
+          collapsed={shiftRolesCollapsed}
+          onToggle={() => setShiftRolesCollapsed(!shiftRolesCollapsed)}
+        />
+        {!shiftRolesCollapsed && (
+          <ul id="sidebar-section-shift-roles" className="space-y-1.5 text-sm">
+            <CalendarCheckItem
+              label={ROLE_LABELS.student_affairs}
+              checked={eventToggles.showStudentAffairsShifts}
+              onChange={(v) =>
+                onEventTogglesChange({ ...eventToggles, showStudentAffairsShifts: v })
+              }
+              colorVar="--chart-1"
+            />
+            <CalendarCheckItem
+              label={ROLE_LABELS.receptionist}
+              checked={eventToggles.showReceptionShifts}
+              onChange={(v) => onEventTogglesChange({ ...eventToggles, showReceptionShifts: v })}
+              colorVar="--chart-4"
             />
           </ul>
         )}

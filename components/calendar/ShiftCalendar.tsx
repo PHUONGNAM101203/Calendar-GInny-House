@@ -47,6 +47,7 @@ import {
   canApproveSwapRequestFor,
   canAccessManagerPage,
 } from "@/lib/roles";
+import { computeShiftKind } from "@/lib/shift-kind-tag";
 import { scopeToOwnOrApprovable } from "@/lib/pending-approvals";
 import { useCalendarNav } from "@/hooks/use-calendar-nav";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -193,6 +194,11 @@ export default function ShiftCalendar({
     showLateArrival: true,
     showSwapIndicator: true,
     showPendingApprovals: true,
+    // Lọc theo vai trò của ca. Chỉ hai vai trò này vì đó là hai vai trò một
+    // người có thể cùng lúc đảm nhiệm, nên là hai cái duy nhất cần tách nhau
+    // ra khi nhìn lịch.
+    showStudentAffairsShifts: true,
+    showReceptionShifts: true,
   });
 
   // The color a viewer sees for someone else's calendar is personal (see
@@ -250,6 +256,18 @@ export default function ShiftCalendar({
         branchNames
       ),
     [visibleShifts, currentUserId, currentUserRole, permissions, pendingSwaps, colorFor, branchNames]
+  );
+  // Lọc SAU khi dựng sự kiện, không phải trước: computeShiftKind cần cả ca lẫn
+  // người được gán, và cả hai đã nằm sẵn trên resource của sự kiện.
+  const visibleShiftEvents = useMemo(
+    () =>
+      shiftEvents.filter((event) => {
+        const kind = computeShiftKind(event.resource.shift, event.resource.shift.assignee);
+        if (kind === "student_affairs") return eventToggles.showStudentAffairsShifts;
+        if (kind === "receptionist") return eventToggles.showReceptionShifts;
+        return true;
+      }),
+    [shiftEvents, eventToggles.showStudentAffairsShifts, eventToggles.showReceptionShifts]
   );
   // Week and day view have an hour grid to shade, so a holiday paints there
   // as a pale full-column block behind the shifts (backgroundEvents, below).
@@ -363,7 +381,7 @@ export default function ShiftCalendar({
       ...pendingLeaveEvents,
       ...customCalendarEvents,
       ...shiftSlotEvents,
-      ...shiftEvents,
+      ...visibleShiftEvents,
       ...shiftRequestPendingEvents,
       ...attendanceCorrectionPendingEvents,
     ],
@@ -375,7 +393,7 @@ export default function ShiftCalendar({
       pendingLeaveEvents,
       customCalendarEvents,
       shiftSlotEvents,
-      shiftEvents,
+      visibleShiftEvents,
       shiftRequestPendingEvents,
       attendanceCorrectionPendingEvents,
     ]
