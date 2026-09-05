@@ -504,6 +504,9 @@ export default function ShiftCalendar({
       assignee_id: request.requester_id,
       start_at: request.requester_shift.start_at,
       end_at: request.requester_shift.end_at,
+      // Ca dựng tạm để mở dialog đổi ca, không đọc lại từ DB — vai trò riêng
+      // của ca không cần thiết ở đây và luôn là "theo vai trò gốc".
+      covering_role: null,
       note: null,
       created_by: null,
       shift_type: "morning",

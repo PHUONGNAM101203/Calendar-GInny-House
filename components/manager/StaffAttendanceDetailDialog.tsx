@@ -110,7 +110,7 @@ export default function StaffAttendanceDetailDialog({
                         <p className="font-medium capitalize">
                           {format(new Date(shift.start_at), "EEEE dd/MM", { locale: vi })}
                         </p>
-                        <Badge variant="outline">{SHIFT_KIND_LABELS[computeShiftKind(shift.assignee)]}</Badge>
+                        <Badge variant="outline">{SHIFT_KIND_LABELS[computeShiftKind(shift, shift.assignee)]}</Badge>
                       </div>
                       <p className="mt-1 text-xs text-muted-foreground tabular-nums">
                         {format(new Date(shift.start_at), "HH:mm")}–{format(new Date(shift.end_at), "HH:mm")}

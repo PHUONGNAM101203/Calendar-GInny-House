@@ -53,9 +53,21 @@ export const MANAGER_GROUP_META: Partial<Record<Role, { label: string; descripti
 export const SECONDARY_ROLE_BY_PRIMARY: Partial<Record<Role, Role>> = {
   teacher: "teaching_assistant",
   student_affairs: "teaching_assistant",
-  customer_care: "receptionist",
-  hr: "receptionist",
 };
+
+// "Kiêm lễ tân" là năng lực RIÊNG, không phải một giá trị của secondary_role.
+// Tách ra vì một quản sinh có thể vừa kiêm trợ giảng vừa kiêm lễ tân — ba vai
+// trò — mà secondary_role chỉ giữ được một. Mirrors the
+// profiles_covers_reception_valid CHECK in 0085; keep both in sync.
+export const RECEPTION_ELIGIBLE_ROLES: ReadonlySet<Role> = new Set<Role>([
+  "student_affairs",
+  "customer_care",
+  "hr",
+]);
+
+export function canCoverReception(role: Role): boolean {
+  return RECEPTION_ELIGIBLE_ROLES.has(role);
+}
 export const SECONDARY_ROLE_ELIGIBLE_ROLES: ReadonlySet<Role> = new Set(
   Object.keys(SECONDARY_ROLE_BY_PRIMARY) as Role[]
 );
@@ -64,9 +76,16 @@ export const SECONDARY_ROLE_ELIGIBLE_ROLES: ReadonlySet<Role> = new Set(
 // for authorization. Approval authority stays keyed to profiles.role
 // (primary) alone; secondary_role has no effect on any can*For predicate
 // in this file.
-export function getRoleLabel(profile: { role: Role; secondary_role: Role | null }): string {
-  if (!profile.secondary_role) return ROLE_LABELS[profile.role];
-  return `${ROLE_LABELS[profile.role]} · ${ROLE_LABELS[profile.secondary_role]}`;
+export function getRoleLabel(profile: {
+  role: Role;
+  secondary_role: Role | null;
+  covers_reception?: boolean;
+}): string {
+  // Ghép tối đa ba phần: "Quản sinh · Trợ giảng · Lễ tân".
+  const parts = [ROLE_LABELS[profile.role]];
+  if (profile.secondary_role) parts.push(ROLE_LABELS[profile.secondary_role]);
+  if (profile.covers_reception) parts.push(ROLE_LABELS.receptionist);
+  return parts.join(" · ");
 }
 
 // "Kiêm lễ tân" (customer_care/hr covering front-desk reception) is exempt
@@ -77,8 +96,15 @@ export function getRoleLabel(profile: { role: Role; secondary_role: Role | null 
 // (find_late_checkin_shifts/find_stale_checkout_sessions,
 // 0068_receptionist_secondary_role.sql) and the shift attendance tag
 // (lib/shift-attendance-tag.ts).
-export function isReceptionistExempt(profile: { secondary_role: Role | null }): boolean {
-  return profile.secondary_role === "receptionist";
+export function isReceptionistExempt(profile: {
+  role: Role;
+  covers_reception: boolean;
+}): boolean {
+  // Quản sinh kiêm lễ tân KHÔNG được miễn: chủ app yêu cầu họ vẫn chấm công
+  // theo ca đã đăng ký, còn lễ tân gắn với role khác thì miễn như cũ. Mirrors
+  // the same condition in find_late_checkin_shifts / find_stale_checkout_sessions
+  // (0085) — keep both in sync.
+  return profile.covers_reception && profile.role !== "student_affairs";
 }
 
 // Mirrors is_manager() in supabase/migrations/0005_role_hierarchy.sql —

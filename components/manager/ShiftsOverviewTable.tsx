@@ -34,7 +34,15 @@ export type ShiftOverviewRow = {
   start_at: string;
   end_at: string;
   shift_type: keyof typeof SHIFT_TYPE_LABELS;
-  assignee: { id: string; full_name: string; role: Role; secondary_role: Role | null };
+  /** Vai trò riêng của ca — xem Shift.covering_role (0085). */
+  covering_role: Role | null;
+  assignee: {
+    id: string;
+    full_name: string;
+    role: Role;
+    secondary_role: Role | null;
+    covers_reception: boolean;
+  };
   branch: { id: string; name: string } | null;
 };
 
@@ -143,7 +151,7 @@ function ShiftRow({ shift, canDelete }: { shift: ShiftOverviewRow; canDelete: bo
 
   if (deleted) return null;
 
-  const kind = computeShiftKind(shift.assignee);
+  const kind = computeShiftKind(shift, shift.assignee);
 
   return (
     <tr className="border-t max-lg:block max-lg:space-y-1 max-lg:px-3 max-lg:py-2.5">

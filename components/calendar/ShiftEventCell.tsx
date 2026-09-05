@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import type { EventProps } from "react-big-calendar";
 import { resolveColor, type CalendarEvent } from "@/lib/calendar";
+import { computeShiftKind } from "@/lib/shift-kind-tag";
+import { formatShiftCode } from "@/lib/shift-code";
 
 const LEAVE_ICON = {
   full_day: CalendarOffIcon,
@@ -148,6 +150,11 @@ export default function ShiftEventCell({ event }: EventProps<CalendarEvent>) {
         </span>
         {pendingSwap === "open" && <span className="shrink-0 text-[10px]">· cần người</span>}
       </div>
+      {/* Mã vai trò của ca, ngay dưới dòng tên — "QS1", "LT1". Đặt TRÊN ghi
+          chú theo đúng thứ tự chủ app yêu cầu. */}
+      <span className="truncate pl-[18px] text-[10px] font-semibold opacity-90">
+        {formatShiftCode(computeShiftKind(shift, shift.assignee), branchName)}
+      </span>
       {shift.note && (
         <span className="truncate pl-[18px] text-[10px] opacity-80">Ghi chú: {shift.note}</span>
       )}

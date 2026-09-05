@@ -59,7 +59,8 @@ const SELECT = `
 // types, supabase-js can't know assignee_id/branch_id are to-one relations
 // and defaults the embedded join shape to arrays.
 const SHIFTS_OVERVIEW_SELECT =
-  "id, start_at, end_at, shift_type, assignee:profiles!assignee_id(id, full_name, role, secondary_role), " +
+  "id, start_at, end_at, shift_type, covering_role, " +
+  "assignee:profiles!assignee_id(id, full_name, role, secondary_role, covers_reception), " +
   "branch:branches!branch_id(id, name)";
 
 type ProfileRoleRef = Pick<Profile, "id" | "full_name" | "role">;
@@ -214,7 +215,9 @@ export default async function ManagerPage({
   ] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, full_name, phone, role, secondary_role, deactivated_at, profile_branches(branch_id)")
+      .select(
+        "id, full_name, phone, role, secondary_role, covers_reception, deactivated_at, profile_branches(branch_id)"
+      )
       // Excludes the daily audit routine's dedicated login (0054) — it's
       // not a real employee and would otherwise skew every staff-facing
       // list and the TechnicalDashboard role pie chart fed by staffList.
@@ -306,7 +309,7 @@ export default async function ManagerPage({
 
   type StaffQueryRow = Pick<
     Profile,
-    "id" | "full_name" | "phone" | "role" | "secondary_role" | "deactivated_at"
+    "id" | "full_name" | "phone" | "role" | "secondary_role" | "covers_reception" | "deactivated_at"
   > & {
     profile_branches: { branch_id: string }[];
   };
@@ -316,6 +319,7 @@ export default async function ManagerPage({
     phone: s.phone,
     role: s.role,
     secondary_role: s.secondary_role,
+    covers_reception: s.covers_reception,
     deactivated_at: s.deactivated_at,
     branch_ids: s.profile_branches.map((pb) => pb.branch_id),
   }));

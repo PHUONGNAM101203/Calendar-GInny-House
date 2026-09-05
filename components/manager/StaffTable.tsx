@@ -27,6 +27,7 @@ import {
   updateStaffBranchesAction,
   updateStaffRoleAction,
   updateStaffSecondaryRoleAction,
+  updateStaffCoversReceptionAction,
   deactivateStaffAction,
 } from "@/actions/staff";
 import {
@@ -34,6 +35,7 @@ import {
   ROLE_LABELS,
   SECONDARY_ROLE_BY_PRIMARY,
   SECONDARY_ROLE_ELIGIBLE_ROLES,
+  canCoverReception,
   isManagerRole,
 } from "@/lib/roles";
 import type { Branch, Profile, Role } from "@/types";
@@ -41,7 +43,14 @@ import TableScroller from "@/components/manager/TableScroller";
 
 type StaffRow = Pick<
   Profile,
-  "id" | "full_name" | "phone" | "role" | "secondary_role" | "branch_ids" | "deactivated_at"
+  | "id"
+  | "full_name"
+  | "phone"
+  | "role"
+  | "secondary_role"
+  | "covers_reception"
+  | "branch_ids"
+  | "deactivated_at"
 >;
 
 export default function StaffTable({
@@ -175,6 +184,7 @@ function RoleAndBranchCells({
 }) {
   const [role, setRole] = useState<Role>(member.role);
   const [secondaryRole, setSecondaryRole] = useState<Role | null>(member.secondary_role);
+  const [coversReception, setCoversReception] = useState(member.covers_reception);
   const [branchIds, setBranchIds] = useState<string[]>(member.branch_ids);
   const [isPending, startTransition] = useTransition();
 
@@ -185,6 +195,9 @@ function RoleAndBranchCells({
     // Optimistic mirror of the DB auto-clear trigger (0051) — avoids a
     // checked box lingering for a pairing that's about to become invalid.
     if (secondaryRole && !SECONDARY_ROLE_ELIGIBLE_ROLES.has(next)) setSecondaryRole(null);
+    // Same optimistic mirror for kiêm lễ tân — protect_profile_privileges
+    // (0085) clears it server-side when the new role cannot cover reception.
+    if (coversReception && !canCoverReception(next)) setCoversReception(false);
     startTransition(async () => {
       const result = await updateStaffRoleAction(member.id, next);
       if (!result.ok) {
@@ -213,6 +226,20 @@ function RoleAndBranchCells({
         return;
       }
       toast.success(checked ? "Đã thêm vai trò kiêm nhiệm" : "Đã bỏ vai trò kiêm nhiệm");
+    });
+  }
+
+  function handleCoversReceptionChange(checked: boolean) {
+    const previous = coversReception;
+    setCoversReception(checked);
+    startTransition(async () => {
+      const result = await updateStaffCoversReceptionAction(member.id, checked);
+      if (!result.ok) {
+        setCoversReception(previous);
+        toast.error(result.error);
+        return;
+      }
+      toast.success(checked ? "Đã thêm kiêm lễ tân" : "Đã bỏ kiêm lễ tân");
     });
   }
 
@@ -255,6 +282,21 @@ function RoleAndBranchCells({
               onChange={(e) => handleSecondaryRoleChange(e.target.checked)}
             />
             Kiêm {ROLE_LABELS[SECONDARY_ROLE_BY_PRIMARY[role]!]}
+          </label>
+        )}
+        {/* Ô tick riêng, không phải một giá trị của ô trên: một quản sinh có
+            thể vừa kiêm trợ giảng vừa kiêm lễ tân — ba vai trò. Đó chính là lý
+            do covers_reception là cột riêng chứ không nhét vào secondary_role. */}
+        {canCoverReception(role) && (
+          <label className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <input
+              type="checkbox"
+              className="h-3.5 w-3.5 rounded border-input"
+              checked={coversReception}
+              disabled={isPending}
+              onChange={(e) => handleCoversReceptionChange(e.target.checked)}
+            />
+            Kiêm {ROLE_LABELS.receptionist}
           </label>
         )}
       </td>

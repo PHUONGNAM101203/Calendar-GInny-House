@@ -35,6 +35,10 @@ export type Profile = {
    * by a DB CHECK constraint to teaching_assistant, and only when `role`
    * is teacher or student_affairs. See supabase/migrations/0051. */
   secondary_role: Role | null;
+  /** "Kiêm lễ tân" — trực quầy, tách khỏi secondary_role vì một người có thể
+   * vừa kiêm trợ giảng vừa kiêm lễ tân (quản sinh thì thành 3 vai trò). Giới
+   * hạn bởi CHECK ở 0085 cho student_affairs / customer_care / hr. */
+  covers_reception: boolean;
   branch_ids: string[];
   color: string | null;
   /** When this person last opened the notification bell; null = never. */
@@ -57,6 +61,11 @@ export type Shift = {
   note: string | null;
   created_by: string | null;
   shift_type: ShiftType;
+  /** Vai trò của riêng ca này. null = theo vai trò gốc của người được gán —
+   * đúng hành vi cũ với mọi người không kiêm lễ tân. CHECK ở 0085 chỉ cho
+   * phép null hoặc "receptionist"; đây KHÔNG phải hệ thống vai-trò-theo-ca
+   * tổng quát (0052 làm vậy và 0055 đã gỡ). */
+  covering_role: Role | null;
   // Set when the shift was materialised from a "ca cố định" rule (0078).
   // Nullable both because most shifts aren't recurring and because the rule
   // can be deleted out from under an occurrence (ON DELETE SET NULL).
@@ -131,6 +140,8 @@ export type ShiftRequest = {
   resolved_at: string | null;
   created_at: string;
   shift_type: ShiftType;
+  /** Vai trò của ca được đăng ký — xem Shift.covering_role. */
+  covering_role: Role | null;
 };
 
 export type ShiftRequestDetailed = ShiftRequest & {

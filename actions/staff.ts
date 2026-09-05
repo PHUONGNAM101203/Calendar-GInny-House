@@ -225,6 +225,68 @@ export async function updateStaffSecondaryRoleAction(
   return { ok: true, data: undefined };
 }
 
+// "Kiêm lễ tân" — its own action rather than another value of
+// updateStaffSecondaryRoleAction, because it is its own column (0085): a quản
+// sinh can hold kiêm trợ giảng AND kiêm lễ tân at the same time, which one
+// secondary_role column cannot express.
+//
+// The write is checked by reading the value back, same as the sibling action:
+// RLS refusing an update returns success with zero rows affected, so a blind
+// update would show "Đã cập nhật" while nothing actually changed.
+export async function updateStaffCoversReceptionAction(
+  profileId: string,
+  coversReception: boolean
+): Promise<ActionResult> {
+  const manager = await requireManager();
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ covers_reception: coversReception })
+    .eq("id", profileId)
+    .select("id, covers_reception")
+    .maybeSingle<{ id: string; covers_reception: boolean }>();
+
+  if (error) {
+    // The CHECK constraint fires when the primary role cannot cover reception.
+    return {
+      ok: false,
+      error: error.message.includes("profiles_covers_reception_valid")
+        ? "Vai trò này không được kiêm lễ tân"
+        : "Không thể cập nhật kiêm lễ tân",
+    };
+  }
+  if (!data || data.covers_reception !== coversReception) {
+    return {
+      ok: false,
+      error: "Không có quyền cập nhật kiêm lễ tân — hãy chắc chắn đã chạy đủ các migration mới nhất",
+    };
+  }
+
+  revalidatePath("/manager");
+  revalidatePath("/calendar");
+
+  // Turning this on for a quản sinh also starts holding them to clock-in
+  // reminders (isReceptionistExempt), so it is worth telling them either way.
+  if (profileId !== manager.id) {
+    after(() =>
+      emitNotifications([
+        {
+          profileId,
+          kind: "secondary_role_changed",
+          title: "Vai trò kiêm nhiệm của bạn đã thay đổi",
+          body: coversReception
+            ? `${manager.full_name} đã thêm "kiêm lễ tân" cho bạn`
+            : `${manager.full_name} đã bỏ "kiêm lễ tân" của bạn`,
+          url: STAFF_PROFILE_URL,
+          relatedId: profileId,
+        },
+      ])
+    );
+  }
+  return { ok: true, data: undefined };
+}
+
 // Soft-delete only — reversible, keeps every shift/request/attendance row
 // intact for history. Login is blocked in requireProfile() (lib/auth.ts),
 // not here. Restricted to technical, unlike updateStaffRoleAction/
