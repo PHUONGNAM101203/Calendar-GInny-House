@@ -13,6 +13,12 @@ export const shiftSchema = z
     start_at: z.string().min(1, "Vui lòng chọn giờ bắt đầu"),
     end_at: z.string().min(1, "Vui lòng chọn giờ kết thúc"),
     shift_type: z.enum(SHIFT_TYPES, "Vui lòng chọn loại ca"),
+    // Vai trò riêng của ca. "" = theo vai trò gốc của người được gán, và
+    // actions/shifts.ts đổi thành null ở ranh giới ghi. Chỉ hiện trên form khi
+    // người được chọn có kiêm lễ tân — mọi người khác không thấy dropdown này
+    // và trường luôn rỗng. Mirrors the shifts_covering_role_valid CHECK (0085),
+    // hẹp có chủ đích: đây không phải hệ thống vai-trò-theo-ca tổng quát.
+    covering_role: z.union([z.literal(""), z.literal("receptionist")]).optional(),
     note: z.string().max(280, "Ghi chú tối đa 280 ký tự").optional(),
   })
   .refine((v) => new Date(v.end_at) > new Date(v.start_at), {

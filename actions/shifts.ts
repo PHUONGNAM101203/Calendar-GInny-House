@@ -85,6 +85,10 @@ export async function createShiftAction(input: unknown): Promise<ActionResult> {
       start_at: parsed.data.start_at,
       end_at: parsed.data.end_at,
       shift_type: parsed.data.shift_type,
+      // "" -> null: rỗng nghĩa là "theo vai trò gốc", và cột chỉ nhận null
+      // hoặc 'receptionist'. Trigger shifts_reception_assignee (0085) từ chối
+      // nếu người được gán không có kiêm lễ tân.
+      covering_role: parsed.data.covering_role || null,
       // manager.id, not a second auth.getUser(). requireManager() above already
       // resolved this identity; re-fetching it cost a full network round-trip to
       // the auth server on every shift creation for a value already in hand. It
@@ -154,6 +158,8 @@ export async function updateShiftAction(
         start_at: parsed.data.start_at,
         end_at: parsed.data.end_at,
         shift_type: parsed.data.shift_type,
+        // Cùng lý do "" -> null như createShiftAction ở trên.
+        covering_role: parsed.data.covering_role || null,
         note: parsed.data.note || null,
       },
       // An RLS-denied update reports no error and touches no rows. Without

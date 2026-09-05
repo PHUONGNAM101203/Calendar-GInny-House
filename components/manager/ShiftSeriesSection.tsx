@@ -24,7 +24,10 @@ export default function ShiftSeriesSection({
 }: {
   series: ShiftSeriesDetailed[];
   slots: ShiftSlotDetailed[];
-  branchMembers: Pick<Profile, "id" | "full_name" | "role" | "secondary_role" | "branch_ids">[];
+  branchMembers: Pick<
+    Profile,
+    "id" | "full_name" | "role" | "secondary_role" | "covers_reception" | "branch_ids"
+  >[];
   branches: Branch[];
 }) {
   const [createOpen, setCreateOpen] = useState(false);

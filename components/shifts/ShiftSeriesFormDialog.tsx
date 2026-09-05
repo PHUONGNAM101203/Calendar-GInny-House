@@ -64,7 +64,10 @@ export default function ShiftSeriesFormDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  branchMembers: Pick<Profile, "id" | "full_name" | "role" | "secondary_role" | "branch_ids">[];
+  branchMembers: Pick<
+    Profile,
+    "id" | "full_name" | "role" | "secondary_role" | "covers_reception" | "branch_ids"
+  >[];
   branches: Branch[];
 }) {
   const [serverError, setServerError] = useState("");

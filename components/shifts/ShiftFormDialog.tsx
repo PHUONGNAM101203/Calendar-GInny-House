@@ -11,6 +11,7 @@ import { createShiftAction, deleteShiftAction, updateShiftAction } from "@/actio
 import { SHIFT_TYPE_LABELS, detectShiftType } from "@/lib/constants";
 import { SHIFT_TYPES } from "@/lib/validations/shift";
 import { isManagerRole } from "@/lib/roles";
+import { SHIFT_KIND_LABELS } from "@/lib/shift-kind-tag";
 import ShiftSeriesDeleteDialog from "@/components/shifts/ShiftSeriesDeleteDialog";
 import type { ShiftType } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -73,7 +74,10 @@ export default function ShiftFormDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  branchMembers: Pick<Profile, "id" | "full_name" | "role" | "secondary_role" | "branch_ids">[];
+  branchMembers: Pick<
+    Profile,
+    "id" | "full_name" | "role" | "secondary_role" | "covers_reception" | "branch_ids"
+  >[];
   branches: Branch[];
   shift?: ShiftWithAssignee | null;
   initialRange?: { start: Date; end: Date } | null;
@@ -110,6 +114,9 @@ export default function ShiftFormDialog({
   // full list for management-tier (no profile_branches rows, "all
   // branches" by design), otherwise only the branches that person actually
   // belongs to.
+  // Vai trò riêng của ca — state cục bộ như shiftType, không phải field của
+  // formSchema, vì nó chỉ tồn tại với người có kiêm lễ tân.
+  const [coveringRole, setCoveringRole] = useState<"" | "receptionist">("");
   const selectedAssigneeId = watch("assignee_id");
   const selectedAssignee = branchMembers.find((m) => m.id === selectedAssigneeId);
   const allowedBranches = !selectedAssignee || isManagerRole(selectedAssignee.role)
@@ -142,8 +149,12 @@ export default function ShiftFormDialog({
         setStartTime(format(new Date(shift.start_at), TIME_FORMAT));
         setEndTime(format(new Date(shift.end_at), TIME_FORMAT));
         setShiftType(shift.shift_type);
+        // Không seed thì mở một ca lễ tân ra sửa sẽ thấy dropdown về mặc định
+        // "theo vai trò gốc", và bấm Lưu là âm thầm biến nó thành ca quản sinh.
+        setCoveringRole(shift.covering_role === "receptionist" ? "receptionist" : "");
       } else {
         reset({ assignee_id: undefined, branch_id: undefined, note: "" });
+        setCoveringRole("");
         const base = initialRange?.start ?? new Date();
         const initialStart = initialRange ? format(initialRange.start, TIME_FORMAT) : "09:00";
         setDate(startOfDay(base));
@@ -174,6 +185,9 @@ export default function ShiftFormDialog({
       start_at: startDateTime.toISOString(),
       end_at: endDateTime.toISOString(),
       shift_type: shiftType,
+      // Chỉ gửi khi người được chọn thực sự kiêm lễ tân — đổi người sang một
+      // người không kiêm mà vẫn giữ giá trị cũ sẽ bị trigger 0085 từ chối.
+      covering_role: selectedAssignee?.covers_reception ? coveringRole : "",
       note: values.note || undefined,
     };
     const result = isEdit
@@ -295,6 +309,28 @@ export default function ShiftFormDialog({
               </SelectContent>
             </Select>
           </div>
+
+          {/* Chỉ hiện với người kiêm lễ tân — với mọi người khác ca luôn theo
+              vai trò gốc và một dropdown một lựa chọn chỉ tổ gây nhiễu. */}
+          {selectedAssignee?.covers_reception && (
+            <div className="space-y-1.5">
+              <Label htmlFor="covering_role">Vai trò của ca</Label>
+              <Select
+                value={coveringRole || "own"}
+                onValueChange={(value) => setCoveringRole(value === "own" ? "" : "receptionist")}
+              >
+                <SelectTrigger id="covering_role" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {/* Radix Select không nhận value rỗng, nên "own" là ký hiệu
+                      thay cho "theo vai trò gốc", đổi lại thành "" khi gửi. */}
+                  <SelectItem value="own">{SHIFT_KIND_LABELS[selectedAssignee.role]}</SelectItem>
+                  <SelectItem value="receptionist">{SHIFT_KIND_LABELS.receptionist}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <Label htmlFor="note">Ghi chú (không bắt buộc)</Label>

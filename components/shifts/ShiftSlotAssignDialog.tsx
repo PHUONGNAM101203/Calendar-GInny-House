@@ -32,7 +32,10 @@ export default function ShiftSlotAssignDialog({
   onOpenChange,
 }: {
   slot: ShiftSlotDetailed;
-  branchMembers: Pick<Profile, "id" | "full_name" | "role" | "secondary_role" | "branch_ids">[];
+  branchMembers: Pick<
+    Profile,
+    "id" | "full_name" | "role" | "secondary_role" | "covers_reception" | "branch_ids"
+  >[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {

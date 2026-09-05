@@ -117,7 +117,7 @@ export default async function CalendarPage({
     supabase.from("shift_swap_requests").select(SWAP_SELECT).eq("status", "pending"),
     supabase
       .from("profiles")
-      .select("id, full_name, role, secondary_role, profile_branches(branch_id)")
+      .select("id, full_name, role, secondary_role, covers_reception, profile_branches(branch_id)")
       // Excludes the daily audit routine's dedicated login (0054) from the
       // sidebar's follow-color groups — it's not a real employee.
       .eq("is_monitoring_account", false)
@@ -258,7 +258,7 @@ export default async function CalendarPage({
       canManageShifts={canCreateShiftDirectly(profile.role)}
       branchMembers={(
         (branchMembers as
-          | (Pick<Profile, "id" | "full_name" | "role" | "secondary_role"> & {
+          | (Pick<Profile, "id" | "full_name" | "role" | "secondary_role" | "covers_reception"> & {
               profile_branches: { branch_id: string }[];
             })[]
           | null) ?? []
@@ -267,6 +267,7 @@ export default async function CalendarPage({
         full_name: m.full_name,
         role: m.role,
         secondary_role: m.secondary_role,
+        covers_reception: m.covers_reception,
         branch_ids: m.profile_branches.map((pb) => pb.branch_id),
       }))}
       canFollowAll={canFollowAll}

@@ -65,7 +65,10 @@ export default function ShiftSeriesEditDialog({
   onOpenChange: (open: boolean) => void;
   series: ShiftSeriesDetailed;
   branches: Branch[];
-  branchMembers: Pick<Profile, "id" | "full_name" | "role" | "secondary_role" | "branch_ids">[];
+  branchMembers: Pick<
+    Profile,
+    "id" | "full_name" | "role" | "secondary_role" | "covers_reception" | "branch_ids"
+  >[];
 }) {
   const [scope, setScope] = useState<BulkDeleteScope>("all");
   const [assigneeId, setAssigneeId] = useState(series.assignee_id ?? NO_ASSIGNEE);

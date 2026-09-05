@@ -58,7 +58,10 @@ export default function ShiftCalendarLoader(props: {
   currentUserName: string;
   currentUserRole: Role;
   canManageShifts: boolean;
-  branchMembers: Pick<Profile, "id" | "full_name" | "role" | "secondary_role" | "branch_ids">[];
+  branchMembers: Pick<
+    Profile,
+    "id" | "full_name" | "role" | "secondary_role" | "covers_reception" | "branch_ids"
+  >[];
   canFollowAll: boolean;
   followedIds: string[];
   followColors: Record<string, string>;
