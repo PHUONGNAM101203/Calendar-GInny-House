@@ -856,6 +856,18 @@ export default function ShiftCalendar({
           timeslots={2}
           min={minTime}
           max={maxTime}
+          // Giữ sự kiện qua đêm nằm trong lưới giờ thay vì bị đẩy lên hàng
+          // all-day. TimeGrid.js:293 phân loại theo công thức
+          //   accessors.allDay(e) || ... || (!showMultiDayTimes && !isSameDate(start, end))
+          // nghĩa là CHỈ CẦN ngày bắt đầu khác ngày kết thúc là bị coi như cả
+          // ngày — kể cả ca 22:00→02:00 hoàn toàn bình thường. Hàng all-day
+          // nằm sát dãy số ngày nên một thẻ như vậy trông y hệt đang đè lên
+          // ngày, đúng cái chủ app báo.
+          //
+          // Bật cờ này thì chúng vẽ đúng chỗ trên lưới: phần trước nửa đêm ở
+          // cột hôm đó, phần sau ở cột hôm sau. Hàng all-day quay lại rỗng và
+          // tự thu về 0 (xem .rbc-allday-cell .rbc-row:empty trong globals.css).
+          showMultiDayTimes
           culture="vi"
           messages={calendarMessages}
           formats={calendarFormats}
