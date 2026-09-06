@@ -199,12 +199,18 @@ export default function AttendanceDetailDialog({
               <li key={i} className="rounded-md border bg-muted/40 p-2.5 text-sm">
                 {editingId === s.id ? (
                   <div className="space-y-2">
-                    <DatePickerField
-                      id={`edit-date-${s.id}`}
-                      label="Ngày của ca"
-                      value={editDate}
-                      onChange={setEditDate}
-                    />
+                    {/* Chỉ phiên chấm công TỰ DO mới cho chọn ngày. Phiên gắn
+                        với một ca đã biết mình thuộc ca nào, ngày là cố định
+                        theo ca đó — mở ô ngày ở đấy chỉ tạo đường kéo lệch
+                        chấm công ra khỏi ca của nó. */}
+                    {s.shiftId === null && (
+                      <DatePickerField
+                        id={`edit-date-${s.id}`}
+                        label="Ngày chấm công"
+                        value={editDate}
+                        onChange={setEditDate}
+                      />
+                    )}
                     <div className="grid grid-cols-2 gap-2">
                       <TimePickerField id={`edit-checkin-${s.id}`} label="Vào" value={editCheckIn} onChange={setEditCheckIn} />
                       <TimePickerField id={`edit-checkout-${s.id}`} label="Ra" value={editCheckOut} onChange={setEditCheckOut} />
@@ -214,9 +220,17 @@ export default function AttendanceDetailDialog({
                         phải ngày làm ca — nên sửa mỗi giờ thì số giờ không bao
                         giờ giảm. Nói thẳng ra đây thay vì để người sửa tự đoán. */}
                     <p className="text-muted-foreground text-xs">
-                      Sửa hôm sau thì nhớ chọn lại <strong>ngày của ca</strong>, không thì số giờ
-                      vẫn tính từ hôm trước sang. Giờ ra sớm hơn hoặc bằng giờ vào được hiểu là ca
-                      qua đêm, tự tính sang hôm sau.
+                      {s.shiftId === null ? (
+                        <>
+                          Chấm công tự do (trợ giảng) không gắn với ca nào, nên nếu quên bấm ra và
+                          hôm sau mới sửa thì phải chọn lại <strong>ngày chấm công</strong> — không
+                          thì số giờ vẫn tính bắc cầu từ hôm trước sang.
+                        </>
+                      ) : (
+                        <>Ca này đã gắn sẵn ngày theo ca đăng ký, chỉ cần sửa giờ.</>
+                      )}{" "}
+                      Giờ ra sớm hơn hoặc bằng giờ vào được hiểu là ca qua đêm, tự tính sang hôm
+                      sau.
                     </p>
                     <div className="flex justify-end gap-2">
                       <Button size="sm" variant="outline" onClick={() => setEditingId(null)}>
