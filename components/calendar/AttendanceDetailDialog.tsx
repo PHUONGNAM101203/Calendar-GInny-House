@@ -27,6 +27,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { TimePickerField } from "@/components/ui/time-picker-field";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 import { Badge } from "@/components/ui/badge";
 import { ATTENDANCE_CORRECTION_ISSUE_LABELS } from "@/lib/constants";
 import { isLeaveApprover, canApproveLeaveFor, canManageAttendanceFor } from "@/lib/roles";
@@ -35,20 +36,39 @@ import type { GroupPermissions } from "@/lib/permissions";
 import type { Role } from "@/types";
 
 const TIME_FORMAT = "HH:mm";
+const DATE_FORMAT = "yyyy-MM-dd";
 
-// Time-of-day only — keeps the session's original calendar date, since a
-// manager fixing an erroneous check-in/out is correcting a mistyped time,
-// not moving the record to a different day.
-function combineDateAndTime(originalIso: string, time: string): string {
-  const original = new Date(originalIso);
-  const withNewTime = parse(time, TIME_FORMAT, original);
+// Time-of-day only, anchored on a date the caller chooses.
+function combineDateAndTime(anchorIso: string, time: string): string {
+  const anchor = new Date(anchorIso);
+  const withNewTime = parse(time, TIME_FORMAT, anchor);
   return new Date(
-    original.getFullYear(),
-    original.getMonth(),
-    original.getDate(),
+    anchor.getFullYear(),
+    anchor.getMonth(),
+    anchor.getDate(),
     withNewTime.getHours(),
     withNewTime.getMinutes()
   ).toISOString();
+}
+
+// The check-out is anchored on the date the editor picked, not on whatever
+// date the stored check-out happens to carry, and only rolls to the next day
+// when the entered time falls at or before the check-in — the same overnight
+// rule the shift forms and create_shift_series already use.
+//
+// This is the fix for a real bug. The old version anchored on the existing
+// check_out_at, which for a forgotten check-out is the day somebody finally
+// noticed, not the day of the shift. A session opened 05/09 19:20 and closed
+// 06/09 21:32 read as 26 giờ, and a manager editing the time to "21:32" kept
+// the 06/09 date — so the hours never came down, and there was no way to bring
+// them down from this dialog at all.
+function combineCheckOut(checkInIso: string, time: string): string {
+  const checkIn = new Date(checkInIso);
+  const sameDay = new Date(combineDateAndTime(checkInIso, time));
+  if (sameDay > checkIn) return sameDay.toISOString();
+  const nextDay = new Date(sameDay);
+  nextDay.setDate(nextDay.getDate() + 1);
+  return nextDay.toISOString();
 }
 
 function formatMinutes(totalMinutes: number) {
@@ -73,6 +93,7 @@ export default function AttendanceDetailDialog({
 }) {
   const [respondingId, setRespondingId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDate, setEditDate] = useState("");
   const [editCheckIn, setEditCheckIn] = useState("");
   const [editCheckOut, setEditCheckOut] = useState("");
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -99,15 +120,21 @@ export default function AttendanceDetailDialog({
 
   function startEdit(session: AttendanceSession) {
     setEditingId(session.id);
+    // Mặc định là ngày check-in — với ca quên check-out thì đây mới là
+    // ngày làm ca thật, còn ngày trong check_out_at là ngày phát hiện ra.
+    setEditDate(format(new Date(session.checkInAt), DATE_FORMAT));
     setEditCheckIn(format(new Date(session.checkInAt), TIME_FORMAT));
     setEditCheckOut(format(session.checkOutAt ? new Date(session.checkOutAt) : new Date(), TIME_FORMAT));
   }
 
   async function handleSave(session: AttendanceSession) {
     setSavingId(session.id);
+    // Ngày do người sửa chọn là mốc cho CẢ giờ vào lẫn giờ ra; giờ ra chỉ
+    // nhảy sang hôm sau khi nó sớm hơn hoặc bằng giờ vào (ca qua đêm).
+    const anchorIso = parse(editDate, DATE_FORMAT, new Date()).toISOString();
     const result = await updateAttendanceAction(session.id, {
-      check_in_at: combineDateAndTime(session.checkInAt, editCheckIn),
-      check_out_at: combineDateAndTime(session.checkOutAt ?? session.checkInAt, editCheckOut),
+      check_in_at: combineDateAndTime(anchorIso, editCheckIn),
+      check_out_at: combineCheckOut(anchorIso, editCheckOut),
     });
     setSavingId(null);
     if (!result.ok) {
@@ -172,10 +199,25 @@ export default function AttendanceDetailDialog({
               <li key={i} className="rounded-md border bg-muted/40 p-2.5 text-sm">
                 {editingId === s.id ? (
                   <div className="space-y-2">
+                    <DatePickerField
+                      id={`edit-date-${s.id}`}
+                      label="Ngày của ca"
+                      value={editDate}
+                      onChange={setEditDate}
+                    />
                     <div className="grid grid-cols-2 gap-2">
                       <TimePickerField id={`edit-checkin-${s.id}`} label="Vào" value={editCheckIn} onChange={setEditCheckIn} />
                       <TimePickerField id={`edit-checkout-${s.id}`} label="Ra" value={editCheckOut} onChange={setEditCheckOut} />
                     </div>
+                    {/* Cái bẫy thật sự: quên check-out thì hôm sau mới sửa, và
+                        lúc đó ngày ghi trong máy là ngày PHÁT HIỆN chứ không
+                        phải ngày làm ca — nên sửa mỗi giờ thì số giờ không bao
+                        giờ giảm. Nói thẳng ra đây thay vì để người sửa tự đoán. */}
+                    <p className="text-muted-foreground text-xs">
+                      Sửa hôm sau thì nhớ chọn lại <strong>ngày của ca</strong>, không thì số giờ
+                      vẫn tính từ hôm trước sang. Giờ ra sớm hơn hoặc bằng giờ vào được hiểu là ca
+                      qua đêm, tự tính sang hôm sau.
+                    </p>
                     <div className="flex justify-end gap-2">
                       <Button size="sm" variant="outline" onClick={() => setEditingId(null)}>
                         Huỷ
