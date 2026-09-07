@@ -7,11 +7,15 @@
     },
     {
       "path": "/api/cron/weekly-summary",
-      "schedule": "0 14 * * 0"
+      "schedule": "0 15 * * 0"
     },
     {
       "path": "/api/cron/shift-series-extend",
       "schedule": "0 17 * * *"
+    },
+    {
+      "path": "/api/cron/monthly-summary",
+      "schedule": "0 15 28-31 * *"
     }
   ]
 }
