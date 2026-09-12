@@ -255,6 +255,7 @@ export default async function CalendarPage({
       currentUserId={profile.id}
       currentUserName={profile.full_name}
       currentUserRole={profile.role}
+      currentUserCoversReception={profile.covers_reception}
       canManageShifts={canCreateShiftDirectly(profile.role)}
       branchMembers={(
         (branchMembers as

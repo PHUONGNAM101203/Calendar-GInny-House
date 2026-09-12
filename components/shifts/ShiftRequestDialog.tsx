@@ -28,7 +28,8 @@ import {
 } from "@/components/ui/dialog";
 import { SHIFT_TYPE_LABELS, detectShiftType } from "@/lib/constants";
 import { SHIFT_TYPES } from "@/lib/validations/shift";
-import type { Branch, ShiftType } from "@/types";
+import { SHIFT_KIND_LABELS } from "@/lib/shift-kind-tag";
+import type { Branch, Role, ShiftType } from "@/types";
 
 const DATE_FORMAT = "yyyy-MM-dd";
 const TIME_FORMAT = "HH:mm";
@@ -37,15 +38,23 @@ export default function ShiftRequestDialog({
   trigger,
   initialRange,
   branches,
+  coversReception,
+  currentUserRole,
 }: {
   trigger?: React.ReactNode;
   initialRange?: { start: Date; end: Date } | null;
   branches: Branch[];
+  /** Người đăng ký có kiêm lễ tân hay không — quyết định có hiện ô "Vai trò
+   * của ca". Bắt buộc chứ không optional: lỗi này sinh ra chính từ một lối vào
+   * âm thầm thiếu lựa chọn đó, nên để TypeScript ép mọi chỗ phải truyền. */
+  coversReception: boolean;
+  currentUserRole: Role;
 }) {
   const [open, setOpen] = useState(false);
   const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [branchId, setBranchId] = useState("");
+  const [coveringRole, setCoveringRole] = useState<"" | "receptionist">("");
   const [date, setDate] = useState(() => startOfDay(initialRange?.start ?? new Date()));
   const [startTime, setStartTime] = useState(
     initialRange ? format(initialRange.start, TIME_FORMAT) : "09:00"
@@ -99,6 +108,9 @@ export default function ShiftRequestDialog({
       end_at: endDateTime.toISOString(),
       branch_id: branchId || undefined,
       shift_type: shiftType,
+      // Chỉ gửi khi người đăng ký thật sự kiêm lễ tân; trigger
+      // enforce_reception_request_owner (0085) từ chối trường hợp còn lại.
+      covering_role: coversReception ? coveringRole : "",
       note: note || undefined,
     });
     setIsSubmitting(false);
@@ -163,6 +175,35 @@ export default function ShiftRequestDialog({
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+          )}
+
+          {/* Chỉ hiện với người kiêm lễ tân. Thiếu đúng ô này là lý do một
+              quản sinh kiêm lễ tân muốn nhận ca trực quầy lại bị chặn vì "đã
+              có quản sinh khác trực ca cùng giờ": đăng ký luôn mặc định thành
+              ca quản sinh và không có cách nào nói khác đi. */}
+          {coversReception && (
+            <div className="space-y-1.5">
+              <Label htmlFor="request_covering_role">Vai trò của ca</Label>
+              <Select
+                value={coveringRole || "own"}
+                onValueChange={(v) => setCoveringRole(v === "own" ? "" : "receptionist")}
+              >
+                <SelectTrigger id="request_covering_role" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {/* Radix Select không nhận value rỗng nên "own" là ký hiệu
+                      thay cho "theo vai trò gốc", đổi lại "" khi gửi. */}
+                  <SelectItem value="own">{SHIFT_KIND_LABELS[currentUserRole]}</SelectItem>
+                  <SelectItem value="receptionist">{SHIFT_KIND_LABELS.receptionist}</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-muted-foreground text-xs">
+                Chọn <strong>{SHIFT_KIND_LABELS.receptionist}</strong> nếu hôm đó bạn trực quầy —
+                ca lễ tân không chiếm suất quản sinh của cơ sở, nên vẫn đăng ký được dù giờ đó đã
+                có quản sinh khác.
+              </p>
             </div>
           )}
 

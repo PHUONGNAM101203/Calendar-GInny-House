@@ -57,6 +57,7 @@ export default function ShiftCalendarLoader(props: {
   currentUserId: string;
   currentUserName: string;
   currentUserRole: Role;
+  currentUserCoversReception: boolean;
   canManageShifts: boolean;
   branchMembers: Pick<
     Profile,

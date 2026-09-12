@@ -11,6 +11,11 @@ export const shiftRequestSchema = z
     start_at: z.string().min(1, "Vui lòng chọn giờ bắt đầu"),
     end_at: z.string().min(1, "Vui lòng chọn giờ kết thúc"),
     shift_type: z.enum(SHIFT_TYPES, "Vui lòng chọn loại ca"),
+    // Vai trò của ca được đăng ký. "" = theo vai trò gốc của người đăng ký, và
+    // actions/shift-requests.ts đổi thành null ở ranh giới RPC. Chỉ hiện trên
+    // form với người có kiêm lễ tân — xem shiftSchema cho cùng lý do, và
+    // shift_requests_covering_role_valid (0085) cho giới hạn ở tầng DB.
+    covering_role: z.union([z.literal(""), z.literal("receptionist")]).optional(),
     note: z.string().max(280, "Ghi chú tối đa 280 ký tự").optional(),
   })
   .refine((v) => new Date(v.end_at) > new Date(v.start_at), {

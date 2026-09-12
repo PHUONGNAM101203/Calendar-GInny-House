@@ -84,6 +84,10 @@ export async function requestShiftAction(input: unknown): Promise<ActionResult> 
     p_branch_id: branchId,
     p_note: parsed.data.note || null,
     p_shift_type: parsed.data.shift_type,
+    // "" -> null: rỗng nghĩa là "theo vai trò gốc". Đăng ký ca lễ tân thì RPC
+    // bỏ qua luật một-suất-quản-sinh, đó chính là thứ đang chặn oan một quản
+    // sinh kiêm lễ tân muốn nhận ca trực quầy.
+    p_covering_role: parsed.data.covering_role || null,
   });
 
   if (error) return { ok: false, error: mapShiftRequestError(error.message) };

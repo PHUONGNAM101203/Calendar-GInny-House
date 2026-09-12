@@ -46,7 +46,7 @@ import CustomEventFormDialog from "@/components/calendar/CustomEventFormDialog";
 import ColorPickerDialog from "@/components/calendar/ColorPickerDialog";
 import BrowseSharedCalendarsDialog from "@/components/calendar/BrowseSharedCalendarsDialog";
 import ImportIcsDialog from "@/components/calendar/ImportIcsDialog";
-import type { ActionResult, Branch, CustomCalendar, SharedCustomCalendar } from "@/types";
+import type { ActionResult, Branch, CustomCalendar, Role, SharedCustomCalendar } from "@/types";
 
 type Person = { id: string; name: string; followed: boolean; color: string | null };
 type PersonGroup = { key: string; label: string; people: Person[] };
@@ -80,6 +80,10 @@ type SidebarProps = {
   groups: PersonGroup[] | null;
   canFollowAll: boolean;
   currentUserName: string;
+  /** Vai trò và cờ kiêm lễ tân của người đang xem — ShiftRequestDialog cần
+   * cả hai để biết có hiện ô "Vai trò của ca" và gọi tên vai trò gốc. */
+  currentUserRole: Role;
+  currentUserCoversReception: boolean;
   showHolidays: boolean;
   onToggleHolidays: (next: boolean) => void;
   eventToggles: EventTypeToggles;
@@ -722,6 +726,8 @@ function SidebarContent({
   groups,
   canFollowAll,
   currentUserName,
+  currentUserRole,
+  currentUserCoversReception,
   showHolidays,
   onToggleHolidays,
   eventToggles,
@@ -751,7 +757,11 @@ function SidebarContent({
           Tạo ca làm việc
         </Button>
       ) : (
-        <ShiftRequestDialog branches={requestableBranches} />
+        <ShiftRequestDialog
+          branches={requestableBranches}
+          coversReception={currentUserCoversReception}
+          currentUserRole={currentUserRole}
+        />
       )}
 
       <MiniMonth date={date} onPick={onPickDate} onOpenDay={onOpenDay} />

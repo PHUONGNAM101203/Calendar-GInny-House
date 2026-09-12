@@ -106,6 +106,7 @@ export default function ShiftCalendar({
   currentUserId,
   currentUserName,
   currentUserRole,
+  currentUserCoversReception,
   canManageShifts,
   branchMembers,
   canFollowAll,
@@ -130,6 +131,7 @@ export default function ShiftCalendar({
   currentUserId: string;
   currentUserName: string;
   currentUserRole: Role;
+  currentUserCoversReception: boolean;
   canManageShifts: boolean;
   branchMembers: Pick<
     Profile,
@@ -789,6 +791,8 @@ export default function ShiftCalendar({
     groups: followGroups,
     canFollowAll,
     currentUserName,
+    currentUserRole,
+    currentUserCoversReception,
     showHolidays,
     onToggleHolidays: setShowHolidays,
     eventToggles,
