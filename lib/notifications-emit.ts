@@ -35,7 +35,8 @@ export type NotificationKind =
   | "shift_request_rejected"
   | "attendance_correction_approved"
   | "attendance_correction_rejected"
-  // Tổng kết tháng gửi ngày cuối tháng — thông tin, không phải việc cần làm.
+  // Hai bản tổng kết định kỳ — thông tin, không phải việc cần làm.
+  | "weekly_summary"
   | "monthly_summary"
   | "missed_check_in"
   | "stale_check_out"

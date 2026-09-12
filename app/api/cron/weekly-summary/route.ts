@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { sendPushToProfiles } from "@/lib/push";
+import { emitNotifications } from "@/lib/notifications-emit";
 import { canAccessManagerPage } from "@/lib/roles";
 
 // Runs Sunday night via Vercel Cron (see vercel.json) — a weekly digest for
@@ -95,12 +95,20 @@ export async function GET(request: Request) {
   const recipientIds = (profiles ?? []).filter((p) => canAccessManagerPage(p.role)).map((p) => p.id);
 
   if (recipientIds.length) {
-    await sendPushToProfiles(recipientIds, {
-      title: "Tổng kết tuần",
-      body: `Tuần này: ${leaveCount ?? 0} nghỉ phép, ${swapCount ?? 0} đổi ca, ${shiftRequestCount ?? 0} đăng ký ca, ${correctionCount ?? 0} giải trình · ${totalHours} giờ làm toàn hệ thống`,
-      url: "/manager",
-      tag: "weekly-summary",
-    });
+    // emitNotifications chứ không phải sendPushToProfiles: nó ghi vào bảng
+    // notifications rồi mới mirror thành push, nên bản tổng kết còn đọc được
+    // trong chuông. Push là kênh gần như không ai bật (xem thiết kế thông báo
+    // 2026-08-22), nên chỉ push thôi thì gần như không tới được ai — đúng vấn
+    // đề mà bản tổng kết tháng đã xử lý, báo cáo tuần bị bỏ sót.
+    await emitNotifications(
+      recipientIds.map((profileId) => ({
+        profileId,
+        kind: "weekly_summary" as const,
+        title: "Tổng kết tuần",
+        body: `Tuần này: ${leaveCount ?? 0} nghỉ phép, ${swapCount ?? 0} đổi ca, ${shiftRequestCount ?? 0} đăng ký ca, ${correctionCount ?? 0} giải trình · ${totalHours} giờ làm toàn hệ thống`,
+        url: "/manager",
+      }))
+    );
   }
 
   return NextResponse.json({
