@@ -11,7 +11,7 @@ import { createShiftAction, deleteShiftAction, updateShiftAction } from "@/actio
 import { SHIFT_TYPE_LABELS, detectShiftType } from "@/lib/constants";
 import { SHIFT_TYPES } from "@/lib/validations/shift";
 import { isManagerRole } from "@/lib/roles";
-import { SHIFT_KIND_LABELS } from "@/lib/shift-kind-tag";
+import { SHIFT_KIND_LABELS, canChooseCoveringRole } from "@/lib/shift-kind-tag";
 import ShiftSeriesDeleteDialog from "@/components/shifts/ShiftSeriesDeleteDialog";
 import type { ShiftType } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -119,6 +119,8 @@ export default function ShiftFormDialog({
   const [coveringRole, setCoveringRole] = useState<"" | "receptionist">("");
   const selectedAssigneeId = watch("assignee_id");
   const selectedAssignee = branchMembers.find((m) => m.id === selectedAssigneeId);
+  const canPickCoveringRole =
+    !!selectedAssignee && canChooseCoveringRole(selectedAssignee.role, selectedAssignee.covers_reception);
   const allowedBranches = !selectedAssignee || isManagerRole(selectedAssignee.role)
     ? branches
     : branches.filter((b) => selectedAssignee.branch_ids.includes(b.id));
@@ -187,7 +189,7 @@ export default function ShiftFormDialog({
       shift_type: shiftType,
       // Chỉ gửi khi người được chọn thực sự kiêm lễ tân — đổi người sang một
       // người không kiêm mà vẫn giữ giá trị cũ sẽ bị trigger 0085 từ chối.
-      covering_role: selectedAssignee?.covers_reception ? coveringRole : "",
+      covering_role: canPickCoveringRole ? coveringRole : "",
       note: values.note || undefined,
     };
     const result = isEdit
@@ -312,7 +314,7 @@ export default function ShiftFormDialog({
 
           {/* Chỉ hiện với người kiêm lễ tân — với mọi người khác ca luôn theo
               vai trò gốc và một dropdown một lựa chọn chỉ tổ gây nhiễu. */}
-          {selectedAssignee?.covers_reception && (
+          {selectedAssignee && canPickCoveringRole && (
             <div className="space-y-1.5">
               <Label htmlFor="covering_role">Vai trò của ca</Label>
               <Select

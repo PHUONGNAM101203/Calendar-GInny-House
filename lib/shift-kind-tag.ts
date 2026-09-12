@@ -41,3 +41,18 @@ export const SHIFT_KIND_LABELS: Record<Role, string> = {
   operations_staff: "Ca vận hành",
   receptionist: "Ca lễ tân",
 };
+
+// Có được chọn giữa vai trò gốc và ca lễ tân hay không.
+//
+// Không chỉ là `coversReception`: một người vốn đã là lễ tân mà bị bật thêm
+// cờ này sẽ thấy dropdown có hai lựa chọn trùng tên "Lễ tân", vì vai trò gốc
+// của họ cũng chính là lễ tân. Cờ ấy dành cho người có vai trò KHÁC nhận
+// thêm việc trực quầy (hiện là quản sinh, CSKH và HR), nên với lễ tân nó
+// không mang thêm nghĩa gì. Dùng chung cho cả lối quản lý tạo ca và lối tự
+// đăng ký ca để hai bên không lệch nhau.
+export function canChooseCoveringRole(
+  role: Role,
+  coversReception: boolean | null | undefined
+): boolean {
+  return Boolean(coversReception) && role !== "receptionist";
+}

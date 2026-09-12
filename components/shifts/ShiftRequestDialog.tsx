@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { SHIFT_TYPE_LABELS, detectShiftType } from "@/lib/constants";
 import { SHIFT_TYPES } from "@/lib/validations/shift";
-import { SHIFT_KIND_LABELS } from "@/lib/shift-kind-tag";
+import { SHIFT_KIND_LABELS, canChooseCoveringRole } from "@/lib/shift-kind-tag";
 import type { Branch, Role, ShiftType } from "@/types";
 
 const DATE_FORMAT = "yyyy-MM-dd";
@@ -55,6 +55,7 @@ export default function ShiftRequestDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [branchId, setBranchId] = useState("");
   const [coveringRole, setCoveringRole] = useState<"" | "receptionist">("");
+  const canPickCoveringRole = canChooseCoveringRole(currentUserRole, coversReception);
   const [date, setDate] = useState(() => startOfDay(initialRange?.start ?? new Date()));
   const [startTime, setStartTime] = useState(
     initialRange ? format(initialRange.start, TIME_FORMAT) : "09:00"
@@ -110,7 +111,7 @@ export default function ShiftRequestDialog({
       shift_type: shiftType,
       // Chỉ gửi khi người đăng ký thật sự kiêm lễ tân; trigger
       // enforce_reception_request_owner (0085) từ chối trường hợp còn lại.
-      covering_role: coversReception ? coveringRole : "",
+      covering_role: canPickCoveringRole ? coveringRole : "",
       note: note || undefined,
     });
     setIsSubmitting(false);
@@ -182,7 +183,7 @@ export default function ShiftRequestDialog({
               quản sinh kiêm lễ tân muốn nhận ca trực quầy lại bị chặn vì "đã
               có quản sinh khác trực ca cùng giờ": đăng ký luôn mặc định thành
               ca quản sinh và không có cách nào nói khác đi. */}
-          {coversReception && (
+          {canPickCoveringRole && (
             <div className="space-y-1.5">
               <Label htmlFor="request_covering_role">Vai trò của ca</Label>
               <Select
