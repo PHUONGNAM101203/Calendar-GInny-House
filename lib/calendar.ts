@@ -778,7 +778,9 @@ export function toShiftRequestPendingEvents(
     .filter((r) => r.status === "pending")
     .map((r) => ({
       id: `shift-request-${r.id}`,
-      title: `Chờ duyệt · ${r.profile.full_name}`,
+      // Đơn đổi giờ vẽ tại khung giờ MỚI đang xin, nên nhãn phải nói rõ đó
+      // chưa phải chỗ của ca — ca gốc vẫn nằm ở khung cũ cho tới khi duyệt.
+      title: `${r.replaces_shift_id ? "Chờ đổi giờ" : "Chờ duyệt"} · ${r.profile.full_name}`,
       start: new Date(r.start_at),
       end: new Date(r.end_at),
       resource: {

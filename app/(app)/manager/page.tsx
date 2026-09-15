@@ -257,7 +257,9 @@ export default async function ManagerPage({
       .order("check_in_at", { ascending: false }),
     supabase
       .from("shift_requests")
-      .select("*, profile:profiles!profile_id(id, full_name, role), branch:branches!branch_id(id, name)")
+      .select(
+        "*, profile:profiles!profile_id(id, full_name, role), branch:branches!branch_id(id, name), replaced_shift:shifts!replaces_shift_id(start_at, end_at)"
+      )
       .or(recentOrPending)
       .order("created_at", { ascending: false }),
     supabase

@@ -758,7 +758,7 @@ export default function ShiftCalendar({
       ...shiftRequests.map((r) => ({
         id: `shift-request-${r.id}`,
         kind: "shift_request" as const,
-        label: `${r.profile.full_name} · Đăng ký ca làm`,
+        label: `${r.profile.full_name} · ${r.replaces_shift_id ? "Đổi giờ ca" : "Đăng ký ca làm"}`,
         at: r.created_at,
         onOpen: () => openShiftRequestDetail(r),
       })),
@@ -976,6 +976,7 @@ export default function ShiftCalendar({
             onOpenChange={(open) => !open && setDetailEvent(null)}
             event={detailEvent}
             otherShifts={otherShifts}
+            branches={branches}
           />
         )}
 

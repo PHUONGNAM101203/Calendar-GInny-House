@@ -51,6 +51,9 @@ export default function ShiftRequestCard({
 }) {
   const [pending, setPending] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  // Đơn đổi giờ ca (0086) đi chung bảng với đơn đăng ký ca mới; chỉ
+  // replaces_shift_id phân biệt được hai loại.
+  const isTimeChange = request.replaces_shift_id !== null;
 
   async function handleRespond(approve: boolean) {
     setPending(true);
@@ -61,9 +64,9 @@ export default function ShiftRequestCard({
       return;
     }
     if (approve) {
-      toast.success("Đã duyệt đăng ký ca làm");
+      toast.success(isTimeChange ? "Đã duyệt đổi giờ ca" : "Đã duyệt đăng ký ca làm");
     } else {
-      toast.warning("Đã từ chối đăng ký ca làm");
+      toast.warning(isTimeChange ? "Đã từ chối đổi giờ ca" : "Đã từ chối đăng ký ca làm");
     }
   }
 
@@ -117,6 +120,11 @@ export default function ShiftRequestCard({
             {showName && `${request.profile.full_name} · `}
             {formatRange(request.start_at, request.end_at)}
           </p>
+          {isTimeChange && request.replaced_shift && (
+            <p className="text-xs text-muted-foreground">
+              Giờ hiện tại: {formatRange(request.replaced_shift.start_at, request.replaced_shift.end_at)}
+            </p>
+          )}
           {request.branch && (
             <p className="text-xs text-muted-foreground">{request.branch.name}</p>
           )}
@@ -124,6 +132,7 @@ export default function ShiftRequestCard({
         </div>
 
         <div className="flex items-center gap-2">
+          {isTimeChange && <Badge variant="gold">Đổi giờ ca</Badge>}
           <Badge variant="outline">{SHIFT_TYPE_LABELS[request.shift_type]}</Badge>
           <Badge variant={statusVariant}>{SHIFT_REQUEST_STATUS_LABELS[request.status]}</Badge>
           {canRespond && request.status === "pending" && (

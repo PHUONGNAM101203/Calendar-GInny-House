@@ -89,7 +89,19 @@ export default function ShiftRequestDetailDialog({
           </p>
         </DialogHeader>
 
+        {request.replaces_shift_id && request.replaced_shift && (
+          // Sự kiện này vẽ tại khung giờ MỚI đang xin, nên phải nói rõ ca thật
+          // hiện vẫn nằm ở đâu — không có dòng này người duyệt tưởng đây là ca
+          // đã có thật.
+          <p className="text-sm text-muted-foreground">
+            Đổi từ {format(new Date(request.replaced_shift.start_at), "HH:mm")}–
+            {format(new Date(request.replaced_shift.end_at), "HH:mm")} ngày{" "}
+            {format(new Date(request.replaced_shift.start_at), "dd/MM", { locale: vi })}
+          </p>
+        )}
+
         <div className="flex items-center gap-2">
+          {request.replaces_shift_id && <Badge variant="gold">Đổi giờ ca</Badge>}
           <Badge variant="outline">{SHIFT_TYPE_LABELS[request.shift_type]}</Badge>
           <Badge variant="gold">Chờ duyệt</Badge>
         </div>

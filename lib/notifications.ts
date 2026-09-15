@@ -144,7 +144,9 @@ export function buildNotifications({
     if (r.status === "pending" && canApproveShiftRequestFor(profile.role, r.profile.role, permissions)) {
       items.push({
         id: `shift-request-${r.id}`,
-        text: `${r.profile.full_name} đăng ký ca làm đang chờ bạn duyệt`,
+        // Hai loại đơn dùng chung bảng shift_requests, nên chuông cũng phải
+        // gọi đúng tên việc: người duyệt cần biết đây là ca mới hay chỉ dời giờ.
+        text: `${r.profile.full_name} ${r.replaces_shift_id ? "xin đổi giờ ca" : "đăng ký ca làm"} đang chờ bạn duyệt`,
         href: "/manager",
         at: r.created_at,
         needsAction: true,

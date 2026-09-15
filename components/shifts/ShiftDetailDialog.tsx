@@ -17,7 +17,7 @@ import {
 import SwapRequestDialog from "@/components/swaps/SwapRequestDialog";
 import { resolveColor } from "@/lib/calendar";
 import type { ShiftEvent } from "@/lib/calendar";
-import type { ShiftWithAssignee } from "@/types";
+import type { Branch, ShiftWithAssignee } from "@/types";
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -29,11 +29,13 @@ export default function ShiftDetailDialog({
   onOpenChange,
   event,
   otherShifts,
+  branches,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   event: ShiftEvent;
   otherShifts: ShiftWithAssignee[];
+  branches: Branch[];
 }) {
   const [swapDialogOpen, setSwapDialogOpen] = useState(false);
   const [pending, setPending] = useState(false);
@@ -172,6 +174,7 @@ export default function ShiftDetailDialog({
           }}
           shift={shift}
           otherShifts={otherShifts}
+          branches={branches}
         />
       )}
     </>

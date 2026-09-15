@@ -191,7 +191,12 @@ export async function respondToShiftRequestAction(
 
   revalidateShiftRequestPaths();
   if (data) {
-    const targetId = (data as { profile_id: string }).profile_id;
+    const row = data as { profile_id: string; replaces_shift_id: string | null };
+    const targetId = row.profile_id;
+    // Cùng một kind, khác câu chữ: đơn đổi giờ và đơn đăng ký ca mới đi chung
+    // bảng, nên nếu không phân biệt ở đây thì người xin đổi giờ sẽ nhận một
+    // thông báo nói về "đăng ký ca làm" mà họ chưa từng gửi.
+    const what = row.replaces_shift_id ? "đổi giờ ca" : "đăng ký ca làm";
     // Stored row + push, replacing the push-only call that used to be here —
     // see the same change in actions/leave.ts.
     after(() =>
@@ -199,10 +204,12 @@ export async function respondToShiftRequestAction(
         {
           profileId: targetId,
           kind: approve ? "shift_request_approved" : "shift_request_rejected",
-          title: approve ? "Đăng ký ca làm đã được duyệt" : "Đăng ký ca làm bị từ chối",
+          title: approve
+            ? `Yêu cầu ${what} đã được duyệt`
+            : `Yêu cầu ${what} bị từ chối`,
           body: approve
-            ? "Đăng ký ca làm của bạn đã được duyệt"
-            : "Đăng ký ca làm của bạn đã bị từ chối",
+            ? `Yêu cầu ${what} của bạn đã được duyệt`
+            : `Yêu cầu ${what} của bạn đã bị từ chối`,
           url: "/calendar",
           relatedId: id,
         },

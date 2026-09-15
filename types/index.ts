@@ -159,6 +159,12 @@ export type ShiftRequest = {
 export type ShiftRequestDetailed = ShiftRequest & {
   profile: Pick<Profile, "id" | "full_name" | "role">;
   branch: Pick<Branch, "id" | "name"> | null;
+  /**
+   * Ca gốc của một đơn đổi giờ — null với đơn đăng ký ca mới. Khung giờ CŨ chỉ
+   * có ở đây, dòng đơn chỉ mang khung giờ mới, nên không join thì người duyệt
+   * không thấy được họ đang đổi từ đâu sang đâu.
+   */
+  replaced_shift: Pick<Shift, "start_at" | "end_at"> | null;
 };
 
 export type SwapRequest = {
