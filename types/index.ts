@@ -142,6 +142,18 @@ export type ShiftRequest = {
   shift_type: ShiftType;
   /** Vai trò của ca được đăng ký — xem Shift.covering_role. */
   covering_role: Role | null;
+  /**
+   * null = đăng ký ca mới. Khác null = đơn xin đổi khung giờ của ca này, và
+   * lúc duyệt hệ thống dời ca đó chứ không tạo ca mới (0086).
+   */
+  replaces_shift_id: string | null;
+  /**
+   * Khung giờ của ca trước khi đơn đổi giờ được duyệt — chỉ có giá trị với
+   * đơn đổi giờ đã duyệt, để Kỹ thuật khôi phục còn biết trả ca về đâu.
+   */
+  prev_start_at: string | null;
+  prev_end_at: string | null;
+  prev_branch_id: string | null;
 };
 
 export type ShiftRequestDetailed = ShiftRequest & {

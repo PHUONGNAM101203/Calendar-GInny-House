@@ -27,3 +27,21 @@ export const shiftRequestSchema = z
     path: ["branch_id"],
   });
 export type ShiftRequestInput = z.infer<typeof shiftRequestSchema>;
+
+// Đơn xin đổi khung giờ của một ca mình đang giữ. Cố tình KHÔNG có
+// shift_type và covering_role: RPC request_shift_change kế thừa cả hai từ
+// chính ca gốc, vì form này chỉ đổi giờ — đổi vai trò ca là quyết định khác,
+// nó động tới luật một-suất-quản-sinh.
+export const shiftChangeSchema = z
+  .object({
+    shift_id: z.uuid(),
+    branch_id: z.uuid("Vui lòng chọn cơ sở"),
+    start_at: z.string().min(1, "Vui lòng chọn giờ bắt đầu"),
+    end_at: z.string().min(1, "Vui lòng chọn giờ kết thúc"),
+    note: z.string().max(280, "Lý do tối đa 280 ký tự").optional(),
+  })
+  .refine((v) => new Date(v.end_at) > new Date(v.start_at), {
+    message: "Giờ kết thúc phải sau giờ bắt đầu",
+    path: ["end_at"],
+  });
+export type ShiftChangeInput = z.infer<typeof shiftChangeSchema>;

@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireProfile, requireManager } from "@/lib/auth";
 import { isShiftRequestApprover } from "@/lib/roles";
 import { getRemoteBranchId } from "@/lib/branches";
-import { shiftRequestSchema } from "@/lib/validations/shift-request";
+import { shiftRequestSchema, shiftChangeSchema } from "@/lib/validations/shift-request";
 import { sendPushToShiftRequestApprovers } from "@/lib/push";
 import { emitNotifications } from "@/lib/notifications-emit";
 import type { ActionResult } from "@/types";
@@ -41,6 +41,18 @@ const SHIFT_RPC_MESSAGES = [
   "Vui lòng chọn cơ sở",
   "Đã có quản sinh khác trực ca bắt đầu cùng giờ này",
   "Chỉ Kỹ thuật mới có thể khôi phục đơn",
+  // Đơn đổi giờ ca (0086) — cả lúc gửi, lúc duyệt và lúc khôi phục.
+  "Bạn chỉ có thể đổi giờ ca của chính mình",
+  "Không thể đổi giờ ca đã bắt đầu",
+  "Khung giờ mới phải ở tương lai",
+  "Bạn không thuộc cơ sở này",
+  "Ca đã có chấm công — không thể đổi giờ",
+  "Ca này đã có yêu cầu đổi giờ đang chờ",
+  "Ca này đang có yêu cầu đổi ca chờ duyệt",
+  "Ca gốc không còn tồn tại — đơn không còn hiệu lực",
+  "Ca gốc đã đổi sang người khác — đơn không còn hiệu lực",
+  "Ca gốc đã bắt đầu — không thể đổi giờ",
+  "Ca gốc đã bị xoá — không thể khôi phục tự động",
   "Đơn không hợp lệ hoặc đang chờ duyệt",
   "Ca đã có chấm công — không thể khôi phục tự động",
   "Ca đã bị đổi cho người khác — không thể khôi phục tự động",
@@ -99,6 +111,45 @@ export async function requestShiftAction(input: unknown): Promise<ActionResult> 
     sendPushToShiftRequestApprovers(profile.role, {
       title: "Đăng ký ca làm mới",
       body: `${profile.full_name} vừa gửi đăng ký ca làm`,
+      url: "/manager",
+      tag: "shift-request",
+    })
+  );
+  return { ok: true, data: undefined };
+}
+
+// Đổi giờ ca của chính mình — dạng thứ hai của "đổi ca", bên cạnh đổi cho
+// người khác (actions/swaps.ts). Cố tình đi qua chính bảng shift_requests
+// thay vì một đường ống riêng: một đơn xin đổi giờ đúng là "một khung ca đề
+// xuất đang chờ duyệt", nên nó thừa hưởng nguyên người duyệt, RLS, danh sách
+// chờ duyệt, thông báo, huỷ và khôi phục. Xem 0086.
+export async function requestShiftChangeAction(input: unknown): Promise<ActionResult> {
+  const profile = await requireProfile();
+  const parsed = shiftChangeSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("request_shift_change", {
+    p_shift_id: parsed.data.shift_id,
+    p_start_at: new Date(parsed.data.start_at).toISOString(),
+    p_end_at: new Date(parsed.data.end_at).toISOString(),
+    p_branch_id: parsed.data.branch_id,
+    p_note: parsed.data.note || null,
+  });
+
+  if (error) {
+    return { ok: false, error: mapShiftRpcError(error.message, "Không thể gửi yêu cầu đổi giờ ca") };
+  }
+
+  revalidateShiftRequestPaths();
+  // See actions/leave.ts's requestLeaveAction for why this is wrapped in
+  // after() rather than fire-and-forget.
+  after(() =>
+    sendPushToShiftRequestApprovers(profile.role, {
+      title: "Yêu cầu đổi giờ ca",
+      body: `${profile.full_name} xin đổi giờ một ca đã đăng ký`,
       url: "/manager",
       tag: "shift-request",
     })
