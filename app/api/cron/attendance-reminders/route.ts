@@ -4,6 +4,14 @@ import { sendPushToProfiles } from "@/lib/push";
 import { emitNotifications, formatVietnamMoment } from "@/lib/notifications-emit";
 
 type LateCheckinRow = { shift_id: string; profile_id: string; full_name: string; start_at: string };
+type ClosedSessionRow = {
+  attendance_id: string;
+  profile_id: string;
+  full_name: string;
+  shift_id: string;
+  check_in_at: string;
+  closed_at: string;
+};
 type StaleCheckoutRow = {
   attendance_id: string;
   profile_id: string;
@@ -56,6 +64,35 @@ export async function GET(request: Request) {
 
   const late = (lateShifts as LateCheckinRow[]) ?? [];
   const stale = (staleSessions as StaleCheckoutRow[]) ?? [];
+
+  // Đóng phiên bỏ quên SAU khi đã đọc danh sách nhắc ở trên, không phải
+  // trước: đóng trước thì find_stale_checkout_sessions không còn thấy chúng
+  // và người ta bị đóng ca mà chẳng ai nhắc lần nào. Chỉ chạm phiên gắn ca đã
+  // tan hơn 6 tiếng — xem 0088 cho lý do bỏ qua phiên chấm tự do.
+  const { data: closedRows, error: closeError } = await supabaseAdmin.rpc(
+    "close_abandoned_attendance"
+  );
+  if (closeError) {
+    return NextResponse.json({ error: closeError.message }, { status: 500 });
+  }
+  const closed = (closedRows as ClosedSessionRow[]) ?? [];
+  if (closed.length) {
+    // Không có mốc one-shot riêng nào cần đóng dấu: check_out_at vừa được
+    // điền nên chính nó là dấu — lần chạy sau các dòng này không còn lọt vào
+    // điều kiện check_out_at is null nữa.
+    await emitNotifications(
+      closed.map((s) => ({
+        profileId: s.profile_id,
+        kind: "attendance_auto_closed" as const,
+        title: "Ca của bạn đã được đóng tự động",
+        body: `Bạn quên chấm công ra, hệ thống đã ghi giờ ra là ${formatVietnamMoment(
+          s.closed_at
+        )} theo giờ tan ca. Nếu bạn về muộn hơn, hãy gửi giải trình giờ ra.`,
+        url: "/attendance",
+        relatedId: s.attendance_id,
+      }))
+    );
+  }
 
   if (technicalIds.length && late.length) {
     await sendPushToProfiles(technicalIds, {
@@ -138,6 +175,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     lateCheckinCount: late.length,
     staleCheckoutCount: stale.length,
+    autoClosedCount: closed.length,
     notified: technicalIds.length,
   });
 }

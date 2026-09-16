@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { emitNotifications } from "@/lib/notifications-emit";
 import { canAccessManagerPage } from "@/lib/roles";
+import { openSessionEnd } from "@/lib/attendance";
 
 // Tổng kết tháng, gửi lúc 22:00 ngày cuối tháng (giờ Việt Nam) — cùng nhóm
 // người nhận và cùng các con số như bản tuần, chỉ khác cửa sổ thời gian.
@@ -97,7 +98,7 @@ export async function GET(request: Request) {
   let totalMinutes = 0;
   for (const row of attendanceRows ?? []) {
     const checkIn = new Date(row.check_in_at);
-    const effectiveEnd = row.check_out_at ? new Date(row.check_out_at) : nowUtc;
+    const effectiveEnd = row.check_out_at ? new Date(row.check_out_at) : openSessionEnd(row.check_in_at, nowUtc);
     const overlapStart = checkIn > monthStart ? checkIn : monthStart;
     const overlapEnd = effectiveEnd < monthEnd ? effectiveEnd : monthEnd;
     if (overlapEnd > overlapStart) {

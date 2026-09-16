@@ -14,6 +14,9 @@ import {
 import type { ActionResult, Attendance, Role } from "@/types";
 
 function mapAttendanceError(message: string): string {
+  // Câu này mang theo mốc giờ của phiên còn treo (0088) nên trả nguyên văn:
+  // cắt về một câu cố định là vứt đi đúng thông tin giúp người ta xử lý.
+  if (message.includes("chưa chấm ra từ")) return message;
   if (message.includes("đã chấm công vào rồi")) return "Bạn đã chấm công vào rồi";
   if (message.includes("chưa chấm công vào")) return "Bạn chưa chấm công vào";
   if (message.includes("không có ca làm việc nào")) return "Bạn không có ca làm việc nào trong khung giờ này";

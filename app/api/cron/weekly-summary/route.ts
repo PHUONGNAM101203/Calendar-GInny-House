@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { emitNotifications } from "@/lib/notifications-emit";
 import { canAccessManagerPage } from "@/lib/roles";
+import { openSessionEnd } from "@/lib/attendance";
 
 // Runs Sunday night via Vercel Cron (see vercel.json) — a weekly digest for
 // everyone who can already see /manager (ceo/coo/training_director/hr/
@@ -83,7 +84,7 @@ export async function GET(request: Request) {
   let totalMinutes = 0;
   for (const r of attendanceRows ?? []) {
     const checkIn = new Date(r.check_in_at);
-    const effectiveEnd = r.check_out_at ? new Date(r.check_out_at) : nowUtc;
+    const effectiveEnd = r.check_out_at ? new Date(r.check_out_at) : openSessionEnd(r.check_in_at, nowUtc);
     const overlapStart = checkIn > weekStart ? checkIn : weekStart;
     const overlapEnd = effectiveEnd < weekEnd ? effectiveEnd : weekEnd;
     if (overlapEnd > overlapStart) {

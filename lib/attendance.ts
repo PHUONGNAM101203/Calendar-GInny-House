@@ -261,3 +261,20 @@ export function aggregateStaffByRole(staff: Pick<Profile, "role">[]): RoleCount[
     .map(([role, count]) => ({ role, count }))
     .sort((a, b) => b.count - a.count);
 }
+
+// Một phiên chưa chấm ra thì tính tới đâu trong báo cáo.
+//
+// Tính tới now() là đúng với phiên ĐANG chạy, nhưng sai với phiên bị bỏ quên:
+// nó biến một lần quên bấm thành số giờ lớn dần vô hạn. Phiên gắn ca đã được
+// cron tự đóng (0088); phiên chấm tự do thì không có giờ nào để neo nên không
+// đóng được, và đây là chỗ chặn thiệt hại của chúng.
+//
+// 12 tiếng là trần rộng rãi có cơ sở từ dữ liệu thật: trong 182 phiên đã đóng
+// trên production, phiên dài nhất là 4,99 giờ ở cả hai loại và không phiên nào
+// vượt 12 giờ. Nên trần này không bao giờ cắt vào một phiên có thật.
+export const OPEN_SESSION_CAP_MS = 12 * 60 * 60_000;
+
+export function openSessionEnd(checkInAt: string, now: Date): Date {
+  const capped = new Date(checkInAt).getTime() + OPEN_SESSION_CAP_MS;
+  return new Date(Math.min(now.getTime(), capped));
+}

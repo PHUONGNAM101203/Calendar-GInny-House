@@ -40,6 +40,9 @@ export type NotificationKind =
   | "monthly_summary"
   | "missed_check_in"
   | "stale_check_out"
+  // Hệ thống tự đóng ca bỏ quên tại giờ tan ca (0088) — người đó phải biết,
+  // vì đó là giờ giả định chứ không phải giờ họ bấm.
+  | "attendance_auto_closed"
   | "attendance_updated"
   | "attendance_deleted"
   | "attendance_correction_reverted"

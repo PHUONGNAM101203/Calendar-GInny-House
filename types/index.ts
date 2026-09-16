@@ -195,6 +195,11 @@ export type Attendance = {
   shift_id: string | null;
   check_in_at: string;
   check_out_at: string | null;
+  /**
+   * Khác null = giờ ra do hệ thống tự điền tại giờ kết thúc ca vì phiên bị bỏ
+   * quên (0088), không phải giờ đo được.
+   */
+  auto_closed_at?: string | null;
   created_at: string;
 };
 
