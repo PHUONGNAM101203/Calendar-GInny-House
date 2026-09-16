@@ -2,6 +2,14 @@ import { z } from "zod";
 
 export const attendanceCorrectionSchema = z.object({
   shift_id: z.uuid("Vui lòng chọn ca cần giải trình"),
+  // Giờ ra khai luôn trong đơn giờ vào. Bắt buộc ở tầng RPC khi phiên chưa có
+  // giờ ra — để trống chính là lỗ hổng cũ: duyệt xong còn lại một phiên mở
+  // không ai đóng, và báo cáo tính nó chạy tới tận bây giờ. Optional ở đây vì
+  // khi phiên đã có giờ ra thì bỏ trống nghĩa là giữ nguyên.
+  check_out_time: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Giờ ra không hợp lệ")
+    .optional(),
   reason: z
     .string()
     .trim()

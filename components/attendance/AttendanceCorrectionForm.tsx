@@ -70,6 +70,14 @@ function isCheckoutRow(row: CorrectionRow) {
   return row.preview?.kind === "check_out_available";
 }
 
+// Đơn giờ vào giờ mang luôn giờ ra. Bắt buộc khi phiên chưa hề có giờ ra:
+// duyệt xong mà để trống thì còn lại một phiên mở không ai đóng, và báo cáo
+// tính nó chạy tới tận bây giờ — đúng lỗi cũ.
+function requiresCheckOut(row: CorrectionRow) {
+  if (row.preview?.kind === "missed_check_in") return true;
+  return row.preview?.kind === "late_check_in" && row.preview.actualCheckOutAt === null;
+}
+
 // The stored instants are UTC; every time the user sees or types is Vietnam
 // wall-clock, so the zone is pinned rather than trusting the browser's.
 function formatVn(iso: string): string {
@@ -131,7 +139,11 @@ export default function AttendanceCorrectionForm() {
       checkOutTime:
         preview.kind === "check_out_available"
           ? formatVn(preview.actualCheckOutAt ?? preview.shift.end_at)
-          : "",
+          : preview.kind === "missed_check_in"
+            ? formatVn(preview.shift.end_at)
+            : preview.kind === "late_check_in"
+              ? formatVn(preview.actualCheckOutAt ?? preview.shift.end_at)
+              : "",
     });
   }
 
@@ -174,11 +186,17 @@ export default function AttendanceCorrectionForm() {
     const submittable = rows.filter(canSubmitRow);
     if (submittable.length === 0) return;
 
-    const entries: { key: string; shift_id: string; reason: string }[] = [];
+    const entries: { key: string; shift_id: string; reason: string; check_out_time?: string }[] = [];
     let hasError = false;
     for (const row of submittable) {
+      if (requiresCheckOut(row) && !row.checkOutTime) {
+        updateRow(row.key, { reasonError: "Vui lòng chọn giờ ra ca" });
+        hasError = true;
+        continue;
+      }
       const parsed = attendanceCorrectionSchema.safeParse({
         shift_id: shiftIdForRow(row),
+        check_out_time: row.checkOutTime || undefined,
         reason: row.reason,
       });
       if (!parsed.success) {
@@ -187,13 +205,18 @@ export default function AttendanceCorrectionForm() {
         continue;
       }
       updateRow(row.key, { reasonError: "" });
-      entries.push({ key: row.key, shift_id: parsed.data.shift_id, reason: parsed.data.reason });
+      entries.push({
+        key: row.key,
+        shift_id: parsed.data.shift_id,
+        reason: parsed.data.reason,
+        check_out_time: parsed.data.check_out_time,
+      });
     }
     if (hasError || entries.length === 0) return;
 
     setIsSubmitting(true);
     const result = await requestAttendanceCorrectionsAction(
-      entries.map(({ shift_id, reason }) => ({ shift_id, reason }))
+      entries.map(({ shift_id, reason, check_out_time }) => ({ shift_id, reason, check_out_time }))
     );
     setIsSubmitting(false);
 
@@ -257,6 +280,7 @@ export default function AttendanceCorrectionForm() {
   }
 
   const hasSubmittable = rows.some(canSubmitRow);
+  const missingRequiredCheckOut = rows.some((r) => requiresCheckOut(r) && !r.checkOutTime);
 
   return (
     // shrink-0: same bug as ClockWidget.tsx's Card — a flex item whose own
@@ -348,6 +372,23 @@ export default function AttendanceCorrectionForm() {
               </p>
             )}
 
+            {canSubmitRow(row) && (
+              <div className="space-y-1.5">
+                <div className="max-w-44">
+                  <TimePickerField
+                    id={`checkin_row_checkout_time_${row.key}`}
+                    label="Giờ ra ca"
+                    value={row.checkOutTime}
+                    onChange={(value) => updateRow(row.key, { checkOutTime: value, reasonError: "" })}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Khai luôn giờ ra trong đơn này để không phải gửi thêm đơn thứ hai. Mặc định là giờ
+                  kết thúc ca — sửa lại nếu bạn về sớm hoặc muộn hơn.
+                </p>
+              </div>
+            )}
+
             {isCheckoutRow(row) && (
               <div className="max-w-44">
                 <TimePickerField
@@ -391,7 +432,11 @@ export default function AttendanceCorrectionForm() {
             <PlusIcon className="size-4" />
             Thêm ca cần giải trình
           </Button>
-          <Button type="button" disabled={!hasSubmittable || isSubmitting} onClick={handleSubmit}>
+          <Button
+            type="button"
+            disabled={!hasSubmittable || isSubmitting || missingRequiredCheckOut}
+            onClick={handleSubmit}
+          >
             {isSubmitting ? "Đang gửi..." : "Gửi giải trình"}
           </Button>
         </div>

@@ -17,7 +17,13 @@ export type CorrectionPreview =
   | { kind: "no_shift" }
   | { kind: "no_discrepancy" }
   | { kind: "missed_check_in"; shift: Pick<Shift, "id" | "start_at" | "end_at"> }
-  | { kind: "late_check_in"; shift: Pick<Shift, "id" | "start_at" | "end_at">; actualCheckInAt: string }
+  | {
+      kind: "late_check_in";
+      shift: Pick<Shift, "id" | "start_at" | "end_at">;
+      actualCheckInAt: string;
+      // Null khi họ chưa hề chấm ra — form khi đó bắt buộc phải khai giờ ra.
+      actualCheckOutAt: string | null;
+    }
   // More than one shift that day and the user hasn't said which — staff here
   // routinely work a split day (08:00–12:00 and 14:00–18:00). Without the
   // pick, only whichever shift the database returned first was correctable.
@@ -265,11 +271,44 @@ export async function requestAttendanceCorrectionsAction(
   }
 
   const supabase = await createClient();
+
+  // Giờ ra người dùng gõ là giờ treo tường, RPC lại cần một mốc tuyệt đối.
+  // Lấy sẵn mọi ca trong một lượt thay vì mỗi dòng một truy vấn — form này
+  // cho gửi nhiều ca cùng lúc.
+  const shiftIds = [...new Set(parsed.data.map((e) => e.shift_id))];
+  const { data: shiftRows, error: shiftError } = await supabase
+    .from("shifts")
+    .select("id, start_at, end_at")
+    .in("id", shiftIds)
+    .eq("assignee_id", profile.id);
+
+  // Tách "truy vấn hỏng" khỏi "không có ca nào": gộp hai thứ lại sẽ báo cho
+  // người dùng rằng ca của họ không tồn tại sau một trục trặc mạng thoáng qua.
+  if (shiftError) {
+    return { ok: false, error: "Không thể xử lý đơn giải trình công" };
+  }
+  const shiftById = new Map(
+    ((shiftRows as Pick<Shift, "id" | "start_at" | "end_at">[]) ?? []).map((s) => [s.id, s])
+  );
+
   const results = await Promise.all(
     parsed.data.map(async (entry) => {
+      const shift = shiftById.get(entry.shift_id);
+      if (!shift) {
+        return { shift_id: entry.shift_id, error: "Không tìm thấy ca làm việc này" };
+      }
+
+      // Neo trên start_at của ca chứ không phải giờ vào thực tế: đơn này dời
+      // giờ vào về đúng đầu ca, nên đó mới là giá trị sẽ được ghi và là mốc
+      // đúng để quyết định có cuộn giờ ra sang ngày hôm sau hay không.
+      const requestedCheckOutAt = entry.check_out_time
+        ? resolveCheckOutInstant(shift, entry.check_out_time, shift.start_at, false)
+        : null;
+
       const { error } = await supabase.rpc("request_attendance_correction", {
         p_shift_id: entry.shift_id,
         p_reason: entry.reason,
+        p_requested_check_out_at: requestedCheckOutAt,
       });
       return { shift_id: entry.shift_id, error: error ? mapAttendanceCorrectionError(error.message) : null };
     })
@@ -556,7 +595,15 @@ export async function getAttendanceCorrectionPreviewAction(
     return { ok: true, data: { kind: "missed_check_in", shift } };
   }
   if (attendance.check_in_at > shift.start_at) {
-    return { ok: true, data: { kind: "late_check_in", shift, actualCheckInAt: attendance.check_in_at } };
+    return {
+      ok: true,
+      data: {
+        kind: "late_check_in",
+        shift,
+        actualCheckInAt: attendance.check_in_at,
+        actualCheckOutAt: attendance.check_out_at,
+      },
+    };
   }
   // Clocked in on time. A check-out correction is still available — either to
   // supply a check-out they never made, or to adjust the one on record.
