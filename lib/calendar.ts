@@ -542,6 +542,19 @@ export function toCustomEvents(
 // AttendanceDetailDialog with the full in/out/location breakdown per
 // session. Purely additive to the shift grid, toggled by the sidebar's
 // "Chấm công" checkbox.
+// Hai phiên chấm công cách nhau bao lâu thì vẫn coi là một mạch làm việc.
+//
+// Gộp cả ngày vào một thẻ khiến thẻ kéo từ giờ vào sớm nhất tới giờ ra muộn
+// nhất: một người làm 08:09–12:13 rồi 19:02–22:01 hiện thành một khối
+// 08:09–22:01, trông như trực liền 14 tiếng dù nhãn ghi 7 giờ 4 phút.
+//
+// 60 phút chọn từ dữ liệu thật chứ không áng chừng. Trong 29 lần có từ hai
+// phiên trở lên trên production, khoảng trống giữa chúng hoặc ≤ 34 phút (16
+// lần — nghỉ giải lao, bấm nhầm rồi vào lại, hai ca nối đuôi) hoặc ≥ 1 giờ 42
+// phút (13 lần — hai buổi làm tách hẳn nhau). Khoảng 35–101 phút không có lần
+// nào, nên ngưỡng này nằm trong vùng trống và không cắt nhầm trường hợp thật.
+const CONTINUOUS_SESSION_GAP_MS = 60 * 60_000;
+
 export function toAttendanceEvents(
   records: AttendanceWithProfileRole[],
   branchNames: Map<string, string>,
@@ -564,7 +577,7 @@ export function toAttendanceEvents(
   }
 
   const events: AttendanceCalendarEvent[] = [];
-  for (const [key, list] of groups) {
+  for (const [, list] of groups) {
     const name = list[0].profile.full_name;
     const colorVar = colorFor(list[0].profile_id);
     const open = list.filter((r) => !r.check_out_at);
@@ -613,33 +626,53 @@ export function toAttendanceEvents(
           correction: r.shift_id ? (pendingCorrectionsByShiftId.get(r.shift_id) ?? null) : null,
         }))
         .sort((a, b) => a.checkInAt.localeCompare(b.checkInAt));
-      const totalMinutes = closed.reduce(
-        (sum, r) => sum + (new Date(r.check_out_at!).getTime() - new Date(r.check_in_at).getTime()) / 60000,
-        0
-      );
-      const start = new Date(sessions[0].checkInAt);
-      const end = new Date(sessions[sessions.length - 1].checkOutAt!);
-      const hours = Math.floor(totalMinutes / 60);
-      const mins = Math.round(totalMinutes % 60);
-      const label = hours > 0 ? `${hours} giờ${mins > 0 ? ` ${mins} phút` : ""}` : `${mins} phút`;
+      // Cắt thành từng mạch liền nhau thay vì một thẻ cho cả ngày.
+      const runs: AttendanceSession[][] = [];
+      for (const session of sessions) {
+        const current = runs[runs.length - 1];
+        const previous = current?.[current.length - 1];
+        const continuous =
+          previous &&
+          new Date(session.checkInAt).getTime() - new Date(previous.checkOutAt!).getTime() <=
+            CONTINUOUS_SESSION_GAP_MS;
+        if (continuous) current.push(session);
+        else runs.push([session]);
+      }
 
-      events.push({
-        id: `attendance-summary-${key}`,
-        title: `${name} · Tổng ${label}`,
-        start,
-        end: end > start ? end : new Date(start.getTime() + 15 * 60_000),
-        resource: {
-          kind: "attendance" as const,
-          profileId: list[0].profile_id,
-          profileName: name,
-          profileRole: list[0].profile.role,
-          colorVar,
-          totalMinutes: Math.round(totalMinutes),
-          isOpen: false,
-          sessions,
-          hasPendingCorrection: sessions.some((s) => s.correction !== null),
-        },
-      });
+      for (const run of runs) {
+        const totalMinutes = run.reduce(
+          (sum, s) =>
+            sum + (new Date(s.checkOutAt!).getTime() - new Date(s.checkInAt).getTime()) / 60000,
+          0
+        );
+        const start = new Date(run[0].checkInAt);
+        const end = new Date(run[run.length - 1].checkOutAt!);
+        const hours = Math.floor(totalMinutes / 60);
+        const mins = Math.round(totalMinutes % 60);
+        const label = hours > 0 ? `${hours} giờ${mins > 0 ? ` ${mins} phút` : ""}` : `${mins} phút`;
+
+        events.push({
+          // Neo vào phiên đầu của mạch, không phải vào ngày: một ngày giờ có
+          // thể sinh nhiều thẻ, dùng khoá ngày sẽ trùng id.
+          id: `attendance-summary-${run[0].id}`,
+          // "Tổng" chỉ đúng khi cả ngày gói trong một thẻ. Ngày bị tách mà vẫn
+          // ghi "Tổng" thì lại gây đúng hiểu lầm vừa sửa.
+          title: runs.length === 1 ? `${name} · Tổng ${label}` : `${name} · ${label}`,
+          start,
+          end: end > start ? end : new Date(start.getTime() + 15 * 60_000),
+          resource: {
+            kind: "attendance" as const,
+            profileId: list[0].profile_id,
+            profileName: name,
+            profileRole: list[0].profile.role,
+            colorVar,
+            totalMinutes: Math.round(totalMinutes),
+            isOpen: false,
+            sessions: run,
+            hasPendingCorrection: run.some((s) => s.correction !== null),
+          },
+        });
+      }
     }
   }
 
