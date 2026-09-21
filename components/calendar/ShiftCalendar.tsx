@@ -226,37 +226,25 @@ export default function ShiftCalendar({
   // Only applies when this viewer even has the "see everyone, follow to
   // pin" model (canFollowAll); everyone else's events are already scoped
   // to their own branch by RLS, so there's nothing to filter client-side.
-  // Ai đang có việc chờ CHÍNH NGƯỜI NÀY duyệt thì luôn được vẽ, dù chưa tick
-  // theo dõi.
-  //
-  // Danh sách "Cần xét duyệt" ở sidebar lọc theo QUYỀN DUYỆT, còn lưới lịch
-  // lọc theo DANH SÁCH TICK — hai bộ lọc khác nhau. Hậu quả: sidebar báo có
-  // đơn giải trình của một người, bấm vào mở được chi tiết, nhưng tìm khắp
-  // lưới không thấy thẻ nào của họ. Người mới vào làm luôn rơi vào cảnh này,
-  // vì chưa ai tick họ bao giờ.
-  //
-  // Chỉ cần lọc theo `status` chứ không cần kiểm lại quyền duyệt: mấy mảng này
-  // đã được RLS thu hẹp về đúng thứ người xem được phép thấy.
-  const pendingActionPersonIds = useMemo(() => {
-    const ids = new Set<string>();
-    for (const r of leaveRequests) if (r.status === "pending") ids.add(r.profile_id);
-    for (const r of shiftRequests) if (r.status === "pending") ids.add(r.profile_id);
-    for (const r of attendanceCorrections) if (r.status === "pending") ids.add(r.profile_id);
-    for (const r of pendingSwaps) {
-      if (r.status !== "pending") continue;
-      ids.add(r.requester_id);
-      if (r.target_id) ids.add(r.target_id);
-    }
-    return ids;
-  }, [leaveRequests, shiftRequests, attendanceCorrections, pendingSwaps]);
-
   const visiblePersonIds = useMemo(
-    () =>
-      canFollowAll
-        ? new Set([currentUserId, ...followedIds, ...pendingActionPersonIds])
-        : null,
-    [canFollowAll, currentUserId, followedIds, pendingActionPersonIds]
+    () => (canFollowAll ? new Set([currentUserId, ...followedIds]) : null),
+    [canFollowAll, currentUserId, followedIds]
   );
+
+  // Một luật duy nhất cho cả lưới: VIỆC CẦN DUYỆT thì luôn hiện, mọi thứ khác
+  // theo danh sách tick.
+  //
+  // Đơn giải trình công là loại chờ duyệt duy nhất không có bóng mờ riêng khi
+  // phiên chấm công đã tồn tại — nó bám vào chính THẺ CHẤM CÔNG dưới dạng
+  // nhãn "Chờ duyệt giải trình". Thẻ đó lại lọc theo tick, nên việc cần duyệt
+  // biến mất khỏi lưới trong khi sidebar vẫn báo, và người xem đi tìm không ra.
+  // Nới đúng bảng chấm công, không nới ca hay nghỉ phép của người đó — họ vẫn
+  // chỉ hiện những gì đang thật sự chờ duyệt.
+  const pendingCorrectionProfileIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const c of attendanceCorrections) if (c.status === "pending") ids.add(c.profile_id);
+    return ids;
+  }, [attendanceCorrections]);
   const visibleShifts = useMemo(
     () =>
       shifts
@@ -265,8 +253,13 @@ export default function ShiftCalendar({
     [shifts, visiblePersonIds, hiddenBranchKeys]
   );
   const visibleAttendance = useMemo(
-    () => (visiblePersonIds ? attendance.filter((a) => visiblePersonIds.has(a.profile_id)) : attendance),
-    [attendance, visiblePersonIds]
+    () =>
+      visiblePersonIds
+        ? attendance.filter(
+            (a) => visiblePersonIds.has(a.profile_id) || pendingCorrectionProfileIds.has(a.profile_id)
+          )
+        : attendance,
+    [attendance, visiblePersonIds, pendingCorrectionProfileIds]
   );
   const visibleLeaveRequests = useMemo(
     () => (visiblePersonIds ? leaveRequests.filter((r) => visiblePersonIds.has(r.profile_id)) : leaveRequests),
@@ -350,9 +343,13 @@ export default function ShiftCalendar({
     () => visibleLeaveRequests.filter((r) => r.status === "approved"),
     [visibleLeaveRequests]
   );
+  // Nguồn thô chứ không phải visibleLeaveRequests: đơn chờ duyệt đi theo công
+  // tắc "Cần xét duyệt", không theo danh sách tick — giống hệt đăng ký ca và
+  // giải trình công. Trước đây riêng nghỉ phép bị lọc thêm một tầng nữa, nên
+  // ba loại chờ duyệt có ba hành vi khác nhau dù chung một công tắc.
   const pendingLeaveRequestsForCalendar = useMemo(
-    () => visibleLeaveRequests.filter((r) => r.status === "pending"),
-    [visibleLeaveRequests]
+    () => leaveRequests.filter((r) => r.status === "pending"),
+    [leaveRequests]
   );
   const leaveEvents = useMemo(
     () => (eventToggles.showLeave ? toLeaveEvents(approvedLeaveRequests, false, colorFor) : []),
