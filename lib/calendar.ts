@@ -824,17 +824,21 @@ export function toShiftRequestPendingEvents(
     }));
 }
 
-// Giải trình công requests for a missed check-in have no attendance row at
-// all yet — without this, they're invisible on the grid (toAttendanceEvents
-// can only badge a correction onto a row that already exists). Uses the
-// referenced shift's own time range, same as the sidebar's synthetic
-// single-session construction.
+// Bóng mờ cho đơn giải trình công đang chờ duyệt. Dùng khung giờ của chính ca
+// được nhắc tới, giống cách sidebar dựng phiên tổng hợp.
+//
+// Việc CHỌN đơn nào cần bóng mờ nằm ở phía gọi, không nằm đây: nó phụ thuộc
+// vào thẻ chấm công của người đó có đang hiện hay không, mà hàm thuần này
+// không biết. Hai trường hợp cần bóng mờ là đơn chưa có phiên chấm công nào
+// (không có gì để gắn nhãn vào), và đơn của người đang bị ẩn theo danh sách
+// tick. Nếu thẻ đang hiện thì nhãn trên thẻ đã nói rồi — vẽ thêm bóng mờ là
+// vẽ hai lần cùng một việc.
 export function toAttendanceCorrectionPendingEvents(
   corrections: AttendanceCorrectionDetailed[],
   colorFor: (profileId: string) => string
 ): AttendanceCorrectionPendingEvent[] {
   return corrections
-    .filter((c) => c.status === "pending" && c.attendance_id === null)
+    .filter((c) => c.status === "pending")
     .map((c) => ({
       id: `attendance-correction-pending-${c.id}`,
       title: `Chờ duyệt giải trình · ${c.profile.full_name}`,

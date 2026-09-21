@@ -238,39 +238,33 @@ export default function ShiftCalendar({
   // chứ lưới lịch không phải chỗ phơi đơn từ của đồng nghiệp.
   const seesOthersPending = canSeeOthersPendingOnCalendar(currentUserRole);
 
-  // Luật cho lưới: VIỆC CẦN DUYỆT trong tầm nhìn ở trên thì luôn hiện dù chưa
-  // tick theo dõi, mọi thứ khác theo danh sách tick.
-  //
-  // Đơn giải trình công là loại chờ duyệt duy nhất không có bóng mờ riêng khi
-  // phiên chấm công đã tồn tại — nó bám vào chính THẺ CHẤM CÔNG dưới dạng
-  // nhãn "Chờ duyệt giải trình". Thẻ đó lại lọc theo tick, nên việc cần duyệt
-  // biến mất khỏi lưới trong khi sidebar vẫn báo, và người xem đi tìm không ra.
-  // Nới đúng bảng chấm công, không nới ca hay nghỉ phép của người đó — họ vẫn
-  // chỉ hiện những gì đang thật sự chờ duyệt.
-  const pendingCorrectionProfileIds = useMemo(() => {
+  // Luật cho lưới: chỉ ĐƠN CHỜ DUYỆT mới thoát khỏi danh sách tick. Ca làm
+  // việc, thẻ chấm công, nghỉ phép đã duyệt — tất cả vẫn theo tick như cũ.
+  // Ca đang nằm trong một yêu cầu đổi ca chờ phản hồi mà CHÍNH NGƯỜI NÀY là
+  // một bên thì luôn hiện, dù hai người chưa tick theo dõi nhau: người được
+  // hỏi cần nhìn thấy đúng cái ca mình được mời nhận, và người gửi cần thấy ca
+  // mình sẽ nhận lại. Không mở cho người ngoài — đổi ca là việc của hai bên.
+  const swapShiftIds = useMemo(() => {
     const ids = new Set<string>();
-    for (const c of attendanceCorrections) {
-      if (c.status !== "pending") continue;
-      if (!seesOthersPending && c.profile_id !== currentUserId) continue;
-      ids.add(c.profile_id);
+    for (const s of pendingSwaps) {
+      if (s.status !== "pending") continue;
+      if (s.requester_id !== currentUserId && s.target_id !== currentUserId) continue;
+      ids.add(s.requester_shift_id);
+      if (s.target_shift_id) ids.add(s.target_shift_id);
     }
     return ids;
-  }, [attendanceCorrections, seesOthersPending, currentUserId]);
+  }, [pendingSwaps, currentUserId]);
+
   const visibleShifts = useMemo(
     () =>
       shifts
-        .filter((s) => !visiblePersonIds || visiblePersonIds.has(s.assignee_id))
+        .filter((s) => !visiblePersonIds || visiblePersonIds.has(s.assignee_id) || swapShiftIds.has(s.id))
         .filter((s) => !hiddenBranchKeys.has(s.shift_type === "remote" ? "remote" : s.branch_id)),
-    [shifts, visiblePersonIds, hiddenBranchKeys]
+    [shifts, visiblePersonIds, hiddenBranchKeys, swapShiftIds]
   );
   const visibleAttendance = useMemo(
-    () =>
-      visiblePersonIds
-        ? attendance.filter(
-            (a) => visiblePersonIds.has(a.profile_id) || pendingCorrectionProfileIds.has(a.profile_id)
-          )
-        : attendance,
-    [attendance, visiblePersonIds, pendingCorrectionProfileIds]
+    () => (visiblePersonIds ? attendance.filter((a) => visiblePersonIds.has(a.profile_id)) : attendance),
+    [attendance, visiblePersonIds]
   );
   const visibleLeaveRequests = useMemo(
     () => (visiblePersonIds ? leaveRequests.filter((r) => visiblePersonIds.has(r.profile_id)) : leaveRequests),
@@ -405,15 +399,25 @@ export default function ShiftCalendar({
         : [],
     [shiftRequests, colorFor, eventToggles.showPendingApprovals, seesOthersPending, currentUserId]
   );
+  // Đơn giải trình cần bóng mờ riêng khi: chưa có phiên chấm công nào để gắn
+  // nhãn vào, HOẶC thẻ chấm công của người đó đang bị ẩn theo danh sách tick.
+  // Thẻ đang hiện thì nhãn trên thẻ đã đủ.
+  const correctionsNeedingOwnBlock = useMemo(
+    () =>
+      attendanceCorrections.filter((c) => {
+        if (c.status !== "pending") return false;
+        if (!seesOthersPending && c.profile_id !== currentUserId) return false;
+        if (c.attendance_id === null) return true;
+        return visiblePersonIds ? !visiblePersonIds.has(c.profile_id) : false;
+      }),
+    [attendanceCorrections, seesOthersPending, currentUserId, visiblePersonIds]
+  );
   const attendanceCorrectionPendingEvents = useMemo(
     () =>
       eventToggles.showPendingApprovals
-        ? toAttendanceCorrectionPendingEvents(
-            attendanceCorrections.filter((c) => seesOthersPending || c.profile_id === currentUserId),
-            colorFor
-          )
+        ? toAttendanceCorrectionPendingEvents(correctionsNeedingOwnBlock, colorFor)
         : [],
-    [attendanceCorrections, colorFor, eventToggles.showPendingApprovals, seesOthersPending, currentUserId]
+    [correctionsNeedingOwnBlock, colorFor, eventToggles.showPendingApprovals]
   );
   // Unassigned "ca cố định" slots (0079). Not behind the showPendingApprovals
   // toggle: a slot is not waiting on anyone's approval, it is a hole in the
