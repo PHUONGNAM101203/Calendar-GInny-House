@@ -226,9 +226,36 @@ export default function ShiftCalendar({
   // Only applies when this viewer even has the "see everyone, follow to
   // pin" model (canFollowAll); everyone else's events are already scoped
   // to their own branch by RLS, so there's nothing to filter client-side.
+  // Ai đang có việc chờ CHÍNH NGƯỜI NÀY duyệt thì luôn được vẽ, dù chưa tick
+  // theo dõi.
+  //
+  // Danh sách "Cần xét duyệt" ở sidebar lọc theo QUYỀN DUYỆT, còn lưới lịch
+  // lọc theo DANH SÁCH TICK — hai bộ lọc khác nhau. Hậu quả: sidebar báo có
+  // đơn giải trình của một người, bấm vào mở được chi tiết, nhưng tìm khắp
+  // lưới không thấy thẻ nào của họ. Người mới vào làm luôn rơi vào cảnh này,
+  // vì chưa ai tick họ bao giờ.
+  //
+  // Chỉ cần lọc theo `status` chứ không cần kiểm lại quyền duyệt: mấy mảng này
+  // đã được RLS thu hẹp về đúng thứ người xem được phép thấy.
+  const pendingActionPersonIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const r of leaveRequests) if (r.status === "pending") ids.add(r.profile_id);
+    for (const r of shiftRequests) if (r.status === "pending") ids.add(r.profile_id);
+    for (const r of attendanceCorrections) if (r.status === "pending") ids.add(r.profile_id);
+    for (const r of pendingSwaps) {
+      if (r.status !== "pending") continue;
+      ids.add(r.requester_id);
+      if (r.target_id) ids.add(r.target_id);
+    }
+    return ids;
+  }, [leaveRequests, shiftRequests, attendanceCorrections, pendingSwaps]);
+
   const visiblePersonIds = useMemo(
-    () => (canFollowAll ? new Set([currentUserId, ...followedIds]) : null),
-    [canFollowAll, currentUserId, followedIds]
+    () =>
+      canFollowAll
+        ? new Set([currentUserId, ...followedIds, ...pendingActionPersonIds])
+        : null,
+    [canFollowAll, currentUserId, followedIds, pendingActionPersonIds]
   );
   const visibleShifts = useMemo(
     () =>
