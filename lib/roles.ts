@@ -317,6 +317,17 @@ export function canAccessManagerPage(role: Role): boolean {
   return isManagerRole(role) || role === "hr";
 }
 
+// Ai được thấy đơn CHỜ DUYỆT của người khác ngay trên lưới lịch.
+//
+// Hẹp hơn quyền duyệt một cách có chủ ý. HR / COO / Giám Đốc Đào Tạo vẫn
+// duyệt đơn của nhóm mình như cũ — qua danh sách "Cần xét duyệt" ở sidebar và
+// trang /manager. Nhưng lưới lịch là nơi cả trung tâm nhìn chung, không phải
+// chỗ phơi đơn nghỉ phép hay giải trình công của đồng nghiệp. Người gửi thì
+// luôn thấy đơn của chính mình, bất kể vai trò.
+export function canSeeOthersPendingOnCalendar(role: Role): boolean {
+  return role === "ceo" || role === "technical";
+}
+
 // Who edits the national-holiday list (table `holidays`, 0080). Deliberately
 // narrower than isManagerRole(): a holiday is a company-wide, calendar-wide
 // fact, not a per-group one, so COO/Giám Đốc Đào Tạo/HR get no say. Mirrors

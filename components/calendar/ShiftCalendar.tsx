@@ -44,6 +44,7 @@ import {
   canApproveLeaveFor,
   canApproveShiftRequestFor,
   canCreateShiftFor,
+  canSeeOthersPendingOnCalendar,
   canApproveSwapRequestFor,
   canAccessManagerPage,
 } from "@/lib/roles";
@@ -231,8 +232,14 @@ export default function ShiftCalendar({
     [canFollowAll, currentUserId, followedIds]
   );
 
-  // Một luật duy nhất cho cả lưới: VIỆC CẦN DUYỆT thì luôn hiện, mọi thứ khác
-  // theo danh sách tick.
+  // Đơn chờ duyệt của NGƯỜI KHÁC chỉ hiện trên lưới với Tổng Giám Đốc và Kỹ
+  // thuật. Người gửi luôn thấy đơn của chính mình. Vai trò khác — kể cả người
+  // có quyền duyệt — vẫn xử lý đơn qua "Cần xét duyệt" ở sidebar và /manager,
+  // chứ lưới lịch không phải chỗ phơi đơn từ của đồng nghiệp.
+  const seesOthersPending = canSeeOthersPendingOnCalendar(currentUserRole);
+
+  // Luật cho lưới: VIỆC CẦN DUYỆT trong tầm nhìn ở trên thì luôn hiện dù chưa
+  // tick theo dõi, mọi thứ khác theo danh sách tick.
   //
   // Đơn giải trình công là loại chờ duyệt duy nhất không có bóng mờ riêng khi
   // phiên chấm công đã tồn tại — nó bám vào chính THẺ CHẤM CÔNG dưới dạng
@@ -242,9 +249,13 @@ export default function ShiftCalendar({
   // chỉ hiện những gì đang thật sự chờ duyệt.
   const pendingCorrectionProfileIds = useMemo(() => {
     const ids = new Set<string>();
-    for (const c of attendanceCorrections) if (c.status === "pending") ids.add(c.profile_id);
+    for (const c of attendanceCorrections) {
+      if (c.status !== "pending") continue;
+      if (!seesOthersPending && c.profile_id !== currentUserId) continue;
+      ids.add(c.profile_id);
+    }
     return ids;
-  }, [attendanceCorrections]);
+  }, [attendanceCorrections, seesOthersPending, currentUserId]);
   const visibleShifts = useMemo(
     () =>
       shifts
@@ -348,8 +359,11 @@ export default function ShiftCalendar({
   // giải trình công. Trước đây riêng nghỉ phép bị lọc thêm một tầng nữa, nên
   // ba loại chờ duyệt có ba hành vi khác nhau dù chung một công tắc.
   const pendingLeaveRequestsForCalendar = useMemo(
-    () => leaveRequests.filter((r) => r.status === "pending"),
-    [leaveRequests]
+    () =>
+      leaveRequests.filter(
+        (r) => r.status === "pending" && (seesOthersPending || r.profile_id === currentUserId)
+      ),
+    [leaveRequests, seesOthersPending, currentUserId]
   );
   const leaveEvents = useMemo(
     () => (eventToggles.showLeave ? toLeaveEvents(approvedLeaveRequests, false, colorFor) : []),
@@ -382,15 +396,24 @@ export default function ShiftCalendar({
   // under the same "Cần xét duyệt" toggle as pending leave above, so every
   // pending-item type hides/shows together as one category.
   const shiftRequestPendingEvents = useMemo(
-    () => (eventToggles.showPendingApprovals ? toShiftRequestPendingEvents(shiftRequests, colorFor) : []),
-    [shiftRequests, colorFor, eventToggles.showPendingApprovals]
+    () =>
+      eventToggles.showPendingApprovals
+        ? toShiftRequestPendingEvents(
+            shiftRequests.filter((r) => seesOthersPending || r.profile_id === currentUserId),
+            colorFor
+          )
+        : [],
+    [shiftRequests, colorFor, eventToggles.showPendingApprovals, seesOthersPending, currentUserId]
   );
   const attendanceCorrectionPendingEvents = useMemo(
     () =>
       eventToggles.showPendingApprovals
-        ? toAttendanceCorrectionPendingEvents(attendanceCorrections, colorFor)
+        ? toAttendanceCorrectionPendingEvents(
+            attendanceCorrections.filter((c) => seesOthersPending || c.profile_id === currentUserId),
+            colorFor
+          )
         : [],
-    [attendanceCorrections, colorFor, eventToggles.showPendingApprovals]
+    [attendanceCorrections, colorFor, eventToggles.showPendingApprovals, seesOthersPending, currentUserId]
   );
   // Unassigned "ca cố định" slots (0079). Not behind the showPendingApprovals
   // toggle: a slot is not waiting on anyone's approval, it is a hole in the
