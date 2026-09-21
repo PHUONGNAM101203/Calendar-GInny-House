@@ -49,6 +49,11 @@ export const GROUP_TARGET_ROLES = [
   "operations_staff",
   "customer_care",
   "hr",
+  // Quản lý cũng là người có ca. Thiếu hai vai trò này trong danh sách target
+  // thì Giám Đốc Vận Hành và Giám Đốc Đào Tạo không tự xếp ca cho mình được,
+  // trong khi HR làm được — chỉ vì 'hr' vốn đã nằm sẵn ở đây. Xem 0089.
+  "coo",
+  "training_director",
 ] as const satisfies readonly Role[];
 
 export function permKey(managerRole: Role, targetRole: Role, permission: GroupPermissionType): string {
