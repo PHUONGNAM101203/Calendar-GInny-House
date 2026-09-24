@@ -92,6 +92,13 @@ export type ShiftSeries = {
   end_time: string;
   starts_on: string;
   ends_on: string | null;
+  /**
+   * Nhiệm vụ của ca cố định. Là YÊU CẦU đặt trên ô trống, không phải thuộc
+   * tính của ca sau khi đã có người — ca đã có người thì phản ánh chính người
+   * đó (xem computeShiftKind). Ngoại lệ duy nhất là nhiệm vụ lễ tân, đổ xuống
+   * shifts.covering_role. Xem 0090.
+   */
+  duty_role: Role | null;
   created_by: string | null;
   created_at: string;
 };
@@ -116,6 +123,11 @@ export type ShiftSlot = {
   end_at: string;
   created_by: string | null;
   created_at: string;
+  /**
+   * Nhiệm vụ mà ô trống này cần (quản sinh, trợ giảng...). null = không chỉ
+   * định. Sao từ ShiftSeries.duty_role lúc sinh ô — xem 0090.
+   */
+  duty_role: Role | null;
 };
 
 export type ShiftSlotDetailed = ShiftSlot & {

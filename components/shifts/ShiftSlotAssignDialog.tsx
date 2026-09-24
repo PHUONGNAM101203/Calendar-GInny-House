@@ -6,6 +6,7 @@ import { UserPlusIcon } from "lucide-react";
 import { assignShiftSlotAction } from "@/actions/shift-series";
 import { formatSlotWindow } from "@/lib/shift-series";
 import { isManagerRole } from "@/lib/roles";
+import { SHIFT_KIND_LABELS } from "@/lib/shift-kind-tag";
 import type { Profile, ShiftSlotDetailed } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -86,6 +87,9 @@ export default function ShiftSlotAssignDialog({
               <DialogTitle>Gán người vào ca</DialogTitle>
               <DialogDescription>
                 {formatSlotWindow(slot.start_at, slot.end_at)} · {slot.branch.name}
+                {/* Nhiệm vụ là thứ quyết định chọn ai — không hiện ở đây thì
+                    người gán phải nhớ lại từ thẻ ngoài lịch. */}
+                {slot.duty_role ? ` · ${SHIFT_KIND_LABELS[slot.duty_role]}` : ""}
               </DialogDescription>
             </div>
           </div>

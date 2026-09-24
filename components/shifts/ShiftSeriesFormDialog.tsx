@@ -9,6 +9,7 @@ import { addDays, format, startOfDay } from "date-fns";
 import { CalendarSyncIcon } from "lucide-react";
 import { createShiftSeriesAction, type SeriesCreateSummary } from "@/actions/shift-series";
 import { SHIFT_TYPE_LABELS, detectShiftType } from "@/lib/constants";
+import { SHIFT_DUTY_ROLES, SHIFT_KIND_LABELS } from "@/lib/shift-kind-tag";
 import { SHIFT_TYPES } from "@/lib/validations/shift";
 import { formatSeriesDate } from "@/lib/shift-series";
 import { isManagerRole } from "@/lib/roles";
@@ -46,12 +47,16 @@ const INTERVAL_OPTIONS = [1, 2, 3, 4] as const;
 // Radix Select cannot hold an empty string as an item value, so "leave it
 // empty" needs a sentinel of its own rather than "".
 const NO_ASSIGNEE = "__none__";
+// Cùng lý do Radix như NO_ASSIGNEE: "không chỉ định nhiệm vụ" cần một giá trị
+// thật, không dùng được chuỗi rỗng.
+const NO_DUTY = "__no_duty__";
 
 const formSchema = z.object({
   // Optional since Đợt 3 — an empty assignee plans the rule as unfilled slots
   // that a manager assigns later. Validated as a uuid only when present.
   assignee_id: z.union([z.uuid(), z.literal(NO_ASSIGNEE)]).optional(),
   branch_id: z.uuid("Vui lòng chọn cơ sở").optional(),
+  duty_role: z.union([z.enum(SHIFT_DUTY_ROLES), z.literal(NO_DUTY)]).optional(),
   note: z.string().max(280, "Ghi chú tối đa 280 ký tự").optional(),
 });
 type FormValues = z.infer<typeof formSchema>;
@@ -182,6 +187,7 @@ export default function ShiftSeriesFormDialog({
       end_time: endTime,
       starts_on: startsOn,
       ends_on: openEnded ? "" : endsOn,
+      duty_role: values.duty_role && values.duty_role !== NO_DUTY ? values.duty_role : "",
       note: values.note || undefined,
     });
 
@@ -281,6 +287,37 @@ export default function ShiftSeriesFormDialog({
               <p className="text-muted-foreground text-xs">
                 Để trống nếu chưa biết ai trực — hệ thống tạo sẵn các ô ca để gán người sau.
                 Nhân viên không nhìn thấy ô trống.
+              </p>
+            </div>
+
+            {/* Nhiệm vụ đứng ngay sau người được xếp, vì nó là thứ trả lời
+                "ca này để làm gì" — quan trọng nhất đúng lúc ô Nhân viên bỏ
+                trống, khi ô ca sinh ra chưa có ai và chỉ còn nhiệm vụ để nói
+                cần người thế nào. */}
+            <div className="space-y-1.5">
+              <Label htmlFor="series_duty_role">Nhiệm vụ của ca (không bắt buộc)</Label>
+              <Controller
+                control={control}
+                name="duty_role"
+                render={({ field }) => (
+                  <Select value={field.value ?? NO_DUTY} onValueChange={field.onChange}>
+                    <SelectTrigger id="series_duty_role" className="w-full">
+                      <SelectValue placeholder="Không chỉ định" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NO_DUTY}>Không chỉ định</SelectItem>
+                      {SHIFT_DUTY_ROLES.map((role) => (
+                        <SelectItem key={role} value={role}>
+                          {SHIFT_KIND_LABELS[role]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              <p className="text-muted-foreground text-xs">
+                Ô ca trống sẽ ghi rõ cần người làm nhiệm vụ gì, ví dụ “Ca trống · Quản sinh · Cơ sở
+                1”. Để trống thì ca đi theo vai trò gốc của người được xếp.
               </p>
             </div>
 

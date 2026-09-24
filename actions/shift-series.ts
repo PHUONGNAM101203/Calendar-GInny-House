@@ -145,6 +145,10 @@ export async function createShiftSeriesAction(
     // Passing "" through would be a date-parse error, not an open-ended rule.
     p_ends_on: parsed.data.ends_on || null,
     p_note: parsed.data.note || null,
+    // "" -> null: rỗng nghĩa là không chỉ định nhiệm vụ, ô trống sinh ra sẽ
+    // không mang yêu cầu vai trò nào — giống cách covering_role làm ở
+    // actions/shifts.ts.
+    p_duty_role: parsed.data.duty_role || null,
   });
 
   if (error) {
