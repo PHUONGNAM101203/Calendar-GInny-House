@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { SHIFT_TYPES } from "@/lib/validations/shift";
-import { SHIFT_DUTY_ROLES } from "@/lib/shift-kind-tag";
 
 // Wall-clock "HH:mm" and calendar "yyyy-MM-dd" — the two shapes the create RPC
 // takes for its `time` and `date` parameters. Deliberately NOT ISO instants: a
@@ -31,11 +30,12 @@ export const shiftSeriesSchema = z
     // branch (0066). Required again for every other shift type, below.
     branch_id: z.uuid("Vui lòng chọn cơ sở").optional(),
     shift_type: z.enum(SHIFT_TYPES, "Vui lòng chọn loại ca"),
-    // Nhiệm vụ của ca. "" = không chỉ định; actions/shift-series.ts đổi thành
-    // null ở ranh giới RPC, giống cách covering_role làm trong shiftSchema.
-    // Cố ý chỉ có ở schema TẠO: đổi nhiệm vụ của một chuỗi đã chạy phải viết
-    // lại duty_role trên mọi ô trống chưa dùng, không thuộc phạm vi 0090.
-    duty_role: z.union([z.literal(""), z.enum(SHIFT_DUTY_ROLES)]).optional(),
+    // Nhiệm vụ của ca: "" = theo vai trò chính của người được xếp,
+    // "receptionist" = ca trực quầy. Chỉ hai giá trị, đúng bằng những gì mô
+    // hình 0055/0056 chừa lại và đúng khuôn covering_role trong shiftSchema.
+    // Cố ý chỉ có ở schema TẠO — đổi nhiệm vụ của chuỗi đang chạy là việc của
+    // update_shift_series_occurrences, không thuộc phạm vi này.
+    duty_role: z.union([z.literal(""), z.literal("receptionist")]).optional(),
     weekdays: z
       .array(z.number().int().min(0).max(6))
       .min(1, "Vui lòng chọn ít nhất một ngày trong tuần")
@@ -169,5 +169,8 @@ export type ShiftSeriesUpdateInput = z.infer<typeof shiftSeriesUpdateSchema>;
 export const assignShiftSlotSchema = z.object({
   slot_id: z.uuid("Không xác định được ô ca"),
   assignee_id: z.uuid("Vui lòng chọn nhân viên"),
+  // Nhiệm vụ chỉ hỏi được ở ĐÂY chứ không ở lúc tạo ô trống: phải biết người
+  // là ai mới biết họ có kiêm lễ tân hay không.
+  covering_role: z.union([z.literal(""), z.literal("receptionist")]).optional(),
 });
 export type AssignShiftSlotInput = z.infer<typeof assignShiftSlotSchema>;

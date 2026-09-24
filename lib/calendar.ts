@@ -32,7 +32,6 @@ import type {
   SwapRequestDetailed,
 } from "@/types";
 import { canApproveSwapRequestFor } from "@/lib/roles";
-import { SHIFT_KIND_LABELS } from "@/lib/shift-kind-tag";
 import type { GroupPermissions } from "@/lib/permissions";
 
 // Local widening of LeaveRequestDetailed's profile pick — the shared type
@@ -383,12 +382,7 @@ export function isShiftSlotEvent(event: CalendarEvent): event is ShiftSlotEvent 
 export function toShiftSlotEvents(slots: ShiftSlotDetailed[]): ShiftSlotEvent[] {
   return slots.map((slot) => ({
     id: `shift-slot-${slot.id}`,
-    // Nhiệm vụ đứng trước cơ sở: người xếp lịch quét mắt tìm "còn thiếu quản
-    // sinh ở đâu", chứ không tìm "cơ sở 1 còn trống gì". Ô chưa chỉ định
-    // nhiệm vụ giữ nguyên nhãn cũ.
-    title: slot.duty_role
-      ? `Ca trống · ${SHIFT_KIND_LABELS[slot.duty_role]} · ${slot.branch.name}`
-      : `Ca trống · ${slot.branch.name}`,
+    title: `Ca trống · ${slot.branch.name}`,
     start: new Date(slot.start_at),
     end: new Date(slot.end_at),
     resource: { kind: "shift_slot" as const, slot },

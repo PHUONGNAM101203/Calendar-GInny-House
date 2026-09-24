@@ -6,7 +6,7 @@ import { UserPlusIcon } from "lucide-react";
 import { assignShiftSlotAction } from "@/actions/shift-series";
 import { formatSlotWindow } from "@/lib/shift-series";
 import { isManagerRole } from "@/lib/roles";
-import { SHIFT_KIND_LABELS } from "@/lib/shift-kind-tag";
+import { SHIFT_KIND_LABELS, canChooseCoveringRole } from "@/lib/shift-kind-tag";
 import type { Profile, ShiftSlotDetailed } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -41,6 +41,9 @@ export default function ShiftSlotAssignDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const [assigneeId, setAssigneeId] = useState("");
+  // Nhiệm vụ chỉ hỏi được sau khi biết người là ai — trước đó chưa có vai trò
+  // nào để lấy. "" = theo vai trò chính của họ.
+  const [coveringRole, setCoveringRole] = useState<"" | "receptionist">("");
   const [serverError, setServerError] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -63,7 +66,11 @@ export default function ShiftSlotAssignDialog({
     }
     setPending(true);
     try {
-      const result = await assignShiftSlotAction({ slot_id: slot.id, assignee_id: assigneeId });
+      const result = await assignShiftSlotAction({
+        slot_id: slot.id,
+        assignee_id: assigneeId,
+        covering_role: coveringRole,
+      });
       if (!result.ok) {
         setServerError(result.error);
         return;
@@ -87,9 +94,6 @@ export default function ShiftSlotAssignDialog({
               <DialogTitle>Gán người vào ca</DialogTitle>
               <DialogDescription>
                 {formatSlotWindow(slot.start_at, slot.end_at)} · {slot.branch.name}
-                {/* Nhiệm vụ là thứ quyết định chọn ai — không hiện ở đây thì
-                    người gán phải nhớ lại từ thẻ ngoài lịch. */}
-                {slot.duty_role ? ` · ${SHIFT_KIND_LABELS[slot.duty_role]}` : ""}
               </DialogDescription>
             </div>
           </div>
@@ -109,6 +113,28 @@ export default function ShiftSlotAssignDialog({
               ))}
             </SelectContent>
           </Select>
+          {(() => {
+            const picked = candidates.find((m) => m.id === assigneeId);
+            if (!picked || !canChooseCoveringRole(picked.role, picked.covers_reception)) return null;
+            return (
+              <div className="space-y-1.5 pt-3">
+                <Label htmlFor={`slot_duty_${slot.id}`}>Nhiệm vụ của ca</Label>
+                <Select
+                  value={coveringRole || "own"}
+                  onValueChange={(v) => setCoveringRole(v === "own" ? "" : "receptionist")}
+                >
+                  <SelectTrigger id={`slot_duty_${slot.id}`} className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="own">{SHIFT_KIND_LABELS[picked.role]}</SelectItem>
+                    <SelectItem value="receptionist">{SHIFT_KIND_LABELS.receptionist}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            );
+          })()}
+
           {candidates.length === 0 && (
             <p className="text-muted-foreground text-sm">
               Không có nhân viên nào thuộc {slot.branch.name}.

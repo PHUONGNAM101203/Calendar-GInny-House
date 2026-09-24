@@ -123,11 +123,6 @@ export type ShiftSlot = {
   end_at: string;
   created_by: string | null;
   created_at: string;
-  /**
-   * Nhiệm vụ mà ô trống này cần (quản sinh, trợ giảng...). null = không chỉ
-   * định. Sao từ ShiftSeries.duty_role lúc sinh ô — xem 0090.
-   */
-  duty_role: Role | null;
 };
 
 export type ShiftSlotDetailed = ShiftSlot & {

@@ -9,7 +9,7 @@ import { addDays, format, startOfDay } from "date-fns";
 import { CalendarSyncIcon } from "lucide-react";
 import { createShiftSeriesAction, type SeriesCreateSummary } from "@/actions/shift-series";
 import { SHIFT_TYPE_LABELS, detectShiftType } from "@/lib/constants";
-import { SHIFT_DUTY_ROLES, SHIFT_KIND_LABELS } from "@/lib/shift-kind-tag";
+import { SHIFT_KIND_LABELS, canChooseCoveringRole } from "@/lib/shift-kind-tag";
 import { SHIFT_TYPES } from "@/lib/validations/shift";
 import { formatSeriesDate } from "@/lib/shift-series";
 import { isManagerRole } from "@/lib/roles";
@@ -56,7 +56,7 @@ const formSchema = z.object({
   // that a manager assigns later. Validated as a uuid only when present.
   assignee_id: z.union([z.uuid(), z.literal(NO_ASSIGNEE)]).optional(),
   branch_id: z.uuid("Vui lòng chọn cơ sở").optional(),
-  duty_role: z.union([z.enum(SHIFT_DUTY_ROLES), z.literal(NO_DUTY)]).optional(),
+  duty_role: z.union([z.literal("receptionist"), z.literal(NO_DUTY)]).optional(),
   note: z.string().max(280, "Ghi chú tối đa 280 ký tự").optional(),
 });
 type FormValues = z.infer<typeof formSchema>;
@@ -290,36 +290,41 @@ export default function ShiftSeriesFormDialog({
               </p>
             </div>
 
-            {/* Nhiệm vụ đứng ngay sau người được xếp, vì nó là thứ trả lời
-                "ca này để làm gì" — quan trọng nhất đúng lúc ô Nhân viên bỏ
-                trống, khi ô ca sinh ra chưa có ai và chỉ còn nhiệm vụ để nói
-                cần người thế nào. */}
-            <div className="space-y-1.5">
-              <Label htmlFor="series_duty_role">Nhiệm vụ của ca (không bắt buộc)</Label>
-              <Controller
-                control={control}
-                name="duty_role"
-                render={({ field }) => (
-                  <Select value={field.value ?? NO_DUTY} onValueChange={field.onChange}>
-                    <SelectTrigger id="series_duty_role" className="w-full">
-                      <SelectValue placeholder="Không chỉ định" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={NO_DUTY}>Không chỉ định</SelectItem>
-                      {SHIFT_DUTY_ROLES.map((role) => (
-                        <SelectItem key={role} value={role}>
-                          {SHIFT_KIND_LABELS[role]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              <p className="text-muted-foreground text-xs">
-                Ô ca trống sẽ ghi rõ cần người làm nhiệm vụ gì, ví dụ “Ca trống · Quản sinh · Cơ sở
-                1”. Để trống thì ca đi theo vai trò gốc của người được xếp.
-              </p>
-            </div>
+            {/* Chỉ hiện khi đã chọn người VÀ người đó kiêm lễ tân — tức khi
+                thật sự có hai nhiệm vụ để chọn giữa. Chưa chọn người thì chưa
+                có vai trò nào để lấy; chọn người một vai trò thì nhiệm vụ đã
+                xác định, một ô chỉ có một lựa chọn chỉ tổ gây nhiễu.
+                Không có "Trợ giảng" ở đây: mô hình 0055/0056 chốt phần việc
+                trợ giảng ghi bằng chấm công tự do không gắn ca. */}
+            {selectedAssignee &&
+              canChooseCoveringRole(selectedAssignee.role, selectedAssignee.covers_reception) && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="series_duty_role">Nhiệm vụ của ca</Label>
+                  <Controller
+                    control={control}
+                    name="duty_role"
+                    render={({ field }) => (
+                      <Select value={field.value ?? NO_DUTY} onValueChange={field.onChange}>
+                        <SelectTrigger id="series_duty_role" className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={NO_DUTY}>
+                            {SHIFT_KIND_LABELS[selectedAssignee.role]}
+                          </SelectItem>
+                          <SelectItem value="receptionist">
+                            {SHIFT_KIND_LABELS.receptionist}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  <p className="text-muted-foreground text-xs">
+                    Chọn <b>Lễ tân</b> nếu chuỗi ca này là ca trực quầy — ca lễ tân không chiếm suất
+                    quản sinh của cơ sở.
+                  </p>
+                </div>
+              )}
 
             {shiftType !== "remote" && (
               <div className="space-y-1.5">

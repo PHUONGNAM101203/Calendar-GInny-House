@@ -56,18 +56,3 @@ export function canChooseCoveringRole(
 ): boolean {
   return Boolean(coversReception) && role !== "receptionist";
 }
-
-// Các nhiệm vụ đặt được cho một ca cố định.
-//
-// Chỉ những vai trò thật sự trực ca. Vai trò quản lý không nằm đây: một ca cố
-// định "ca giám đốc" không có nghĩa gì với người xếp lịch, và ô trống sinh ra
-// từ nó cũng không ai nhận.
-export const SHIFT_DUTY_ROLES = [
-  "student_affairs",
-  "teaching_assistant",
-  "receptionist",
-  "teacher",
-  "collaborator",
-  "customer_care",
-  "operations_staff",
-] as const satisfies readonly Role[];

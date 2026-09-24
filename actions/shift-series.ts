@@ -406,6 +406,7 @@ export async function assignShiftSlotAction(
   const { data, error } = await supabase.rpc("assign_shift_slot", {
     p_slot_id: parsed.data.slot_id,
     p_assignee_id: parsed.data.assignee_id,
+    p_covering_role: parsed.data.covering_role || null,
   });
 
   if (error) {
