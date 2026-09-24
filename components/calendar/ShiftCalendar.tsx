@@ -62,6 +62,7 @@ import ShiftEventCell from "@/components/calendar/ShiftEventCell";
 import CalendarDayHeader from "@/components/calendar/CalendarDayHeader";
 import CalendarTimeGutterHeader from "@/components/calendar/CalendarTimeGutterHeader";
 import ShiftFormDialog from "@/components/shifts/ShiftFormDialog";
+import ShiftSeriesFormDialog from "@/components/shifts/ShiftSeriesFormDialog";
 import ShiftDetailDialog from "@/components/shifts/ShiftDetailDialog";
 import AttendanceDetailDialog from "@/components/calendar/AttendanceDetailDialog";
 import LeaveDetailDialog from "@/components/calendar/LeaveDetailDialog";
@@ -727,6 +728,12 @@ export default function ShiftCalendar({
     [branchMembers, currentUserRole, permissions]
   );
 
+  // Ca cố định trước nay chỉ có lối vào ở /manager, nên người xếp ca đứng ở
+  // lịch không tìm ra — 0 chuỗi được tạo kể từ khi có tính năng. Dialog này
+  // vốn đã tự chứa (chỉ cần branchMembers + branches), nên mở thẳng từ đây
+  // không phải nhân bản gì.
+  const [seriesFormOpen, setSeriesFormOpen] = useState(false);
+
   function handleQuickCreate() {
     const start = new Date();
     start.setHours(CALENDAR_MIN_HOUR + 3, 0, 0, 0);
@@ -871,6 +878,7 @@ export default function ShiftCalendar({
         return next;
       }),
     branchColors,
+    onCreateSeries: () => setSeriesFormOpen(true),
   };
 
   return (
@@ -1009,6 +1017,15 @@ export default function ShiftCalendar({
           // this just signals the main grid is catching up.
           className={cn("min-h-0 flex-1 transition-opacity", isPending && "opacity-60")}
         />
+
+        {canManageShifts && (
+          <ShiftSeriesFormDialog
+            open={seriesFormOpen}
+            onOpenChange={setSeriesFormOpen}
+            branchMembers={creatableBranchMembers}
+            branches={branches}
+          />
+        )}
 
         {canManageShifts && (
           <ShiftFormDialog

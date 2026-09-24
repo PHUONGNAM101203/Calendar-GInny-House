@@ -76,6 +76,7 @@ type SidebarProps = {
   onPickDate: (date: Date) => void;
   onOpenDay: (date: Date) => void;
   onCreate: () => void;
+  onCreateSeries: () => void;
   people: Person[];
   groups: PersonGroup[] | null;
   canFollowAll: boolean;
@@ -722,6 +723,7 @@ function SidebarContent({
   onPickDate,
   onOpenDay,
   onCreate,
+  onCreateSeries,
   people,
   groups,
   canFollowAll,
@@ -752,10 +754,21 @@ function SidebarContent({
   return (
     <div className="flex flex-col gap-6">
       {canManageShifts ? (
-        <Button onClick={onCreate} className="justify-start gap-2">
-          <PlusIcon className="size-4" />
-          Tạo ca làm việc
-        </Button>
+        <div className="flex flex-col gap-1.5">
+          <Button onClick={onCreate} className="justify-start gap-2">
+            <PlusIcon className="size-4" />
+            Tạo ca làm việc
+          </Button>
+          {/* Ca cố định vốn chỉ nằm ở /manager, trong khi người xếp ca luôn
+              bắt đầu từ đây — nên trong suốt vòng đời tính năng chưa ai tạo
+              nổi một chuỗi nào (0 chuỗi trên production). Đặt lối vào ngay
+              cạnh nút người ta thật sự bấm; quyền không đổi, vẫn đúng cái
+              gate canManageShifts đang bọc cả khối này. */}
+          <Button onClick={onCreateSeries} variant="outline" className="justify-start gap-2">
+            <RepeatIcon className="size-4" />
+            Tạo ca cố định
+          </Button>
+        </div>
       ) : (
         <ShiftRequestDialog
           branches={requestableBranches}
