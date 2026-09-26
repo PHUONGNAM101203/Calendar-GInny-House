@@ -330,7 +330,26 @@ export async function createPasswordResetLinkAction(
     return { ok: false, error: "Không tạo được liên kết đặt lại mật khẩu" };
   }
 
-  return { ok: true, data: { link: data.properties.action_link, email: target.user.email } };
+  // Kiểm liên kết TRƯỚC khi đưa cho người dùng.
+  //
+  // GoTrue đối chiếu redirect_to với danh sách URL được phép của project; không
+  // khớp thì nó lặng lẽ thay bằng Site URL. Site URL mặc định là
+  // http://localhost:3000, nên cấu hình sai sẽ sinh ra một liên kết trông vẫn
+  // bình thường nhưng đưa nhân viên tới máy của chính họ — hỏng mà không ai
+  // biết vì sao. Thà chặn ở đây kèm câu chỉ đúng chỗ cần sửa.
+  const actionLink = data.properties.action_link;
+  const redirectTo = new URL(actionLink).searchParams.get("redirect_to") ?? "";
+  if (origin && !redirectTo.startsWith(origin)) {
+    return {
+      ok: false,
+      error:
+        `Supabase đang trả liên kết về ${new URL(redirectTo || origin).origin} thay vì ${origin}. ` +
+        "Vào Supabase → Authentication → URL Configuration, đặt Site URL thành địa chỉ thật của " +
+        "app và thêm nó vào Redirect URLs, rồi thử lại.",
+    };
+  }
+
+  return { ok: true, data: { link: actionLink, email: target.user.email } };
 }
 
 export async function deactivateStaffAction(
