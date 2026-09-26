@@ -328,6 +328,16 @@ export function canSeeOthersPendingOnCalendar(role: Role): boolean {
   return role === "ceo" || role === "technical";
 }
 
+// Ai được tạo liên kết đặt lại mật khẩu cho người khác.
+//
+// Hẹp nhất trong app, hẹp hơn cả isManagerRole: liên kết này mở đường vào
+// TÀI KHOẢN của một người — lịch làm, chấm công, đơn từ của họ. Kể cả khi
+// người tạo không bao giờ thấy mật khẩu, việc phát ra được một đường vào là
+// đủ để giới hạn ở đúng hai vai trò chịu trách nhiệm hệ thống.
+export function canResetStaffPassword(role: Role): boolean {
+  return role === "ceo" || role === "technical";
+}
+
 // Who edits the national-holiday list (table `holidays`, 0080). Deliberately
 // narrower than isManagerRole(): a holiday is a company-wide, calendar-wide
 // fact, not a per-group one, so COO/Giám Đốc Đào Tạo/HR get no say. Mirrors

@@ -29,7 +29,16 @@ import {
   updateStaffSecondaryRoleAction,
   updateStaffCoversReceptionAction,
   deactivateStaffAction,
+  createPasswordResetLinkAction,
 } from "@/actions/staff";
+import { canResetStaffPassword } from "@/lib/roles";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   ROLE_HIERARCHY,
   ROLE_LABELS,
@@ -65,6 +74,7 @@ export default function StaffTable({
   currentUserRole: Role;
 }) {
   const canDeactivate = currentUserRole === "technical";
+  const canResetPassword = canResetStaffPassword(currentUserRole);
 
   return (
     <TableScroller visibleRows={10}>
@@ -75,7 +85,11 @@ export default function StaffTable({
             <th className="px-4 py-2 font-medium">Điện thoại</th>
             <th className="px-4 py-2 font-medium">Vai trò</th>
             <th className="px-4 py-2 font-medium">Cơ sở</th>
-            {canDeactivate && <th className="px-4 py-2 font-medium">Trạng thái</th>}
+            {/* Cùng điều kiện với ô dữ liệu bên dưới, nếu không thì TGĐ thấy
+                nút nhưng cột mất đầu đề và bảng lệch một ô. */}
+            {(canDeactivate || canResetPassword) && (
+              <th className="px-4 py-2 font-medium">Trạng thái</th>
+            )}
           </tr>
         </thead>
         <tbody className="max-lg:block">
@@ -100,12 +114,15 @@ export default function StaffTable({
               </td>
               <td className="px-4 py-2 text-muted-foreground max-lg:hidden">{member.phone || "—"}</td>
               <RoleAndBranchCells member={member} branches={branches} />
-              {canDeactivate && (
+              {(canDeactivate || canResetPassword) && (
                 <td className="px-4 py-2 max-lg:block max-lg:px-0 max-lg:py-0">
                   {member.id === currentUserId ? (
                     <span className="text-xs text-muted-foreground">—</span>
                   ) : (
-                    <DeactivateButton member={member} />
+                    <div className="flex flex-wrap gap-2">
+                      {canResetPassword && <ResetPasswordButton member={member} />}
+                      {canDeactivate && <DeactivateButton member={member} />}
+                    </div>
                   )}
                 </td>
               )}
@@ -114,6 +131,86 @@ export default function StaffTable({
         </tbody>
       </table>
     </TableScroller>
+  );
+}
+
+// Đường đặt lại mật khẩu không qua email.
+//
+// Supabase của dự án đang dùng dịch vụ email mặc định, vốn có giới hạn gắt và
+// chính Supabase ghi rõ là không dành cho production — nên luồng "quên mật
+// khẩu" tự phục vụ không đáng tin với hơn 20 nhân viên. Ở đây quản trị viên
+// tạo liên kết rồi tự gửi qua Lark.
+//
+// Liên kết hiện ra để COPY chứ không tự mở: người bấm nút không phải người
+// cần đổi mật khẩu, mở ra là tự đăng nhập vào tài khoản của nhân viên.
+function ResetPasswordButton({ member }: { member: StaffRow }) {
+  const [open, setOpen] = useState(false);
+  const [link, setLink] = useState("");
+  const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  function generate() {
+    setError("");
+    setLink("");
+    setOpen(true);
+    startTransition(async () => {
+      const result = await createPasswordResetLinkAction(member.id);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setLink(result.data.link);
+    });
+  }
+
+  return (
+    <>
+      <Button size="sm" variant="outline" disabled={isPending} onClick={generate}>
+        {isPending ? "Đang tạo..." : "Đặt lại mật khẩu"}
+      </Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Đặt lại mật khẩu — {member.full_name}</DialogTitle>
+            <DialogDescription>
+              Gửi liên kết này cho nhân viên qua Lark. Họ bấm vào và tự đặt mật khẩu mới — bạn không
+              nhìn thấy mật khẩu của họ.
+            </DialogDescription>
+          </DialogHeader>
+
+          {error && <p className="text-sm text-destructive">{error}</p>}
+
+          {link && (
+            <div className="space-y-3">
+              <textarea
+                readOnly
+                rows={3}
+                value={link}
+                onFocus={(e) => e.currentTarget.select()}
+                className="w-full rounded-md border bg-muted/40 p-2 font-mono text-xs"
+              />
+              <Button
+                type="button"
+                className="w-full"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(link);
+                  toast.success("Đã sao chép liên kết");
+                }}
+              >
+                Sao chép liên kết
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Liên kết chỉ dùng được <b>một lần</b> và hết hạn sau một giờ. Đừng tự bấm vào —
+                bấm là bạn đăng nhập vào tài khoản của nhân viên đó.
+              </p>
+            </div>
+          )}
+
+          {!link && !error && <p className="text-sm text-muted-foreground">Đang tạo liên kết...</p>}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

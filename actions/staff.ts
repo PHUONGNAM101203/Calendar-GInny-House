@@ -2,10 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireManager } from "@/lib/auth";
 import { emitNotifications } from "@/lib/notifications-emit";
-import { ROLE_LABELS } from "@/lib/roles";
+import { ROLE_LABELS, canResetStaffPassword } from "@/lib/roles";
 import type { ActionResult, Role } from "@/types";
 
 // Every notification in this file is addressed to the staff member whose
@@ -292,6 +294,45 @@ export async function updateStaffCoversReceptionAction(
 // not here. Restricted to technical, unlike updateStaffRoleAction/
 // updateStaffBranchesAction above which any manager-tier role can call —
 // deactivation is a much larger blast radius than a role/branch edit.
+// Tạo liên kết đặt lại mật khẩu dùng một lần, KHÔNG gửi email.
+//
+// Supabase của dự án đang dùng dịch vụ email mặc định — chính Supabase ghi
+// rõ nó có giới hạn gắt và không dành cho production, nên luồng "quên mật
+// khẩu" tự phục vụ không đáng tin với hơn 20 nhân viên. Đây là đường thứ hai,
+// không phụ thuộc email: quản trị viên tạo liên kết rồi gửi cho nhân viên qua
+// Lark.
+//
+// generateLink chứ không phải đặt thẳng một mật khẩu tạm: người tạo liên kết
+// không bao giờ biết mật khẩu của nhân viên. Họ chỉ phát ra một lần vào, còn
+// mật khẩu do chính chủ đặt ở /doi-mat-khau.
+export async function createPasswordResetLinkAction(
+  profileId: string
+): Promise<ActionResult<{ link: string; email: string }>> {
+  const manager = await requireManager();
+  if (!canResetStaffPassword(manager.role)) {
+    return { ok: false, error: "Chỉ Tổng Giám Đốc và Kỹ thuật mới tạo được liên kết này" };
+  }
+
+  // Email không nằm ở profiles mà ở auth.users, nên phải hỏi qua admin API.
+  const { data: target, error: lookupError } = await supabaseAdmin.auth.admin.getUserById(profileId);
+  if (lookupError || !target.user?.email) {
+    return { ok: false, error: "Không tìm thấy email của nhân viên này" };
+  }
+
+  const origin = (await headers()).get("origin");
+  const { data, error } = await supabaseAdmin.auth.admin.generateLink({
+    type: "recovery",
+    email: target.user.email,
+    options: { redirectTo: `${origin}/auth/callback?next=/doi-mat-khau` },
+  });
+
+  if (error || !data.properties?.action_link) {
+    return { ok: false, error: "Không tạo được liên kết đặt lại mật khẩu" };
+  }
+
+  return { ok: true, data: { link: data.properties.action_link, email: target.user.email } };
+}
+
 export async function deactivateStaffAction(
   profileId: string,
   deactivate: boolean
