@@ -108,7 +108,16 @@ export default function LoginForm() {
           </Button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-muted-foreground">
+        <p className="mt-4 text-center text-sm">
+          <Link
+            href="/quen-mat-khau"
+            className="font-medium text-muted-foreground underline underline-offset-4"
+          >
+            Quên mật khẩu?
+          </Link>
+        </p>
+
+        <p className="mt-2 text-center text-sm text-muted-foreground">
           Chưa có tài khoản?{" "}
           <Link href="/register" className="font-medium text-foreground underline underline-offset-4">
             Đăng ký

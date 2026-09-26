@@ -36,3 +36,22 @@ export const registerSchema = z
     path: ["confirm_password"],
   });
 export type RegisterInput = z.infer<typeof registerSchema>;
+
+// Quên mật khẩu: chỉ cần email. Dùng lại emailField để một địa chỉ gõ hoa
+// hay thừa khoảng trắng vẫn khớp đúng tài khoản, giống lúc đăng nhập.
+export const forgotPasswordSchema = z.object({ email: emailField });
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
+// Đặt mật khẩu mới sau khi bấm liên kết khôi phục. Cùng bộ luật mật khẩu với
+// lúc đăng ký — người dùng không nên gặp hai tiêu chuẩn khác nhau cho cùng
+// một ô mật khẩu.
+export const resetPasswordSchema = z
+  .object({
+    password: passwordField,
+    confirm_password: z.string(),
+  })
+  .refine((v) => v.password === v.confirm_password, {
+    message: "Mật khẩu xác nhận không khớp",
+    path: ["confirm_password"],
+  });
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

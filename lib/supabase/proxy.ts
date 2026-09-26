@@ -1,7 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/", "/login", "/register"];
+// /quen-mat-khau và /auth/callback phải công khai: người quên mật khẩu theo
+// định nghĩa là người CHƯA đăng nhập được. Thiếu /auth/callback thì liên kết
+// trong email bị đá về /login trước khi kịp đổi mã lấy phiên, và tính năng
+// chết lặng mà không báo gì.
+const PUBLIC_PATHS = ["/", "/login", "/register", "/quen-mat-khau", "/auth/callback"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
