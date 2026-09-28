@@ -72,18 +72,20 @@ export default async function SwapRequestsPage() {
         )}
       </section>
 
-      <section className="space-y-3">
-        <SectionHeading title="Lịch sử cơ sở" />
-        {history.length === 0 ? (
-          <EmptyState>Chưa có yêu cầu đổi ca nào khác.</EmptyState>
-        ) : (
+      {/* Không còn là "cơ sở" kể từ 0092: RLS đã thu danh sách này về người
+          trong cuộc và cấp quản lý của họ, nên nhân viên thường không thấy đơn
+          của ai khác. Chỉ dựng mục này khi thật sự có gì để xem — để trống
+          vĩnh viễn một mục tên "Lịch sử" chỉ khiến người ta tưởng hỏng. */}
+      {history.length > 0 && (
+        <section className="space-y-3">
+          <SectionHeading title="Lịch sử đổi ca" />
           <CollapsibleGrid dates={history.map((r) => r.created_at)} className="space-y-3">
             {history.map((r) => (
               <SwapRequestCard key={r.id} request={r} canRespond={false} canCancel={false} canDelete={false} canRevert={false} />
             ))}
           </CollapsibleGrid>
-        )}
-      </section>
+        </section>
+      )}
     </div>
   );
 }
