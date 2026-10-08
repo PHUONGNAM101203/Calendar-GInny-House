@@ -21,6 +21,7 @@ import {
   UserIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { usePersistentCollapse } from "@/hooks/use-persistent-collapse";
@@ -792,16 +793,20 @@ function SidebarContent({
           này — chúng lọc theo cơ sở và theo lịch cá nhân, không theo người. */}
       {canFollowAll && (
         <div className="space-y-1.5">
-          <Button
-            type="button"
-            variant={onlyMine ? "default" : "outline"}
-            onClick={onToggleOnlyMine}
-            aria-pressed={onlyMine}
-            className="w-full justify-start gap-2"
+          {/* Hàng nhãn-trái / công tắc-phải: trạng thái bật hay tắt đọc được
+              ngay từ vị trí cần gạt, không phải suy ra từ màu của một cái nút.
+              Bọc trong <label> để bấm cả hàng cũng gạt được, không phải nhắm
+              đúng con trượt nhỏ. */}
+          <label
+            htmlFor="only-mine"
+            className="flex cursor-pointer items-center justify-between gap-3 rounded-md border px-3 py-2"
           >
-            <UserIcon className="size-4" />
-            Chỉ lịch của tôi
-          </Button>
+            <span className="flex items-center gap-2 text-sm font-medium">
+              <UserIcon className="size-4" />
+              Lịch của tôi
+            </span>
+            <Switch id="only-mine" checked={onlyMine} onCheckedChange={onToggleOnlyMine} />
+          </label>
           {onlyMine && (
             <p className="text-xs text-muted-foreground">
               Đang ẩn lịch của mọi người khác. Lịch cơ sở và lịch khác vẫn giữ nguyên.
