@@ -228,16 +228,27 @@ export default function ShiftCalendar({
   // Only applies when this viewer even has the "see everyone, follow to
   // pin" model (canFollowAll); everyone else's events are already scoped
   // to their own branch by RLS, so there's nothing to filter client-side.
+  // Lớp phủ "chỉ lịch của tôi": đè lên danh sách theo dõi mà không ghi đè nó.
+  // Tắt đi là danh sách đã tick trở lại nguyên vẹn.
+  const [onlyMine, setOnlyMine] = useState(false);
+
   const visiblePersonIds = useMemo(
-    () => (canFollowAll ? new Set([currentUserId, ...followedIds]) : null),
-    [canFollowAll, currentUserId, followedIds]
+    () =>
+      onlyMine
+        ? new Set([currentUserId])
+        : canFollowAll
+          ? new Set([currentUserId, ...followedIds])
+          : null,
+    [onlyMine, canFollowAll, currentUserId, followedIds]
   );
 
   // Đơn chờ duyệt của NGƯỜI KHÁC chỉ hiện trên lưới với Tổng Giám Đốc và Kỹ
   // thuật. Người gửi luôn thấy đơn của chính mình. Vai trò khác — kể cả người
   // có quyền duyệt — vẫn xử lý đơn qua "Cần xét duyệt" ở sidebar và /manager,
   // chứ lưới lịch không phải chỗ phơi đơn từ của đồng nghiệp.
-  const seesOthersPending = canSeeOthersPendingOnCalendar(currentUserRole);
+  // "Chỉ lịch của tôi" phải tắt luôn đơn chờ duyệt của người khác, nếu không
+  // thì bật công tắc xong vẫn còn bóng mờ của đồng nghiệp nằm trên lưới.
+  const seesOthersPending = canSeeOthersPendingOnCalendar(currentUserRole) && !onlyMine;
 
   // Luật cho lưới: chỉ ĐƠN CHỜ DUYỆT mới thoát khỏi danh sách tick. Ca làm
   // việc, thẻ chấm công, nghỉ phép đã duyệt — tất cả vẫn theo tick như cũ.
@@ -879,6 +890,8 @@ export default function ShiftCalendar({
       }),
     branchColors,
     onCreateSeries: () => setSeriesFormOpen(true),
+    onlyMine,
+    onToggleOnlyMine: () => setOnlyMine((v) => !v),
   };
 
   return (

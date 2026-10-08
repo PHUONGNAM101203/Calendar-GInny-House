@@ -18,6 +18,7 @@ import {
   ClockAlertIcon,
   RepeatIcon,
   AlarmClockOffIcon,
+  UserIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,6 +78,8 @@ type SidebarProps = {
   onOpenDay: (date: Date) => void;
   onCreate: () => void;
   onCreateSeries: () => void;
+  onlyMine: boolean;
+  onToggleOnlyMine: () => void;
   people: Person[];
   groups: PersonGroup[] | null;
   canFollowAll: boolean;
@@ -724,6 +727,8 @@ function SidebarContent({
   onOpenDay,
   onCreate,
   onCreateSeries,
+  onlyMine,
+  onToggleOnlyMine,
   people,
   groups,
   canFollowAll,
@@ -779,7 +784,33 @@ function SidebarContent({
 
       <MiniMonth date={date} onPick={onPickDate} onOpenDay={onOpenDay} />
 
-      <div>
+      {/* Chỉ lịch của tôi — công tắc xem, KHÔNG ghi vào danh sách theo dõi.
+          Bỏ tick từng người rồi tick lại là việc quản lý phải làm mỗi ngày
+          ("bấm tick lên nó hơi mất thời gian"), mà ghi đè thật thì mất luôn
+          danh sách họ đã dựng công phu. Đây là lớp phủ tạm: tắt đi là mọi thứ
+          trở lại y như cũ. Lịch cơ sở và lịch khác không nằm trong phạm vi
+          này — chúng lọc theo cơ sở và theo lịch cá nhân, không theo người. */}
+      {canFollowAll && (
+        <div className="space-y-1.5">
+          <Button
+            type="button"
+            variant={onlyMine ? "default" : "outline"}
+            onClick={onToggleOnlyMine}
+            aria-pressed={onlyMine}
+            className="w-full justify-start gap-2"
+          >
+            <UserIcon className="size-4" />
+            Chỉ lịch của tôi
+          </Button>
+          {onlyMine && (
+            <p className="text-xs text-muted-foreground">
+              Đang ẩn lịch của mọi người khác. Lịch cơ sở và lịch khác vẫn giữ nguyên.
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className={onlyMine ? "pointer-events-none opacity-40" : undefined}>
         <p className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
           {groups ? "Bạn" : canFollowAll ? "Toàn hệ thống" : "Chú giải"}
         </p>
@@ -795,7 +826,7 @@ function SidebarContent({
       </div>
 
       {groups && (
-        <div className="space-y-1">
+        <div className={onlyMine ? "space-y-1 pointer-events-none opacity-40" : "space-y-1"}>
           {groups.map((group) => (
             <GroupSection key={group.key} group={group} canFollowAll={canFollowAll} />
           ))}
