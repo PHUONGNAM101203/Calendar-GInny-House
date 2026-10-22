@@ -8,9 +8,10 @@ import {
   attendanceCorrectionsSchema,
   checkoutCorrectionSchema,
   correctionPreviewSchema,
+  sessionCorrectionSchema,
 } from "@/lib/validations/attendance-correction";
 import { sendPushToLeaveApprovers } from "@/lib/push";
-import { emitNotifications, formatShiftWindow } from "@/lib/notifications-emit";
+import { emitNotifications, formatShiftWindow, formatVietnamMoment } from "@/lib/notifications-emit";
 import type { ActionResult, Attendance, Shift } from "@/types";
 
 export type CorrectionPreview =
@@ -205,6 +206,13 @@ function mapAttendanceCorrectionError(message: string): string {
     "Giờ ra không được ở tương lai",
     "Giờ ra không khớp với ca làm việc này",
     "Ca này đã có đơn giải trình giờ ra đang chờ duyệt",
+    // Đơn giải trình cho phiên chấm công tự do (0093).
+    "Không tìm thấy phiên chấm công này",
+    "Phiên này thuộc một ca — hãy giải trình theo ca",
+    "Đã quá hạn 1 tuần để giải trình phiên này",
+    "Phiên chấm công tự do không thể dài quá 16 giờ",
+    "Giờ ra đề nghị trùng với giờ đang ghi nhận",
+    "Phiên này đã có đơn giải trình giờ ra đang chờ duyệt",
     "Không tìm thấy bản ghi chấm công liên quan — vui lòng gửi lại đơn",
     "Giờ ra không còn hợp lệ so với giờ vào đã được sửa — vui lòng gửi lại đơn",
     "Nhân viên đang có ca chưa chấm công ra — không thể khôi phục tự động",
@@ -230,6 +238,8 @@ type CorrectionSubject = {
   profile_id: string;
   status: string;
   shift: { start_at: string; end_at: string } | null;
+  // Cho đơn của phiên chấm công tự do: không có ca để mô tả, nên mô tả phiên.
+  attendance: { check_in_at: string } | null;
 };
 
 async function readCorrectionSubject(
@@ -238,7 +248,9 @@ async function readCorrectionSubject(
 ): Promise<CorrectionSubject | null> {
   const { data } = await supabase
     .from("attendance_corrections")
-    .select("profile_id, status, shift:shifts!shift_id(start_at, end_at)")
+    .select(
+      "profile_id, status, shift:shifts!shift_id(start_at, end_at), attendance:attendance!attendance_id(check_in_at)"
+    )
     .eq("id", id)
     .maybeSingle<CorrectionSubject>();
   return data ?? null;
@@ -247,9 +259,15 @@ async function readCorrectionSubject(
 // "ca 08:00–12:00 ngày 22/08/2026", or a bare "một ca làm việc" if the shift
 // row is somehow unreadable — the sentence still has to parse.
 function describeCorrectionShift(subject: CorrectionSubject): string {
-  return subject.shift
-    ? `ca ${formatShiftWindow(subject.shift.start_at, subject.shift.end_at)}`
-    : "một ca làm việc";
+  if (subject.shift) {
+    return `ca ${formatShiftWindow(subject.shift.start_at, subject.shift.end_at)}`;
+  }
+  // Đơn của phiên chấm công tự do: gọi là "ca" thì người nhận đi tìm một ca
+  // không tồn tại, nên nói đúng là phiên chấm công lúc mấy giờ.
+  if (subject.attendance) {
+    return `phiên chấm công lúc ${formatVietnamMoment(subject.attendance.check_in_at)}`;
+  }
+  return "một ca làm việc";
 }
 
 export type AttendanceCorrectionsBatchResult = {
@@ -544,6 +562,119 @@ export async function revertAttendanceCorrectionAction(id: string): Promise<Acti
       ])
     );
   }
+  return { ok: true, data: undefined };
+}
+
+// Một phiên chấm công TỰ DO của trợ giảng trong ngày được hỏi. hasPending để
+// form khoá phiên đã có đơn chờ duyệt thay vì cho gửi rồi mới báo trùng.
+export type FreeSession = {
+  id: string;
+  checkInAt: string;
+  checkOutAt: string | null;
+  branchName: string;
+  hasPending: boolean;
+};
+
+// Liệt kê phiên chấm công tự do của chính người gọi trong một ngày. Tách khỏi
+// hàm xem trước theo CA vì hai thứ độc lập: một người vừa quản sinh vừa trợ
+// giảng có thể có cả ca lẫn phiên tự do trong cùng một ngày, và nhét phiên tự
+// do vào nhánh "không có ca" sẽ giấu nó đi đúng vào lúc họ có ca.
+export async function listFreeSessionsAction(input: unknown): Promise<ActionResult<FreeSession[]>> {
+  const profile = await requireProfile();
+  const parsed = correctionPreviewSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" };
+  }
+
+  const supabase = await createClient();
+  const { data: rows, error } = await supabase
+    .from("attendance")
+    .select("id, check_in_at, check_out_at, branch:branches!branch_id(name)")
+    .eq("profile_id", profile.id)
+    .is("shift_id", null)
+    .gte("check_in_at", `${parsed.data.date}T00:00:00+07:00`)
+    .lte("check_in_at", `${parsed.data.date}T23:59:59+07:00`)
+    .order("check_in_at");
+  if (error) return { ok: false, error: "Không thể tải phiên chấm công" };
+
+  const sessions = (rows ?? []) as unknown as {
+    id: string;
+    check_in_at: string;
+    check_out_at: string | null;
+    branch: { name: string } | null;
+  }[];
+  if (sessions.length === 0) return { ok: true, data: [] };
+
+  const { data: pending } = await supabase
+    .from("attendance_corrections")
+    .select("attendance_id")
+    .eq("status", "pending")
+    .eq("kind", "check_out")
+    .in(
+      "attendance_id",
+      sessions.map((s) => s.id)
+    );
+  const pendingIds = new Set((pending ?? []).map((p) => p.attendance_id as string));
+
+  return {
+    ok: true,
+    data: sessions.map((s) => ({
+      id: s.id,
+      checkInAt: s.check_in_at,
+      checkOutAt: s.check_out_at,
+      branchName: s.branch?.name ?? "—",
+      hasPending: pendingIds.has(s.id),
+    })),
+  };
+}
+
+// Gửi đơn giải trình giờ ra cho một phiên chấm công tự do.
+export async function requestSessionCorrectionAction(input: unknown): Promise<ActionResult> {
+  const profile = await requireProfile();
+  const parsed = sessionCorrectionSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" };
+  }
+
+  const supabase = await createClient();
+  // Giờ vào lấy từ database, không nhận từ client: nó neo việc có cuộn giờ ra
+  // sang hôm sau hay không, nên tin một giờ vào do client khai là cho phép đẩy
+  // mốc ra tuỳ ý. RPC cũng kiểm lại quyền sở hữu, đây chỉ để dựng mốc.
+  const { data: session } = await supabase
+    .from("attendance")
+    .select("check_in_at, shift_id")
+    .eq("id", parsed.data.attendance_id)
+    .eq("profile_id", profile.id)
+    .maybeSingle();
+  if (!session) return { ok: false, error: "Không tìm thấy phiên chấm công này" };
+
+  // Neo vào chính giờ vào: phiên này không có ca nào để dựa. usedShiftlessFallback
+  // = true để dùng trần 16 giờ phẳng thay vì cửa sổ end_at + 6 giờ của ca.
+  const requestedCheckOutAt = resolveCheckOutInstant(
+    { start_at: session.check_in_at, end_at: session.check_in_at },
+    parsed.data.check_out_time,
+    session.check_in_at,
+    true
+  );
+
+  const { error } = await supabase.rpc("request_attendance_correction_session", {
+    p_attendance_id: parsed.data.attendance_id,
+    p_requested_check_out_at: requestedCheckOutAt,
+    p_reason: parsed.data.reason,
+  });
+  if (error) return { ok: false, error: mapAttendanceCorrectionError(error.message) };
+
+  revalidateAttendanceCorrectionPaths();
+  // See requestAttendanceCorrectionsAction for why this is wrapped in after().
+  after(() =>
+    sendPushToLeaveApprovers(profile.role, {
+      title: "Đơn giải trình công mới",
+      body: `${profile.full_name} vừa gửi đơn giải trình giờ ra của một phiên chấm công tự do`,
+      url: "/manager",
+      tag: "attendance-correction",
+    })
+  );
+
   return { ok: true, data: undefined };
 }
 

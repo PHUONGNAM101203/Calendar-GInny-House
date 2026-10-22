@@ -43,6 +43,23 @@ export const checkoutCorrectionSchema = z.object({
 });
 export type CheckoutCorrectionInput = z.infer<typeof checkoutCorrectionSchema>;
 
+// Giải trình giờ ra của một phiên chấm công TỰ DO (trợ giảng, không gắn ca).
+// Neo theo attendance_id chứ không theo shift_id — phiên này không có ca. Giờ ra
+// là giờ treo tường "HH:mm"; mốc tuyệt đối do server dựng từ giờ vào của phiên,
+// không nhận từ client (xem resolveCheckOutInstant).
+export const sessionCorrectionSchema = z.object({
+  attendance_id: z.uuid("Vui lòng chọn phiên chấm công cần giải trình"),
+  check_out_time: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Giờ ra không hợp lệ"),
+  reason: z
+    .string()
+    .trim()
+    .min(1, "Vui lòng nhập lý do giải trình")
+    .max(500, "Lý do tối đa 500 ký tự"),
+});
+export type SessionCorrectionInput = z.infer<typeof sessionCorrectionSchema>;
+
 export const correctionPreviewSchema = z.object({
   date: z.string().min(1, "Vui lòng chọn ngày"),
   // Set once the user disambiguates a date carrying more than one shift.

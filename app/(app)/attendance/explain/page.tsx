@@ -12,7 +12,7 @@ export default async function AttendanceExplainPage() {
 
   const { data } = await supabase
     .from("attendance_corrections")
-    .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at)")
+    .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at), attendance:attendance!attendance_id(id, check_in_at, check_out_at)")
     .eq("profile_id", profile.id)
     .order("created_at", { ascending: false });
 

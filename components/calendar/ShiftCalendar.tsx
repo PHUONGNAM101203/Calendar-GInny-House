@@ -61,6 +61,7 @@ import RealtimeClock from "@/components/layout/RealtimeClock";
 import ShiftEventCell from "@/components/calendar/ShiftEventCell";
 import CalendarDayHeader from "@/components/calendar/CalendarDayHeader";
 import CalendarTimeGutterHeader from "@/components/calendar/CalendarTimeGutterHeader";
+import { correctionWindow } from "@/lib/attendance";
 import ShiftFormDialog from "@/components/shifts/ShiftFormDialog";
 import ShiftSeriesFormDialog from "@/components/shifts/ShiftSeriesFormDialog";
 import ShiftDetailDialog from "@/components/shifts/ShiftDetailDialog";
@@ -339,6 +340,8 @@ export default function ShiftCalendar({
   const pendingCorrectionsByShiftId = useMemo(() => {
     const map = new Map<string, AttendanceCorrectionDetailed>();
     for (const c of attendanceCorrections) {
+      // Đơn của phiên chấm công tự do không có ca — nó có bảng tra riêng bên dưới.
+      if (!c.shift_id) continue;
       const existing = map.get(c.shift_id);
       if (!existing || (existing.kind !== "check_in" && c.kind === "check_in")) {
         map.set(c.shift_id, c);
@@ -346,12 +349,33 @@ export default function ShiftCalendar({
     }
     return map;
   }, [attendanceCorrections]);
+  const pendingCorrectionsByAttendanceId = useMemo(() => {
+    const map = new Map<string, AttendanceCorrectionDetailed>();
+    for (const c of attendanceCorrections) {
+      if (c.shift_id || !c.attendance_id) continue;
+      map.set(c.attendance_id, c);
+    }
+    return map;
+  }, [attendanceCorrections]);
   const attendanceEvents = useMemo(
     () =>
       eventToggles.showAttendance
-        ? toAttendanceEvents(visibleAttendance, branchNames, colorFor, pendingCorrectionsByShiftId)
+        ? toAttendanceEvents(
+            visibleAttendance,
+            branchNames,
+            colorFor,
+            pendingCorrectionsByShiftId,
+            pendingCorrectionsByAttendanceId
+          )
         : [],
-    [visibleAttendance, branchNames, colorFor, eventToggles.showAttendance, pendingCorrectionsByShiftId]
+    [
+      visibleAttendance,
+      branchNames,
+      colorFor,
+      eventToggles.showAttendance,
+      pendingCorrectionsByShiftId,
+      pendingCorrectionsByAttendanceId,
+    ]
   );
   // "Nghỉ phép"/"Đến muộn" toggles now only cover approved leave — pending
   // leave moved under the "Cần xét duyệt" toggle below, so a pending
@@ -629,11 +653,15 @@ export default function ShiftCalendar({
   // single-session event carrying just this correction is built directly
   // rather than searched for in the (possibly empty) rendered list.
   function openAttendanceCorrectionDetail(correction: AttendanceCorrectionDetailed) {
+    // Đơn không ca mà phiên cũng đã bị xoá thì không còn gì để mở — bỏ qua
+    // chứ không dựng một hộp thoại rỗng.
+    const window = correctionWindow(correction);
+    if (!window) return;
     setAttendanceDetail({
       id: `attendance-correction-${correction.id}`,
       title: `${correction.profile.full_name} · Giải trình công`,
-      start: new Date(correction.shift.start_at),
-      end: new Date(correction.shift.end_at),
+      start: new Date(window.start),
+      end: new Date(window.end),
       resource: {
         kind: "attendance",
         profileId: correction.profile_id,
@@ -648,7 +676,7 @@ export default function ShiftCalendar({
             // with no attendance row yet — AttendanceDetailDialog only
             // offers edit/delete for a session with a real id.
             id: correction.attendance_id ?? "",
-            checkInAt: correction.actual_check_in_at ?? correction.shift.start_at,
+            checkInAt: correction.actual_check_in_at ?? window.start,
             checkOutAt: null,
             branchName: "—",
             shiftId: correction.shift_id,

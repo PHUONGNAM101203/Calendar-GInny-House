@@ -175,7 +175,7 @@ export default async function CalendarPage({
     // client-side for the sidebar/dialog approve buttons.
     supabase
       .from("attendance_corrections")
-      .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at)")
+      .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at), attendance:attendance!attendance_id(id, check_in_at, check_out_at)")
       .eq("status", "pending")
       .order("created_at", { ascending: false }),
     // Unfiltered on purpose. The table is ~34 rows of national holidays, so

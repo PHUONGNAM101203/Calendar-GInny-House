@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { DatePickerField } from "@/components/ui/date-picker-field";
 import { TimePickerField } from "@/components/ui/time-picker-field";
+import FreeSessionCorrection from "@/components/attendance/FreeSessionCorrection";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
@@ -339,6 +340,12 @@ export default function AttendanceCorrectionForm() {
             )}
 
             {row.loadingPreview && <p className="text-sm text-muted-foreground">Đang kiểm tra...</p>}
+
+            {/* Phiên chấm công tự do của trợ giảng — không gắn ca nên phần xem
+                trước theo ca ở trên không thấy nó. Độc lập với phần ca: một
+                người có thể có cả hai trong cùng một ngày, và component này
+                không vẽ gì khi ngày đó không có phiên tự do. */}
+            <FreeSessionCorrection date={row.date} />
 
             {!row.loadingPreview && row.preview?.kind === "no_shift" && (
               <p className="text-sm text-muted-foreground">Bạn không có ca làm việc vào ngày này.</p>

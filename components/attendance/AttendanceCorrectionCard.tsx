@@ -26,6 +26,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ATTENDANCE_CORRECTION_STATUS_LABELS, ATTENDANCE_CORRECTION_ISSUE_LABELS } from "@/lib/constants";
+import { correctionWindow } from "@/lib/attendance";
 import type { AttendanceCorrectionDetailed } from "@/types";
 
 const ISSUE_ICON = {
@@ -107,11 +108,17 @@ export default function AttendanceCorrectionCard({
   const statusVariant =
     request.status === "approved" ? "success" : request.status === "pending" ? "gold" : "outline";
   const Icon = ISSUE_ICON[request.issue_type];
-  const shiftDate = format(new Date(request.shift.start_at), "EEEE dd/MM/yyyy", { locale: vi });
-  const shiftRange = `${format(new Date(request.shift.start_at), "HH:mm")}–${format(
-    new Date(request.shift.end_at),
-    "HH:mm"
-  )}`;
+  // Đơn không có ca (phiên chấm công tự do của trợ giảng) lấy khung của chính
+  // phiên, và phải nói rõ đó là phiên chứ không phải ca — gọi nó là "Ca ..." sẽ
+  // khiến người duyệt đi tìm một ca không tồn tại.
+  const window = correctionWindow(request);
+  const isShiftless = request.shift === null;
+  const shiftDate = window
+    ? format(new Date(window.start), "EEEE dd/MM/yyyy", { locale: vi })
+    : "Phiên chấm công đã bị xoá";
+  const shiftRange = window
+    ? `${format(new Date(window.start), "HH:mm")}–${format(new Date(window.end), "HH:mm")}`
+    : "";
 
   return (
     <Card
@@ -123,7 +130,8 @@ export default function AttendanceCorrectionCard({
           <p className="flex items-center gap-1.5 text-sm font-medium">
             <Icon className="size-3.5 shrink-0 text-muted-foreground" />
             {showName && `${request.profile.full_name} · `}
-            {shiftDate} · Ca {shiftRange}
+            {shiftDate}
+            {shiftRange && ` · ${isShiftless ? "Chấm công tự do" : "Ca"} ${shiftRange}`}
           </p>
           <p className="text-xs text-muted-foreground">
             {ATTENDANCE_CORRECTION_ISSUE_LABELS[request.issue_type]}

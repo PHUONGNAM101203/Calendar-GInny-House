@@ -264,7 +264,7 @@ export default async function ManagerPage({
       .order("created_at", { ascending: false }),
     supabase
       .from("attendance_corrections")
-      .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at)")
+      .select("*, profile:profiles!profile_id(id, full_name, role), shift:shifts!shift_id(id, start_at, end_at), attendance:attendance!attendance_id(id, check_in_at, check_out_at)")
       .or(recentOrPending)
       .order("created_at", { ascending: false }),
     // Feeds the "Ca làm việc" section (Xoá ca) and the "Giờ đăng ký" column

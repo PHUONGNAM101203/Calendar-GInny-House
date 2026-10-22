@@ -226,7 +226,12 @@ export type AttendanceCorrectionKind = "check_in" | "check_out";
 export type AttendanceCorrection = {
   id: string;
   profile_id: string;
-  shift_id: string;
+  // null với đơn giải trình cho phiên chấm công TỰ DO của trợ giảng (0093):
+  // phiên đó không gắn ca nào nên không có ca để neo. Khi đó attendance_id là
+  // thứ duy nhất nói đơn này nói về phiên nào — nhưng attendance_id lại là ON
+  // DELETE SET NULL, nên một đơn có thể mất cả hai. Người đọc phải chịu được
+  // trường hợp cả hai cùng null chứ không được giả định một trong hai còn.
+  shift_id: string | null;
   attendance_id: string | null;
   issue_type: AttendanceCorrectionIssue;
   kind: AttendanceCorrectionKind;
@@ -246,7 +251,13 @@ export type AttendanceCorrection = {
 
 export type AttendanceCorrectionDetailed = AttendanceCorrection & {
   profile: Pick<Profile, "id" | "full_name" | "role">;
-  shift: Pick<Shift, "id" | "start_at" | "end_at">;
+  /** null với đơn của phiên chấm công tự do — xem AttendanceCorrection.shift_id. */
+  shift: Pick<Shift, "id" | "start_at" | "end_at"> | null;
+  /**
+   * Phiên chấm công mà đơn nhắm tới. Cần cho đơn không có ca: khung giờ của
+   * phiên đó là thứ duy nhất vẽ được lên lịch và đưa vào nội dung thông báo.
+   */
+  attendance: Pick<Attendance, "id" | "check_in_at" | "check_out_at"> | null;
 };
 
 export type LeaveRequestType = "full_day" | "late_arrival" | "early_leave" | "hourly";

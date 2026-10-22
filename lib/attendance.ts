@@ -1,5 +1,5 @@
 import { startOfDay, endOfDay, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays, format, parse } from "date-fns";
-import type { Attendance, LeaveRequest, Profile, Role } from "@/types";
+import type { Attendance, AttendanceCorrectionDetailed, LeaveRequest, Profile, Role } from "@/types";
 
 export type OverviewPeriod = "day" | "month" | "year";
 
@@ -277,4 +277,24 @@ export const OPEN_SESSION_CAP_MS = 12 * 60 * 60_000;
 export function openSessionEnd(checkInAt: string, now: Date): Date {
   const capped = new Date(checkInAt).getTime() + OPEN_SESSION_CAP_MS;
   return new Date(Math.min(now.getTime(), capped));
+}
+
+// Khung giờ mà một đơn giải trình công nói về.
+//
+// Đơn của ca thì là khung của ca. Đơn của phiên chấm công TỰ DO (trợ giảng, 0093)
+// không có ca nào để lấy khung, nên dùng khung của chính phiên: từ giờ vào tới
+// giờ ra đang đề nghị — thứ người duyệt cần nhìn để quyết định.
+//
+// Trả null khi không dựng nổi: đơn không ca mà phiên cũng đã bị xoá
+// (attendance_id là ON DELETE SET NULL). Người gọi phải bỏ qua đơn đó chứ
+// không được giả định luôn có khung — đó chính là chỗ từng sẽ làm sập lịch.
+export function correctionWindow(
+  c: Pick<AttendanceCorrectionDetailed, "shift" | "attendance" | "requested_check_out_at">
+): { start: string; end: string } | null {
+  if (c.shift) return { start: c.shift.start_at, end: c.shift.end_at };
+  if (!c.attendance) return null;
+  return {
+    start: c.attendance.check_in_at,
+    end: c.requested_check_out_at ?? c.attendance.check_out_at ?? c.attendance.check_in_at,
+  };
 }

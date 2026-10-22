@@ -32,6 +32,7 @@ import type {
   SwapRequestDetailed,
 } from "@/types";
 import { canApproveSwapRequestFor } from "@/lib/roles";
+import { correctionWindow } from "@/lib/attendance";
 import type { GroupPermissions } from "@/lib/permissions";
 
 // Local widening of LeaveRequestDetailed's profile pick — the shared type
@@ -564,7 +565,11 @@ export function toAttendanceEvents(
   // 1:many relation — deliberately, since it only drives the informational
   // "has a pending correction" badge and the inline detail beside it. See
   // ShiftCalendar.tsx for how the surviving entry is chosen.
-  pendingCorrectionsByShiftId: Map<string, AttendanceCorrectionDetailed> = new Map()
+  pendingCorrectionsByShiftId: Map<string, AttendanceCorrectionDetailed> = new Map(),
+  // Cho phiên chấm công tự do (không gắn ca): đơn của nó không có shift_id để
+  // tra bảng trên, nên tra theo chính phiên. Thiếu bảng này thì phiên tự do có
+  // đơn chờ duyệt vẫn không hiện nhãn "Chờ duyệt giải trình".
+  pendingCorrectionsByAttendanceId: Map<string, AttendanceCorrectionDetailed> = new Map()
 ): AttendanceCalendarEvent[] {
   const now = new Date();
   const groups = new Map<string, AttendanceWithProfileRole[]>();
@@ -586,7 +591,10 @@ export function toAttendanceEvents(
     for (const r of open) {
       const start = new Date(r.check_in_at);
       const minutes = (now.getTime() - start.getTime()) / 60000;
-      const correction = r.shift_id ? (pendingCorrectionsByShiftId.get(r.shift_id) ?? null) : null;
+      const correction =
+        (r.shift_id ? pendingCorrectionsByShiftId.get(r.shift_id) : undefined) ??
+        pendingCorrectionsByAttendanceId.get(r.id) ??
+        null;
       events.push({
         id: `attendance-open-${r.id}`,
         title: `${name} · Đang chấm công`,
@@ -623,7 +631,10 @@ export function toAttendanceEvents(
           checkOutAt: r.check_out_at,
           branchName: branchNames.get(r.branch_id) ?? "—",
           shiftId: r.shift_id,
-          correction: r.shift_id ? (pendingCorrectionsByShiftId.get(r.shift_id) ?? null) : null,
+          correction:
+            (r.shift_id ? pendingCorrectionsByShiftId.get(r.shift_id) : undefined) ??
+            pendingCorrectionsByAttendanceId.get(r.id) ??
+            null,
         }))
         .sort((a, b) => a.checkInAt.localeCompare(b.checkInAt));
       // Cắt thành từng mạch liền nhau thay vì một thẻ cho cả ngày.
@@ -837,17 +848,26 @@ export function toAttendanceCorrectionPendingEvents(
   corrections: AttendanceCorrectionDetailed[],
   colorFor: (profileId: string) => string
 ): AttendanceCorrectionPendingEvent[] {
-  return corrections
-    .filter((c) => c.status === "pending")
-    .map((c) => ({
+  const events: AttendanceCorrectionPendingEvent[] = [];
+  for (const c of corrections) {
+    if (c.status !== "pending") continue;
+    const window = correctionWindow(c);
+    // Đơn không ca mà phiên cũng mất thì không có gì để vẽ — bỏ qua, không sập.
+    if (!window) continue;
+    const start = new Date(c.actual_check_in_at ?? window.start);
+    const end = new Date(window.end);
+    events.push({
       id: `attendance-correction-pending-${c.id}`,
       title: `Chờ duyệt giải trình · ${c.profile.full_name}`,
-      start: new Date(c.actual_check_in_at ?? c.shift.start_at),
-      end: new Date(c.shift.end_at),
+      start,
+      // Đơn giờ ra mà giờ đề nghị trùng giờ vào thì vẫn phải có chiều cao để bấm.
+      end: end > start ? end : new Date(start.getTime() + 15 * 60_000),
       resource: {
         kind: "attendance_correction_pending" as const,
         correction: c,
         colorVar: colorFor(c.profile_id),
       },
-    }));
+    });
+  }
+  return events;
 }
