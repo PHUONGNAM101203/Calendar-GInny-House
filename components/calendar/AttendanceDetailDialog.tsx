@@ -199,18 +199,20 @@ export default function AttendanceDetailDialog({
               <li key={i} className="rounded-md border bg-muted/40 p-2.5 text-sm">
                 {editingId === s.id ? (
                   <div className="space-y-2">
-                    {/* Chỉ phiên chấm công TỰ DO mới cho chọn ngày. Phiên gắn
-                        với một ca đã biết mình thuộc ca nào, ngày là cố định
-                        theo ca đó — mở ô ngày ở đấy chỉ tạo đường kéo lệch
-                        chấm công ra khỏi ca của nó. */}
-                    {s.shiftId === null && (
-                      <DatePickerField
-                        id={`edit-date-${s.id}`}
-                        label="Ngày chấm công"
-                        value={editDate}
-                        onChange={setEditDate}
-                      />
-                    )}
+                    {/* Mọi phiên đều chọn được ngày. Trước đây chỉ phiên tự do
+                        có ô này, còn phiên gắn ca bị khoá ngày theo ca — nhưng
+                        chấm công vẫn có thể bị ghi sai ngày, và người sửa khi
+                        đó không có cách nào chỉnh. Phía server không có chốt
+                        nào buộc giờ sửa phải nằm trong ngày của ca, và mỗi lần
+                        sửa đều báo lại cho người đó "trước → sau", nên mở ô
+                        này không giấu được thay đổi. Mặc định là ngày vào ca,
+                        nên không đụng tới thì ngày giữ nguyên. */}
+                    <DatePickerField
+                      id={`edit-date-${s.id}`}
+                      label="Ngày chấm công"
+                      value={editDate}
+                      onChange={setEditDate}
+                    />
                     <div className="grid grid-cols-2 gap-2">
                       <TimePickerField id={`edit-checkin-${s.id}`} label="Vào" value={editCheckIn} onChange={setEditCheckIn} />
                       <TimePickerField id={`edit-checkout-${s.id}`} label="Ra" value={editCheckOut} onChange={setEditCheckOut} />
@@ -227,7 +229,10 @@ export default function AttendanceDetailDialog({
                           thì số giờ vẫn tính bắc cầu từ hôm trước sang.
                         </>
                       ) : (
-                        <>Ca này đã gắn sẵn ngày theo ca đăng ký, chỉ cần sửa giờ.</>
+                        <>
+                          Ngày mặc định là ngày vào ca. Chỉ đổi ngày khi chấm công bị ghi nhầm
+                          ngày — phiên này vẫn thuộc ca đã đăng ký.
+                        </>
                       )}{" "}
                       Giờ ra sớm hơn hoặc bằng giờ vào được hiểu là ca qua đêm, tự tính sang hôm
                       sau.

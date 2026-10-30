@@ -194,6 +194,7 @@ export default function ShiftCalendar({
   // but the sidebar treats CS1/CS2/CS3/Remote as 4 sibling categories).
   const [hiddenBranchKeys, setHiddenBranchKeys] = useState<Set<string>>(new Set());
   const [eventToggles, setEventToggles] = useState({
+    showShifts: true,
     showAttendance: true,
     showLeave: true,
     showLateArrival: true,
@@ -302,12 +303,22 @@ export default function ShiftCalendar({
   const visibleShiftEvents = useMemo(
     () =>
       shiftEvents.filter((event) => {
+        // Công tắc tổng "Ca đã đăng ký" đứng trước hai bộ lọc theo vai trò: tắt
+        // nó là ẩn mọi ca đã được xếp/duyệt, để lịch chỉ còn chấm công, nghỉ
+        // phép... Ô "Ca trống" của ca cố định không nằm dưới công tắc này — đó
+        // là chỗ còn thiếu người chứ không phải ca đã đăng ký.
+        if (!eventToggles.showShifts) return false;
         const kind = computeShiftKind(event.resource.shift, event.resource.shift.assignee);
         if (kind === "student_affairs") return eventToggles.showStudentAffairsShifts;
         if (kind === "receptionist") return eventToggles.showReceptionShifts;
         return true;
       }),
-    [shiftEvents, eventToggles.showStudentAffairsShifts, eventToggles.showReceptionShifts]
+    [
+      shiftEvents,
+      eventToggles.showShifts,
+      eventToggles.showStudentAffairsShifts,
+      eventToggles.showReceptionShifts,
+    ]
   );
   // Week and day view have an hour grid to shade, so a holiday paints there
   // as a pale full-column block behind the shifts (backgroundEvents, below).

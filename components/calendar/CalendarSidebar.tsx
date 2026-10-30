@@ -54,6 +54,8 @@ type Person = { id: string; name: string; followed: boolean; color: string | nul
 type PersonGroup = { key: string; label: string; people: Person[] };
 
 type EventTypeToggles = {
+  /** Ca đã được duyệt/xếp (các dòng trong bảng shifts). */
+  showShifts: boolean;
   showAttendance: boolean;
   showLeave: boolean;
   showLateArrival: boolean;
@@ -847,6 +849,12 @@ function SidebarContent({
         />
         {!eventTypesCollapsed && (
           <ul id="sidebar-section-event-types" className="space-y-1.5 text-sm">
+            <CalendarCheckItem
+              label="Ca đã đăng ký"
+              checked={eventToggles.showShifts}
+              onChange={(v) => onEventTogglesChange({ ...eventToggles, showShifts: v })}
+              colorVar="--chart-1"
+            />
             <CalendarCheckItem
               label="Chấm công"
               checked={eventToggles.showAttendance}
