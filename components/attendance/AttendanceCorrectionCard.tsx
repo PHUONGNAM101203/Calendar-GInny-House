@@ -152,6 +152,12 @@ export default function AttendanceCorrectionCard({
                 {request.requested_check_in_at && (
                   <> · Sửa về {format(new Date(request.requested_check_in_at), "HH:mm")}</>
                 )}
+                {/* Đơn giờ vào của phiên chấm công tự do (0094) mang luôn giờ ra.
+                    Không hiện thì người duyệt chỉ thấy một nửa đơn và không biết
+                    mình đang duyệt cả hai đầu. */}
+                {isShiftless && request.requested_check_out_at && (
+                  <> · giờ ra {format(new Date(request.requested_check_out_at), "HH:mm")}</>
+                )}
               </>
             )}
           </p>

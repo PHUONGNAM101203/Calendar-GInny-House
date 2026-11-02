@@ -854,7 +854,10 @@ export function toAttendanceCorrectionPendingEvents(
     const window = correctionWindow(c);
     // Đơn không ca mà phiên cũng mất thì không có gì để vẽ — bỏ qua, không sập.
     if (!window) continue;
-    const start = new Date(c.actual_check_in_at ?? window.start);
+    // Đơn có ca giữ cách cũ (giờ chấm thực tế nếu có). Đơn phiên tự do dùng khung
+    // đề nghị mà correctionWindow đã dựng — giờ vào thực tế của nó là giờ muộn
+    // mà người ta đang xin sửa, không phải thứ cần vẽ.
+    const start = new Date(c.shift ? (c.actual_check_in_at ?? window.start) : window.start);
     const end = new Date(window.end);
     events.push({
       id: `attendance-correction-pending-${c.id}`,

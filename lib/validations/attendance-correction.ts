@@ -49,6 +49,12 @@ export type CheckoutCorrectionInput = z.infer<typeof checkoutCorrectionSchema>;
 // không nhận từ client (xem resolveCheckOutInstant).
 export const sessionCorrectionSchema = z.object({
   attendance_id: z.uuid("Vui lòng chọn phiên chấm công cần giải trình"),
+  // Giờ vào đề nghị — chỉ gửi khi người dùng THẬT SỰ đổi giờ vào (chấm vào muộn
+  // rồi khai lại). Bỏ trống là chỉ sửa giờ ra, đúng hành vi của 0093.
+  check_in_time: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Giờ vào không hợp lệ")
+    .optional(),
   check_out_time: z
     .string()
     .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Giờ ra không hợp lệ"),

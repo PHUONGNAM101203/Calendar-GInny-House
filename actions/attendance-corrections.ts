@@ -213,6 +213,9 @@ function mapAttendanceCorrectionError(message: string): string {
     "Phiên chấm công tự do không thể dài quá 16 giờ",
     "Giờ ra đề nghị trùng với giờ đang ghi nhận",
     "Phiên này đã có đơn giải trình giờ ra đang chờ duyệt",
+    "Phiên này đã có đơn giải trình đang chờ duyệt",
+    "Giờ vào đề nghị phải sớm hơn giờ đang ghi nhận",
+    "Khung giờ đề nghị trùng với một lần chấm công khác của bạn",
     "Không tìm thấy bản ghi chấm công liên quan — vui lòng gửi lại đơn",
     "Giờ ra không còn hợp lệ so với giờ vào đã được sửa — vui lòng gửi lại đơn",
     "Nhân viên đang có ca chưa chấm công ra — không thể khôi phục tự động",
@@ -609,7 +612,6 @@ export async function listFreeSessionsAction(input: unknown): Promise<ActionResu
     .from("attendance_corrections")
     .select("attendance_id")
     .eq("status", "pending")
-    .eq("kind", "check_out")
     .in(
       "attendance_id",
       sessions.map((s) => s.id)
@@ -648,12 +650,28 @@ export async function requestSessionCorrectionAction(input: unknown): Promise<Ac
     .maybeSingle();
   if (!session) return { ok: false, error: "Không tìm thấy phiên chấm công này" };
 
-  // Neo vào chính giờ vào: phiên này không có ca nào để dựa. usedShiftlessFallback
-  // = true để dùng trần 16 giờ phẳng thay vì cửa sổ end_at + 6 giờ của ca.
+  // Giờ vào đề nghị nằm CÙNG ngày (giờ Việt Nam) với giờ vào đang ghi nhận: người
+  // chấm vào muộn khai lại giờ sớm hơn trong đúng buổi đó. Dựng ở server từ ngày
+  // của phiên chứ không nhận mốc tuyệt đối từ client.
+  const checkInDate = formatInVietnamDate(session.check_in_at);
+  const requestedCheckInAt = parsed.data.check_in_time
+    ? `${checkInDate}T${parsed.data.check_in_time}:00+07:00`
+    : null;
+  // Chỉ gửi khi thật sự khác giờ đang ghi nhận. Form điền sẵn giờ hiện có, nên
+  // gửi thẳng mọi giá trị sẽ biến "không đụng tới giờ vào" thành một đơn sửa giờ
+  // vào sai và bị RPC từ chối là "phải sớm hơn".
+  const changesCheckIn =
+    requestedCheckInAt !== null &&
+    new Date(requestedCheckInAt).getTime() !== new Date(session.check_in_at).getTime();
+
+  // Giờ ra neo theo giờ vào SAU KHI sửa — đó là mốc quyết định có cuộn sang hôm
+  // sau hay không. usedShiftlessFallback = true: trần 16 giờ phẳng, không có cửa
+  // sổ end_at + 6 giờ của ca.
+  const anchorIn = changesCheckIn ? requestedCheckInAt! : session.check_in_at;
   const requestedCheckOutAt = resolveCheckOutInstant(
-    { start_at: session.check_in_at, end_at: session.check_in_at },
+    { start_at: anchorIn, end_at: anchorIn },
     parsed.data.check_out_time,
-    session.check_in_at,
+    anchorIn,
     true
   );
 
@@ -661,6 +679,7 @@ export async function requestSessionCorrectionAction(input: unknown): Promise<Ac
     p_attendance_id: parsed.data.attendance_id,
     p_requested_check_out_at: requestedCheckOutAt,
     p_reason: parsed.data.reason,
+    p_requested_check_in_at: changesCheckIn ? requestedCheckInAt : null,
   });
   if (error) return { ok: false, error: mapAttendanceCorrectionError(error.message) };
 

@@ -289,12 +289,16 @@ export function openSessionEnd(checkInAt: string, now: Date): Date {
 // (attendance_id là ON DELETE SET NULL). Người gọi phải bỏ qua đơn đó chứ
 // không được giả định luôn có khung — đó chính là chỗ từng sẽ làm sập lịch.
 export function correctionWindow(
-  c: Pick<AttendanceCorrectionDetailed, "shift" | "attendance" | "requested_check_out_at">
+  c: Pick<
+    AttendanceCorrectionDetailed,
+    "shift" | "attendance" | "requested_check_in_at" | "requested_check_out_at"
+  >
 ): { start: string; end: string } | null {
   if (c.shift) return { start: c.shift.start_at, end: c.shift.end_at };
   if (!c.attendance) return null;
   return {
-    start: c.attendance.check_in_at,
+    // Đơn giờ vào đề nghị một giờ vào sớm hơn: khung cần xem là khung ĐỀ NGHỊ.
+    start: c.requested_check_in_at ?? c.attendance.check_in_at,
     end: c.requested_check_out_at ?? c.attendance.check_out_at ?? c.attendance.check_in_at,
   };
 }

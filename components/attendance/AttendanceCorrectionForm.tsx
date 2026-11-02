@@ -345,11 +345,11 @@ export default function AttendanceCorrectionForm() {
                 trước theo ca ở trên không thấy nó. Độc lập với phần ca: một
                 người có thể có cả hai trong cùng một ngày, và component này
                 không vẽ gì khi ngày đó không có phiên tự do. */}
-            <FreeSessionCorrection date={row.date} />
+            <FreeSessionCorrection
+              date={row.date}
+              noShift={!row.loadingPreview && row.preview?.kind === "no_shift"}
+            />
 
-            {!row.loadingPreview && row.preview?.kind === "no_shift" && (
-              <p className="text-sm text-muted-foreground">Bạn không có ca làm việc vào ngày này.</p>
-            )}
             {!row.loadingPreview && row.preview?.kind === "no_discrepancy" && (
               <p className="text-sm text-muted-foreground">
                 Bạn đã chấm công đúng giờ ngày này, không cần giải trình.
